@@ -1945,13 +1945,23 @@ MODULE m_rhs
     
                     ! Applying source terms to the RHS of the advection equations
                     IF(riemann_solver == 1) THEN
+                        !HLL, no K \div(u) so this just adds (subtracts?)
+                        ! \alpha_i \div(u) to RHS of \alpha_i transport equation
                         DO j = adv_idx%beg, adv_idx%end
                             DO k = 0, m
                                 rhs_vf(j)%sf(k,:,:) = &
+                                ! shouldn't cont_idx%end+adv_idx be out of bounds?
                                 rhs_vf(j)%sf(k,:,:) + 1d0/dx(k) * &
                                 q_prim_qp(0,0,0)%vf(cont_idx%end+i)%sf(k,0:n,0:p) * &
                                 ( flux_src_ndqp(i,0,0)%vf(j)%sf(k-1,0:n,0:p) &
                                 - flux_src_ndqp(i,0,0)%vf(j)%sf( k ,0:n,0:p) )
+
+                            ! HLLC Version: different in strang ways. sign on div u seems correct here, not above
+                            !     rhs_vf(j)%sf(k,:,:) = &
+                            !     rhs_vf(j)%sf(k,:,:) + 1d0/dx(k) * &
+                            !     q_cons_qp(0,0,0)%vf(j)%sf(k,0:n,0:p) * &
+                            !     ( flux_src_ndqp(i,0,0)%vf(j)%sf( k ,0:n,0:p) &
+                            !     - flux_src_ndqp(i,0,0)%vf(j)%sf(k-1,0:n,0:p) )
                             END DO
                         END DO
                     ELSE
@@ -2050,7 +2060,7 @@ MODULE m_rhs
 
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
-                        
+
                         ix%beg = -buff_size; iy%beg = 0; iz%beg = 0
                 
                         IF(n > 0) iy%beg = -buff_size; IF(p > 0) iz%beg = -buff_size
@@ -2267,6 +2277,7 @@ MODULE m_rhs
                
                ! RHS Contribution in y-direction ===============================
                 ELSEIF(i == 2) THEN
+
                     ! Compute upwind slope and flux limiter function value if TVD
                     ! flux limiter is chosen
                     
@@ -2402,7 +2413,9 @@ MODULE m_rhs
 
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
+
                         DO k = 0, n
+
                             j = stress_idx%beg
 
                             rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
