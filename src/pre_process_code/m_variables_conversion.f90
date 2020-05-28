@@ -389,7 +389,7 @@ MODULE m_variables_conversion
                                 nRtmp(i) = q_cons_vf(bub_idx%rs(i))%sf(j,k,l)
                             END DO
                             CALL s_comp_n_from_cons( q_cons_vf(alf_idx)%sf(j,k,l), nRtmp, nbub)
-                            DO i = bub_idx%beg, sys_size
+                            DO i = bub_idx%beg, bub_idx%end
                                 q_prim_vf(i)%sf(j,k,l) = q_cons_vf(i)%sf(j,k,l)/nbub
                             END DO
                         END IF
@@ -493,7 +493,7 @@ MODULE m_variables_conversion
                             END DO
                             CALL s_comp_n_from_prim( q_prim_vf(alf_idx)%sf(j,k,l), Rtmp, nbub)
 
-                            DO i = bub_idx%beg, sys_size
+                            DO i = bub_idx%beg, bub_idx%end
                                 q_cons_vf(i)%sf(j,k,l) = q_prim_vf(i)%sf(j,k,l)*nbub
                             END DO
                         END IF
