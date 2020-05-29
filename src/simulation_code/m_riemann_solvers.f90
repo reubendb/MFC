@@ -270,6 +270,7 @@ MODULE m_riemann_solvers
     REAL(KIND(0d0)),              DIMENSION(2)   ::        Re_L,        Re_R
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:,:) ::        We_L,        We_R
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:)   ::     tau_e_L,     tau_e_R
+    REAL(KIND(0d0))                              ::         G_L,         G_R
 
     !> @}
 
@@ -2533,11 +2534,13 @@ MODULE m_riemann_solvers
             CALL s_convert_to_mixture_variables(  qL_prim_rs_vf, &
                                                  rho_L, gamma_L, &
                                                  pi_inf_L, Re_L, &
-                                                  We_L,  j ,k,l  )
+                                                  We_L,  j ,k,l, &
+                                                 G_L, fluid_pp(:)%G )
             CALL s_convert_to_mixture_variables(  qR_prim_rs_vf, &
                                                  rho_R, gamma_R, &
                                                  pi_inf_R, Re_R, &
-                                                  We_R, j+1,k,l  )
+                                                  We_R, j+1,k,l, &
+                                                 G_R, fluid_pp(:)%G )
             
             E_L = gamma_L*pres_L + pi_inf_L + 5d-1*rho_L*SUM(vel_L**2d0)
             E_R = gamma_R*pres_R + pi_inf_R + 5d-1*rho_R*SUM(vel_R**2d0)
@@ -2686,11 +2689,13 @@ MODULE m_riemann_solvers
             CALL s_convert_to_mixture_variables(  qL_prim_rs_vf, &
                                                  rho_L, gamma_L, &
                                                  pi_inf_L, Re_L, &
-                                                  We_L,  j ,k,l  )
+                                                  We_L,  j ,k,l, &
+                                                 G_L, fluid_pp(:)%G )
             CALL s_convert_to_mixture_variables(  qR_prim_rs_vf, &
                                                  rho_R, gamma_R, &
                                                  pi_inf_R, Re_R, &
-                                                  We_R, j+1,k,l  )
+                                                  We_R, j+1,k,l, &
+                                                 G_R, fluid_pp(:)%G )
 
             pres_L = qL_prim_rs_vf(E_idx)%sf( j ,k,l)
             pres_R = qR_prim_rs_vf(E_idx)%sf(j+1,k,l)
@@ -2888,10 +2893,25 @@ MODULE m_riemann_solvers
                   
                 END DO
             END IF
-            
-            s_L = MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R) 
-            s_R = MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L) 
-            
+
+            ! modify wave speeds with elastic contribution if hypoelasticity = T            
+            IF (hypoelasticity) THEN
+
+!                DO i = 1,num_fluids
+!                    G_L = G_L + alpha_L(i)*fluid_pp(i)%G
+!                    G_R = G_R + alpha_R(i)*fluid_pp(i)%G
+!                END DO
+
+                s_L = MIN(vel_L(dir_idx(1)) - SQRT(c_L*c_L + ((4d0*G_L)/3d0)/rho_L) &
+                         ,vel_R(dir_idx(1)) - SQRT(c_R*c_R + ((4d0*G_R)/3d0)/rho_R))
+                s_R = MAX(vel_R(dir_idx(1)) + SQRT(c_R*c_R + ((4d0*G_R)/3d0)/rho_R) &
+                         ,vel_L(dir_idx(1)) + SQRT(c_L*c_L + ((4d0*G_L)/3d0)/rho_L))
+
+            ELSE
+                s_L = MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R) 
+                s_R = MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L) 
+            END IF
+
             s_S = ( pres_R - pres_L - dpres_We + rho_L*vel_L(dir_idx(1))  * &
                                                 (s_L - vel_L(dir_idx(1))) - &
                                                  rho_R*vel_R(dir_idx(1))  * &
