@@ -2902,16 +2902,16 @@ MODULE m_riemann_solvers
 !                    G_R = G_R + alpha_R(i)*fluid_pp(i)%G
 !                END DO
 
-!                s_L = MIN(vel_L(dir_idx(1)) - SQRT(c_L*c_L + & 
-!                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L) &
-!                         ,vel_R(dir_idx(1)) - SQRT(c_R*c_R + &
-!                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_R))
-!                s_R = MAX(vel_R(dir_idx(1)) + SQRT(c_R*c_R + &
-!                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_R) &
-!                         ,vel_L(dir_idx(1)) + SQRT(c_L*c_L + &
-!                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L))
-!
-!            ELSE
+                s_L = MIN(vel_L(dir_idx(1)) - SQRT(c_L*c_L + & 
+                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L) &
+                         ,vel_R(dir_idx(1)) - SQRT(c_R*c_R + &
+                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_R))
+                s_R = MAX(vel_R(dir_idx(1)) + SQRT(c_R*c_R + &
+                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_R) &
+                         ,vel_L(dir_idx(1)) + SQRT(c_L*c_L + &
+                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L))
+
+            ELSE
                 s_L = MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R) 
                 s_R = MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L) 
             END IF
