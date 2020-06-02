@@ -1251,7 +1251,7 @@ MODULE m_rhs
                                                                  iz%beg:iz%end ))
                                     END DO
                                 END IF
-                                                            
+ 
                                 ALLOCATE(flux_src_ndqp(i,j,k)%vf(adv_idx%beg)%sf(       &
                                                                    ix%beg:ix%end,   &
                                                                    iy%beg:iy%end,   &
@@ -1564,7 +1564,8 @@ MODULE m_rhs
             ! Computing Velocity Gradients =
 
 
-            IF (any(Re_size > 0) .OR. hypoelasticity) CALL s_get_viscous(q_cons_vf,q_prim_vf,rhs_vf)
+           ! IF (any(Re_size > 0) .OR. hypoelasticity) CALL s_get_viscous(q_cons_vf,q_prim_vf,rhs_vf)
+            IF (any(Re_size > 0)) CALL s_get_viscous(q_cons_vf,q_prim_vf,rhs_vf)
             
             ! Dimensional Splitting Loop =======================================
             DO i = 1, num_dims
@@ -1736,11 +1737,13 @@ MODULE m_rhs
                 ! ===============================================================
                 
                 ! Reconstructing First-Order Spatial Derivatives of Velocity ====
-                IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
+!                IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
+                IF (ANY(Re_size > 0)) THEN
 
                     iv%beg = mom_idx%beg; iv%end = mom_idx%end
 
-                    IF (weno_Re_flux .OR. hypoelasticity) THEN
+!                    IF (weno_Re_flux .OR. hypoelasticity) THEN
+                    IF (weno_Re_flux) THEN
 
                         CALL s_reconstruct_cell_boundary_values(         &
                                  dq_prim_dx_qp(0,0,0)%vf(iv%beg:iv%end), &
@@ -2061,19 +2064,55 @@ MODULE m_rhs
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
 
-                        ix%beg = -buff_size; iy%beg = 0; iz%beg = 0
+                        ix%beg = -buff_size; iy%beg = -2; iz%beg = -2
                 
                         IF(n > 0) iy%beg = -buff_size; IF(p > 0) iz%beg = -buff_size
                 
                         ix%end = m - ix%beg; iy%end = n - iy%beg; iz%end = p - iz%beg 
 
-                           iv%beg = mom_idx%beg; iv%end = mom_idx%end
+                        iv%beg = mom_idx%beg; iv%end = mom_idx%end
 
-                            CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                   qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                   dq_prim_dx_qp(0,0,0)%vf(iv%beg:iv%end), 1)
-                           
-                            CALL s_reconstruct_cell_interior_values(dq_prim_dx_qp) 
+
+                            ! Old method
+!                            CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
+!                                                                   qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
+!                                                                   dq_prim_dx_qp(0,0,0)%vf(iv%beg:iv%end), 1)
+
+                            ! Using 4th order accurate central finite diff for velocity gradient calculation
+!                            CALL s_compute_hypo_gradients(q_prim_qp(0,0,0)%vf(mom_idx%beg),     &
+!                                                          dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg), &
+!                                                          dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg), &
+!                                                          dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg) )
+
+                        ! calculating derivatives (4th order central fin diff)
+                        DO j = ix%beg+2, ix%end-2   
+                            DO k = iy%beg+2, iy%end-2
+                                DO l = iz%beg+2, iz%end-2
+                                    dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) = &
+                                        ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j-2,k,l)         &
+                                        - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j-1,k,l)   &
+                                        + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+1,k,l)   &
+                                        - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+2,k,l) )       &
+                                        / (12d0*(x_cc(j+1) - x_cc(j)))
+                                    IF (n > 0) THEN
+                                        dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) =           &
+                                            ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k-2,l)         &
+                                            - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k-1,l)   &
+                                            + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k+1,l)   &
+                                            - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k+2,l) )       &
+                                            / (12d0*(y_cc(k+1) - y_cc(k)))
+                                        IF (p > 0) THEN
+                                            dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) = &
+                                                ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l-2)         &
+                                                - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l-1)   &
+                                                + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+1)   &
+                                                - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+2) )       &
+                                                / (12d0*(z_cc(l+1) - x_cc(l)))
+                                        END IF
+                                    END IF
+                                END DO
+                            END DO
+                        END DO
 
                             ! Building shear modulus and viscosity mixture variable fields (dimension m*n*p)
                             DO j = 0,m
@@ -2091,18 +2130,19 @@ MODULE m_rhs
                             DO k = 0,m
 
                             j = stress_idx%beg
-                           
+
                             rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
                             (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                            2.0 * G_K_field(k,0:n,0:p) * (2.0/3.0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) )
+                            2.0 * G_K_field(k,0:n,0:p) * (2.0/3.0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p)
 
                             IF (n > 0) THEN
 
-                                CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                       qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                       dq_prim_dy_qp(0,0,0)%vf(iv%beg:iv%end), 2)
-
-                                CALL s_reconstruct_cell_interior_values(dq_prim_dy_qp)
+                                ! Old method
+!                                CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
+!                                                                       qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
+!                                                                       dq_prim_dy_qp(0,0,0)%vf(iv%beg:iv%end), 2)
+!
+!                                CALL s_reconstruct_cell_interior_values(dq_prim_dy_qp)
 
                                 j = stress_idx%beg
                                 rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
@@ -4138,7 +4178,57 @@ MODULE m_rhs
 
         END SUBROUTINE s_compute_fd_gradient ! --------------------------------------
 
+        !>  This routine computes the velocity gradients necessary in
+        !!      the elastic shear stress rhs via 4th order accurate
+        !!      central finite differences
+        !!      @param var Variable to compute gradient of
+        !!      @param grad_x d/dx
+        !!      @param grad_y d/dy
+        !!      @param grad_z d/dz
+        SUBROUTINE s_compute_hypo_gradients(var,grad_x,grad_y,grad_z)
 
+            TYPE(scalar_field), INTENT(IN)  :: var
+            TYPE(scalar_field), INTENT(INOUT) :: grad_x
+            TYPE(scalar_field), INTENT(INOUT) :: grad_y
+            TYPE(scalar_field), INTENT(INOUT) :: grad_z
+
+            TYPE(bounds_info) :: ix,iy,iz
+
+            INTEGER :: j,k,l !< Generic loop iterators
+
+            ix%beg = -buff_size; ix%end = m + buff_size;
+            IF (n > 0) THEN
+                iy%beg = -buff_size; iy%end = n + buff_size
+                IF (p > 0) THEN
+                    iz%beg = -buff_size; iz%end = p + buff_size
+                ELSE
+                    iz%beg = -2; iz%end = 2
+                END IF
+            ELSE
+                iy%beg = -2; iy%end = 2
+            END IF
+
+            DO j = ix%beg+2, ix%end-2
+                DO k = iy%beg+2, iy%end-2
+                    DO l = iz%beg+2, iz%end-2
+                        grad_x%sf(j,k,l) = ( var%sf(j-2,k,l) - 8d0*var%sf(j-1,k,l)   &
+                                           - var%sf(j+2,k,l) + 8d0*var%sf(j+1,k,l) ) &
+                                           / (12d0*(x_cc(j+1) - x_cc(j)))
+                        IF (n > 0) THEN
+                            grad_y%sf(j,k,l) = ( var%sf(j,k-2,l) - 8d0*var%sf(j,k-1,l)   &
+                                               - var%sf(j,k+2,l) + 8d0*var%sf(j,k+1,l) ) &
+                                               / (12d0*(y_cc(k+1) - y_cc(k)))
+                            IF (p > 0) THEN
+                                grad_z%sf(j,k,l) = ( var%sf(j,k,l-2) - 8d0*var%sf(j,k,l-1)   &
+                                                   - var%sf(j,k,l+2) + 8d0*var%sf(j,k,l+1) ) &
+                                                   / (12d0*(z_cc(l+1) - z_cc(l)))
+                            END IF
+                        END IF
+                    END DO
+                END DO
+            END DO
+
+        END SUBROUTINE s_compute_hypo_gradients
 
         !>  The purpose of this procedure is to infinitely relax
         !!      the pressures from the internal-energy equations to a
@@ -7086,12 +7176,12 @@ MODULE m_rhs
                                     DEALLOCATE(flux_gsrc_ndqp(i,j,k)%vf(l)%sf)
                                 END DO
                            
-                                IF(ANY(Re_size > 0) .OR. We_size > 0) THEN
+                                IF(ANY(Re_size > 0) .OR. We_size > 0 .OR. hypoelasticity) THEN
                                     DO l = mom_idx%beg, E_idx
                                         DEALLOCATE(flux_src_ndqp(i,j,k)%vf(l)%sf)
                                     END DO
                                 END IF
-                           
+
                                 IF(riemann_solver == 1) THEN
                                     DO l = adv_idx%beg+1, adv_idx%end
                                         DEALLOCATE(flux_src_ndqp(i,j,k)%vf(l)%sf)

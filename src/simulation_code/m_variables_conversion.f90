@@ -399,6 +399,7 @@ MODULE m_variables_conversion
                 DO i = 1, num_fluids
                     G_K = G_K + alpha_K(i)*G(i)
                 END DO
+                G_K = MAX(0d0,G_K)
             END IF
  
         END SUBROUTINE s_convert_species_to_mixture_variables ! ----------------
