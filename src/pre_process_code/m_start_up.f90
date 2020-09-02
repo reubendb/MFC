@@ -979,6 +979,16 @@ MODULE m_start_up
                                       'and fluid_pp(',i,')%'     // &
                                       'pi_inf. Exiting ...'
                     CALL s_mpi_abort()
+                ELSEIF(         model_eqns == 3         &
+                                     .AND.              &
+                        fluid_pp(i)%pi_inf /= dflt_real &
+                                     .AND.              &
+                        fluid_pp(i)%qv ==  dflt_real ) THEN
+                    PRINT '(A,I0,A)', 'Unsupported combination ' // &
+                                      'of values of model_eqns ' // &
+                                      'and fluid_pp(',i,')%'     // &
+                                      'pi_inf. Exiting ...'
+                    CALL s_mpi_abort()
                 ELSEIF((i <= num_fluids+bub_fac .AND. fluid_pp(i)%pi_inf <     0d0   ) &
                                                 .OR.                           &
                        (i >  num_fluids+bub_fac .AND. fluid_pp(i)%pi_inf /= dflt_real))&

@@ -78,9 +78,7 @@ PROGRAM p_main
     ! ==========================================================================
     
     IMPLICIT NONE
-
-
-    
+   
     INTEGER :: t_step !< Iterator for the time-stepping loop
 
     CALL system_clock(COUNT=cpu_start, COUNT_RATE=cpu_rate)
@@ -99,7 +97,7 @@ PROGRAM p_main
         CALL s_read_input_file()
         CALL s_check_input_file()
     END IF
-    print*, 'Read input file'
+    IF(proc_rank == 1) PRINT *, 'Read input file'
    
     ! Broadcasting the user inputs to all of the processors and performing the
     ! parallel computational domain decomposition. Neither procedure has to be
@@ -107,7 +105,7 @@ PROGRAM p_main
     CALL s_mpi_bcast_user_inputs()
     CALL s_initialize_parallel_io()
     CALL s_mpi_decompose_computational_domain()
-    print*, 'Broadcast'
+    IF(proc_rank == 1) PRINT *, 'Broadcast'
     
     ! Computation of parameters, allocation of memory, association of pointers,
     ! and/or the execution of any other tasks needed to properly configure the
@@ -123,8 +121,7 @@ PROGRAM p_main
     CALL s_initialize_derived_variables_module()
     CALL s_initialize_time_steppers_module()    
     IF (qbmm) CALL s_initialize_qbmm_module()
-
-    print*, 'Initialize'
+    IF(proc_rank == 1) PRINT *, 'Initialize'
     
     ! Associate pointers for serial or parallel I/O
     IF (parallel_io .NEQV. .TRUE.) THEN
@@ -175,9 +172,6 @@ PROGRAM p_main
         END IF
         mytime = mytime + dt
 
-        CALL s_compute_derived_variables(t_step)
-        IF (DEBUG) PRINT*, 'Computed derived vars'
-
         ! Total-variation-diminishing (TVD) Runge-Kutta (RK) time-steppers
         IF(time_stepper == 1) THEN
             CALL s_1st_order_tvd_rk(t_step)
@@ -193,7 +187,8 @@ PROGRAM p_main
             CALL s_5th_order_rk(t_step)
         END IF
 
-
+        CALL s_compute_derived_variables(t_step)
+        IF (DEBUG) PRINT*, 'Computed derived vars'
 
         ! Time-stepping loop controls
         IF (time_stepper /= 23) THEN
@@ -202,16 +197,16 @@ PROGRAM p_main
             ELSE
                 t_step = t_step + 1
             END IF
-        ELSE
-            IF(mytime >= finaltime) THEN
-                EXIT 
-            ELSE
-                IF ( (mytime + dt) >= finaltime ) dt = finaltime - mytime
-                t_step = t_step + 1
-            END IF
         END IF
+        !ELSE
+        !    IF(mytime >= finaltime) THEN
+        !        EXIT 
+        !    ELSE
+        !        IF ( (mytime + dt) >= finaltime ) dt = finaltime - mytime
+        !        t_step = t_step + 1
+        !    END IF
+        !END IF
        
-        ! print*, 'Write data files'
         ! Backing up the grid and conservative variables data
         IF(MOD(t_step-t_step_start, t_step_save) == 0) THEN
             CALL s_write_data_files(q_cons_ts(1)%vf, t_step)

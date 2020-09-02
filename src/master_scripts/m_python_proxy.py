@@ -839,6 +839,16 @@ pre_process_dict =                                                             \
                     'fluid_pp(8)%G'                 : None,                     \
                     'fluid_pp(9)%G'                 : None,                     \
                     'fluid_pp(10)%G'                : None,                     \
+                    'fluid_pp(1)%qv'                : None,                     \
+                    'fluid_pp(2)%qv'                : None,                     \
+                    'fluid_pp(3)%qv'                : None,                     \
+                    'fluid_pp(4)%qv'                : None,                     \
+                    'fluid_pp(5)%qv'                : None,                     \
+                    'fluid_pp(6)%qv'                : None,                     \
+                    'fluid_pp(7)%qv'                : None,                     \
+                    'fluid_pp(8)%qv'                : None,                     \
+                    'fluid_pp(9)%qv'                : None,                     \
+                    'fluid_pp(10)%qv'               : None,                     \
                     'Ca'                            : None,                     \
                     'Web'                           : None,                     \
                     'Re_inv'                        : None,                     \
@@ -899,6 +909,7 @@ simulation_dict =                                                              \
                     't_step_stop'                   : None,                    \
                     't_step_save'                   : None,                    \
                     'model_eqns'                    : None,                    \
+                    'relax_model'                   : None,                    \
                     'num_fluids'                    : None,                    \
                     'adv_alphan'                    : None,                    \
                     'mpp_lim'                       : None,                    \
@@ -1226,6 +1237,36 @@ simulation_dict =                                                              \
                     'fluid_pp(8)%G'                 : None,                     \
                     'fluid_pp(9)%G'                 : None,                     \
                     'fluid_pp(10)%G'                : None,                     \
+                    'fluid_pp(1)%qv'                : None,                     \
+                    'fluid_pp(2)%qv'                : None,                     \
+                    'fluid_pp(3)%qv'                : None,                     \
+                    'fluid_pp(4)%qv'                : None,                     \
+                    'fluid_pp(5)%qv'                : None,                     \
+                    'fluid_pp(6)%qv'                : None,                     \
+                    'fluid_pp(7)%qv'                : None,                     \
+                    'fluid_pp(8)%qv'                : None,                     \
+                    'fluid_pp(9)%qv'                : None,                     \
+                    'fluid_pp(10)%qv'               : None,                     \
+                    'fluid_pp(1)%cv'                : None,                     \
+                    'fluid_pp(2)%cv'                : None,                     \
+                    'fluid_pp(3)%cv'                : None,                     \
+                    'fluid_pp(4)%cv'                : None,                     \
+                    'fluid_pp(5)%cv'                : None,                     \
+                    'fluid_pp(6)%cv'                : None,                     \
+                    'fluid_pp(7)%cv'                : None,                     \
+                    'fluid_pp(8)%cv'                : None,                     \
+                    'fluid_pp(9)%cv'                : None,                     \
+                    'fluid_pp(10)%cv'               : None,                     \
+                    'fluid_pp(1)%qvp'               : None,                     \
+                    'fluid_pp(2)%qvp'               : None,                     \
+                    'fluid_pp(3)%qvp'               : None,                     \
+                    'fluid_pp(4)%qvp'               : None,                     \
+                    'fluid_pp(5)%qvp'               : None,                     \
+                    'fluid_pp(6)%qvp'               : None,                     \
+                    'fluid_pp(7)%qvp'               : None,                     \
+                    'fluid_pp(8)%qvp'               : None,                     \
+                    'fluid_pp(9)%qvp'               : None,                     \
+                    'fluid_pp(10)%qvp'              : None,                     \
                     'pref'                          : None,                     \
                     'rhoref'                        : None,                     \
                     'polydisperse'                  : None,                     \

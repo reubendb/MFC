@@ -362,7 +362,8 @@ MODULE m_variables_conversion
             DO i = 1, num_fluids
                 rho_K    = rho_K    + alpha_rho_K(i)
                 gamma_K  = gamma_K  + alpha_K(i)*fluid_pp(i)%gamma
-                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf
+                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf &
+                                    + alpha_rho_K(i)*fluid_pp(i)%qv
             END DO
             
             
