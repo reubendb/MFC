@@ -83,6 +83,9 @@ MODULE m_derived_types
     TYPE physical_parameters
         REAL(KIND(0d0))                            :: gamma  !< Sp. heat ratio
         REAL(KIND(0d0))                            :: pi_inf !< Liquid stiffness
+        REAL(KIND(0d0))                            :: cv     !< heat capacity
+        REAL(KIND(0d0))                            :: qv     !< reference energy per unit mass for SGEOS, q (see Le Metayer (2004))
+        REAL(KIND(0d0))                            :: qvp    !< reference entropy per unit mass for SGEOS, q' (see Le Metayer (2004))
         REAL(KIND(0d0)), DIMENSION(2)              :: Re    !< Reynolds number
         REAL(KIND(0d0)), DIMENSION(num_fluids_max) :: We    !< Weber number
         REAL(KIND(0d0)) :: mul0 !< Bubble viscosity

@@ -149,6 +149,7 @@ MODULE m_derived_types
     TYPE physical_parameters
         REAL(KIND(0d0)) :: gamma
         REAL(KIND(0d0)) :: pi_inf
+        REAL(KIND(0d0)) :: qv
         REAL(KIND(0d0)) :: mul0
         REAL(KIND(0d0)) :: ss
         REAL(KIND(0d0)) :: pv

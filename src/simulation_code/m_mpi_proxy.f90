@@ -309,6 +309,8 @@ MODULE m_mpi_proxy
                                            0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST(precision      , 1, MPI_INTEGER         , &
                                            0, MPI_COMM_WORLD, ierr  )
+            CALL MPI_BCAST(relax_model    , 1, MPI_INTEGER         , &
+                                           0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST(hypoelasticity, 1, MPI_LOGICAL         , &
                                             0, MPI_COMM_WORLD,ierr   )
             
@@ -334,6 +336,15 @@ MODULE m_mpi_proxy
                                 MPI_COMM_WORLD, ierr                  )
                 CALL MPI_BCAST( fluid_pp(i)%pi_inf  ,        1      , &
                                 MPI_DOUBLE_PRECISION,        0      , &
+                                MPI_COMM_WORLD, ierr                  )                
+                CALL MPI_BCAST( fluid_pp(i)%cv      ,        1      , &
+                                MPI_DOUBLE_PRECISION,        0      , &
+                                MPI_COMM_WORLD, ierr                  )
+                CALL MPI_BCAST( fluid_pp(i)%qv      ,        1      , &
+                                MPI_DOUBLE_PRECISION,        0      , &
+                                MPI_COMM_WORLD, ierr                  )
+                CALL MPI_BCAST( fluid_pp(i)%qvp     ,        1      , &
+                                MPI_DOUBLE_PRECISION,        0      , &
                                 MPI_COMM_WORLD, ierr                  )
                 CALL MPI_BCAST( fluid_pp(i)%Re(1)   ,        2      , &
                                 MPI_DOUBLE_PRECISION,        0      , &
@@ -341,7 +352,6 @@ MODULE m_mpi_proxy
                 CALL MPI_BCAST( fluid_pp(i)%We(1)   , num_fluids_max, &
                                 MPI_DOUBLE_PRECISION,        0      , &
                                 MPI_COMM_WORLD, ierr                  )
-
                 CALL MPI_BCAST( fluid_pp(i)%mul0  , 1, &
                                 MPI_DOUBLE_PRECISION, 0, &
                                 MPI_COMM_WORLD, ierr     )

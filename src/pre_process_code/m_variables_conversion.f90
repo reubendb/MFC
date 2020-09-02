@@ -238,7 +238,8 @@ MODULE m_variables_conversion
                 DO i = 1, num_fluids
                     rho    = rho    + q_vf(i)%sf(j,k,l)
                     gamma  = gamma  + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%gamma
-                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf
+                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf &
+                                    + q_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
                 END DO
                 
             ELSE
@@ -477,10 +478,18 @@ MODULE m_variables_conversion
 
                         ! Computing the internal energies from the pressure and continuities
                         IF(model_eqns == 3) THEN
-                            DO i = internalEnergies_idx%beg, internalEnergies_idx%end
-                                q_cons_vf(i)%sf(j,k,l) = q_cons_vf(i-adv_idx%end)%sf(j,k,l) * & 
-                                    fluid_pp(i-adv_idx%end)%gamma*q_prim_vf(E_idx)%sf(j,k,l)+fluid_pp(i-adv_idx%end)%pi_inf
+                            DO i = 1, num_fluids
+                                q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
+                                    q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) * & 
+                                    (fluid_pp(i)%gamma*q_prim_vf(E_idx)%sf(j,k,l) + &
+                                    fluid_pp(i)%pi_inf) + &
+                                    q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                             END DO
+                            !DO i = internalEnergies_idx%beg, internalEnergies_idx%end
+                            !    q_cons_vf(i)%sf(j,k,l) = q_cons_vf(i-adv_idx%end)%sf(j,k,l) * & 
+                            !        (fluid_pp(i-adv_idx%end)%gamma*q_prim_vf(E_idx)%sf(j,k,l) + &
+                            !        fluid_pp(i-adv_idx%end)%pi_inf)
+                            !END DO
                         END IF
 
                         ! Transferring the advection equation(s) variable(s)
