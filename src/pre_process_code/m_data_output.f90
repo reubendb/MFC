@@ -181,8 +181,8 @@ MODULE m_data_output
 
             !1D
             IF (n ==0 .AND. p ==0) THEN
-                IF (model_eqns == 2) THEN
-                    DO i = 1, sys_size
+                IF ((model_eqns == 2) .OR. (model_eqns == 3)) THEN
+                    DO i = 1, sys_size+1
                         WRITE(file_loc,'(A,I0,A,I2.2,A,I6.6,A)') TRIM(t_step_dir) // '/prim.', i, '.', proc_rank, '.', t_step,'.dat'
 
                         OPEN(2,FILE= TRIM(file_loc) )
@@ -209,7 +209,7 @@ MODULE m_data_output
                                             (rhoref*(1.d0-q_cons_vf(4)%sf(j,0,0)))  & 
                                             ) ** lit_gamma )                        &
                                             - pi_inf
-                                    ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
+                                    ELSE IF ((model_eqns==2 .OR. model_eqns==3) .AND. (bubbles .NEQV. .TRUE.)) THEN
                                         !Stiffened gas pressure from energy
                                         WRITE(2,FMT) x_cb(j), &
                                             (                                       & 
@@ -234,6 +234,9 @@ MODULE m_data_output
                                     CALL s_comp_n_from_cons( q_cons_vf(alf_idx)%sf(j,0,0), nRtmp, nbub)                                
                                     
                                     WRITE(2,FMT) x_cb(j),q_cons_vf(i)%sf(j,0,0)/nbub
+                                END IF
+                                IF (i==sys_size+1) THEN
+                                    WRITE(2,FMT) x_cb(j), rho
                                 END IF
                             END DO
                         CLOSE(2)
