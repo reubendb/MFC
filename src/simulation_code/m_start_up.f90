@@ -132,8 +132,7 @@ MODULE m_start_up
                                    polytropic, thermal,                      &
                                    integral, integral_wrt, num_integrals,    &
                                    polydisperse, poly_sigma, qbmm, nnode,    &
-                                   R0_type, DEBUG, t_tol,                    &
-                                   relax_model
+                                   R0_type, DEBUG, t_tol, relax_model
             
             
             ! Checking that an input file has been provided by the user. If it
@@ -690,8 +689,6 @@ MODULE m_start_up
                     CALL s_mpi_abort()
                 ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
                                     .AND.                &
-                        model_eqns == 3                  &
-                                    .AND.                &
                         fluid_pp(i)%qv == dflt_real       ) THEN
                     PRINT '(A,I0,A)', 'Unsupported value of ' // &
                                       'fluid_pp(',i,')%'      // &
@@ -699,14 +696,11 @@ MODULE m_start_up
                     CALL s_mpi_abort()
                 ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
                                     .AND.                &
-                        model_eqns == 3                  &
-                                    .AND.                &
                         fluid_pp(i)%qvp == dflt_real     ) THEN
                     PRINT '(A,I0,A)', 'Unsupported value of ' // &
                                       'fluid_pp(',i,')%'      // &
                                       'qvp. Exiting ...'
                     CALL s_mpi_abort()
-
                 ELSEIF(         model_eqns == 1         &
                                      .AND.              &
                         fluid_pp(i)%pi_inf /= dflt_real ) THEN
@@ -1495,9 +1489,16 @@ MODULE m_start_up
 
                         pres = (v_vf(E_idx)%sf(j,k,l) - dyn_pres - E_We - pi_inf) / gamma
 
+                        !DO i = 1, num_fluids
+                        !    v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
+                        !        (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf)
+                        !END DO
+
                         DO i = 1, num_fluids
-                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
-                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf)
+                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
+                                v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
+                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
+                                v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
                         END DO
 
                     END DO

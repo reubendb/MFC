@@ -268,7 +268,7 @@ MODULE m_time_steppers
 
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
             
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()
@@ -329,7 +329,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
             ! ==================================================================
             
             
@@ -353,7 +353,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
             
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()
@@ -408,17 +408,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
-            IF ( model_eqns == 3 ) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                IF ( relax_model == 1 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 2 ) THEN
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 3 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
-                END IF
-            END IF
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
 
             ! ==================================================================
             
@@ -443,17 +433,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
-            IF ( model_eqns == 3 ) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                IF ( relax_model == 1 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 2 ) THEN
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 3 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
-                END IF
-            END IF
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf) 
 
             ! ==================================================================
             
@@ -470,17 +450,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
-            IF ( model_eqns == 3 ) THEN 
-                CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                IF ( relax_model == 1 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
-                ELSEIF ( relax_model == 2 ) THEN
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
-                ELSEIF ( relax_model == 3 ) THEN
-                    CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
-                END IF
-            END IF
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
       
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()
@@ -529,7 +499,7 @@ MODULE m_time_steppers
             END DO
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
 
             ! ==================================================================
             
@@ -553,7 +523,7 @@ MODULE m_time_steppers
             END DO
 
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(3)%vf)
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(3)%vf) 
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf) 
             
             ! Stage 2 of RK3
             DO i = 1, sys_size
@@ -564,7 +534,7 @@ MODULE m_time_steppers
             END DO
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(2)%vf) 
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf) 
 
             ! ==================================================================
             
@@ -581,7 +551,7 @@ MODULE m_time_steppers
 
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
 
             ! ==================================================================
 
@@ -687,8 +657,8 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(3)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf)
             END IF
             ! ==================================================================
             
@@ -719,8 +689,8 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(3)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf)
             END IF
             ! ==================================================================
             
@@ -743,8 +713,8 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(3)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf)
             END IF
             ! ==================================================================
             
@@ -760,7 +730,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
             
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
 
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()
@@ -838,12 +808,12 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(3)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(4)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(5)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(6)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(2)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(4)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(5)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(6)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
             END IF
             ! ==================================================================
             
@@ -882,10 +852,10 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(3)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(4)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(5)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(6)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(3)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(4)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(5)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(6)%vf)
             END IF
             ! ==================================================================
             
@@ -924,10 +894,10 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(4)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(5)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(6)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(4)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(5)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(6)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
             END IF
             ! ==================================================================
             
@@ -962,9 +932,9 @@ MODULE m_time_steppers
             END IF
 
             IF (model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(5)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(6)%vf)
-                CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(5)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(6)%vf)
+                CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
             END IF
             ! ==================================================================
             
@@ -988,7 +958,7 @@ MODULE m_time_steppers
 
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(6)%vf)
 
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(6)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(6)%vf)
             ! ==================================================================
             
             
@@ -1011,7 +981,7 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
-            IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+            IF (model_eqns == 3) CALL s_pressure_relaxation_procedure(q_cons_ts(1)%vf)
 
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()
