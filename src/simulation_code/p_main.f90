@@ -41,8 +41,7 @@
 !!              specifics of surface tension may be found in the work by Perigaud
 !!              and Saurel (2005). Note that both viscous and capillarity effects
 !!              are only available in the volume fraction model.
-PROGRAM p_main
-    
+PROGRAM p_main    
  
     ! Dependencies =============================================================
     USE m_derived_types        !< Definitions of the derived types
@@ -79,16 +78,12 @@ PROGRAM p_main
     
     IMPLICIT NONE
 
-
-    
     INTEGER :: t_step !< Iterator for the time-stepping loop
 
     CALL system_clock(COUNT=cpu_start, COUNT_RATE=cpu_rate)
     
     ! Initializing MPI execution environment
     CALL s_mpi_initialize()
-
-
 
     ! The rank 0 processor assigns default values to the user inputs prior to
     ! reading them in from the input file. Next, the user inputs are read and
@@ -99,7 +94,7 @@ PROGRAM p_main
         CALL s_read_input_file()
         CALL s_check_input_file()
     END IF
-    IF (proc_rank==0) print*, 'Read input file'
+    !IF (proc_rank==0) print*, 'Read input file'
    
     ! Broadcasting the user inputs to all of the processors and performing the
     ! parallel computational domain decomposition. Neither procedure has to be
@@ -107,7 +102,7 @@ PROGRAM p_main
     CALL s_mpi_bcast_user_inputs()
     CALL s_initialize_parallel_io()
     CALL s_mpi_decompose_computational_domain()
-    IF (proc_rank==0) print*, 'Broadcast'
+    !IF (proc_rank==0) print*, 'Broadcast'
     
     ! Computation of parameters, allocation of memory, association of pointers,
     ! and/or the execution of any other tasks needed to properly configure the
@@ -124,7 +119,7 @@ PROGRAM p_main
     CALL s_initialize_time_steppers_module()    
     IF (qbmm) CALL s_initialize_qbmm_module()
 
-    IF (proc_rank==0) print*, 'Initialize'
+    !IF (proc_rank==0) print*, 'Initialize'
     
     ! Associate pointers for serial or parallel I/O
     IF (parallel_io .NEQV. .TRUE.) THEN
@@ -193,8 +188,6 @@ PROGRAM p_main
             CALL s_5th_order_rk(t_step)
         END IF
 
-
-
         ! Time-stepping loop controls
         IF (time_stepper /= 23) THEN
             IF(t_step == t_step_stop) THEN
@@ -238,10 +231,8 @@ PROGRAM p_main
     IF (grid_geometry == 3) CALL s_finalize_fftw_module()
     CALL s_finalize_mpi_proxy_module()
     CALL s_finalize_global_parameters_module()
-    
-    
+   
     ! Terminating MPI execution environment
     CALL s_mpi_finalize()
-    
     
 END PROGRAM p_main
