@@ -1054,13 +1054,20 @@ MODULE m_riemann_solvers
                                                  norm_dir, ix,iy,iz  )
 
             ! Computing HLLC flux and source flux for Euler system of equations
+
+            ! print*, 'xbounds are: ', is1%beg, is1%end
+            ! print*, 'ybounds are: ', is2%beg, is2%end
+            ! print*, 'zbounds are: ', is3%beg, is3%end
             DO l = is3%beg, is3%end
                 DO k = is2%beg, is2%end
                     DO j = is1%beg, is1%end
 
+                        ! print*, 'about to get average state'
                         CALL s_compute_average_state(j,k,l)
+                        ! print*, 'got average state'
 
                         CALL s_compute_wave_speeds(j,k,l)
+                        ! print*, 'got wave speeds'
 
                         IF(model_eqns == 3) THEN
 
@@ -1074,6 +1081,10 @@ MODULE m_riemann_solvers
                                     flux_rs_vf(i+cont_idx%beg-1)%sf(j,k,l) = &
                                         qL_prim_rs_vf(i+cont_idx%beg-1)%sf( j ,k,l)*vel_L(dir_idx(1))
                                     
+                                    !flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
+                                    !    qL_prim_rs_vf(i+adv_idx%beg-1)%sf( j ,k,l)*&
+                                    !    (fluid_pp(i)%gamma*pres_L+fluid_pp(i)%pi_inf)*vel_L(dir_idx(1))
+
                                     flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
                                         (qL_prim_rs_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
                                         (fluid_pp(i)%gamma*pres_L+fluid_pp(i)%pi_inf) + &
@@ -1101,6 +1112,10 @@ MODULE m_riemann_solvers
                                     flux_rs_vf(i+cont_idx%beg-1)%sf(j,k,l) = &
                                         qR_prim_rs_vf(i+cont_idx%beg-1)%sf(j+1,k,l)*vel_R(dir_idx(1))
                                     
+                                    !flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
+                                    !    qR_prim_rs_vf(i+adv_idx%beg-1)%sf(j+1,k,l) * &
+                                    !    (fluid_pp(i)%gamma*pres_R+fluid_pp(i)%pi_inf)*vel_R(dir_idx(1))
+
                                     flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
                                         (qR_prim_rs_vf(i+adv_idx%beg-1)%sf(j+1,k,l) * &
                                         (fluid_pp(i)%gamma*pres_R+fluid_pp(i)%pi_inf) + &
@@ -1134,6 +1149,10 @@ MODULE m_riemann_solvers
                                     flux_rs_vf(i+cont_idx%beg-1)%sf(j,k,l) = &
                                         qL_prim_rs_vf(i+cont_idx%beg-1)%sf( j ,k,l)*xi_L*s_S
                                     
+                                    !flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
+                                    !    qL_prim_rs_vf(i+adv_idx%beg-1)%sf( j ,k,l) * &
+                                    !    (fluid_pp(i)%gamma*p_K_Star+fluid_pp(i)%pi_inf)*s_S
+
                                     flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
                                         (qL_prim_rs_vf(i+adv_idx%beg-1)%sf( j ,k,l) * &
                                         (fluid_pp(i)%gamma*p_K_Star+fluid_pp(i)%pi_inf) + &
@@ -1172,6 +1191,10 @@ MODULE m_riemann_solvers
                                     flux_rs_vf(i+cont_idx%beg-1)%sf(j,k,l) = &
                                         qR_prim_rs_vf(i+cont_idx%beg-1)%sf(j+1,k,l)*xi_R*s_S
                                     
+                                    !flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
+                                    !    qR_prim_rs_vf(i+adv_idx%beg-1)%sf(j+1,k,l) * & 
+                                    !    (fluid_pp(i)%gamma*p_K_Star+fluid_pp(i)%pi_inf)*s_S
+
                                     flux_rs_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = &
                                         (qR_prim_rs_vf(i+adv_idx%beg-1)%sf(j+1,k,l) * & 
                                         (fluid_pp(i)%gamma*p_K_Star+fluid_pp(i)%pi_inf) + &

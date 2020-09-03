@@ -154,8 +154,8 @@ MODULE m_global_parameters
     LOGICAL         :: We_src         !< Account for capillary effects in non-conservative formulation in RHS
     LOGICAL         :: We_wave_speeds !< Account for capillary effects when computing the contact wave speed
     LOGICAL         :: lsq_deriv      !< Use linear least squares to calculate normals and curvatures
-    INTEGER         :: relax_model    !< Relaxation model 
     LOGICAL         :: hypoelasticity !< Hypoelastic modeling
+    INTEGER         :: relax_model    !< Infinite relaxation model 
 
     INTEGER         :: cpu_start, cpu_end, cpu_rate
     
@@ -416,8 +416,8 @@ MODULE m_global_parameters
             lsq_deriv        = .FALSE.
             parallel_io      = .FALSE.
             precision        = 2
-            relax_model      = dflt_int
             hypoelasticity   = .FALSE.
+            relax_model      = dflt_int
             
             bc_x%beg = dflt_int; bc_x%end = dflt_int
             bc_y%beg = dflt_int; bc_y%end = dflt_int

@@ -364,7 +364,7 @@ MODULE m_variables_conversion
                 gamma_K  = gamma_K  + alpha_K(i)*fluid_pp(i)%gamma
                 pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf &
                                     + alpha_rho_K(i)*fluid_pp(i)%qv
-            END DO
+            END DO            
             
             
             ! Computing the shear and bulk Reynolds numbers from species analogs
