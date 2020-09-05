@@ -123,7 +123,8 @@ MODULE m_global_parameters
     INTEGER :: sys_size        !< Number of unknowns in the system of equations
     INTEGER :: weno_order      !< Order of accuracy for the WENO reconstruction
     LOGICAL :: hypoelasticity  !< Hypoelasticity (True or False)
-    
+    INTEGER :: relax_model     !< 6-equation relaxation model
+   
     ! Annotations of the structure, i.e. the organization, of the state vectors
     TYPE(int_bounds_info) :: cont_idx                   !< Indexes of first & last continuity eqns.
     TYPE(int_bounds_info) :: mom_idx                    !< Indexes of first & last momentum eqns.
@@ -277,7 +278,8 @@ MODULE m_global_parameters
             adv_alphan = .FALSE.
             weno_order = dflt_int
             hypoelasticity = .FALSE.
- 
+            relax_model = dflt_int
+
             bc_x%beg = dflt_real
             bc_x%end = dflt_real
             bc_y%beg = dflt_real

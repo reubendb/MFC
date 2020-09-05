@@ -229,6 +229,7 @@ MODULE m_mpi_proxy
             CALL MPI_BCAST( bc_z%end, 1, MPI_DOUBLE_PRECISION, &
                                       0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST(hypoelasticity, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
+            CALL MPI_BCAST(relax_model, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
 
             CALL MPI_BCAST(parallel_io, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
             CALL MPI_BCAST(precision, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
