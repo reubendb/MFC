@@ -119,7 +119,7 @@ MODULE m_start_up
                                    n, p, x_domain, y_domain, z_domain,        &
                                    stretch_x, stretch_y, stretch_z, a_x, a_y, &
                                    a_z, x_a, y_a, z_a, x_b, y_b, z_b,         &
-                                   model_eqns, num_fluids,                    &
+                                   model_eqns, num_fluids, relax_model,       &
                                    adv_alphan, mpp_lim,                       &
                                    weno_order, bc_x, bc_y, bc_z, num_patches, &
                                    hypoelasticity, patch_icpp, fluid_pp,      &
@@ -129,7 +129,7 @@ MODULE m_start_up
                                    cyl_coord, loops_x, loops_y, loops_z,      &
                                    rhoref, pref, bubbles, R0ref, nb,          &
                                    polytropic, thermal, Ca, Web, Re_inv,      &
-                                   polydisperse, poly_sigma, qbmm,      &
+                                   polydisperse, poly_sigma, qbmm,            &
                                    nnode, sigR, sigV, dist_type, rhoRV, R0_type
  
 
@@ -198,6 +198,9 @@ MODULE m_start_up
                              'bubbles and model_eqns. '           // &
                              'Exiting ...'
                 CALL s_mpi_abort()     
+            ELSEIF(model_eqns == 3 .AND. (relax_model .GE. 4 .OR. relax_model .LT. 0) ) THEN
+                PRINT '(A)', 'Relaxation model untested with 6-equation model'
+                CALL s_mpi_abort()
             ELSEIF(bubbles .AND. polydisperse .and. (nb==1)) THEN
                 PRINT '(A)', 'Polydisperse bubble dynamics requires nb > 1 ' // &
                              'Exiting ...'
@@ -979,11 +982,9 @@ MODULE m_start_up
                                       'and fluid_pp(',i,')%'     // &
                                       'pi_inf. Exiting ...'
                     CALL s_mpi_abort()
-                ELSEIF(         model_eqns == 3         &
+                ELSEIF(         model_eqns /= 3         &
                                      .AND.              &
-                        fluid_pp(i)%pi_inf /= dflt_real &
-                                     .AND.              &
-                        fluid_pp(i)%qv == dflt_real ) THEN
+                        fluid_pp(i)%qv /= dflt_real ) THEN
                     PRINT '(A,I0,A)', 'Unsupported combination ' // &
                                       'of values of model_eqns ' // &
                                       'and fluid_pp(',i,')%'     // &

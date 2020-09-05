@@ -362,11 +362,15 @@ MODULE m_variables_conversion
             DO i = 1, num_fluids
                 rho_K    = rho_K    + alpha_rho_K(i)
                 gamma_K  = gamma_K  + alpha_K(i)*fluid_pp(i)%gamma
-                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf &
-                                    + alpha_rho_K(i)*fluid_pp(i)%qv
+                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf
             END DO            
             
-            
+             IF(relax_model == 3) THEN
+                 DO i = 1, num_fluids
+                     pi_inf_K = pi_inf_K + alpha_rho_K(i)*fluid_pp(i)%qv
+                 END DO
+            END IF           
+           
             ! Computing the shear and bulk Reynolds numbers from species analogs
             DO i = 1,2
                
@@ -401,7 +405,7 @@ MODULE m_variables_conversion
                     G_K = G_K + alpha_K(i)*G(i)
                 END DO
             END IF
- 
+
         END SUBROUTINE s_convert_species_to_mixture_variables ! ----------------
         
         

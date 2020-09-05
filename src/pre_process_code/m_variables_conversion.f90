@@ -238,10 +238,15 @@ MODULE m_variables_conversion
                 DO i = 1, num_fluids
                     rho    = rho    + q_vf(i)%sf(j,k,l)
                     gamma  = gamma  + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%gamma
-                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf &
-                                    + q_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf
                 END DO
-                
+
+                IF(relax_model == 3) THEN
+                    DO i = 1, num_fluids
+                         pi_inf = pi_inf + q_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                    END DO
+                END IF           
+
             ELSE
                 
                 rho    = q_vf(num_fluids)%sf(j,k,l)
@@ -257,7 +262,17 @@ MODULE m_variables_conversion
                                     * ( fluid_pp(     i    )%pi_inf &
                                       - fluid_pp(num_fluids)%pi_inf )
                 END DO
-                
+ 
+                IF(relax_model == 3) THEN
+                    pi_inf = pi_inf + q_vf(num_fluids)%sf(j,k,l)*   &
+                                      fluid_pp(num_fluids)%qv
+                    DO i = 1, num_fluids-1
+                         pi_inf = pi_inf + q_vf(i)%sf(j,k,l)        & 
+                                    * ( fluid_pp(     i    )%qv     &
+                                      - fluid_pp(num_fluids)%qv     )
+                    END DO
+                END IF           
+               
             END IF
             
             
