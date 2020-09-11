@@ -113,11 +113,13 @@ MODULE m_cbc
     REAL(KIND(0d0))                              :: c           !< Cell averaged speed of sound
     REAL(KIND(0d0)),              DIMENSION(2)   :: Re          !< Cell averaged Reynolds numbers
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:,:) :: We          !< Cell averaged Weber numbers
+!    REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:)   :: tau_e       !< Cell averaged elastic shear stresses
 
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:) :: dalpha_rho_ds !< Spatial derivatives in s-dir of partial density
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:) ::       dvel_ds !< Spatial derivatives in s-dir of velocity
     REAL(KIND(0d0))                            ::      dpres_ds !< Spatial derivatives in s-dir of pressure
     REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:) ::       dadv_ds !< Spatial derivatives in s-dir of advection variables
+!    REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:) ::     dtau_e_ds !< Spatial derivatives in s-dir of elastic shear stress
     !! Note that these are only obtained in those cells on the domain boundary along which the
     !! CBC is applied by employing finite differences (FD) on the cell-average primitive variables, q_prim_rs_vf.
  
@@ -187,6 +189,7 @@ MODULE m_cbc
             ALLOCATE(      vel(1:   num_dims   ))
             ALLOCATE(      adv(1:adv_idx%end-E_idx))
             ALLOCATE(       mf(1: cont_idx%end ))
+!            ALLOCATE(    tau_e(1: stress_idx%end - stress_idx%beg + 1))
             
             ALLOCATE(We(1:num_fluids,1:num_fluids))
             
@@ -195,9 +198,11 @@ MODULE m_cbc
             ALLOCATE(dalpha_rho_ds(1: cont_idx%end ))
             ALLOCATE(      dvel_ds(1:  num_dims    ))
             ALLOCATE(      dadv_ds(1:adv_idx%end-E_idx))
+!            ALLOCATE(    dtau_e_ds(1: stress_idx%end - stress_idx%beg + 1))
             
             ! Allocating L, see Thompson (1987, 1990)
             ALLOCATE(L(1:adv_idx%end))
+!            ALLOCATE(L(1:sys_size))
             
             ! Allocating the cell-width distribution in the s-direction
             ALLOCATE(ds(0:buff_size))
@@ -559,6 +564,7 @@ MODULE m_cbc
             REAL(KIND(0d0)), DIMENSION(adv_idx%end-E_idx) ::       dadv_dt
             REAL(KIND(0d0))                            ::     dgamma_dt
             REAL(KIND(0d0))                            ::    dpi_inf_dt
+!            REAL(KIND(0d0)), DIMENSION(stress_idx%end - stress_idx%beg + 1) :: dtau_e_dt
             
             INTEGER :: i,j,k,r !< Generic loop iterators
 
@@ -584,6 +590,7 @@ MODULE m_cbc
                                                             F_src_rs_vf, &
                                                             is1,is2,is3  )
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   flux_rs_vf(i)%sf(0,:,:) = F_rs_vf(i)%sf(0,:,:)   &
                                           + pi_coef(0,0,cbc_loc) * &
@@ -608,6 +615,7 @@ MODULE m_cbc
                                                             F_src_rs_vf, &
                                                             is1,is2,is3  )
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO j = 0,1
                      flux_rs_vf(i)%sf(j,:,:) = F_rs_vf(i)%sf(j,:,:)   &
@@ -672,6 +680,12 @@ MODULE m_cbc
                   
                   mf = alpha_rho/rho
                   
+!                  IF (hypoelasticity) THEN
+!                    DO i = 1, stress_idx%end - stress_idx%beg + 1
+!                        tau_e(i) = q_prim_rs_vf(stress_idx%beg - 1 + i)%sf(0,k,r)
+!                    END DO
+!                  END IF
+
                   ! Compute mixture sound speed
                   IF (alt_soundspeed .OR. regularization) THEN
                       blkmod1 = ((fluid_pp(1)%gamma +1d0)*pres + &
@@ -705,6 +719,7 @@ MODULE m_cbc
                   dvel_ds       = 0d0
                   dpres_ds      = 0d0
                   dadv_ds       = 0d0
+!                  dtau_e_ds     = 0d0
                   
                   DO j = 0, buff_size
                      
@@ -729,6 +744,14 @@ MODULE m_cbc
                                                   fd_coef(j,cbc_loc) + &
                                                           dadv_ds(i)
                      END DO
+
+!                     IF (hypoelasticity) THEN
+!                        DO i = 1, stress_idx%end - stress_idx%beg + 1
+!                            dtau_e_ds(i) = q_prim_rs_vf(stress_idx%beg - 1 + i)%sf(j,k,r) * &
+!                                                                       fd_coef(j,cbc_loc) + &
+!                                                                             dtau_e_ds(i)
+!                        END DO
+!                    END IF
                      
                   END DO
                   ! ============================================================
@@ -770,6 +793,13 @@ MODULE m_cbc
                          dadv_dt(i) = -L(mom_idx%end+i)
                       END DO
                   END IF
+
+                  ! Unsure how to calculate this here
+!                  IF (hypoelasticity) THEN
+!                      DO i = 1, stress_idx%end - stress_idx%beg + 1
+!                          dtau_e_dt(i) = -L(stress_idx%beg - 1 + i)
+!                      END DO
+!                  END IF
                   
                   drho_dt = 0d0; dgamma_dt = 0d0; dpi_inf_dt = 0d0
                   
@@ -836,6 +866,14 @@ MODULE m_cbc
                   END IF
                   ! END: flux_rs_vf and flux_src_rs_vf at j = -1/2 =============
                   
+!                  IF (hypoelasticity) THEN
+!                      DO i = stress_idx%beg, stress_idx%end
+!                          flux_rs_vf(i)%sf(-1,k,r) = flux_rs_vf(i)%sf(0,k,r) &
+!                                       + ds(0)*( tau_e(i-adv_idx%end)*drho_dt &
+!                                               + rho*dtau_e_dt(i-adv_idx%end) )
+!                      END DO
+!                  END IF
+
                END DO
             END DO
             ! END: FD2 or FD4 of RHS at j = 0 ==================================
@@ -1150,6 +1188,7 @@ MODULE m_cbc
             
             IF(weno_order > 1) THEN
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   ALLOCATE(F_rs_vf(i)%sf(    0    : buff_size, &
                                           is2%beg :  is2%end , &
@@ -1174,6 +1213,7 @@ MODULE m_cbc
                
             END IF
             
+!            DO i = 1, sys_size
             DO i = 1, adv_idx%end
                ALLOCATE(flux_rs_vf(i)%sf(   -1    : buff_size, &
                                           is2%beg :  is2%end , &
@@ -1222,6 +1262,7 @@ MODULE m_cbc
                   END DO
                END DO
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = iz%beg, iz%end
                      DO k = iy%beg, iy%end
@@ -1301,6 +1342,7 @@ MODULE m_cbc
                   END DO
                END DO
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = iz%beg, iz%end
                      DO k = ix%beg, ix%end
@@ -1380,6 +1422,7 @@ MODULE m_cbc
                   END DO
                END DO
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = ix%beg, ix%end
                      DO k = iy%beg, iy%end
@@ -1557,6 +1600,7 @@ MODULE m_cbc
             ! Reshaping Outputted Data in x-direction ==========================
             IF(cbc_dir == 1) THEN
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = iz%beg, iz%end
                      DO k = iy%beg, iy%end
@@ -1615,6 +1659,7 @@ MODULE m_cbc
             ! Reshaping Outputted Data in y-direction ==========================
             ELSEIF(cbc_dir == 2) THEN
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = iz%beg, iz%end
                      DO k = ix%beg, ix%end
@@ -1673,6 +1718,7 @@ MODULE m_cbc
             ! Reshaping Outputted Data in z-direction ==========================
             ELSE
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DO r = ix%beg, ix%end
                      DO k = iy%beg, iy%end
@@ -1737,6 +1783,7 @@ MODULE m_cbc
             
             IF(weno_order > 1) THEN
                
+!               DO i = 1, sys_size
                DO i = 1, adv_idx%end
                   DEALLOCATE(F_rs_vf(i)%sf)
                END DO
@@ -1755,6 +1802,7 @@ MODULE m_cbc
                
             END IF
             
+!            DO i = 1, sys_size
             DO i = 1, adv_idx%end
                DEALLOCATE(flux_rs_vf(i)%sf)
             END DO

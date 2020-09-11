@@ -494,8 +494,7 @@ MODULE m_global_parameters
             
             
             ! Determining the degree of the WENO polynomials
-            weno_polyn = (weno_order - 1) / 2
-            
+            weno_polyn = (weno_order - 1) / 2 
             
             ! Initializing the number of fluids for which viscous effects will
             ! be non-negligible, the number of distinctive material interfaces
@@ -808,8 +807,8 @@ MODULE m_global_parameters
                 buff_size = 3*weno_polyn + 2
             ELSEIF(ANY(Re_size > 0)) THEN
                 buff_size = 2*weno_polyn + 2
-            ELSEIF(hypoelasticity) THEN
-                buff_size = 2*weno_polyn + 2
+!            ELSEIF(hypoelasticity) THEN
+!                buff_size = 2*weno_polyn + 2
             ELSEIF(commute_err) THEN
                 buff_size = 2*weno_polyn + 1
             ELSE
