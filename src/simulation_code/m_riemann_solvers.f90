@@ -922,23 +922,23 @@ MODULE m_riemann_solvers
 !                                                  - rho_R*tau_e_R(i) ) )        &
 !                                        / (s_M - s_P)
                                     ! Testing
-!                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
-!                                        ( s_M*( rho_R*vel_R(dir_idx(1))         &
-!                                                     *tau_e_R(1))               &
-!                                        - s_P*( rho_L*vel_L(dir_idx(1))         &
-!                                                     *tau_e_L(1))               &
-!                                        + s_M*s_P*( rho_L*tau_e_L(1)            &
-!                                                  - rho_R*tau_e_R(1) ) )        &
-!                                        / (s_M - s_P)
-                                    ! Testing 2
                                     flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
-                                        ( s_M*( vel_R(dir_idx(1))         &
+                                        ( s_M*( rho_R*vel_R(dir_idx(1))         &
                                                      *tau_e_R(1))               &
-                                        - s_P*( vel_L(dir_idx(1))         &
+                                        - s_P*( rho_L*vel_L(dir_idx(1))         &
                                                      *tau_e_L(1))               &
-                                        + s_M*s_P*( tau_e_L(1)            &
-                                                  - tau_e_R(1) ) )        &
+                                        + s_M*s_P*( rho_L*tau_e_L(1)            &
+                                                  - rho_R*tau_e_R(1) ) )        &
                                         / (s_M - s_P)
+                                    ! Testing 2
+!                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
+!                                        ( s_M*( vel_R(dir_idx(1))         &
+!                                                     *tau_e_R(1))               &
+!                                        - s_P*( vel_L(dir_idx(1))         &
+!                                                     *tau_e_L(1))               &
+!                                        + s_M*s_P*( tau_e_L(1)            &
+!                                                  - tau_e_R(1) ) )        &
+!                                        / (s_M - s_P)
                                 END DO
                             END IF
                             
