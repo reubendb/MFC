@@ -687,13 +687,6 @@ MODULE m_start_up
                                       'fluid_pp(',i,')%'      // &
                                       'cv. Exiting ...'
                     CALL s_mpi_abort()
-                ELSEIF( model_eqns == 3                 &
-                                     .AND.              &
-                        fluid_pp(i)%cv < 0              ) THEN
-                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
-                                      'fluid_pp(',i,')%'      // &
-                                      'cv. Exiting ...'
-                    CALL s_mpi_abort()
                 ELSEIF( model_eqns /= 3                  &
                                     .AND.                &
                         fluid_pp(i)%qv /= dflt_real      ) THEN
