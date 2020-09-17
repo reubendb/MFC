@@ -1371,6 +1371,7 @@ post_process_dict =                                                            \
                     't_step_save'                   : None,                    \
                     'model_eqns'                    : None,                    \
                     'num_fluids'                    : None,                    \
+                    'relax_model'                   : None,                    \
                     'adv_alphan'                    : None,                    \
                     'mpp_lim'                       : None,                    \
                     'weno_order'                    : None,                    \
