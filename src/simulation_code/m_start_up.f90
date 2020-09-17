@@ -680,26 +680,14 @@ MODULE m_start_up
                                       'fluid_pp(',i,')%'      // &
                                       'pi_inf. Exiting ...'
                     CALL s_mpi_abort()
-                ELSEIF( model_eqns /= 3                 &
+                ELSEIF( model_eqns == 3                 &
                                      .AND.              &
-                        fluid_pp(i)%cv /= dflt_real     ) THEN
+                        fluid_pp(i)%cv /= dflt_real     &
+                                     .AND.              &
+                        fluid_pp(i)%cv < 0              ) THEN
                     PRINT '(A,I0,A)', 'Unsupported value of ' // &
                                       'fluid_pp(',i,')%'      // &
                                       'cv. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF( model_eqns /= 3                  &
-                                    .AND.                &
-                        fluid_pp(i)%qv /= dflt_real      ) THEN
-                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
-                                      'fluid_pp(',i,')%'      // &
-                                      'qv. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF( model_eqns /= 3                  &
-                                    .AND.                &
-                        fluid_pp(i)%qvp /= dflt_real     ) THEN
-                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
-                                      'fluid_pp(',i,')%'      // &
-                                      'qvp. Exiting ...'
                     CALL s_mpi_abort()
                 ELSEIF(         model_eqns == 1         &
                                      .AND.              &
@@ -1489,7 +1477,7 @@ MODULE m_start_up
 
                         pres = (v_vf(E_idx)%sf(j,k,l) - dyn_pres - E_We - pi_inf) / gamma
 
-                        IF(model_eqns == 3 .AND. relax_model .GE. 0 .AND. relax_model .LT. 4) THEN
+                        IF( model_eqns == 3 ) THEN
                            DO i = 1, num_fluids
                                v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
                                     v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &

@@ -365,7 +365,7 @@ MODULE m_variables_conversion
                 pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf
             END DO            
             
-             IF(relax_model == 3) THEN
+            IF(relax_model == 3) THEN
                  DO i = 1, num_fluids
                      pi_inf_K = pi_inf_K + alpha_rho_K(i)*fluid_pp(i)%qv
                  END DO
