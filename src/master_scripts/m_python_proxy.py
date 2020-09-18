@@ -86,6 +86,7 @@ pre_process_dict =                                                             \
                     'z_b'                           : None,                    \
                     'cyl_coord'                     : None,                    \
                     'model_eqns'                    : None,                    \
+                    'relax_model'                   : None,                    \
                     'num_fluids'                    : None,                    \
                     'adv_alphan'                    : None,                    \
                     'mpp_lim'                       : None,                    \
@@ -114,7 +115,6 @@ pre_process_dict =                                                             \
                     'bc_z%beg'                      : None,                    \
                     'bc_z%end'                      : None,                    \
                     'hypoelasticity'                : None,                    \
-                    'relax_model'                   : None,                    \
                     'num_patches'                   : None,                    \
                     'patch_icpp(1)%geometry'        : None,                    \
                     'patch_icpp(1)%x_centroid'      : None,                    \
@@ -1370,8 +1370,8 @@ post_process_dict =                                                            \
                     't_step_stop'                   : None,                    \
                     't_step_save'                   : None,                    \
                     'model_eqns'                    : None,                    \
-                    'num_fluids'                    : None,                    \
                     'relax_model'                   : None,                    \
+                    'num_fluids'                    : None,                    \
                     'adv_alphan'                    : None,                    \
                     'mpp_lim'                       : None,                    \
                     'weno_order'                    : None,                    \
