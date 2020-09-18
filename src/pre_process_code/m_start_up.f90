@@ -119,11 +119,11 @@ MODULE m_start_up
                                    n, p, x_domain, y_domain, z_domain,        &
                                    stretch_x, stretch_y, stretch_z, a_x, a_y, &
                                    a_z, x_a, y_a, z_a, x_b, y_b, z_b,         &
-                                   model_eqns, num_fluids,                    &
+                                   model_eqns, relax_model, num_fluids,       &
                                    adv_alphan, mpp_lim,                       &
                                    weno_order, bc_x, bc_y, bc_z, num_patches, &
-                                   hypoelasticity, relax_model, patch_icpp,   & 
-                                   fluid_pp, precision, parallel_io,          &
+                                   hypoelasticity, patch_icpp, fluid_pp,      &
+                                   precision, parallel_io,                    &
                                    perturb_flow, perturb_flow_fluid,          &
                                    perturb_sph, perturb_sph_fluid, fluid_rho, &
                                    cyl_coord, loops_x, loops_y, loops_z,      &
@@ -198,9 +198,6 @@ MODULE m_start_up
                              'bubbles and model_eqns. '           // &
                              'Exiting ...'
                 CALL s_mpi_abort()     
-            ELSEIF(model_eqns == 3 .AND. (relax_model .GE. 4 .OR. relax_model .LT. 0) ) THEN
-                PRINT '(A)', 'Relaxation model untested with 6-equation model'
-                CALL s_mpi_abort()
             ELSEIF(bubbles .AND. polydisperse .and. (nb==1)) THEN
                 PRINT '(A)', 'Polydisperse bubble dynamics requires nb > 1 ' // &
                              'Exiting ...'
@@ -209,6 +206,11 @@ MODULE m_start_up
                 PRINT '(A)', 'nb must be odd ' // &
                              'Exiting ...'
                 CALL s_mpi_abort()      
+            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 4) THEN
+                PRINT '(A)', 'Unsupported combination of values of ' // &
+                             'bubbles and rhoref. '           // &
+                             'Exiting ...'
+                CALL s_mpi_abort()              
             ELSEIF(model_eqns == 4 .AND. (rhoref == dflt_real)) THEN
                 PRINT '(A)', 'Unsupported combination of values of ' // &
                              'bubbles and rhoref. '           // &
@@ -982,9 +984,11 @@ MODULE m_start_up
                                       'and fluid_pp(',i,')%'     // &
                                       'pi_inf. Exiting ...'
                     CALL s_mpi_abort()
-                ELSEIF(         model_eqns /= 3         &
+                ELSEIF(         model_eqns == 3         &
                                      .AND.              &
-                        fluid_pp(i)%qv /= dflt_real ) THEN
+                        fluid_pp(i)%pi_inf /= dflt_real &
+                                     .AND.              &
+                        fluid_pp(i)%qv == dflt_real ) THEN
                     PRINT '(A,I0,A)', 'Unsupported combination ' // &
                                       'of values of model_eqns ' // &
                                       'and fluid_pp(',i,')%'     // &

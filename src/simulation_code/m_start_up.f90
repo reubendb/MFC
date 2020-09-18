@@ -243,7 +243,7 @@ MODULE m_start_up
             ELSEIF( model_eqns == 2 .AND. bubbles .AND. bubble_model == 1  ) THEN
                 PRINT '(A)', 'The 5-equation bubbly flow model requires bubble_model = 2 (Keller--Miksis)'
                 CALL s_mpi_abort()
-            ELSEIF(model_eqns == 3 .AND. (relax_model .GE. 4 .AND. relax_model .LT. 0) ) THEN
+            ELSEIF(model_eqns == 3 .AND. relax_model .GT. 4) THEN
                 PRINT '(A)', 'Relaxation model untested with 6-equation model'
                 CALL s_mpi_abort()
             ELSEIF( bubbles .AND. bubble_model == 3 .AND. (polytropic .NEQV. .TRUE.)  ) THEN
@@ -680,14 +680,26 @@ MODULE m_start_up
                                       'fluid_pp(',i,')%'      // &
                                       'pi_inf. Exiting ...'
                     CALL s_mpi_abort()
-                ELSEIF( model_eqns == 3                 &
+                ELSEIF( fluid_pp(i)%cv /= dflt_real &
                                      .AND.              &
-                        fluid_pp(i)%cv /= dflt_real     &
-                                     .AND.              &
-                        fluid_pp(i)%cv < 0              ) THEN
+                        fluid_pp(i)%cv <     0d0    ) THEN
                     PRINT '(A,I0,A)', 'Unsupported value of ' // &
                                       'fluid_pp(',i,')%'      // &
                                       'cv. Exiting ...'
+                    CALL s_mpi_abort()
+                ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
+                                    .AND.                &
+                        fluid_pp(i)%qv == dflt_real       ) THEN
+                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
+                                      'fluid_pp(',i,')%'      // &
+                                      'qv. Exiting ...'
+                    CALL s_mpi_abort()
+                ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
+                                    .AND.                &
+                        fluid_pp(i)%qvp == dflt_real     ) THEN
+                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
+                                      'fluid_pp(',i,')%'      // &
+                                      'qvp. Exiting ...'
                     CALL s_mpi_abort()
                 ELSEIF(         model_eqns == 1         &
                                      .AND.              &
@@ -1477,19 +1489,18 @@ MODULE m_start_up
 
                         pres = (v_vf(E_idx)%sf(j,k,l) - dyn_pres - E_We - pi_inf) / gamma
 
-                        IF( model_eqns == 3 ) THEN
-                           DO i = 1, num_fluids
-                               v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
-                                    v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
-                                    (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
-                                    v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
-                           END DO
-                        ELSE
-                           DO i = 1, num_fluids
-                               v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
-                                    v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
-                                    (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf)
-                           END DO
+                        IF(model_eqns /= 3) THEN
+                          DO i = 1, num_fluids
+                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
+                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf)
+                          END DO
+                        ELSE 
+                          DO i = 1, num_fluids
+                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
+                                v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
+                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
+                                v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                          END DO
                         END IF
                     END DO
                 END DO

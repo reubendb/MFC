@@ -211,6 +211,7 @@ MODULE m_mpi_proxy
             
             ! Simulation algorithm parameters
             CALL MPI_BCAST(model_eqns, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+            CALL MPI_BCAST(relax_model, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
             CALL MPI_BCAST(num_fluids, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
             CALL MPI_BCAST(adv_alphan, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
             CALL MPI_BCAST(mpp_lim, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
@@ -228,8 +229,8 @@ MODULE m_mpi_proxy
                                       0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST( bc_z%end, 1, MPI_DOUBLE_PRECISION, &
                                       0, MPI_COMM_WORLD, ierr  )
-            CALL MPI_BCAST(hypoelasticity, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
-            CALL MPI_BCAST(relax_model, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
+            CALL MPI_BCAST(hypoelasticity, 1, MPI_LOGICAL,     & 
+                                      0, MPI_COMM_WORLD, ierr)
 
             CALL MPI_BCAST(parallel_io, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
             CALL MPI_BCAST(precision, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
