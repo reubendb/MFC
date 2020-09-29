@@ -4247,6 +4247,7 @@ MODULE m_rhs
             REAL(KIND(0d0))                      ::            n1, n2
             REAL(KIND(0d0))                      ::      pinf1, pinf2
             REAL(KIND(0d0))                      ::          cv1, cv2
+            REAL(KIND(0d0))                      ::          cp1, cp2
             REAL(KIND(0d0))                      ::           q1,  q2
             REAL(KIND(0d0))                      ::          q1p, q2p
 
@@ -4254,20 +4255,24 @@ MODULE m_rhs
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
+            !cp1   = 2534.d0
+            cp1   = n1*cv1
             q1    = fluid_pp(1)%qv
             q1p   = fluid_pp(1)%qvp
 
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
+            !cp2   = 2005.d0
+            cp2   = n2*cv2
             q2    = fluid_pp(2)%qv
             q2p   = fluid_pp(2)%qvp
 
             ! Calculating coefficients for equation 11a in Pelanti 2014
-            A = (n1*cv1 - n2*cv2 + q2p - q1p)/(n2*cv2 - cv2) 
-            B = (q1 - q2)/(n2*cv2 - cv2)
-            C = (n2*cv2 - n1*cv1)/(n2*cv2 - cv2)
-            D = (n1*cv1 - cv1)/(n2*cv2 - cv2)
+            A = (cp1 - cp2 + q2p - q1p)/(cp2 - cv2) 
+            B = (q1 - q2)/(cp2 - cv2)
+            C = (cp2 - cp1)/(cp2 - cv2)
+            D = (cp1 - cv1)/(cp2 - cv2)
         END SUBROUTINE s_compute_gibbs_constants
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -4290,14 +4295,14 @@ MODULE m_rhs
             iter    = 0; fp = 0.d0; dfdp = 0.d0; delta   = 1.d0;
             Tstar   = 0.1d0*B/C
 
-            DO WHILE (DABS(delta) .GT. 1.d-10) 
+            DO WHILE (DABS(delta)/Tstar .GT. 1.d-8) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
                         PRINT *, &
-                        'Evaluation of saturation temperature failed to converge to a solution. &
-                        prelax = ',pstar,', Tstar = ',Tstar
+                        'PTSAT :: Evaluation of saturation temperature failed & 
+                         to converge to a solution. prelax = ',pstar,', Tstar = ',Tstar
                         CALL s_mpi_abort()
                   END IF
                   fp = A + B/Tstar + C*dlog(Tstar) + D*dlog(pstar+pinf1) - dlog(pstar+pinf2)
@@ -4558,13 +4563,13 @@ MODULE m_rhs
                                     IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
                                         numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
                                         denominator = numerator + pres_K_init(i)-pres_relax
-                                        rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                                    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
-                                                    * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
-                                                    pres_inf(i)))**(1d0/gamma_min(i))
-                                        !rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
-                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
-                                        !              numerator/denominator
+                                        !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
+                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
+                                        !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
+                                        !            pres_inf(i)))**(1d0/gamma_min(i))
+                                        rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
+                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
+                                                      numerator/denominator
                                         drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
                                             MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
                                             gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
@@ -4659,7 +4664,7 @@ MODULE m_rhs
         !!      purpose, this pressure is finally corrected using the
         !!      mixture-total-energy equation.
         !!  @param q_cons_vf Cell-average conservative variables
-        SUBROUTINE s_infinite_p_relaxation_mp(q_cons_vf) ! ----------------
+        SUBROUTINE s_infinite_p_relaxation_m(q_cons_vf) ! ----------------
 
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf 
             !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
@@ -4749,7 +4754,7 @@ MODULE m_rhs
                     END DO
                 END DO
             END DO
-        END SUBROUTINE s_infinite_p_relaxation_mp ! ----------------
+        END SUBROUTINE s_infinite_p_relaxation_m ! ----------------
 
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
@@ -4911,12 +4916,13 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_ptmu_pTrelax(pstar,Tstar,rho0,E0,A,B,C,D)
+        SUBROUTINE s_compute_ptmu_pTrelax(pstar,Tstar,rho0,E0,A,B,C,D,failed)
 
             REAL(KIND(0d0)), INTENT(INOUT) :: pstar
             REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
             REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
             REAL(KIND(0d0)), INTENT(IN)    :: A, B, C, D
+            LOGICAL, INTENT(OUT)           :: failed
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4941,10 +4947,10 @@ MODULE m_rhs
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
             q2    = fluid_pp(2)%qv
-        
+            failed = 0
             ! Initial guess
             iter = 0; fp = 0.d0; dfdp = 0.d0; delta = 1.d0
-            DO WHILE (DABS(delta) .GT. 1.d-8) 
+            DO WHILE (DABS(delta)/pstar .GT. 1.d-8) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -4958,9 +4964,11 @@ MODULE m_rhs
                   ! Convergence
                   IF ((iter .GT. 50) .OR. ISNAN(pstar) .OR. ISNAN(Tstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
-                        PRINT '(A)', &
-                        'Evaluation of saturation temperature failed to converge to a solution. Exiting ...'
-                        CALL s_mpi_abort()
+                        PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
+                        converge to a solution.'
+                        PRINT *, 'delta ::',delta,', pstar :: ',pstar,', Tstar :: ',Tstar,', iter ::',iter
+                        failed = .TRUE.
+                        RETURN
                   END IF
                   ! Calculating the derivatives wrt pressure of the coefficients
                   dadp = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
@@ -4978,7 +4986,6 @@ MODULE m_rhs
                   pstar = pstar - delta
             END DO
         END SUBROUTINE s_compute_ptmu_pTrelax !-------------------------------
-
 
         !>  The purpose of this procedure is to infinitely relax
         !!      the pressures from the internal-energy equations to a
@@ -5014,7 +5021,7 @@ MODULE m_rhs
             !> @}
 
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
-            INTEGER :: relax             !< Relaxation procedure determination variable
+            LOGICAL :: relax, failed     !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
             CALL s_compute_gibbs_constants(A,B,C,D)
 
@@ -5046,18 +5053,17 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = 0
+                        relax = .FALSE.
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
 
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                            rhoe = 0.d0
                            DO i = 1, num_fluids
-                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
+                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
                            CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
-                           !PRINT *,'ptmu, prelax = ',pres_relax,', Trelax = ',Tsat
                            DO i = 1, num_fluids
                                Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                          -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
@@ -5067,57 +5073,39 @@ MODULE m_rhs
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
-                           IF (Tsat .GT. Tk(1)) relax = 0
+                           IF (Tsat .GT. Tk(1)) relax = .TRUE.
                         END IF
-
+                        failed = .FALSE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax == 1) THEN
-                            !print *, 'BEFORE, j ::',j
-                            ! print *, 'rhoe = ',rhoe,', rho = ',rho
-                            ! print *, 'Etotal = ',q_cons_vf(E_idx)%sf(j,k,l) - dyn_pres
-                            !print *, 'a1 = ',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
-                            !       ', a2 = ',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                            !print *, 'ra1 = ',q_cons_vf(1+cont_idx%beg-1)%sf(j,k,l),&
-                            !       ', ra2 = ',q_cons_vf(2+cont_idx%beg-1)%sf(j,k,l)
-
-                            ! Initial guess for Tsat, calling subroutine above
-                            ! TODO MRJ GENERALIZING THIS TO MULTIPLE FLUIDS
+                        IF (relax) THEN
+                            ! TODO GENERALIZING THIS TO MULTIPLE FLUIDS
                             ! ASSUME 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
-                            CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D)
-                            ! PRINT *, 'FINAL P and T'
-                            ! PRINT *, 'pstar = ',pres_relax,', Tstar = ',Trelax
-                            p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
-                            rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
-                                      (fluid_pp(1)%cv*Trelax)
-                            p_infk = fluid_pp(2)%pi_inf/(1.d0+fluid_pp(2)%gamma)
-                            rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
-                                      (fluid_pp(2)%cv*Trelax)
-
-                            ! Calculate vapor and liquid volume fractions
-                            a1 = (rho-rho2)/(rho1-rho2)
-                            a2 = 1.d0 - a1
-                            IF (a1 .LT. 0.d0 .OR. a2 .LT. 0.d0) THEN
-                                 a2 = (rho-rho1)/(rho2-rho1); a1 = 1.d0 - a2;
+                            CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
+                            IF(failed) THEN
+                                PRINT *, 'failed, j : ',j, & 
+                                         'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
+                                         'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
+                                PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
+                                CALL s_mpi_abort()
+                            ELSE
+                                !PRINT *,'success'
+                                p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
+                                rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
+                                       (fluid_pp(1)%cv*Trelax)
+                                p_infk = fluid_pp(2)%pi_inf/(1.d0+fluid_pp(2)%gamma)
+                                rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
+                                       (fluid_pp(2)%cv*Trelax)
+                                ! Calculate vapor and liquid volume fractions
+                                a1 = (rho-rho2)/(rho1-rho2)
+                                a2 = 1.d0 - a1
+                                ! Cell update of the volume fraction
+                                q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
+                                q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
+                                q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
+                                q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
                             END IF
-
-                            IF (a1 .LE. 0.d0) THEN 
-                                a1 = 1.d-6; a2  = 1.d0 - a1;
-                            ELSE IF (a1 .GE. 1.d0) THEN 
-                                a1 = 1.d0 - 1.d-6; a2  = 1.d0 - a1;
-                            END IF
-
-                            !PRINT *, 'AFTER'
-                            !PRINT *, 'computed rho and alphas'
-                            !PRINT *, 'rhok1 = ',rho1,', rhok2 = ',rho2
-                            !PRINT *, 'ak1 = ',a1,', ak2 = ',a2
-
-                            ! Cell update of the volume fraction
-                            q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
-                            q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*(1.d0-a1)
-                            q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
-                            q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = 1.d0-a1
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================

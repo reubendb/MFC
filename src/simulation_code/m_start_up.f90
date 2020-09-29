@@ -243,7 +243,7 @@ MODULE m_start_up
             ELSEIF( model_eqns == 2 .AND. bubbles .AND. bubble_model == 1  ) THEN
                 PRINT '(A)', 'The 5-equation bubbly flow model requires bubble_model = 2 (Keller--Miksis)'
                 CALL s_mpi_abort()
-            ELSEIF(model_eqns == 3 .AND. relax_model .GT. 4) THEN
+            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 4) THEN
                 PRINT '(A)', 'Relaxation model untested with 6-equation model'
                 CALL s_mpi_abort()
             ELSEIF( bubbles .AND. bubble_model == 3 .AND. (polytropic .NEQV. .TRUE.)  ) THEN
@@ -686,20 +686,6 @@ MODULE m_start_up
                     PRINT '(A,I0,A)', 'Unsupported value of ' // &
                                       'fluid_pp(',i,')%'      // &
                                       'cv. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
-                                    .AND.                &
-                        fluid_pp(i)%qv == dflt_real       ) THEN
-                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
-                                      'fluid_pp(',i,')%'      // &
-                                      'qv. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF( fluid_pp(i)%pi_inf /= dflt_real &
-                                    .AND.                &
-                        fluid_pp(i)%qvp == dflt_real     ) THEN
-                    PRINT '(A,I0,A)', 'Unsupported value of ' // &
-                                      'fluid_pp(',i,')%'      // &
-                                      'qvp. Exiting ...'
                     CALL s_mpi_abort()
                 ELSEIF(         model_eqns == 1         &
                                      .AND.              &

@@ -105,7 +105,6 @@ PROGRAM p_main
         s_write_data_files => s_write_parallel_data_files
     END IF
 
-
     ! Setting up the grid and the initial condition. If the grid is read in from
     ! preexisting grid data files, it is checked for consistency. If the grid is
     ! not read in, it is generated from scratch according to the inputs provided
@@ -132,9 +131,8 @@ PROGRAM p_main
     END IF
         
     IF(old_ic) CALL s_read_ic_data_files(q_cons_vf)
- 
+
     CALL s_generate_initial_condition()
-    
     CALL s_write_data_files(q_cons_vf)
 
     ! Disassociate pointers for serial and parallel I/O
