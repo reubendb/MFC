@@ -208,7 +208,7 @@ MODULE m_variables_conversion
             ! Computing the density, the specific heat ratio function and the
             ! liquid stiffness function, respectively
             IF(adv_alphan) THEN
-                IF (bubbles .NEQV. .True.) THEN
+                IF (bubbles .NEQV. .TRUE.) THEN
                         rho_sf(j,k,l)    = 0d0
                         gamma_sf(j,k,l)  = 0d0
                         pi_inf_sf(j,k,l) = 0d0
@@ -223,6 +223,13 @@ MODULE m_variables_conversion
                                      + q_cons_vf(i+E_idx)%sf(j,k,l) &
                                      * fluid_pp(i)%pi_inf
                         END DO
+                        IF(model_eqns == 3) THEN
+                          DO i = 1, num_fluids
+                                pi_inf_sf(j,k,l) = pi_inf_sf(j,k,l)             &
+                                     + q_cons_vf(   i   )%sf(j,k,l)             &
+                                     * fluid_pp(i)%qv
+                          END DO
+                        END IF 
                 ELSE
                         rho_sf(j,k,l)    = q_cons_vf(1)%sf(j,k,l)
                         gamma_sf(j,k,l)  = fluid_pp(1)%gamma
@@ -411,7 +418,7 @@ MODULE m_variables_conversion
                             ! Computing the pressure from the energy
                             q_prim_vf(E_idx)%sf(j,k,l) = &
                                 ( q_cons_vf(E_idx)%sf(j,k,l) &
-                                - dyn_pres -pi_inf_sf(j,k,l) ) / gamma_sf(j,k,l)
+                                - dyn_pres - pi_inf_sf(j,k,l) ) / gamma_sf(j,k,l)
                         ELSE
                             ! p = ( E/(1-alf) - 0.5 rho u u/(1-alf) - pi_inf_k )/gamma_k
                             q_prim_vf(E_idx)%sf(j,k,l) = &

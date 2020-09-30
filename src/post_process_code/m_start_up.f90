@@ -83,7 +83,8 @@ MODULE m_start_up
                                    fourier_modes,                             &
                                    rhoref, pref, bubbles, R0ref, nb,          &
                                    polytropic, thermal, Ca, Web, Re_inv,      &
-                                   polydisperse, poly_sigma
+                                   polydisperse, poly_sigma, relax_model,     &
+                                   hypoelasticity
 
             
             ! Inquiring the status of the post_process.inp file

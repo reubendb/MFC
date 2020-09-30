@@ -119,12 +119,14 @@ MODULE m_global_parameters
     !> @{
     INTEGER :: model_eqns      !< Multicomponent flow model
     INTEGER :: num_fluids      !< Number of different fluids present in the flow
+    INTEGER :: relax_model     !< Phase change relaxation model 
     LOGICAL :: adv_alphan      !< Advection of the last volume fraction
     LOGICAL :: mpp_lim         !< Maximum volume fraction limiter
     INTEGER :: sys_size        !< Number of unknowns in the system of equations
     INTEGER :: weno_order      !< Order of accuracy for the WENO reconstruction
     LOGICAL :: mixture_err     !< Mixture error limiter
     LOGICAL :: alt_soundspeed  !< Alternate sound speed
+    LOGICAL :: hypoelasticity  !< Hypoelasticity
     !> @}
 
     !> @name Annotations of the structure, i.e. the organization, of the state vectors
@@ -309,7 +311,9 @@ MODULE m_global_parameters
             weno_order = dflt_int
             mixture_err = .FALSE.
             alt_soundspeed = .FALSE.
-            
+            relax_model = dflt_int
+            hypoelasticity = .FALSE.
+           
             bc_x%beg = dflt_int
             bc_x%end = dflt_int
             bc_y%beg = dflt_int
@@ -322,6 +326,7 @@ MODULE m_global_parameters
             DO i = 1, num_fluids_max
                 fluid_pp(i)%gamma  = dflt_real
                 fluid_pp(i)%pi_inf = dflt_real
+                fluid_pp(i)%qv     = dflt_real
             END DO
             
             
