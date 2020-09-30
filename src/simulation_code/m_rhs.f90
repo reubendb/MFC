@@ -4558,13 +4558,13 @@ MODULE m_rhs
                                     IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
                                         numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
                                         denominator = numerator + pres_K_init(i)-pres_relax
-                                        rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                                    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
-                                                    * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
-                                                    pres_inf(i)))**(1d0/gamma_min(i))
-                                        !rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
-                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
-                                        !              numerator/denominator
+                                        !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
+                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
+                                        !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
+                                        !            pres_inf(i)))**(1d0/gamma_min(i))
+                                        rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
+                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
+                                                      numerator/denominator
                                         drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
                                             MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
                                             gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
