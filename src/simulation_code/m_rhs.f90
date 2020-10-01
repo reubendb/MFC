@@ -4283,24 +4283,21 @@ MODULE m_rhs
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_pTsat(pstar,Tstar,A,B,C,D)
-
             REAL(KIND(0d0)), INTENT(IN)         :: pstar
             REAL(KIND(0d0)), INTENT(OUT)        :: Tstar
             REAL(KIND(0d0)), INTENT(IN)         :: A, B, C, D
             REAL(KIND(0d0))                     :: pinf1, pinf2
             REAL(KIND(0d0))                     :: fp, dfdp, delta
             INTEGER :: iter      !< Generic loop iterators
-
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             ! Initial guess
             iter    = 0
             fp      = 0.d0 
             dfdp    = 0.d0
-            delta   = 1.d0
+            delta   = 1.d12
             Tstar   = 0.1d0*B/C
-
-            DO WHILE (DABS(delta) .GT. 1.d-8) 
+            DO WHILE (DABS(delta)/Tstar .GT. 1.d-6) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
@@ -4421,7 +4418,7 @@ MODULE m_rhs
                        kappa = f1/psi
 
                        theta = 1.d8; nu = 0.d0
-                       IF (T_k(1) > Tsat) nu = 1d-3
+                       IF (T_k(1) .GT. Tsat) nu = 1d-3
                            
                        Q = theta*(T_k(2)-T_k(1))
                        mdot = nu*(g_k(2)-g_k(1))
@@ -4543,7 +4540,9 @@ MODULE m_rhs
                             END DO
 
                             ! Iterative process for relaxed pressure determination
-                            iter    = 0; f_pres  = 1.d-10; df_pres = 1d20;
+                            iter    = 0
+                            f_pres  = 1.d0
+                            df_pres = 1d32
                             DO WHILE (DABS(f_pres) .GT. 1.d-15)
                                 pres_relax = pres_relax - f_pres / df_pres
                                 ! Convergence?
@@ -4951,8 +4950,11 @@ MODULE m_rhs
             q2    = fluid_pp(2)%qv
             failed = 0
             ! Initial guess
-            iter  = 0; fp    = 0.d0; dfdp  = 0.d0; delta = pstar;
-            DO WHILE (DABS(delta)/pstar .GT. 1.d-8) 
+            iter  = 0 
+            fp    = 0.d0 
+            dfdp  = 0.d0 
+            delta = pstar
+            DO WHILE (DABS(delta)/pstar .GT. 1.d-6) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -5030,6 +5032,10 @@ MODULE m_rhs
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
+                        ! Resetting the internal energy value and the relax and failed flags
+                        rhoe = 0.d0
+                        relax = .FALSE.
+                        failed = .FALSE.
                         ! Numerical correction of the volume fractions
                         IF (mpp_lim) THEN
                             sum_alpha = 0d0
@@ -5055,15 +5061,12 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = .FALSE.
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
 
                         IF (relax) THEN
-                           rhoe = 0.d0
                            DO i = 1, num_fluids
-                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) !+ &
-                                        !q_cons_vf(1+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
+                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
                            CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
@@ -5076,10 +5079,7 @@ MODULE m_rhs
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
-                           !PRINT *,'alpha1 :: ',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),& 
-                           !      ', alpha2 :: ',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                           !PRINT *, 'Tsat :: ',Tsat,', Tk1 :: ',Tk(1),', Tk2 :: ',Tk(2)
-                           IF (Tsat .GT. Tk(1)) THEN 
+                           IF (Tk(1) .GT. Tsat) THEN 
                                relax = .TRUE. 
                            ELSE 
                                relax = .FALSE. 
@@ -5091,16 +5091,14 @@ MODULE m_rhs
                         IF (relax) THEN
                             ! TODO GENERALIZING THIS TO MULTIPLE FLUIDS
                             ! ASSUME 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
-                            failed = .FALSE.
                             CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
                             IF(failed) THEN
-                                !PRINT *, 'failed, j : ',j, & 
-                                !         'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
-                                !         'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                                !PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
-                                !CALL s_mpi_abort()
+                                PRINT *, 'failed, j : ',j, & 
+                                         'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
+                                         'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
+                                PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
+                                CALL s_mpi_abort()
                             ELSE
-                                !PRINT *,'success'
                                 p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
                                 rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
                                        (fluid_pp(1)%cv*Trelax)
