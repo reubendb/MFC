@@ -4952,7 +4952,7 @@ MODULE m_rhs
             q2    = fluid_pp(2)%qv
             failed = 0
             ! Initial guess
-            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = 1.d0
+            iter  = 0; fp    = 0.d0; dfdp  = 0.d0; delta = pstar;
             DO WHILE (DABS(delta)/pstar .GT. 1.d-8) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
@@ -5063,7 +5063,8 @@ MODULE m_rhs
                         IF (relax) THEN
                            rhoe = 0.d0
                            DO i = 1, num_fluids
-                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
+                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) !+ &
+                                        !q_cons_vf(1+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
                            CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
