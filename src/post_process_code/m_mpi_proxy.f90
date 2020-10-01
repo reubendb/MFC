@@ -321,6 +321,9 @@ MODULE m_mpi_proxy
                 CALL MPI_BCAST( fluid_pp(i)%pi_inf  , 1, &
                                 MPI_DOUBLE_PRECISION, 0, &
                                 MPI_COMM_WORLD, ierr     )
+                CALL MPI_BCAST( fluid_pp(i)%qv      , 1, &
+                                MPI_DOUBLE_PRECISION, 0, &
+                                MPI_COMM_WORLD, ierr     )
             END DO
             
             

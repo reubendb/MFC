@@ -497,7 +497,6 @@ MODULE m_variables_conversion
                             !    q_cons_vf(i)%sf(j,k,l) = q_cons_vf(i-adv_idx%end)%sf(j,k,l) * & 
                             !        fluid_pp(i-adv_idx%end)%gamma*q_prim_vf(E_idx)%sf(j,k,l)+fluid_pp(i-adv_idx%end)%pi_inf
                             !END DO
-                        !END IF
 
                         ! Transferring the advection equation(s) variable(s)
                         DO i = adv_idx%beg, adv_idx%end

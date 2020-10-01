@@ -4250,12 +4250,13 @@ MODULE m_rhs
             REAL(KIND(0d0))                      ::          cp1, cp2
             REAL(KIND(0d0))                      ::           q1,  q2
             REAL(KIND(0d0))                      ::          q1p, q2p
+            REAL(KIND(0d0))                      ::             denom 
 
             ! TODO MRJ assumes only two materials
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
-            !cp1   = 2534.d0
+            !!! cp1   = 2534.d0
             cp1   = n1*cv1
             q1    = fluid_pp(1)%qv
             q1p   = fluid_pp(1)%qvp
@@ -4263,16 +4264,17 @@ MODULE m_rhs
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
-            !cp2   = 2005.d0
+            !!! cp2   = 2005.d0
             cp2   = n2*cv2
             q2    = fluid_pp(2)%qv
             q2p   = fluid_pp(2)%qvp
 
             ! Calculating coefficients for equation 11a in Pelanti 2014
-            A = (cp1 - cp2 + q2p - q1p)/(cp2 - cv2) 
-            B = (q1 - q2)/(cp2 - cv2)
-            C = (cp2 - cp1)/(cp2 - cv2)
-            D = (cp1 - cv1)/(cp2 - cv2)
+            denom = n2*cv2 - cv2
+            A = (n1*cv1 - n2*cv2 + q2p - q1p)/denom
+            B = (q1 - q2)/denom
+            C = (cp2 - cp1)/denom
+            D = (cp1 - cv1)/denom
         END SUBROUTINE s_compute_gibbs_constants
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -4292,10 +4294,13 @@ MODULE m_rhs
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             ! Initial guess
-            iter    = 0; fp = 0.d0; dfdp = 0.d0; delta   = 1.d0;
+            iter    = 0
+            fp      = 0.d0 
+            dfdp    = 0.d0
+            delta   = 1.d0
             Tstar   = 0.1d0*B/C
 
-            DO WHILE (DABS(delta)/Tstar .GT. 1.d-8) 
+            DO WHILE (DABS(delta) .GT. 1.d-8) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
@@ -4529,7 +4534,6 @@ MODULE m_rhs
                                             /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) &
                                             - fluid_pp(i)%pi_inf) & 
                                             /fluid_pp(i)%gamma
-
                                     IF (pres_K_init(i) .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) & 
                                         pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-0
                                 ELSE
@@ -4539,16 +4543,14 @@ MODULE m_rhs
                             END DO
 
                             ! Iterative process for relaxed pressure determination
-                            iter    = 0; f_pres  = 1d-9; df_pres = 1d9;
-                            DO WHILE (DABS(f_pres) .GT. 1d-15)
+                            iter    = 0; f_pres  = 1.d-10; df_pres = 1d20;
+                            DO WHILE (DABS(f_pres) .GT. 1.d-15)
                                 pres_relax = pres_relax - f_pres / df_pres
                                 ! Convergence?
                                 iter = iter + 1
-                                IF (iter == 50) THEN
-                                    IF (pres_relax .GT. 1.d-12) THEN
-                                        PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
-                                        CALL s_mpi_abort()
-                                    END IF
+                                IF ( (iter == 50) .AND. (pres_relax .GT. 1.d-12) ) THEN
+                                    PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
+                                    CALL s_mpi_abort()
                                 END IF
                                 ! Physical pressure?
                                 DO i = 1, num_fluids
@@ -4564,7 +4566,7 @@ MODULE m_rhs
                                         numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
                                         denominator = numerator + pres_K_init(i)-pres_relax
                                         !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
+                                        !           MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
                                         !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
                                         !            pres_inf(i)))**(1d0/gamma_min(i))
                                         rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
@@ -4949,8 +4951,8 @@ MODULE m_rhs
             q2    = fluid_pp(2)%qv
             failed = 0
             ! Initial guess
-            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = 1.d0
-            DO WHILE (DABS(delta)/pstar .GT. 1.d-8) 
+            iter  = 0; fp    = 0.d0; dfdp  = 0.d0; delta = pstar+1.d8;
+            DO WHILE (DABS(delta) .GT. 1.d-6) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -5060,7 +5062,8 @@ MODULE m_rhs
                         IF (relax) THEN
                            rhoe = 0.d0
                            DO i = 1, num_fluids
-                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
+                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) + &
+                                        q_cons_vf(1+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
                            CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
@@ -5073,22 +5076,29 @@ MODULE m_rhs
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
-                           IF (Tsat .GT. Tk(1)) relax = .TRUE.
+                           !PRINT *,'alpha1 :: ',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),& 
+                           !      ', alpha2 :: ',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
+                           !PRINT *, 'Tsat :: ',Tsat,', Tk1 :: ',Tk(1),', Tk2 :: ',Tk(2)
+                           IF (Tsat .GT. Tk(1)) THEN 
+                               relax = .TRUE. 
+                           ELSE 
+                               relax = .FALSE. 
+                           END IF
                         END IF
-                        failed = .FALSE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
                         IF (relax) THEN
                             ! TODO GENERALIZING THIS TO MULTIPLE FLUIDS
                             ! ASSUME 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
+                            failed = .FALSE.
                             CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
                             IF(failed) THEN
-                                PRINT *, 'failed, j : ',j, & 
-                                         'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
-                                         'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                                PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
-                                CALL s_mpi_abort()
+                                !PRINT *, 'failed, j : ',j, & 
+                                !         'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
+                                !         'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
+                                !PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
+                                !CALL s_mpi_abort()
                             ELSE
                                 !PRINT *,'success'
                                 p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
