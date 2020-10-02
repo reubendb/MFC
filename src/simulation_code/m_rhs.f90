@@ -4258,7 +4258,6 @@ MODULE m_rhs
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
-            !cp1   = 2534.d0
             cp1   = n1*cv1
             q1    = fluid_pp(1)%qv
             q1p   = fluid_pp(1)%qvp
@@ -4266,7 +4265,6 @@ MODULE m_rhs
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
-            !cp2   = 2005.d0
             cp2   = n2*cv2
             q2    = fluid_pp(2)%qv
             q2p   = fluid_pp(2)%qvp
@@ -4296,17 +4294,19 @@ MODULE m_rhs
             iter    = 0
             fp      = 0.d0 
             dfdp    = 0.d0
-            delta   = 1.d12
+            delta   = 1.d0
             Tstar   = 0.1d0*B/C
             DO WHILE (DABS(delta)/Tstar .GT. 1.d-6) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
-                        PRINT *, &
-                        'PTSAT :: Evaluation of saturation temperature failed & 
-                         to converge to a solution. prelax = ',pstar,', Tstar = ',Tstar
-                        CALL s_mpi_abort()
+                         PRINT *, &
+                         'PTSAT :: Evaluation of saturation temperature failed     & 
+                         to converge to a solution.'                            
+                         PRINT *, 'iter = ',iter,', delta = ',delta, & 
+                         ', prelax = ',pstar,', Tstar = ',Tstar
+                         CALL s_mpi_abort()
                   END IF
                   fp = A + B/Tstar + C*dlog(Tstar) + D*dlog(pstar+pinf1) - dlog(pstar+pinf2)
                   dfdp = -B/(Tstar*Tstar) + C/Tstar
@@ -4518,7 +4518,7 @@ MODULE m_rhs
                         ! Is the pressure relaxation procedure necessary?
                         relax = 1
                         DO i = 1, num_fluids
-                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1d0-sgm_eps)) relax = 0
+                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1.d0-sgm_eps)) relax = 0
                         END DO
 
                         IF (relax == 1) THEN
@@ -4543,8 +4543,8 @@ MODULE m_rhs
 
                             ! Iterative process for relaxed pressure determination
                             iter    = 0
-                            f_pres  = 1.d0
-                            df_pres = 1d32
+                            f_pres  = 1.d-14
+                            df_pres = 1.d14
                             DO WHILE (DABS(f_pres) .GT. 1.d-15)
                                 pres_relax = pres_relax - f_pres / df_pres
                                 ! Convergence?
@@ -4972,10 +4972,10 @@ MODULE m_rhs
                   ! Convergence
                   IF ((iter .GT. 50) .OR. ISNAN(pstar) .OR. ISNAN(Tstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
-                        PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
-                        converge to a solution.'
-                        PRINT *, 'delta ::',delta,', pstar :: ',pstar,', Tstar :: ',Tstar,', iter ::',iter
-                        failed = .TRUE.
+                         PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
+                         converge to a solution.'
+                         PRINT *, 'delta ::',delta,', pstar :: ',pstar,', Tstar :: ',Tstar,', iter ::',iter
+                         failed = .TRUE.
                         RETURN
                   END IF
                   ! Calculating the derivatives wrt pressure of the coefficients
@@ -5029,7 +5029,8 @@ MODULE m_rhs
             !> @}
 
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
-            LOGICAL :: relax, failed     !< Relaxation procedure determination variable
+            INTEGER :: relax             !< Relaxation procedure determination variable
+            LOGICAL :: failed
             !< Computing the constant saturation properties 
             CALL s_compute_gibbs_constants(A,B,C,D)
 
@@ -5038,7 +5039,7 @@ MODULE m_rhs
                     DO l = 0, p
                         ! Resetting the internal energy value and the relax and failed flags
                         rhoe = 0.d0
-                        relax = .FALSE.
+                        relax = 0
                         failed = .FALSE.
                         ! Numerical correction of the volume fractions
                         IF (mpp_lim) THEN
@@ -5066,11 +5067,12 @@ MODULE m_rhs
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
 
-                        IF (relax) THEN
+                        IF (relax == 1) THEN
                            DO i = 1, num_fluids
-                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
+                               rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) !+ &
+                                          !q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
                            CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
@@ -5082,18 +5084,15 @@ MODULE m_rhs
                                          /(1.d0+fluid_pp(i)%gamma)) &
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
+                                !IF (Tk(i) .LT. Tsat) relax = 0
                            END DO
-                           IF (Tk(1) .GT. Tsat) THEN 
-                               relax = .TRUE. 
-                           ELSE 
-                               relax = .FALSE. 
-                           END IF
+                           IF(Tk(1) .LT. Tsat .OR. Tk(2) .LT. Tsat ) relax = 0
                         END IF
                         failed = .FALSE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax) THEN
+                        IF (relax == 1) THEN
                             ! TODO GENERALIZING THIS TO MULTIPLE FLUIDS
                             ! ASSUME 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
                             CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
