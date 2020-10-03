@@ -4295,7 +4295,7 @@ MODULE m_rhs
             dfdp    = 0.d0
             delta   = 1.d-10
             Tstar   = 0.1d0*B/C
-            DO WHILE (DABS(delta) .GT. 1.d-8) 
+            DO WHILE (DABS(delta/Tstar) .GT. 1.d-12) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
@@ -5062,7 +5062,7 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 0.2 ) .AND. &
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. &
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
 
                         IF (relax == 1) THEN
@@ -5080,7 +5080,6 @@ MODULE m_rhs
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
-                           !IF(Tk(1) .LT. Tsat .AND. Tk(2) .LT. Tsat) relax = 0
                            IF(Tk(1) .LT. Tsat) relax = 0
                         END IF
                         !> ==============================================================================
