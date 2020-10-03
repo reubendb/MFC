@@ -4513,7 +4513,7 @@ MODULE m_rhs
                         ! Is the pressure relaxation procedure necessary?
                         relax = .FALSE.
                         DO i = 1, num_fluids
-                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1.d0-sgm_eps)) relax = .TRUE.
+                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .LT. (1.d0-sgm_eps)) relax = .TRUE.
                         END DO
                         IF (relax) THEN
                             ! Initial state
