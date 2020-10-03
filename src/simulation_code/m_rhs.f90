@@ -4238,7 +4238,6 @@ MODULE m_rhs
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_gibbs_constants(A,B,C,D)
-
             REAL(KIND(0d0)), INTENT(OUT)         ::        A, B, C, D
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
@@ -4251,22 +4250,20 @@ MODULE m_rhs
             REAL(KIND(0d0))                      ::           q1,  q2
             REAL(KIND(0d0))                      ::          q1p, q2p
             REAL(KIND(0d0))                      ::             denom 
-
-            ! TODO MRJ assumes only two materials
+            ! Material 1
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
             cp1   = n1*cv1
             q1    = fluid_pp(1)%qv
             q1p   = fluid_pp(1)%qvp
-
+            ! Material 2
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
             cp2   = n2*cv2
             q2    = fluid_pp(2)%qv
             q2p   = fluid_pp(2)%qvp
-
             ! Calculating coefficients for equation 11a in Pelanti 2014
             denom = n2*cv2 - cv2
             A = (n1*cv1 - n2*cv2 + q2p - q1p)/denom
@@ -4482,7 +4479,7 @@ MODULE m_rhs
             INTEGER :: i,j,k,l,iter
 
             ! Relaxation procedure determination variable
-            INTEGER :: relax
+            LOGICAL :: relax
             
             DO i = 1, num_fluids
                 gamma_min(i) = 1d0/fluid_pp(i)%gamma + 1d0
@@ -4512,15 +4509,13 @@ MODULE m_rhs
                                           q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) / sum_alpha
                             END DO
                         END IF
-
                         ! Pressures relaxation procedure ===================================
                         ! Is the pressure relaxation procedure necessary?
-                        relax = 1
+                        relax = .FALSE.
                         DO i = 1, num_fluids
-                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1.d0-sgm_eps)) relax = 0
+                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1.d0-sgm_eps)) relax = .TRUE.
                         END DO
-
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                             ! Initial state
                             pres_relax = 0.d0
                             DO i = 1, num_fluids
@@ -4590,6 +4585,7 @@ MODULE m_rhs
                         END IF
                         ! ==================================================================
                         ! Mixture-total-energy correction ==================================
+                        ! ==================================================================
                         ! The mixture-total-energy correction of the mixture pressure P is not necessary here
                         ! because the primitive variables are directly recovered later on by the conservative
                         ! variables (see s_convert_conservative_to_primitive_variables called in s_compute_rhs).
@@ -4637,13 +4633,12 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::        ap, bp, dp
 
             INTEGER :: iter      !< Generic loop iterators
-            ! TODO MRJ assumes only two materials
+            ! Material 1
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
-
+            ! Material 2
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
-
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             Z1 = n1*(p_k(1)+pinf1)
             Z2 = n2*(p_k(2)+pinf2)
@@ -4687,7 +4682,7 @@ MODULE m_rhs
             !> @}
 
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
-            INTEGER :: relax             !< Relaxation procedure determination variable
+            LOGICAL :: relax             !< Relaxation procedure determination variable
 
             DO j = 0, m
                 DO k = 0, n
@@ -4713,13 +4708,13 @@ MODULE m_rhs
                              END DO
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = 0
+                        relax = .FALSE.
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
                                  rhoe_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -4763,7 +4758,6 @@ MODULE m_rhs
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_pt_prelax(pstar,alpha1,rhoalpha1,rhoalpha2,E0,A,B,C,D)
-
             REAL(KIND(0d0)), INTENT(INOUT) :: pstar, alpha1
             REAL(KIND(0d0)), INTENT(IN)    :: rhoalpha1, rhoalpha2, E0
             REAL(KIND(0d0)), INTENT(IN)    :: A, B, C, D
@@ -4776,19 +4770,17 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::          cv1, cv2
             REAL(KIND(0d0))                                   ::           q1,  q2
             REAL(KIND(0d0))                                   ::        ap, bp, dp
-
             INTEGER :: iter      !< Generic loop iterators
-            ! TODO MRJ assumes only two materials
+            ! Material 1
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
             q1    = fluid_pp(1)%qv
-
+            ! Material 2
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
             q2    = fluid_pp(2)%qv
-
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             ap = rhoalpha1*cv1 + rhoalpha2*cv2
             bp = q1*cv1*(n1-1.d0)*rhoalpha1*rhoalpha1 + q2*cv2*(n2-1.d0)*rhoalpha2*rhoalpha2 + &
@@ -4839,10 +4831,9 @@ MODULE m_rhs
             !> @}
 
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
-            INTEGER :: relax             !< Relaxation procedure determination variable
+            LOGICAL :: relax             !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
             CALL s_compute_gibbs_constants(A,B,C,D)
-
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
@@ -4867,13 +4858,13 @@ MODULE m_rhs
                              END DO
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = 0
+                        relax = .FALSE.
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                             rhoalpha1 = q_cons_vf(cont_idx%beg)%sf(j,k,l)
                             rhoalpha2 = q_cons_vf(1+cont_idx%beg)%sf(j,k,l)
                             rhoe = 0.d0
@@ -4896,10 +4887,8 @@ MODULE m_rhs
                             dyn_pres = dyn_pres + 5d-1*q_cons_vf(i)%sf(j,k,l) * & 
                                        q_cons_vf(i)%sf(j,k,l) / MAX(rho,sgm_eps)
                         END DO
-
                         E_We = 0.d0
                         pres_relax = (q_cons_vf(E_idx)%sf(j,k,l) - dyn_pres - pi_inf - E_We) / gamma
-
                         DO i = 1, num_fluids
                                q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
                                q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) * & 
@@ -4999,7 +4988,6 @@ MODULE m_rhs
         !!      mixture-total-energy equation.
         !!  @param q_cons_vf Cell-average conservative variables
         SUBROUTINE s_infinite_ptmu_relaxation(q_cons_vf) ! ----------------
-          
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf 
             !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
             !! derivative df(p), isentropic partial density, sum of volume fractions,
@@ -5023,19 +5011,16 @@ MODULE m_rhs
             REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
             REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
             !> @}
-
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
-            INTEGER :: relax             !< Relaxation procedure determination variable
-            LOGICAL :: failed
+            LOGICAL :: relax, failed     !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
             CALL s_compute_gibbs_constants(A,B,C,D)
-
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
                         ! Resetting the internal energy value and the relax and failed flags
                         rhoe = 0.d0
-                        relax = 0
+                        relax = .FALSE.
                         failed = .FALSE.
                         ! Numerical correction of the volume fractions
                         IF (mpp_lim) THEN
@@ -5063,9 +5048,9 @@ MODULE m_rhs
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = 1
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
 
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                            DO i = 1, num_fluids
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
@@ -5080,35 +5065,35 @@ MODULE m_rhs
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
-                           IF(Tk(1) .LT. Tsat) relax = 0
+                           IF(Tk(1) .LT. Tsat) relax = .FALSE.
                         END IF
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax == 1) THEN
+                        IF (relax) THEN
                             ! Assume 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
                             CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
-                                IF(failed) THEN
-                                     PRINT *, 'failed, j : ',j, & 
-                                      'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
-                                      'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                                     PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
-                                     CALL s_mpi_abort()
-                                END IF
-                                p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
-                                rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
-                                       (fluid_pp(1)%cv*Trelax)
-                                p_infk = fluid_pp(2)%pi_inf/(1.d0+fluid_pp(2)%gamma)
-                                rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
-                                       (fluid_pp(2)%cv*Trelax)
-                                ! Calculate vapor and liquid volume fractions
-                                a1 = (rho-rho2)/(rho1-rho2)
-                                a2 = 1.d0 - a1
-                                ! Cell update of the volume fraction
-                                q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
-                                q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
-                                q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
-                                q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
+                            IF(failed) THEN
+                                 PRINT *, 'failed, j : ',j, & 
+                                 'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
+                                 'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
+                                 PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
+                                 CALL s_mpi_abort()
+                            END IF
+                            p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
+                            rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
+                                   (fluid_pp(1)%cv*Trelax)
+                            p_infk = fluid_pp(2)%pi_inf/(1.d0+fluid_pp(2)%gamma)
+                            rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
+                                   (fluid_pp(2)%cv*Trelax)
+                            ! Calculate vapor and liquid volume fractions
+                            a1 = (rho-rho2)/(rho1-rho2)
+                            a2 = 1.d0 - a1
+                            ! Cell update of the volume fraction
+                            q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
+                            q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
+                            q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
+                            q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
