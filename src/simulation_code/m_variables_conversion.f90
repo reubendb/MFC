@@ -362,31 +362,25 @@ MODULE m_variables_conversion
             DO i = 1, num_fluids
                 rho_K    = rho_K    + alpha_rho_K(i)
                 gamma_K  = gamma_K  + alpha_K(i)*fluid_pp(i)%gamma
-                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf &
-                                    + alpha_rho_K(i)*fluid_pp(i)%qv
+                pi_inf_K = pi_inf_K + alpha_K(i)*fluid_pp(i)%pi_inf 
             END DO            
             
-            !IF(model_eqns == 3) THEN
-            ! DO i = 1, num_fluids
-            !   pi_inf_K = pi_inf_K + alpha_rho_K(i)*fluid_pp(i)%qv
-            ! END DO
-            !END IF
+            IF(model_eqns == 3) THEN
+                DO i = 1, num_fluids
+                   pi_inf_K = pi_inf_K + alpha_rho_K(i)*fluid_pp(i)%qv
+                END DO
+            END IF
             
             ! Computing the shear and bulk Reynolds numbers from species analogs
-            DO i = 1,2
-               
-                Re_K(i) = dflt_real; IF(Re_size(i) > 0) Re_K(i) = 0d0
-               
+            DO i = 1,2           
+                Re_K(i) = dflt_real; IF(Re_size(i) > 0) Re_K(i) = 0d0            
                 DO j = 1, Re_size(i)
                     Re_K(i) = alpha_K(Re_idx(i,j))/fluid_pp(Re_idx(i,j))%Re(i) &
                               + Re_K(i)
-                END DO
-               
-                Re_K(i) = 1d0/MAX(Re_K(i),sgm_eps)
-               
+                END DO               
+                Re_K(i) = 1d0/MAX(Re_K(i),sgm_eps)               
             END DO
-            
-            
+                        
             ! Computing the Weber numbers from species analogs
             DO i = 1, We_size
                 We_K(We_idx(i,1),We_idx(i,2)) = ( alpha_K(We_idx(i,1)) + &

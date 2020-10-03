@@ -4513,9 +4513,9 @@ MODULE m_rhs
                         END IF
                         ! Pressures relaxation procedure ===================================
                         ! Is the pressure relaxation procedure necessary?
-                        relax = .FALSE.
+                        relax = .TRUE.
                         DO i = 1, num_fluids
-                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .LT. (1.d0-sgm_eps)) relax = .TRUE.
+                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1d0-sgm_eps)) relax = .FALSE.
                         END DO
                         IF (relax) THEN
                             ! Initial state
@@ -4586,7 +4586,6 @@ MODULE m_rhs
                                     q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
                                     q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
                             END DO
-
                         END IF
                         ! ==================================================================
                         ! Mixture-total-energy correction ==================================
@@ -4607,8 +4606,8 @@ MODULE m_rhs
                         E_We = 0d0
                         pres_relax = (q_cons_vf(E_idx)%sf(j,k,l) - dyn_pres - pi_inf - E_We) / gamma
                         DO i = 1, num_fluids
-                            q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
-                                 q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
+                            q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) =          & 
+                                 q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) *                  &
                                  ( fluid_pp(i)%gamma*pres_relax + fluid_pp(i)%pi_inf ) + &
                                 q_cons_vf(i)%sf(j,k,l)*fluid_pp(i)%qv 
                         END DO
@@ -5052,7 +5051,8 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. &
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
+                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. &
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
 
                         IF (relax) THEN
