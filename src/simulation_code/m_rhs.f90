@@ -4942,7 +4942,7 @@ MODULE m_rhs
             fp    = 0.d0 
             dfdp  = 0.d0 
             delta = pstar
-            DO WHILE (DABS(delta/pstar) .GT. 1.d-8) 
+            DO WHILE (DABS(delta/pstar) .GT. 1.d-10) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   ! Calculating coefficients, Eq. C.6, Pelanti 2014
