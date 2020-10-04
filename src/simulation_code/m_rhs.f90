@@ -4292,8 +4292,8 @@ MODULE m_rhs
             iter    = 0
             fp      = 0.d0 
             dfdp    = 0.d0
-            delta   = 1.d-10
             Tstar   = 0.1d0*B/C
+            delta   = Tstar
             DO WHILE (DABS(delta/Tstar) .GT. 1.d-12) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
