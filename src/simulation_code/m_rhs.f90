@@ -4289,11 +4289,7 @@ MODULE m_rhs
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             ! Initial guess
-            iter    = 0
-            fp      = 0.d0 
-            dfdp    = 0.d0
-            Tstar   = 0.1d0*B/C
-            delta   = Tstar
+            iter = 0; fp = 0.d0; dfdp = 0.d0; Tstar = 0.1d0*B/C; delta = Tstar;
             DO WHILE (DABS(delta/Tstar) .GT. 1.d-12) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
@@ -4442,7 +4438,7 @@ MODULE m_rhs
             END DO
         END SUBROUTINE s_finite_ptmu_relaxation ! --------------------------------------
 
-        SUBROUTINE s_infinite_p_relaxation(q_cons_vf) ! ----------------        
+        SUBROUTINE s_infinite_p_relaxation_k(q_cons_vf) ! ----------------        
         !> Description: The purpose of this procedure is to infinitely relax
         !!              the pressures from the internal-energy equations to a
         !!              unique pressure, from which the corresponding volume
@@ -4538,9 +4534,7 @@ MODULE m_rhs
                             END DO
 
                             ! Iterative process for relaxed pressure determination
-                            iter    = 0
-                            f_pres  = 1.d0
-                            df_pres = 0.d0
+                            iter    = 0; f_pres  = 1.d0; df_pres = 0.d0
                             DO WHILE (DABS(f_pres) .GT. 1.d-15)
                                 ! Convergence?
                                 iter = iter + 1
@@ -4616,7 +4610,7 @@ MODULE m_rhs
                 END DO
             END DO
 
-        END SUBROUTINE s_infinite_p_relaxation ! -----------------------
+        END SUBROUTINE s_infinite_p_relaxation_k ! -----------------------
 
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
@@ -4664,7 +4658,7 @@ MODULE m_rhs
         !!      purpose, this pressure is finally corrected using the
         !!      mixture-total-energy equation.
         !!  @param q_cons_vf Cell-average conservative variables
-        SUBROUTINE s_infinite_p_relaxation_m(q_cons_vf) ! ----------------
+        SUBROUTINE s_infinite_p_relaxation(q_cons_vf) ! ----------------
 
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf 
             !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
@@ -4754,7 +4748,7 @@ MODULE m_rhs
                     END DO
                 END DO
             END DO
-        END SUBROUTINE s_infinite_p_relaxation_m ! ----------------
+        END SUBROUTINE s_infinite_p_relaxation ! ----------------
 
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
@@ -4916,7 +4910,7 @@ MODULE m_rhs
             REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
             REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
             REAL(KIND(0d0)), INTENT(IN)    :: A, B, C, D
-            LOGICAL, INTENT(OUT)           :: failed
+            LOGICAL, INTENT(INOUT)         :: failed
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4931,22 +4925,18 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::         delta, fp
 
             INTEGER :: iter      !< Generic loop iterators
-            ! TODO MRJ assumes only two materials
+            ! Material 1
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             cv1   = fluid_pp(1)%cv
             q1    = fluid_pp(1)%qv
-
+            ! Material 2
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
             pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
             cv2   = fluid_pp(2)%cv
             q2    = fluid_pp(2)%qv
-            failed = 0
             ! Initial guess
-            iter  = 0 
-            fp    = 0.d0 
-            dfdp  = 0.d0 
-            delta = pstar
+            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstar;
             DO WHILE (DABS(delta/pstar) .GT. 1.d-10) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
@@ -4961,9 +4951,9 @@ MODULE m_rhs
                   ! Convergence
                   IF ((iter .GT. 50) .OR. ISNAN(pstar) .OR. ISNAN(Tstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
-                         !PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
-                         !converge to a solution.'
-                         !PRINT *, 'delta ::',delta,', pstar :: ',pstar,', Tstar :: ',Tstar,', iter ::',iter
+                         PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
+                         converge to a solution.'
+                         PRINT *, 'delta ::',delta,', pstar :: ',pstar,', Tstar :: ',Tstar,', iter ::',iter
                          failed = .TRUE.
                         RETURN
                   END IF
@@ -5052,7 +5042,7 @@ MODULE m_rhs
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. &
+                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. & !p-pTmu shock tube problem
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
 
                         IF (relax) THEN
@@ -5080,8 +5070,8 @@ MODULE m_rhs
                             ! Assume 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
                             CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
                             IF(failed) THEN
-                                 PRINT *, 'failed, j : ',j, & 
-                                 'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),&
+                                 PRINT *, 'failed, j : ',j,                       & 
+                                 'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l), &
                                  'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
                                  PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
                                  CALL s_mpi_abort()
