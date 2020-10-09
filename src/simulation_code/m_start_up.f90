@@ -1475,19 +1475,13 @@ MODULE m_start_up
 
                         pres = (v_vf(E_idx)%sf(j,k,l) - dyn_pres - E_We - pi_inf) / gamma
 
-                        IF(model_eqns /= 3) THEN
-                          DO i = 1, num_fluids
-                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
-                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf)
-                          END DO
-                        ELSE 
-                          DO i = 1, num_fluids
-                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
-                                v_vf(i+adv_idx%beg-1)%sf(j,k,l) * &
-                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
-                                v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
-                          END DO
-                        END IF
+                        DO i = 1, num_fluids
+                           v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) =      & 
+                               v_vf(i+adv_idx%beg-1)%sf(j,k,l) *               &
+                               (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
+                               v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                        END DO
+
                     END DO
                 END DO
             END DO

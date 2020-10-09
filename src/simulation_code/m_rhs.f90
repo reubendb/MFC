@@ -267,7 +267,14 @@ MODULE m_rhs
     TYPE(scalar_field) :: alf_sum
     !> @}
 
-    
+    !> @name Parameters for the phase change part of the code
+    !> @{
+    REAL(KIND(0d0)), PARAMETER :: pnewton_eps   = 1d-15 !< Saturation temperature tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptnewton_eps  = 1d-12 !< Saturation temperature tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_eps = 1d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps= 1d-10 !< Saturation p-T-mu tolerance
+    !> @}
+
     character(50) :: file_path !< Local file path for saving debug files
     
     CONTAINS
@@ -4240,57 +4247,17 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_gibbs_constants(A,B,C,D)
-            REAL(KIND(0d0)), INTENT(OUT)         ::        A, B, C, D
-            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
-            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
-            !!       iteration procedure, A-D, and iteration variables, f and df
-            !> @{
-            REAL(KIND(0d0))                      ::            n1, n2
-            REAL(KIND(0d0))                      ::      pinf1, pinf2
-            REAL(KIND(0d0))                      ::          cv1, cv2
-            REAL(KIND(0d0))                      ::          cp1, cp2
-            REAL(KIND(0d0))                      ::           q1,  q2
-            REAL(KIND(0d0))                      ::          q1p, q2p
-            REAL(KIND(0d0))                      ::             denom 
-            ! Material 1
-            n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
-            pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
-            cv1   = fluid_pp(1)%cv
-            cp1   = n1*cv1
-            q1    = fluid_pp(1)%qv
-            q1p   = fluid_pp(1)%qvp
-            ! Material 2
-            n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
-            pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
-            cv2   = fluid_pp(2)%cv
-            cp2   = n2*cv2
-            q2    = fluid_pp(2)%qv
-            q2p   = fluid_pp(2)%qvp
-            ! Calculating coefficients for equation 11a in Pelanti 2014
-            A = (cp1 - cp2 + q2p - q1p)/(cp2 - cv2) 
-            B = (q1 - q2)/(cp2 - cv2)
-            C = (cp2 - cp1)/(cp2 - cv2)
-            D = (cp1 - cv1)/(cp2 - cv2)
-        END SUBROUTINE s_compute_gibbs_constants
-
-        !>     The purpose of this subroutine is to determine the saturation
-        !!         temperature by using a Newton-Raphson method from the provided
-        !!         equilibrium pressure and EoS of the binary phase system.
-        !!     @param q_cons_vf Cell-average conservative variables
-        !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_pTsat(pstar,Tstar,A,B,C,D)
+        SUBROUTINE s_compute_pTsat(pstar,Tstar)
             REAL(KIND(0d0)), INTENT(IN)         :: pstar
             REAL(KIND(0d0)), INTENT(OUT)        :: Tstar
-            REAL(KIND(0d0)), INTENT(IN)         :: A, B, C, D
             REAL(KIND(0d0))                     :: pinf1, pinf2
             REAL(KIND(0d0))                     :: fp, dfdp, delta
             INTEGER :: iter      !< Generic loop iterators
-            pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
-            pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
+            pinf1 = gibbspinf1
+            pinf2 = gibbspinf2
             ! Initial guess
-            iter = 0; fp = 0.d0; dfdp = 0.d0; Tstar = 0.1d0*B/C; delta = Tstar;
-            DO WHILE (DABS(delta/Tstar) .GT. 1.d-12) 
+            iter = 0; fp = 0.d0; dfdp = 0.d0; Tstar = 0.1d0*gibbsB/gibbsC; delta = Tstar;
+            DO WHILE (DABS(delta/Tstar) .GT. ptnewton_eps) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
@@ -4302,8 +4269,9 @@ MODULE m_rhs
                          ', prelax = ',pstar,', Tstar = ',Tstar
                          CALL s_mpi_abort()
                   END IF
-                  fp = A + B/Tstar + C*dlog(Tstar) + D*dlog(pstar+pinf1) - dlog(pstar+pinf2)
-                  dfdp = -B/(Tstar*Tstar) + C/Tstar
+                  fp = gibbsA + gibbsB/Tstar + gibbsC*dlog(Tstar) + & 
+                       gibbsD*dlog(pstar+pinf1) - dlog(pstar+pinf2)
+                  dfdp = -gibbsB/(Tstar*Tstar) + gibbsC/Tstar
                   delta = fp/dfdp
                   Tstar = Tstar - delta
             END DO
@@ -4323,7 +4291,7 @@ MODULE m_rhs
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: rhs_vf
 
             !! terms  for K div(u)
-            REAL(KIND(0d0))                                   ::      sum_alpha
+            REAL(KIND(0d0))                                   ::  sum_alpha, Tsat
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::  p_k, T_k, g_k, Z_k
             REAL(KIND(0d0))                                   ::    n_k, pinf_k
             REAL(KIND(0d0))                                   ::  rho_k, rhoe_k, rhoe
@@ -4333,12 +4301,10 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   :: rho_I, Q, kappa
             REAL(KIND(0d0))                                   :: e_I, mdot, nu, theta
             REAL(KIND(0d0))                                   :: mdotalpha, mdotrhoe
-            REAL(KIND(0d0))                                   :: A, B, C, D, Tsat
             REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
             REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
 
             INTEGER :: i,j,k,l,r !< Generic loop iterators
-            CALL s_compute_gibbs_constants(A,B,C,D)
 
             DO j = 0, m
                 DO k = 0, n
@@ -4400,7 +4366,7 @@ MODULE m_rhs
                                     /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv)
                        END DO
 
-                       CALL s_compute_pTsat(p_k(1),Tsat,A,B,C,D)
+                       CALL s_compute_pTsat(p_k(1),Tsat)
                        !PRINT *,'prelax =',p_k(1),'Trelax = ',T_k(1),', Tsat = ',Tsat
 
                        IF ( ISNAN(p_k(1)) ) THEN 
@@ -4535,7 +4501,7 @@ MODULE m_rhs
 
                             ! Iterative process for relaxed pressure determination
                             iter    = 0; f_pres  = 1.d0; df_pres = 0.d0
-                            DO WHILE (DABS(f_pres) .GT. 1.d-15)
+                            DO WHILE (DABS(f_pres) .GT. pnewton_eps)
                                 ! Convergence?
                                 iter = iter + 1
                                 IF (iter == 50) THEN
@@ -4557,10 +4523,6 @@ MODULE m_rhs
                                     IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
                                         numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
                                         denominator = numerator + pres_K_init(i)-pres_relax
-                                        !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
-                                        !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
-                                        !            pres_inf(i)))**(1d0/gamma_min(i))
                                         rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
                                             MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
                                                       numerator/denominator
@@ -4632,11 +4594,11 @@ MODULE m_rhs
 
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
-            n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
-            pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
+            n1    = gibbsn1 
+            pinf1 = gibbspinf1
             ! Material 2
-            n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
-            pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
+            n2    = gibbsn2 
+            pinf2 = gibbspinf2 
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             Z1 = n1*(p_k(1)+pinf1)
             Z2 = n2*(p_k(2)+pinf2)
@@ -4755,10 +4717,9 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_pt_prelax(pstar,alpha1,rhoalpha1,rhoalpha2,E0,A,B,C,D)
+        SUBROUTINE s_compute_pt_prelax(pstar,alpha1,rhoalpha1,rhoalpha2,E0)
             REAL(KIND(0d0)), INTENT(INOUT) :: pstar, alpha1
             REAL(KIND(0d0)), INTENT(IN)    :: rhoalpha1, rhoalpha2, E0
-            REAL(KIND(0d0)), INTENT(IN)    :: A, B, C, D
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4770,13 +4731,13 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::        ap, bp, dp
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
-            n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
-            pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
+            n1    = gibbsn1
+            pinf1 = gibbspinf1
             cv1   = fluid_pp(1)%cv
             q1    = fluid_pp(1)%qv
             ! Material 2
-            n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
-            pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
+            n2    = gibbsn2
+            pinf2 = gibbspinf2
             cv2   = fluid_pp(2)%cv
             q2    = fluid_pp(2)%qv
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -4831,7 +4792,6 @@ MODULE m_rhs
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
             LOGICAL :: relax             !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
-            CALL s_compute_gibbs_constants(A,B,C,D)
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
@@ -4869,7 +4829,7 @@ MODULE m_rhs
                             DO i = 1, num_fluids
                                 rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
                             END DO
-                            CALL s_compute_pt_prelax(pres_relax,a1,rhoalpha1,rhoalpha2,rhoe,A,B,C,D)
+                            CALL s_compute_pt_prelax(pres_relax,a1,rhoalpha1,rhoalpha2,rhoe)
                             ! Cell update of the volume fraction
                             q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
@@ -4904,12 +4864,11 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_ptmu_pTrelax(pstar,Tstar,rho0,E0,A,B,C,D,failed)
+        SUBROUTINE s_compute_ptmu_pTrelax(pstar,Tstar,rho0,E0,failed)
 
             REAL(KIND(0d0)), INTENT(INOUT) :: pstar
             REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
             REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
-            REAL(KIND(0d0)), INTENT(IN)    :: A, B, C, D
             LOGICAL, INTENT(INOUT)         :: failed
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
@@ -4926,18 +4885,18 @@ MODULE m_rhs
 
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
-            n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
-            pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
+            n1    = gibbsn1
+            pinf1 = gibbspinf1
             cv1   = fluid_pp(1)%cv
             q1    = fluid_pp(1)%qv
             ! Material 2
-            n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
-            pinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
+            n2    = gibbsn2
+            pinf2 = gibbspinf2
             cv2   = fluid_pp(2)%cv
             q2    = fluid_pp(2)%qv
             ! Initial guess
             iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstar;
-            DO WHILE (DABS(delta/pstar) .GT. 1.d-10) 
+            DO WHILE (DABS(delta/pstar) .GT. ptmunewton_eps) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
                   ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -4967,8 +4926,10 @@ MODULE m_rhs
                   ! Derivative of the temperature wrt to pressure, needed for dfdp
                   dTdp = (-dbdp + (0.5d0/sqrt(bp*bp-4.d0*ap*dp))*(2.d0*bp*dbdp-&
                          4.d0*(ap*dddp+dp*dadp)))/(2.d0*ap) - (dadp/ap)*Tstar
-                  fp = A + B/Tstar + C*dlog(Tstar) + D*dlog(pstar+pinf1) - dlog(pstar+pinf2)
-                  dfdp = -B/(Tstar*Tstar)*dTdp + C/Tstar*dTdp + D/(pstar+pinf1) - 1.d0/(pstar+pinf2)
+                  fp = gibbsA + gibbsB/Tstar + gibbsC*dlog(Tstar) + & 
+                       gibbsD*dlog(pstar+pinf1) - dlog(pstar+pinf2)
+                  dfdp = -gibbsB/(Tstar*Tstar)*dTdp + gibbsC/Tstar*dTdp + & 
+                          gibbsD/(pstar+pinf1) - 1.d0/(pstar+pinf2)
                   delta = fp/dfdp
                   pstar = pstar - delta
             END DO
@@ -5008,7 +4969,7 @@ MODULE m_rhs
             INTEGER :: i,j,k,l,iter_p    !< Generic loop iterators
             LOGICAL :: relax, failed     !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
-            CALL s_compute_gibbs_constants(A,B,C,D)
+
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
@@ -5041,16 +5002,16 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptmualpha_eps ) .AND. &
                         !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. & !p-pTmu shock tube problem
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptmualpha_eps ) relax = .TRUE.
 
                         IF (relax) THEN
                            DO i = 1, num_fluids
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
-                           CALL s_compute_pTsat(pres_relax,Tsat,A,B,C,D)
+                           CALL s_compute_pTsat(pres_relax,Tsat)
                            DO i = 1, num_fluids
                                Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                          -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
@@ -5068,7 +5029,7 @@ MODULE m_rhs
                         !< ==============================================================================
                         IF (relax) THEN
                             ! Assume 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
-                            CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,A,B,C,D,failed)
+                            CALL s_compute_ptmu_pTrelax(pres_relax,Trelax,rho,rhoe,failed)
                             IF(failed) THEN
                                  PRINT *, 'failed, j : ',j,                       & 
                                  'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l), &
