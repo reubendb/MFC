@@ -66,7 +66,7 @@ MODULE m_global_parameters
     LOGICAL                    :: run_time_info         !< Run-time output flag
     LOGICAL                    :: debug                 !< Debug mode print statements
     INTEGER                    :: t_step_old            !< Existing IC/grid folder
-    REAL(KIND(0d0)), PARAMETER :: small_alf     = 1d-7 !< Small alf tolerance
+    REAL(KIND(0d0)), PARAMETER :: small_alf     = 1d-7  !< Small alf tolerance
     ! ==========================================================================
     
     
@@ -327,12 +327,18 @@ MODULE m_global_parameters
     REAL(KIND(0d0)) :: gam
     !> @}
 
-
     !> @name Acoustic monopole parameters
     !> @{
     LOGICAL         :: monopole !< Monopole switch
     TYPE(mono_parameters), DIMENSION(num_probes_max) :: mono !< Monopole parameters
     INTEGER         :: num_mono !< Number of monopoles
+    !> @}
+
+    !> @name Gibbs free energy phase change parameters
+    !> @{
+    REAL(KIND(0d0)) :: gibbsn1, gibbsn2
+    REAL(KIND(0d0)) :: gibbspinf1, gibbspinf2
+    REAL(KIND(0d0)) :: gibbsA, gibbsB, gibbsC, gibbsD
     !> @}
 
     REAL(KIND(0d0)) :: mytime       !< Current simulation time
@@ -343,7 +349,6 @@ MODULE m_global_parameters
     ! ======================================================================
 
     ! Mathematical and Physical Constants ======================================
-    ! REAL(KIND(0d0)), PARAMETER :: pi = 3.141592653589793d0 !< Pi
     REAL(KIND(0d0)), PARAMETER :: pi = 3.14159265358979311599796 !< Pi
     ! ==========================================================================
   
@@ -691,7 +696,24 @@ MODULE m_global_parameters
                     adv_idx%end  = E_idx + num_fluids
                     internalEnergies_idx%beg  = adv_idx%end + 1
                     internalEnergies_idx%end  = adv_idx%end + num_fluids
-                    sys_size     = internalEnergies_idx%end
+                    sys_size     = internalEnergies_idx%end                       
+
+                    IF(relax_model .GE. 1 .AND. relax_model .LE. 3) THEN
+                        gibbsn1    = 1.d0/fluid_pp(1)%gamma + 1.d0
+                        gibbspinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
+                        gibbsn2    = 1.d0/fluid_pp(2)%gamma + 1.d0
+                        gibbspinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
+                        gibbsA = (gibbsn1*fluid_pp(1)%cv - gibbsn2*fluid_pp(2)%cv +  & 
+                                  fluid_pp(2)%qvp - fluid_pp(1)%qvp) / &
+                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
+                        gibbsB = (fluid_pp(1)%qv - fluid_pp(2)%qv) / &
+                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
+                        gibbsC = (gibbsn2*fluid_pp(2)%cv - gibbsn1*fluid_pp(1)%cv) / &
+                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
+                        gibbsD = (gibbsn1*fluid_pp(1)%cv - fluid_pp(1)%cv) / & 
+                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
+                    END IF
+
                 ELSE IF(model_eqns == 4) THEN
                     cont_idx%beg = 1 ! one continuity equation
                     cont_idx%end = 1 !num_fluids
