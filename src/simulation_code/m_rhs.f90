@@ -271,7 +271,12 @@ MODULE m_rhs
     !> @{
     REAL(KIND(0d0)), PARAMETER :: pnewton_eps   = 1d-15 !< Saturation temperature tolerance
     REAL(KIND(0d0)), PARAMETER :: ptnewton_eps  = 1d-12 !< Saturation temperature tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmualpha_eps = 1d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsH   = 1d-6  !< Saturation p-T-mu alpha tolerance
+    !REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 1d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 5d-2  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsH= 1d-6  !< Saturation p-T-mu alpha tolerance
+    !REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 1d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 5d-2  !< Saturation p-T-mu alpha tolerance
     REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps= 1d-10 !< Saturation p-T-mu tolerance
     !> @}
 
@@ -4326,8 +4331,8 @@ MODULE m_rhs
                            END DO
                        END IF
 
-                       IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 .OR. &
-                           q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6) THEN
+                       IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL .OR. &
+                           q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH) THEN
        
                        ! computing n_k, pinf_k, p_k, T_k, and g_k for finite relaxation
                        phi = 0.d0; psi = 0.d0; f1 = 0.d0; f2 = 0.d0; f3 = 0.d0; f4 = 0.d0
@@ -4663,8 +4668,8 @@ MODULE m_rhs
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
                         relax = .FALSE.
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
@@ -4725,15 +4730,9 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::        ap, bp, dp
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
-            n1    = gibbsn1
-            pinf1 = gibbspinf1
-            cv1   = fluid_pp(1)%cv
-            q1    = fluid_pp(1)%qv
+            n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
             ! Material 2
-            n2    = gibbsn2
-            pinf2 = gibbspinf2
-            cv2   = fluid_pp(2)%cv
-            q2    = fluid_pp(2)%qv
+            n2    = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             ap = rhoalpha1*cv1 + rhoalpha2*cv2
             bp = q1*cv1*(n1-1.d0)*rhoalpha1*rhoalpha1 + q2*cv2*(n2-1.d0)*rhoalpha2*rhoalpha2 + &
@@ -4811,8 +4810,8 @@ MODULE m_rhs
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
                         relax = .FALSE.
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d-6 ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-1.d-6 ) relax = .TRUE.
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
@@ -4879,15 +4878,9 @@ MODULE m_rhs
 
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
-            n1    = gibbsn1
-            pinf1 = gibbspinf1
-            cv1   = fluid_pp(1)%cv
-            q1    = fluid_pp(1)%qv
+            n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
             ! Material 2
-            n2    = gibbsn2
-            pinf2 = gibbspinf2
-            cv2   = fluid_pp(2)%cv
-            q2    = fluid_pp(2)%qv
+            n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Initial guess
             iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstar;
             DO WHILE (DABS(delta/pstar) .GT. ptmunewton_eps) 
@@ -4996,9 +4989,8 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptmualpha_eps ) .AND. &
-                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 5.d-2 ) .AND. & !p-pTmu shock tube problem
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptmualpha_eps ) relax = .TRUE.
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptmualpha_epsL ) .AND. &
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptmualpha_epsH ) relax = .TRUE.
 
                         IF (relax) THEN
                            DO i = 1, num_fluids
