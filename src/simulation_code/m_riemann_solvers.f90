@@ -539,7 +539,6 @@ MODULE m_riemann_solvers
                         END IF
 
                         s_M = MIN(0d0,s_L); s_P = MAX(0d0,s_R)
-!                        PRINT*, 's_M = ', s_M
                         
                         xi_M = (5d-1 + SIGN(5d-1,s_L)) &
                              + (5d-1 - SIGN(5d-1,s_L)) &
@@ -824,17 +823,30 @@ MODULE m_riemann_solvers
 !                                                      - rho_R*vel_R(dir_idx(i)) ) ) &
 !                                            / (s_M - s_P)
                                     ! TESTING
+!                                    flux_rs_vf(cont_idx%end+dir_idx(i))%sf(j,k,l) = &
+!                                            ( s_M*( rho_R*vel_R(1)         &
+!                                                         *vel_R(1)         &
+!                                                  + dir_flg(1)*pres_R      &
+!                                                  - tau_e_R(1) )       &
+!                                            - s_P*( rho_L*vel_L(1)         &
+!                                                         *vel_L(1)         &
+!                                                  + dir_flg(1)*pres_L      &
+!                                                  - tau_e_L(1) )       &
+!                                            + s_M*s_P*( rho_L*vel_L(1)     &
+!                                                      - rho_R*vel_R(1) ) ) &
+!                                            / (s_M - s_P)
+                                    ! TESTING 3D
                                     flux_rs_vf(cont_idx%end+dir_idx(i))%sf(j,k,l) = &
-                                            ( s_M*( rho_R*vel_R(1)         &
-                                                         *vel_R(1)         &
-                                                  + dir_flg(1)*pres_R      &
-                                                  - tau_e_R(1) )       &
-                                            - s_P*( rho_L*vel_L(1)         &
-                                                         *vel_L(1)         &
-                                                  + dir_flg(1)*pres_L      &
-                                                  - tau_e_L(1) )       &
-                                            + s_M*s_P*( rho_L*vel_L(1)     &
-                                                      - rho_R*vel_R(1) ) ) &
+                                            ( s_M*( rho_R*vel_R(dir_idx(1))         &
+                                                         *vel_R(dir_idx(i))         &
+                                                  + dir_flg(dir_idx(i))*pres_R      &
+                                                  - tau_e_R(dir_idx_tau(i)) )       &
+                                            - s_P*( rho_L*vel_L(dir_idx(1))         &
+                                                         *vel_L(dir_idx(i))         &
+                                                  + dir_flg(dir_idx(i))*pres_L      &
+                                                  - tau_e_L(dir_idx_tau(i)) )       &
+                                            + s_M*s_P*( rho_L*vel_L(dir_idx(i))     &
+                                                      - rho_R*vel_R(dir_idx(i)) ) ) &
                                             / (s_M - s_P)
                                 END DO
                             ELSE
@@ -878,9 +890,9 @@ MODULE m_riemann_solvers
                                 ! Current best
 !                                flux_rs_vf(E_idx)%sf(j,k,l) = &
 !                                        ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
-!                                               - (tau_e_R(dir_idx_tau(1)) * vel_R(1))) &
+!                                               - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))) &
 !                                        - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
-!                                               - (tau_e_L(dir_idx_tau(1)) * vel_L(1))) &
+!                                               - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))) &
 !                                        + s_M*s_P*(E_L - E_R) )                        &
 !                                        / (s_M - s_P)
                                 ! Testing 1
@@ -892,15 +904,47 @@ MODULE m_riemann_solvers
 !                                        + s_M*s_P*(E_L - E_R) )                            &
 !                                         / (s_M - s_P)
                                 ! Testing 2
-                                flux_rs_vf(E_idx)%sf(j,k,l) = &
-                                        ( s_M*vel_R(dir_idx(1))*(E_R + pres_R              &
-                                                                !- tau_e_R(dir_idx_tau(1))) &
-                                                                - tau_e_R(1)) &
-                                        - s_P*vel_L(dir_idx(1))*(E_L + pres_L              & 
-                                                                !- tau_E_L(dir_idx_tau(1))) &
-                                                                - tau_e_L(1)) &
-                                        + s_M*s_P*(E_L - E_R) )                            &
-                                         / (s_M - s_P)
+!                                flux_rs_vf(E_idx)%sf(j,k,l) = &
+!                                        ( s_M*vel_R(dir_idx(1))*(E_R + pres_R              &
+!                                                                !- tau_e_R(dir_idx_tau(1))) &
+!                                                                - tau_e_R(1)) &
+!                                        - s_P*vel_L(dir_idx(1))*(E_L + pres_L              & 
+!                                                                !- tau_E_L(dir_idx_tau(1))) &
+!                                                                - tau_e_L(1)) &
+!                                        + s_M*s_P*(E_L - E_R) )                            &
+!                                         / (s_M - s_P)
+                                ! Testing 3D
+!                                flux_rs_vf(E_idx)%sf(j,k,l) = &
+!                                        ( s_M*vel_R(dir_idx(1))*(E_R + pres_R              &
+!                                                                - tau_e_R(dir_idx_tau(1))) &
+!                                        - s_P*vel_L(dir_idx(1))*(E_L + pres_L              & 
+!                                                                - tau_E_L(dir_idx_tau(1))) &
+!                                        + s_M*s_P*(E_L - E_R) )                            &
+!                                         / (s_M - s_P)
+
+                                ! Only made for 1D and 2D for now:
+                                ! (This would be more elegant with a flag setting terms to 0 instead
+                                !  of an if statement maybe)
+                                IF (num_dims == 1) THEN
+                                    flux_rs_vf(E_idx)%sf(j,k,l) = &
+                                            ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
+                                                   - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))) &
+                                            - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
+                                                   - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))) &
+                                            + s_M*s_P*(E_L - E_R) )                        &
+                                            / (s_M - s_P)
+                                ELSE IF(num_dims == 2) THEN
+                                    flux_rs_vf(E_idx)%sf(j,k,l) = &
+                                            ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
+                                                   - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))   &
+                                                   - (tau_e_R(dir_idx_tau(2)) * vel_R(dir_idx(2))) ) &
+                                            - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
+                                                   - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))   &
+                                                   - (tau_e_L(dir_idx_tau(2)) * vel_L(dir_idx(2))) ) &
+                                            + s_M*s_P*(E_L - E_R) )                        &
+                                            / (s_M - s_P)
+                                END IF        
+
                             ELSE
                                 flux_rs_vf(E_idx)%sf(j,k,l) = &
                                         ( s_M*vel_R(dir_idx(1))*(E_R + pres_R) &
@@ -911,6 +955,7 @@ MODULE m_riemann_solvers
                             
                             ! Elastic shear stress equation (only if hypoelasticity = T)
                             IF (hypoelasticity) THEN
+
                                 ! elastic shear stress equation
                                 DO i = 1, (num_dims*(num_dims+1)) / 2
 !                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
@@ -922,14 +967,14 @@ MODULE m_riemann_solvers
 !                                                  - rho_R*tau_e_R(i) ) )        &
 !                                        / (s_M - s_P)
                                     ! Testing
-                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
-                                        ( s_M*( rho_R*vel_R(dir_idx(1))         &
-                                                     *tau_e_R(1))               &
-                                        - s_P*( rho_L*vel_L(dir_idx(1))         &
-                                                     *tau_e_L(1))               &
-                                        + s_M*s_P*( rho_L*tau_e_L(1)            &
-                                                  - rho_R*tau_e_R(1) ) )        &
-                                        / (s_M - s_P)
+!                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
+!                                        ( s_M*( rho_R*vel_R(dir_idx(1))         &
+!                                                     *tau_e_R(1))               &
+!                                        - s_P*( rho_L*vel_L(dir_idx(1))         &
+!                                                     *tau_e_L(1))               &
+!                                        + s_M*s_P*( rho_L*tau_e_L(1)            &
+!                                                  - rho_R*tau_e_R(1) ) )        &
+!                                        / (s_M - s_P)
                                     ! Testing 2
 !                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
 !                                        ( s_M*( vel_R(dir_idx(1))         &
@@ -939,6 +984,16 @@ MODULE m_riemann_solvers
 !                                        + s_M*s_P*( tau_e_L(1)            &
 !                                                  - tau_e_R(1) ) )        &
 !                                        / (s_M - s_P)
+                                    ! Testing 3D
+                                    flux_rs_vf(stress_idx%beg-1+i)%sf(j,k,l) =  &
+                                        ( s_M*( rho_R*vel_R(dir_idx(1))         &
+                                                     *tau_e_R(i))               &
+                                        - s_P*( rho_L*vel_L(dir_idx(1))         &
+                                                     *tau_e_L(i))               &
+                                        + s_M*s_P*( rho_L*tau_e_L(i)            &
+                                                  - rho_R*tau_e_R(i) ) )        &
+                                        / (s_M - s_P)
+
                                 END DO
                             END IF
                             
@@ -1048,8 +1103,8 @@ MODULE m_riemann_solvers
             
             
             ! Computing the viscous and capillary source flux
-!            IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
-            IF(ANY(Re_size > 0)) THEN
+            IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
+!            IF(ANY(Re_size > 0)) THEN
                 IF (weno_Re_flux) THEN
                     CALL s_compute_viscous_source_flux( &
                                    qL_prim_vf(mom_idx%beg:mom_idx%end), &
@@ -3014,14 +3069,18 @@ MODULE m_riemann_solvers
 !                         ,vel_L(dir_idx(1)) + SQRT(G_L/rho_L) )
                 
                 ! Current
-                s_L = MIN(vel_L(dir_idx(1)) - SQRT(c_L*c_L + & 
-                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L) &
+                s_L =  MIN(vel_L(dir_idx(1)) - SQRT(c_L*c_L + & 
+                                                  (((4d0*G_L)/3d0) + &
+                                                  tau_e_L(dir_idx_tau(1)))/rho_L) &
                          ,vel_R(dir_idx(1)) - SQRT(c_R*c_R + &
-                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_R))
-                s_R = MAX(vel_R(dir_idx(1)) + SQRT(c_R*c_R + &
-                                                  (((4d0*G_R)/3d0)+tau_e_R(1))/rho_L) &
+                                                  (((4d0*G_R)/3d0) + &
+                                                  tau_e_R(dir_idx_tau(1)))/rho_R))
+                s_R =  MAX(vel_R(dir_idx(1)) + SQRT(c_R*c_R + &
+                                                  (((4d0*G_R)/3d0) + &
+                                                  tau_e_R(dir_idx_tau(1)))/rho_L) &
                          ,vel_L(dir_idx(1)) + SQRT(c_L*c_L + &
-                                                  (((4d0*G_L)/3d0)+tau_e_L(1))/rho_L))
+                                                  (((4d0*G_L)/3d0) + &
+                                                  tau_e_L(dir_idx_tau(1)))/rho_L))
 
 !                IF (j == 100 .OR. j == 760) THEN
 !                PRINT*, 'j = ',j
@@ -3037,8 +3096,10 @@ MODULE m_riemann_solvers
 !                END IF
 
 !                PRINT*, 'j = ', j
-!                PRINT*, 's_R', s_R
-!                PRINT*, 'old', MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L)
+!                PRINT*, 's_L = ', s_L
+!                PRINT*, 's_R = ', s_R
+!                PRINT*, 's_L_old = ', MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R)
+!                PRINT*, 's_R_old = ', MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L)
 !                PRINT*, 'vel_R', vel_R(dir_idx(1))
 !                PRINT*, 'c_R',c_R
 
@@ -3047,7 +3108,8 @@ MODULE m_riemann_solvers
 !                PRINT*, 'tau = ',tau_e_R(1)/1E+06
 !                PRINT*, 'rho = ',rho_R
 !                PRINT*, 's_R_1 = ', s_R
-!                PRINT*, 's_L_old = ', MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R)
+
+
             ELSE
                 s_L = MIN(vel_L(dir_idx(1)) - c_L, vel_R(dir_idx(1)) - c_R) 
                 s_R = MAX(vel_R(dir_idx(1)) + c_R, vel_L(dir_idx(1)) + c_L) 
@@ -3973,7 +4035,7 @@ MODULE m_riemann_solvers
                 IF(norm_dir == 1) THEN
                     dir_idx_tau = (/1,2,4/)
                 ELSEIF(norm_dir == 2) THEN
-                    dir_idx_tau = (/2,3,5/)
+                    dir_idx_tau = (/3,2,5/)
                 ELSE
                     dir_idx_tau = (/4,5,6/)
                 END IF

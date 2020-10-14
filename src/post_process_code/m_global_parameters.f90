@@ -125,6 +125,7 @@ MODULE m_global_parameters
     INTEGER :: weno_order      !< Order of accuracy for the WENO reconstruction
     LOGICAL :: mixture_err     !< Mixture error limiter
     LOGICAL :: alt_soundspeed  !< Alternate sound speed
+    LOGICAL :: hypoelasticity
     !> @}
 
     !> @name Annotations of the structure, i.e. the organization, of the state vectors
@@ -138,6 +139,7 @@ MODULE m_global_parameters
     INTEGER           :: gamma_idx                 !< Index of specific heat ratio func. eqn.
     INTEGER           :: alf_idx                   !< Index of specific heat ratio func. eqn.
     INTEGER           :: pi_inf_idx                !< Index of liquid stiffness func. eqn.
+    TYPE(bounds_info) :: stress_idx                !< Index of elastic shear stress eqns
     !> @}
 
     !> @name Boundary conditions in the x-, y- and z-coordinate directions
@@ -261,7 +263,7 @@ MODULE m_global_parameters
     LOGICAL         :: polytropic
     LOGICAL         :: polydisperse
     INTEGER         :: thermal  !< 1 = adiabatic, 2 = isotherm, 3 = transfer
-    REAL(KIND(0d0)) :: R_n, R_v, phi_vn, phi_nv, Pe_c, Tw
+    REAL(KIND(0d0)) :: R_n, R_v, phi_vn, phi_nv, Pe_c, Tw, G
     REAL(KIND(0d0)), DIMENSION(:), ALLOCATABLE :: k_n, k_v, pb0, mass_n0, mass_v0, Pe_T 
     REAL(KIND(0d0)), DIMENSION(:), ALLOCATABLE :: Re_trans_T, Re_trans_c, Im_trans_T, Im_trans_c, omegaN 
     REAL(KIND(0d0)) :: poly_sigma
@@ -309,6 +311,7 @@ MODULE m_global_parameters
             weno_order = dflt_int
             mixture_err = .FALSE.
             alt_soundspeed = .FALSE.
+            hypoelasticity = .FALSE.
             
             bc_x%beg = dflt_int
             bc_x%end = dflt_int
@@ -322,6 +325,7 @@ MODULE m_global_parameters
             DO i = 1, num_fluids_max
                 fluid_pp(i)%gamma  = dflt_real
                 fluid_pp(i)%pi_inf = dflt_real
+                fluid_pp(i)%G      = dflt_real
             END DO
             
             
@@ -481,6 +485,11 @@ MODULE m_global_parameters
                     END IF
                 END IF          
                 
+                IF (hypoelasticity) THEN
+                    stress_idx%beg = sys_size + 1
+                    stress_idx%end = sys_size + (num_dims*(num_dims+1)) / 2
+                    sys_size = stress_idx%end
+                END IF
             ! ==================================================================
 
             ! Volume Fraction Model (6-equation model) =========================
