@@ -269,15 +269,15 @@ MODULE m_rhs
 
     !> @name Parameters for the phase change part of the code
     !> @{
-    REAL(KIND(0d0)), PARAMETER :: pnewton_eps   = 1d-15 !< Saturation temperature tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptnewton_eps  = 1d-12 !< Saturation temperature tolerance
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsH   = 1d-6  !< Saturation p-T-mu alpha tolerance
-    !REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 1d-6  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 5d-2  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsH= 1d-6  !< Saturation p-T-mu alpha tolerance
-    !REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 1d-6  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 5d-2  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps= 1d-10 !< Saturation p-T-mu tolerance
+    REAL(KIND(0d0)), PARAMETER :: pnewton_eps   = 1.d-15 !< Saturation temperature tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptnewton_eps  = 1.d-12 !< Saturation temperature tolerance
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsH   = 1.d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 1.d-6  !< Saturation p-T-mu alpha tolerance
+    !REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 5.d-2  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsH= 1.d-6  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 1.d-6  !< Saturation p-T-mu alpha tolerance
+    !REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 5.d-2  !< Saturation p-T-mu alpha tolerance
+    REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps= 1.d-10 !< Saturation p-T-mu tolerance
     !> @}
 
     character(50) :: file_path !< Local file path for saving debug files
@@ -4295,14 +4295,15 @@ MODULE m_rhs
             !! terms  for K div(u)
             REAL(KIND(0d0))                                   ::  sum_alpha, Tsat
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::  p_k, T_k, g_k, Z_k
-            REAL(KIND(0d0))                                   ::    n_k, pinf_k
-            REAL(KIND(0d0))                                   ::  rho_k, rhoe_k, rhoe
+            REAL(KIND(0d0))                                   ::  n_k, pinf_k
+            REAL(KIND(0d0))                                   ::  rho_k, rhoeq_k, rhoe
             REAL(KIND(0d0))                                   ::  e_k, phi, psi
-            REAL(KIND(0d0))                                   :: f1, f2, f3, f4
-            REAL(KIND(0d0))                                   :: A1, B1, A2, B2
-            REAL(KIND(0d0))                                   :: rho_I, Q, kappa
-            REAL(KIND(0d0))                                   :: e_I, mdot, nu, theta
-            REAL(KIND(0d0))                                   :: mdotalpha, mdotrhoe
+            REAL(KIND(0d0))                                   ::  f1, f2, f3, f4
+            REAL(KIND(0d0))                                   ::  A1, B1, A2, B2
+            REAL(KIND(0d0))                                   ::  rho_I, Q, kappa
+            REAL(KIND(0d0))                                   ::  deltap, p_I, mu 
+            REAL(KIND(0d0))                                   ::  e_I, mdot, nu, theta
+            REAL(KIND(0d0))                                   ::  mdotalpha, mdotrhoe
             REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
             REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
 
@@ -4343,19 +4344,22 @@ MODULE m_rhs
                           pinf_k = fluid_pp(i)%pi_inf/(1.d0 + fluid_pp(i)%gamma)
                           rho_k  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
                                   /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)
-                          rhoe_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
+                          rhoeq_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                               -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
                               /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
 
                           rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
 
-                          e_k = rhoe_k/rho_k
-                          p_k(i) = (rhoe_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
-                          T_k(i) = (rhoe_k-fluid_pp(i)%pi_inf/(1.d0+fluid_pp(i)%gamma)) &
+                          e_k = q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) &
+                               /q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)
+
+                          p_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
+                          T_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf/(1.d0+fluid_pp(i)%gamma)) &
                               /(rho_k*fluid_pp(i)%cv)
                           g_k(i) = (n_k*fluid_pp(i)%cv-fluid_pp(i)%qvp)*T_k(i) &
                               -fluid_pp(i)%cv*T_k(i)*log(T_k(i)**(n_k) &
                               /((p_k(i)+pinf_k)**(n_k-1.d0)))+fluid_pp(i)%qv
+                          Z_k(i) = n_k*(p_k(i)+pinf_k);
 
                           phi = phi + 1.d0/(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv)
                           psi = psi + 1.d0/(fluid_pp(i)%gamma*q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l))
@@ -4376,30 +4380,32 @@ MODULE m_rhs
                            CALL s_mpi_abort()
                        END IF
 
-                       rho_I = (phi*f1-psi*f2)/(psi*f4-phi*f3)
-                       e_I = f4/phi + f2/(rho_I*phi)
                        kappa = f1/psi
+                       rho_I = (phi*f1-psi*f2)/(psi*f4-phi*f3)
+                       p_I = (Z_k(2)*p_k(1)+Z_k(1)*p_k(2))/(Z_k(1)+Z_k(2));
+                       e_I = f4/phi + f2/(rho_I*phi)
 
-                       theta = 1.d8; nu = 0.d0
+                       mu = 1.d8; theta = 1.d8; nu = 0.d0
                        IF (T_k(1) .GT. Tsat) nu = 1d-3
                            
+                       deltap = mu*(p_k(1)-p_k(2))
                        Q = theta*(T_k(2)-T_k(1))
                        mdot = nu*(g_k(2)-g_k(1))
                        mdotalpha = mdot/rho_I
                        mdotrhoe = mdot*e_I
 
                        rhs_vf(1+adv_idx%beg-1)%sf(j,k,l) = & 
-                              rhs_vf(1+adv_idx%beg-1)%sf(j,k,l) + Q/kappa + mdotalpha
+                              rhs_vf(1+adv_idx%beg-1)%sf(j,k,l) + deltap + Q/kappa + mdotalpha
                        rhs_vf(2+adv_idx%beg-1)%sf(j,k,l) = & 
-                              rhs_vf(2+adv_idx%beg-1)%sf(j,k,l) - Q/kappa - mdotalpha
+                              rhs_vf(2+adv_idx%beg-1)%sf(j,k,l) - deltap - Q/kappa - mdotalpha
                        rhs_vf(1+cont_idx%beg-1)%sf(j,k,l) = & 
                               rhs_vf(1+cont_idx%beg-1)%sf(j,k,l) + mdot
                        rhs_vf(2+cont_idx%beg-1)%sf(j,k,l) = & 
                               rhs_vf(2+cont_idx%beg-1)%sf(j,k,l) - mdot
                        rhs_vf(1+internalEnergies_idx%beg-1)%sf(j,k,l) = &
-                              rhs_vf(1+internalEnergies_idx%beg-1)%sf(j,k,l) + Q + mdotrhoe
+                              rhs_vf(1+internalEnergies_idx%beg-1)%sf(j,k,l) - p_I*deltap + Q + mdotrhoe
                        rhs_vf(2+internalEnergies_idx%beg-1)%sf(j,k,l) = &
-                              rhs_vf(2+internalEnergies_idx%beg-1)%sf(j,k,l) - Q - mdotrhoe
+                              rhs_vf(2+internalEnergies_idx%beg-1)%sf(j,k,l) + p_I*deltap - Q - mdotrhoe
                        END IF
                     END DO
                 END DO
@@ -4630,7 +4636,7 @@ MODULE m_rhs
             !> @{
             REAL(KIND(0d0))                                   ::  pres_relax
             REAL(KIND(0d0))                                   ::   sum_alpha
-            REAL(KIND(0d0))                                   :: rho, rhoe_k
+            REAL(KIND(0d0))                                   :: rho, rhoeq_k
             REAL(KIND(0d0))                                   ::          a1
             REAL(KIND(0d0))                                   ::    dyn_pres
             REAL(KIND(0d0))                                   ::E_We, p_infk
@@ -4676,10 +4682,10 @@ MODULE m_rhs
                         IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
-                                 rhoe_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
+                                 rhoeq_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                           -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
                                           /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
-                                 p_k(i) = (rhoe_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
+                                 p_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
                             END DO
                             CALL s_compute_p_prelax(pres_relax,a1,p_k,alpha_k)
                             ! Cell update of the volume fraction
