@@ -4336,7 +4336,7 @@ MODULE m_rhs
                            q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH) THEN
        
                        ! computing n_k, pinf_k, p_k, T_k, and g_k for finite relaxation
-                       phi = 0.d0; psi = 0.d0; f1 = 0.d0; f2 = 0.d0; f3 = 0.d0; f4 = 0.d0
+                       phi = 0.d0; psi = 0.d0; f1 = 0.d0; f2 = 0.d0; f3 = 0.d0; f4 = 0.d0;
                        rhoe = 0.d0;
 
                        DO i = 1, num_fluids
@@ -4375,7 +4375,7 @@ MODULE m_rhs
                        CALL s_compute_pTsat(p_k(1),Tsat)
                        !PRINT *,'prelax =',p_k(1),'Trelax = ',T_k(1),', Tsat = ',Tsat
 
-                       IF ( ISNAN(p_k(1)) ) THEN 
+                       IF ( ISNAN(p_k(1)) .OR. p_k(1) < 0.d0 ) THEN 
                            PRINT *, 'code crashed' 
                            CALL s_mpi_abort()
                        END IF
@@ -4385,9 +4385,12 @@ MODULE m_rhs
                        p_I = (Z_k(2)*p_k(1)+Z_k(1)*p_k(2))/(Z_k(1)+Z_k(2));
                        e_I = f4/phi + f2/(rho_I*phi)
 
-                       mu = 1.d8; theta = 1.d8; nu = 0.d0
+                       !mu = 1.d8
+                       mu = 0.d0;
+                       theta = 1.d8 
+                       nu = 0.d0
                        IF (T_k(1) .GT. Tsat) nu = 1d-3
-                           
+  
                        deltap = mu*(p_k(1)-p_k(2))
                        Q = theta*(T_k(2)-T_k(1))
                        mdot = nu*(g_k(2)-g_k(1))

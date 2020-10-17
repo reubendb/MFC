@@ -409,13 +409,14 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
-            IF ( model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                IF ( relax_model == 1) THEN
+            IF (model_eqns == 3) THEN
+                IF(relax_model == 0 .OR. relax_model == 4) THEN
+                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
+                ELSEIF (relax_model == 1) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 2) THEN
+                ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
-                ELSEIF ( relax_model == 3) THEN
+                ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                     CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
                 END IF
@@ -445,9 +446,10 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
-            IF ( model_eqns == 3) THEN
-                CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                IF ( relax_model == 1) THEN
+            IF (model_eqns == 3) THEN
+                IF(relax_model == 0 .OR. relax_model == 4) THEN
+                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
+                ELSEIF ( relax_model == 1) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                 ELSEIF ( relax_model == 2) THEN
                     CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
@@ -474,13 +476,14 @@ MODULE m_time_steppers
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
-            IF ( model_eqns == 3) THEN 
-                CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                IF ( relax_model == 1) THEN
+            IF (model_eqns == 3) THEN
+                IF(relax_model == 0 .OR. relax_model == 4) THEN
+                    CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
+                ELSEIF (relax_model == 1) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
-                ELSEIF ( relax_model == 2) THEN
+                ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
-                ELSEIF ( relax_model == 3) THEN
+                ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
                     CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
                 END IF

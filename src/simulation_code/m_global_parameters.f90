@@ -698,7 +698,7 @@ MODULE m_global_parameters
                     internalEnergies_idx%end  = adv_idx%end + num_fluids
                     sys_size     = internalEnergies_idx%end                       
 
-                    IF(relax_model .GE. 0 .AND. relax_model .LE. 3) THEN
+                    IF(relax_model .GE. 0 .AND. relax_model .LE. 4) THEN
                         gibbsn1    = 1.d0/fluid_pp(1)%gamma + 1.d0
                         gibbspinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
                         gibbsn2    = 1.d0/fluid_pp(2)%gamma + 1.d0
