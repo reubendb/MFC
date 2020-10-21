@@ -74,6 +74,7 @@ MODULE m_rhs
                        s_compute_rhs          , &
                        s_finite_ptmu_relaxation, &
                        s_infinite_p_relaxation, &
+                       s_infinite_p_relaxation_k, &
                        s_infinite_pt_relaxation, &
                        s_infinite_ptmu_relaxation, &
                        s_populate_variables_buffers, &
