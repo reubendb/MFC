@@ -784,6 +784,13 @@ MODULE m_cbc
                         dpi_inf_dt = dpi_inf_dt + dadv_dt(i)*fluid_pp(i)%pi_inf
                      END DO
                   END IF
+
+                  IF(model_eqns == 3) THEN
+                     DO i = 1, num_fluids
+                        dpi_inf_dt = dpi_inf_dt + dalpha_rho_dt(i)*fluid_pp(i)%qv
+                     END DO
+                  END IF
+
                   ! ============================================================
                   
                   ! flux_rs_vf and flux_src_rs_vf at j = -1/2 ==================
