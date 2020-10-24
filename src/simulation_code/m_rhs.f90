@@ -4341,7 +4341,7 @@ MODULE m_rhs
        
                        ! computing n_k, pinf_k, p_k, T_k, and g_k for finite relaxation
                        phi = 0.d0; psi = 0.d0; f1 = 0.d0; f2 = 0.d0; f3 = 0.d0; f4 = 0.d0;
-                       rhoe = 0.d0;
+                       !rhoe = 0.d0;
 
                        DO i = 1, num_fluids
                           n_k    = 1.d0/fluid_pp(i)%gamma + 1.d0
@@ -4352,7 +4352,7 @@ MODULE m_rhs
                               -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
                               /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
 
-                          rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
+                          !rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
 
                           e_k = q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) &
                                /q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)
