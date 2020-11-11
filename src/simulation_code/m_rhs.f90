@@ -275,7 +275,7 @@ MODULE m_rhs
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-12    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempH = 900.d0    !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempL = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempL = 100.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH    = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
@@ -4869,75 +4869,14 @@ MODULE m_rhs
             END DO
         END SUBROUTINE s_infinite_pt_relaxation ! ----------------
 
-        !>     The purpose of this subroutine is to determine the bracket of 
-        !!         the pressure by finding the pressure at which b^2=4*a*c
-        !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_ptg_bracket(pstarA,pstarB,rho0,E0)
-
-            REAL(KIND(0d0)), INTENT(OUT)   :: pstarA, pstarB
-            REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
-            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
-            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
-            !!       iteration procedure, A-D, and iteration variables, f and df
-            !> @{
-            REAL(KIND(0d0))                                   ::            n1, n2
-            REAL(KIND(0d0))                                   :: pinf1, pinf2, pstar
-            REAL(KIND(0d0))                                   ::          cv1, cv2
-            REAL(KIND(0d0))                                   ::           q1,  q2
-            REAL(KIND(0d0))                                   ::        ap, bp, dp
-            REAL(KIND(0d0))                                   ::  dadp, dbdp, dddp
-            REAL(KIND(0d0))                                   ::        dTdp, dfdp
-            REAL(KIND(0d0))                                   ::         delta, fp
-
-            INTEGER :: iter      !< Generic loop iterators
-            ! Material 1
-            n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
-            ! Material 2
-            n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
-            ! Initial guess
-            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstar; 
-            pstarA = 1.d3; ! setting the lower bracket to 1 kPa
-            pstar = pstarA;
-            DO WHILE (DABS(delta/pstar) .GT. ptgnewton_eps) 
-                  ! f(Tsat) is the function of the equality that should be zero
-                  iter = iter + 1
-                  ! Calculating coefficients, Eq. C.6, Pelanti 2014
-                  ap    = rho0*cv1*cv2*((n2-1.d0)*(pstar+n1*pinf1)-(n1-1.d0)*(pstar+n2*pinf2))
-                  bp    = E0*((n1-1.d0)*cv1*(pstar+pinf2) - (n2-1.d0)*cv2*(pstar+pinf1)) + &
-                          rho0*((n2-1.d0)*cv2*q1*(pstar+pinf1) - (n1-1.d0)*cv1*q2*(pstar+pinf2)) + &
-                          cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
-                  dp    = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
-                  ! Calculating the derivatives wrt pressure of the coefficients
-                  dadp  = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
-                  dbdp  = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
-                         rho0*((n2-1.d0)*cv2*q1 - (n1-1.d0)*cv1*q2) + &
-                         cv2*((pstar+pinf1)+(pstar+n2*pinf2)) - & 
-                         cv1*((pstar+pinf2)+(pstar+n1*pinf1))
-                  dddp  = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
-                  ! Derivative of the temperature wrt to pressure, needed for dfdp
-                  fp    = bp*bp-4.d0*ap*dp
-                  dfdp  = 2.d0*bp*dbdp-4.d0*dadp*dp-4.d0*ap*dddp
-                  delta = fp/dfdp
-                  pstar = pstar - delta
-                  IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstar)) THEN
-                         ! fp == 0 does not exist, set pstarH = 2*pinf1
-                         pstar = 1.5d0*pinf1
-                        RETURN
-                  END IF
-            END DO
-            pstarB = pstar
-        END SUBROUTINE s_compute_ptg_bracket
-
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
 
-            REAL(KIND(0d0)), INTENT(OUT)   :: fp, dfdp
-            REAL(KIND(0d0)), INTENT(INOUT) :: pstar
-            REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
-            REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
+            REAL(KIND(0d0)), INTENT(IN)    :: pstar, rho0, E0
+            REAL(KIND(0d0)), INTENT(OUT)   :: fp, dfdp, Tstar
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4977,16 +4916,89 @@ MODULE m_rhs
                    gibbsD/(pstar+pinf1) - 1.d0/(pstar+pinf2)
         END SUBROUTINE s_compute_ptg_fdf !------------------------
 
+        !>     The purpose of this subroutine is to determine the bracket of 
+        !!         the pressure by finding the pressure at which b^2=4*a*c
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_ptg_bracket(pstarA,pstarB,pstar,rho0,E0)
+
+            REAL(KIND(0d0)), INTENT(OUT)   :: pstarA, pstarB
+            REAL(KIND(0d0)), INTENT(IN)    :: pstar, rho0, E0
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+            REAL(KIND(0d0))                                   ::            n1, n2
+            REAL(KIND(0d0))                                   ::      pinf1, pinf2
+            REAL(KIND(0d0))                                   ::          cv1, cv2
+            REAL(KIND(0d0))                                   ::           q1,  q2
+            REAL(KIND(0d0))                                   ::        ap, bp, dp
+            REAL(KIND(0d0))                                   ::  dadp, dbdp, dddp
+            REAL(KIND(0d0))                                   ::   delta, fp, dfdp
+            REAL(KIND(0d0))                                   ::     fA, fB, Tstar
+
+            INTEGER :: iter      !< Generic loop iterators
+            ! Material 1
+            n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
+            ! Material 2
+            n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
+            ! Finding lower bound, getting the bracket within one order of magnitude
+            pstarA = 1.d2
+            CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
+            fB = fA
+            DO WHILE ( fA*fB .GT. 0 )
+                  IF (ISNAN(Tstar)) RETURN
+                  IF (pstarA .GT. 1.d13) THEN
+                         PRINT *, 'ptg bracketing failed to find lower bound'
+                         PRINT *, 'pstarA :: ',pstarA
+                         CALL s_mpi_abort()
+                  END IF
+                  fA = fB
+                  pstarB = pstarA*10.d0
+                  CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
+            END DO
+            ! Finding upper bound, protecting against imaginary numbers
+            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
+            IF (ISNAN(Tstar)) THEN
+              DO WHILE (DABS(delta/pstarB) .GT. ptgnewton_eps) 
+                  ! f(Tsat) is the function of the equality that should be zero
+                  iter = iter + 1
+                  ! Calculating coefficients, Eq. C.6, Pelanti 2014
+                  ap    = rho0*cv1*cv2*((n2-1.d0)*(pstar+n1*pinf1)-(n1-1.d0)*(pstar+n2*pinf2))
+                  bp    = E0*((n1-1.d0)*cv1*(pstar+pinf2) - (n2-1.d0)*cv2*(pstar+pinf1)) + &
+                          rho0*((n2-1.d0)*cv2*q1*(pstar+pinf1) - (n1-1.d0)*cv1*q2*(pstar+pinf2)) + &
+                          cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
+                  dp    = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
+                  ! Calculating the derivatives wrt pressure of the coefficients
+                  dadp  = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
+                  dbdp  = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
+                         rho0*((n2-1.d0)*cv2*q1 - (n1-1.d0)*cv1*q2) + &
+                         cv2*((pstar+pinf1)+(pstar+n2*pinf2)) - & 
+                         cv1*((pstar+pinf2)+(pstar+n1*pinf1))
+                  dddp  = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
+                  ! Derivative of the temperature wrt to pressure, needed for dfdp
+                  fp    = bp*bp-4.d0*ap*dp
+                  dfdp  = 2.d0*bp*dbdp-4.d0*dadp*dp-4.d0*ap*dddp
+                  delta = fp/dfdp
+                  pstarB = pstarB - delta
+                  IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstarB)) THEN
+                        ! fp == 0 does not exist, set pstarH = 1.5*pinf1
+                        pstarB = pstarA*10.d0
+                        RETURN
+                  END IF
+              END DO
+            END IF
+        END SUBROUTINE s_compute_ptg_bracket
+
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_ptg_pTrelax(pstar,Tstar,rho0,E0,failed)
 
-            REAL(KIND(0d0)), INTENT(OUT)   :: pstar
+            REAL(KIND(0d0)), INTENT(INOUT) :: pstar
             REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
             REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
-            LOGICAL, INTENT(INOUT)         :: failed
+            LOGICAL, INTENT(OUT)           :: failed
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4996,7 +5008,7 @@ MODULE m_rhs
             REAL(KIND(0d0))                ::  fL, fH, pstarL, pstarH
             INTEGER :: iter      !< Generic loop iterators
             ! Computing the bracket of the root solution
-            CALL s_compute_ptg_bracket(pstarA,pstarB,rho0,E0)
+            CALL s_compute_ptg_bracket(pstarA,pstarB,pstar,rho0,E0)
             ! Computing f at lower and higher end of the bracket
             CALL s_compute_ptg_fdf(fL,dfdp,pstarA,Tstar,rho0,E0)
             CALL s_compute_ptg_fdf(fH,dfdp,pstarB,Tstar,rho0,E0)
@@ -5012,8 +5024,8 @@ MODULE m_rhs
             CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
             ! Combining the bisection and newton-raphson methods
             DO iter = 0, ptgnewton_iter
-                IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & !Bisect if Newton out of range,
-                        .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN        !or not decreasing fast enough.
+                IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
+                        .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
                    delta = 0.5d0*(pstarH-pstarL)
                    pstar = pstarL + delta
@@ -5021,7 +5033,7 @@ MODULE m_rhs
                       CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
                       RETURN                                    ! Change in root is negligible
                    END IF
-                ELSE                                            ! Newton step acceptable. Take it.
+                ELSE                                            ! Newton step acceptable, take it
                    delta_old = delta
                    delta = fp/dfdp
                    pstar = pstar - delta
@@ -5030,9 +5042,11 @@ MODULE m_rhs
                      RETURN 
                    END IF
                 END IF
-                IF(DABS(delta) < ptgnewton_eps) RETURN pstar
-                CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-                IF (fp < 0.d0) THEN !Maintain the bracket on the root.
+                IF (DABS(delta) < ptgnewton_eps) THEN           ! Stopping criteria
+                  CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
+                  RETURN
+                END IF
+                IF (fp < 0.d0) THEN !Maintain the bracket on the root
                    pstarL = pstar
                 ELSE
                    pstarH = pstar
