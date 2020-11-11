@@ -388,7 +388,7 @@ MODULE m_time_steppers
             CALL s_compute_rhs(q_cons_ts(1)%vf, q_prim_vf, rhs_vf, t_step)
 
             IF (model_eqns == 3 .AND. relax_model == 5) THEN
-                CALL s_finite_ptmu_relaxation(q_cons_ts(1)%vf,rhs_vf)
+                CALL s_finite_ptg_relaxation(q_cons_ts(1)%vf,rhs_vf)
             END IF
 
             IF(run_time_info) THEN
@@ -419,11 +419,11 @@ MODULE m_time_steppers
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 END IF
             END IF
 
@@ -439,7 +439,7 @@ MODULE m_time_steppers
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step)
             IF (model_eqns == 3 .AND. relax_model == 5) THEN
-                CALL s_finite_ptmu_relaxation(q_cons_ts(2)%vf,rhs_vf)
+                CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
             END IF
 
             DO i = 1, sys_size
@@ -461,11 +461,11 @@ MODULE m_time_steppers
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(2)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 END IF
             END IF
 
@@ -474,7 +474,7 @@ MODULE m_time_steppers
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step) 
             IF (model_eqns == 3 .AND. relax_model == 5) THEN
-                CALL s_finite_ptmu_relaxation(q_cons_ts(2)%vf,rhs_vf)
+                CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
             END IF
 
             DO i = 1, sys_size
@@ -496,11 +496,11 @@ MODULE m_time_steppers
                     CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(1)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
                     CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_ptmu_relaxation(q_cons_ts(1)%vf)
+                    CALL s_infinite_ptg_relaxation(q_cons_ts(1)%vf)
                 END IF
             END IF
    
