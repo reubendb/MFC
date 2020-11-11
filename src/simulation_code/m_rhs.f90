@@ -4960,7 +4960,7 @@ MODULE m_rhs
                   pstarB = pstarA*10.d0
                   CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
             END DO
-            ! Finding upper bound, protecting against imaginary numbers
+            ! Finding upper bound, protecting against temperatures that is complex number
             iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
             IF (ISNAN(Tstar)) THEN
               DO WHILE (DABS(delta/pstarB) .GT. ptgnewton_eps) 
@@ -4985,9 +4985,9 @@ MODULE m_rhs
                   delta = fp/dfdp
                   pstarB = pstarB - delta
                   IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstarB)) THEN
-                        ! fp == 0 does not exist, set pstarH = 1.5*pinf1
-                        pstarB = pstarA*10.d0
-                        RETURN
+                         PRINT *, 'ptg bracketing failed to find upper bound'
+                         PRINT *, 'pstarA :: ',pstarA
+                         CALL s_mpi_abort()
                   END IF
               END DO
             END IF
