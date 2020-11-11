@@ -238,8 +238,7 @@ MODULE m_variables_conversion
                 DO i = 1, num_fluids
                     rho    = rho    + q_vf(i)%sf(j,k,l)
                     gamma  = gamma  + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%gamma
-                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf !&
-                                    !+ q_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                    pi_inf = pi_inf + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%pi_inf 
                 END DO
 
                 IF(model_eqns == 3) THEN
