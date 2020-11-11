@@ -270,15 +270,19 @@ MODULE m_rhs
 
     !> @name Parameters for the phase change part of the code
     !> @{
-    REAL(KIND(0d0)), PARAMETER :: pnewton_eps   = 1.d-15 !< Saturation temperature tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptnewton_eps  = 1.d-12 !< Saturation temperature tolerance
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsH   = 1.d-6  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 1.d-6  !< Saturation p-T-mu alpha tolerance
-    !REAL(KIND(0d0)), PARAMETER :: palpha_epsL   = 5.d-2  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsH= 1.d-6  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 1.d-6  !< Saturation p-T-mu alpha tolerance
-    !REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL= 5.d-2  !< Saturation p-T-mu alpha tolerance
-    REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps= 1.d-10 !< Saturation p-T-mu tolerance
+    REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-15    !< p_relaxk \alpha threshold,           set to 1E-15
+    INTEGER,         PARAMETER :: pnewtonk_iter     = 25        !< p_relaxk \alpha iter,                set to 25
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-12    !< Saturation temperature tol,          set to 1E-12
+    INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
+    !REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempH = 510.d0    !< Saturation temperature threshold,    set to 600
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempH = 600.d0    !< Saturation temperature threshold,    set to 600
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempL = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsH    = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptmualpha_epsL    = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptmunewton_eps    = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
+    INTEGER,         PARAMETER :: ptmunewton_iter   = 50        !< Saturation p-T-mu iteration,         set to 50
     !> @}
 
     character(50) :: file_path !< Local file path for saving debug files
@@ -4260,17 +4264,21 @@ MODULE m_rhs
             pinf2 = gibbspinf2
             ! Initial guess
             iter = 0; fp = 0.d0; dfdp = 0.d0; Tstar = 0.1d0*gibbsB/gibbsC; delta = Tstar;
-            DO WHILE (DABS(delta/Tstar) .GT. ptnewton_eps) 
+            DO WHILE (DABS(delta/Tstar) .GT. pTsatnewton_eps) 
                   ! f(Tsat) is the function of the equality that should be zero
                   iter = iter + 1
-                  IF ((iter .GT. 20) .OR. ISNAN(pstar) .OR. & 
-                      (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
+                  IF ((iter .GT. pTsatnewton_iter) .OR. ISNAN(pstar) .OR. & 
+                      (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.)) THEN
                          PRINT *, &
-                         'PTSAT :: Evaluation of saturation temperature failed     & 
+                         'PTSAT :: Evaluation of saturation temperature failed & 
                          to converge to a solution.'                            
                          PRINT *, 'iter = ',iter,', delta = ',delta, & 
                          ', prelax = ',pstar,', Tstar = ',Tstar
                          CALL s_mpi_abort()
+                  END IF
+                  IF(Tstar .GE. pTsatnewton_tempH .OR. Tstar .LE. pTsatnewton_tempL ) THEN
+                       Tstar = 1.d6
+                       RETURN
                   END IF
                   fp = gibbsA + gibbsB/Tstar + gibbsC*dlog(Tstar) + & 
                        gibbsD*dlog(pstar+pinf1) - dlog(pstar+pinf2)
@@ -4512,10 +4520,10 @@ MODULE m_rhs
 
                             ! Iterative process for relaxed pressure determination
                             iter    = 0; f_pres  = 1.d0; df_pres = 0.d0
-                            DO WHILE (DABS(f_pres) .GT. pnewton_eps)
+                            DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
                                 ! Convergence?
                                 iter = iter + 1
-                                IF ( (iter == 50) .AND. (pres_relax .GT. 1.d-12) ) THEN
+                                IF ( (iter == pnewtonk_iter) .AND. (pres_relax .GT. 1.d-12) ) THEN
                                     PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
                                     CALL s_mpi_abort()
                                 END IF
@@ -4905,7 +4913,7 @@ MODULE m_rhs
                   ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
                   Tstar = (-bp + sqrt(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
                   ! Convergence
-                  IF ((iter .GT. 50) .OR. ISNAN(pstar) .OR. ISNAN(Tstar) .OR. & 
+                  IF ((iter .GT. ptmunewton_iter) .OR. ISNAN(pstar) .OR. ISNAN(Tstar) .OR. & 
                       (Tstar .LE. 0.d0) .OR. (pstar .LE. 0.d0)) THEN
                          PRINT *, 'PTMU_PTRELAX :: Saturation temperature failed to & 
                          converge to a solution.'
@@ -5940,7 +5948,7 @@ MODULE m_rhs
                         v_vf(i)%sf(:,  n+j  ,0:p) = &
                         v_vf(i)%sf(:,n-(j-1),0:p)
                     END DO
-                    
+                  
                     v_vf(mom_idx%beg+1)%sf(:,  n+j  ,0:p) = &
                    -v_vf(mom_idx%beg+1)%sf(:,n-(j-1),0:p)
                     

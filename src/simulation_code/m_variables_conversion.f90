@@ -393,7 +393,6 @@ MODULE m_variables_conversion
                 We_K(We_idx(i,2),We_idx(i,1)) = dflt_real
             END DO
 
-
             IF (present(G_K)) THEN
                 G_K = 0d0
                 DO i = 1, num_fluids
