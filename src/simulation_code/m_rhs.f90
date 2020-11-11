@@ -4997,12 +4997,11 @@ MODULE m_rhs
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_ptg_pTrelax(pstar,Tstar,rho0,E0,failed)
+        SUBROUTINE s_compute_ptg_pTrelax(pstar,Tstar,rho0,E0)
 
             REAL(KIND(0d0)), INTENT(INOUT) :: pstar
             REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
             REAL(KIND(0d0)), INTENT(IN)    :: rho0, E0
-            LOGICAL, INTENT(OUT)           :: failed
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -5221,14 +5220,7 @@ MODULE m_rhs
                         !< ==============================================================================
                         IF (relax) THEN
                             ! Assume 0.5 < \alpha < 1 is liquid (Medium 1), 0 < \alpha < 0.5 is vapor (Medium 2) 
-                            CALL s_compute_ptg_pTrelax(pres_relax,Trelax,rho,rhoe,failed)
-                            IF(failed) THEN
-                                 PRINT *, 'failed, j : ',j,                       & 
-                                 'alpha1 :',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l), &
-                                 'alpha2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)
-                                 PRINT *, 'Tsat :',Tsat,', Tk1 :',Tk(1),', Tk2 :',Tk(2)
-                                 CALL s_mpi_abort()
-                            END IF
+                            CALL s_compute_ptg_pTrelax(pres_relax,Trelax,rho,rhoe)
                             p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
                             rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
                                    (fluid_pp(1)%cv*Trelax)
