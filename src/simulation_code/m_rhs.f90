@@ -271,7 +271,7 @@ MODULE m_rhs
     !> @name Parameters for the phase change part of the code
     !> @{
     REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-10    !< p_relaxk \alpha threshold,           set to 1E-15
-    INTEGER,         PARAMETER :: pnewtonk_iter     = 25        !< p_relaxk \alpha iter,                set to 25
+    INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-12    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempH = 900.d0    !< Saturation temperature threshold,    set to 900
@@ -3758,7 +3758,7 @@ MODULE m_rhs
 
             IF (idir == ndirs) THEN
                 mytime = t_step*dt
-                if (proc_rank == 0) print*, 'time', mytime, 'delay', mymono%delay, dflt_real
+                !IF (proc_rank == 0) print*, 'time', mytime, 'delay', mymono%delay, dflt_real
                 IF ( (mytime < mymono%delay) .AND. mymono%delay /= dflt_real ) RETURN
 
                 DO j = 0,m; DO k = 0,n; DO l=0,p
@@ -4524,11 +4524,7 @@ MODULE m_rhs
 
                             ! Iterative process for relaxed pressure determination
                             ! Convergence?
-                            iter    = 0; f_pres  = 1d-9; df_pres = 1d9
-                            DO i = 1, num_fluids
-                                rho_K_s(i) = 0d0
-                            END DO
-
+                            iter    = 0; f_pres  = 1.d-9; df_pres = 1d9
                             DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
                                 pres_relax = pres_relax - f_pres / df_pres
                                 iter = iter + 1

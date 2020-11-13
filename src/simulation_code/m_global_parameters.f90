@@ -1181,15 +1181,15 @@ MODULE m_global_parameters
                         ! nRtmp(i) = small_alf
                     ! END IF
                 ! END DO
-                ! nR3 = 1.d-12
-                PRINT*, vftmp, nR3, nRtmp(:)
                 STOP 'nR3 is negative'
+                nR3 = 1.d-12
             END IF
             IF (vftmp < 0d0) THEN
                 ! vftmp = small_alf
-                ! ntmp = DSQRT( (4.d0*pi/3.d0)*nR3/1.d-12 )
-                PRINT*, vftmp, nR3, nRtmp(:)
                 STOP 'vf negative'
+                ntmp = DSQRT( (4.d0*pi/3.d0)*nR3/1.d-12 )
+            ELSE
+                ntmp = DSQRT( (4.d0*pi/3.d0)*nR3/vftmp )
             END IF
 
             ntmp = DSQRT( (4.d0*pi/3.d0)*nR3/vftmp )
