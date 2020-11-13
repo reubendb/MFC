@@ -451,7 +451,7 @@ MODULE m_mpi_proxy
                 CALL MPI_BCAST( mono(j)%length   ,              1      , &
                     MPI_DOUBLE_PRECISION,        0      , &
                     MPI_COMM_WORLD, ierr                  )
-                CALL MPI_BCAST( mono(j)%delay,              1      , &
+                CALL MPI_BCAST( mono(j)%delay    ,              1      , &
                     MPI_DOUBLE_PRECISION,        0      , &
                     MPI_COMM_WORLD, ierr                  )
                 CALL MPI_BCAST( mono(j)%dir   ,              1      , &

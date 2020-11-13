@@ -4514,7 +4514,8 @@ MODULE m_rhs
                                             /fluid_pp(i)%gamma
 
                                     IF (pres_K_init(i) .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) & 
-                                        pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-0
+                                        pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-8
+                                    !TODO BE VERY CAREFUL ABOUT THE LIMIT HERE as it may be 1d0 instead
                                 ELSE
                                     pres_K_init(i) = 0d0
                                 END IF
@@ -4526,7 +4527,7 @@ MODULE m_rhs
                             DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
                                 ! Convergence?
                                 iter = iter + 1
-                                IF ( (iter == pnewtonk_iter) .AND. (pres_relax .GT. 1.d-12) ) THEN
+                                IF ( (iter == pnewtonk_iter) ) THEN
                                     PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
                                     CALL s_mpi_abort()
                                 END IF
@@ -4541,20 +4542,28 @@ MODULE m_rhs
                                 df_pres = 0d0
                                 DO i = 1, num_fluids
                                     IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
-                                        numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
-                                        denominator = numerator + pres_K_init(i)-pres_relax
-                                        rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
-                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
-                                                      numerator/denominator
-                                        drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
-                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
-                                            gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
-                                        f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
-                                        df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
-                                                      drhodp / (rho_K_s(i)*rho_K_s(i))
+                                        !numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
+                                        !denominator = numerator + pres_K_init(i)-pres_relax
+                                        !rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
+                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
+                                        !              numerator/denominator
+                                        !drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
+                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
+                                        !    gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
+                                        !f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
+                                        !df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
+                                        !              drhodp / (rho_K_s(i)*rho_K_s(i))
+                                        rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
+                                                    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
+                                                    * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
+                                                    pres_inf(i)))**(1d0/gamma_min(i))
+                                        f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
+                                            / rho_K_s(i)
+                                        df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
+                                            / (gamma_min(i)*rho_K_s(i)*(pres_relax+pres_inf(i)))
                                     END IF
                                 END DO
-                                pres_relax = pres_relax - f_pres / df_pres
+                                !pres_relax = pres_relax - f_pres / df_pres
                             END DO
                             ! Cell update of the volume fraction
                             DO i = 1, num_fluids
