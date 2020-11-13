@@ -4520,11 +4520,16 @@ MODULE m_rhs
                             END DO
 
                             ! Iterative process for relaxed pressure determination
-                            iter    = 0; f_pres  = 1.d0; df_pres = 0.d0
+                            ! Convergence?
+                            iter    = 0; f_pres  = 1d-9; df_pres = 1d9
+                            DO i = 1, num_fluids
+                                rho_K_s(i) = 0d0
+                            END DO
+
                             DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
-                                ! Convergence?
+                                pres_relax = pres_relax - f_pres / df_pres
                                 iter = iter + 1
-                                IF ( (iter == pnewtonk_iter) ) THEN
+                                IF ( iter == pnewtonk_iter ) THEN
                                     PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
                                     CALL s_mpi_abort()
                                 END IF
