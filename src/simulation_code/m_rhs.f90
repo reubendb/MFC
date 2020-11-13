@@ -4524,6 +4524,9 @@ MODULE m_rhs
                             ! Iterative process for relaxed pressure determination
                             ! Convergence?
                             iter    = 0; f_pres  = 1.d-9; df_pres = 1d9
+                            DO i = 1, num_fluids
+                                rho_K_s(i) = 0d0
+                            END DO
                             DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
                                 pres_relax = pres_relax - f_pres / df_pres
                                 iter = iter + 1
