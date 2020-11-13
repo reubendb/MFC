@@ -349,6 +349,7 @@ MODULE m_global_parameters
     ! ======================================================================
 
     ! Mathematical and Physical Constants ======================================
+    ! REAL(KIND(0d0)), PARAMETER :: pi = 3.141592653589793d0 !< Pi
     REAL(KIND(0d0)), PARAMETER :: pi = 3.14159265358979311599796 !< Pi
     ! ==========================================================================
   
@@ -482,6 +483,7 @@ MODULE m_global_parameters
                 END DO
                 mono(j)%mag    = dflt_real
                 mono(j)%length = dflt_real
+                mono(j)%delay  = dflt_real
                 mono(j)%dir    = 1.d0
                 mono(j)%npulse = 1.d0
                 mono(j)%pulse = 1
