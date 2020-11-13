@@ -278,10 +278,10 @@ MODULE m_rhs
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempL = 100.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH    = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL    = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps    = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
-    INTEGER,         PARAMETER :: ptgnewton_iter   = 50        !< Saturation p-T-mu iteration,         set to 50
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
+    INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
     !> @}
 
     character(50) :: file_path !< Local file path for saving debug files
@@ -4700,13 +4700,13 @@ MODULE m_rhs
                              END DO
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = .FALSE.
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
+                        ! relax = .TRUE.
+                        ! IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. palpha_epsL ) .OR. &
+                        !      q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d0-palpha_epsH ) relax = .FALSE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax) THEN
+                        !IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
                                  rhoeq_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -4718,7 +4718,7 @@ MODULE m_rhs
                             ! Cell update of the volume fraction
                             q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
-                        END IF
+                        !END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
                         ! ==================================================================                     
