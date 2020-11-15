@@ -4256,6 +4256,80 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_fdfTsat(fp,dfdp,pstar,Tstar)
+
+            REAL(KIND(0d0)), INTENT(OUT)        :: fp, dfdp
+            REAL(KIND(0d0)), INTENT(IN)         :: pstar, Tstar
+            REAL(KIND(0d0))                     :: pinf1, pinf2
+            INTEGER :: iter      !< Generic loop iterators
+            pinf1 = gibbspinf1
+            pinf2 = gibbspinf2
+            fp = gibbsA + gibbsB/Tstar + gibbsC*DLOG(Tstar) - & 
+                 DLOG((pstar+pinf2)/(pstar+pinf1)**gibbsD)
+            dfdp = -gibbsB/(Tstar*Tstar) + gibbsC/Tstar
+        END SUBROUTINE s_compute_fdfTsat !-------------------------------
+
+        !>     The purpose of this subroutine is to determine the saturation
+        !!         temperature by using a Newton-Raphson method from the provided
+        !!         equilibrium pressure and EoS of the binary phase system.
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_Tsat(pressure,Tstar)
+
+            REAL(KIND(0d0)), INTENT(IN) :: pressure
+            REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+            REAL(KIND(0d0))                ::  TstarA, TstarB
+            REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
+            REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH
+            INTEGER :: iter      !< Generic loop iterators
+            ! Computing the bracket of the root solution
+            TstarA = 250.d0; TstarB = 1000.d0;
+            ! Computing f at lower and higher end of the bracket
+            CALL s_compute_fdfTsat(fL,dfdp,pressure,TstarA)
+            CALL s_compute_fdfTsat(fH,dfdp,pressure,TstarB)
+            ! Establishing the direction of the descent to find zero
+            IF(fL < 0.d0) THEN
+                TstarL  = TstarA; TstarH  = TstarB;
+            ELSE
+                TstarL  = TstarB; TstarH  = TstarA;
+            END IF
+            Tstar = 0.5d0*(TstarA+TstarB)
+            delta_old = DABS(TstarB-TstarA)
+            delta = delta_old
+            CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)
+            ! Combining bisection and newton-raphson methods
+            DO iter = 0, ptgnewton_iter
+                IF ((((Tstar-TstarH)*dfdp-fp)*((Tstar-TstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
+                        .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
+                   delta_old = delta
+                   delta = 0.5d0*(TstarH-TstarL)
+                   Tstar = TstarL + delta
+                   IF (delta .EQ. 0.d0) RETURN
+                ELSE                                            ! Newton step acceptable, take it
+                   delta_old = delta
+                   delta = fp/dfdp
+                   Tstar = Tstar - delta
+                   IF (delta .EQ. 0.d0) RETURN
+                END IF
+                IF (DABS(delta) < ptgnewton_eps) RETURN
+                CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)           
+                IF (fp < 0.d0) THEN !Maintain the bracket on the root
+                   TstarL = Tstar
+                ELSE
+                   TstarH = Tstar
+                END IF
+                IF (iter .EQ. ptgnewton_iter) Tstar = 1.d6
+            END DO
+        END SUBROUTINE s_compute_Tsat !-------------------------------
+
+        !>     The purpose of this subroutine is to determine the saturation
+        !!         temperature by using a Newton-Raphson method from the provided
+        !!         equilibrium pressure and EoS of the binary phase system.
+        !!     @param q_cons_vf Cell-average conservative variables
+        !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_compute_pTsat(pstar,Tstar)
             REAL(KIND(0d0)), INTENT(IN)         :: pstar
             REAL(KIND(0d0)), INTENT(OUT)        :: Tstar
@@ -4842,13 +4916,13 @@ MODULE m_rhs
                              END DO
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = .FALSE.
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
+                        !relax = .FALSE.
+                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
+                        !      q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        IF (relax) THEN
+                        !IF (relax) THEN
                             rhoalpha1 = q_cons_vf(cont_idx%beg)%sf(j,k,l)
                             rhoalpha2 = q_cons_vf(1+cont_idx%beg)%sf(j,k,l)
                             rhoe = 0.d0
@@ -4859,7 +4933,7 @@ MODULE m_rhs
                             ! Cell update of the volume fraction
                             q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
-                        END IF
+                        !END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
                         ! ==================================================================                     
@@ -5037,30 +5111,23 @@ MODULE m_rhs
             delta_old = DABS(pstarB-pstarA)
             delta = delta_old
             CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-            ! Combining the bisection and newton-raphson methods
+            ! Combining bisection and newton-raphson methods
             DO iter = 0, ptgnewton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
                    delta = 0.5d0*(pstarH-pstarL)
                    pstar = pstarL + delta
-                   IF (pstarA .EQ. pstar) THEN 
-                      CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-                      RETURN                                    ! Change in root is negligible
-                   END IF
-                ELSE                                            ! Newton step acceptable, take it
+                   IF (delta .EQ. 0.d0) RETURN                    ! Change in root is negligible
+                ELSE                                              ! Newton step acceptable, take it
                    delta_old = delta
                    delta = fp/dfdp
                    pstar = pstar - delta
-                   IF (delta .EQ. 0.d0) THEN
-                     CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-                     RETURN 
-                   END IF
+                   IF (delta .EQ. 0.d0) RETURN 
                 END IF
-                IF (DABS(delta) < ptgnewton_eps) THEN           ! Stopping criteria
-                  CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-                  RETURN
-                END IF
+                IF (DABS(delta) < ptgnewton_eps) RETURN           ! Stopping criteria
+                ! Updating to next iteration
+                CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
                 IF (fp < 0.d0) THEN !Maintain the bracket on the root
                    pstarL = pstar
                 ELSE
@@ -5179,8 +5246,8 @@ MODULE m_rhs
                     DO l = 0, p
                         ! Resetting the internal energy value and the relax and failed flags
                         rhoe = 0.d0
-                        relax = .FALSE.
-                        failed = .FALSE.
+                        relax = .TRUE.
+                        !failed = .FALSE.
                         ! Numerical correction of the volume fractions
                         IF (mpp_lim) THEN
                             sum_alpha = 0.d0
@@ -5206,15 +5273,17 @@ MODULE m_rhs
                                                              gamma, pi_inf,  &
                                                              Re, We, j, k, l )
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptgalpha_epsL ) .AND. &
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptgalpha_epsH ) relax = .TRUE.
-
-                        IF (relax) THEN
+                        !IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptgalpha_epsL ) .AND. &
+                        !      q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptgalpha_epsH ) relax = .TRUE.
+                        !relax = .TRUE.
+                        !IF (relax) THEN
                            DO i = 1, num_fluids
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
-                           CALL s_compute_pTsat(pres_relax,Tsat)
+                           !CALL s_compute_pTsat(pres_relax,Tsat)
+                           CALL s_compute_Tsat(pres_relax,Tsat)
+                           PRINT *, 'Tsat : ',Tsat,', pres : ',pres_relax
                            DO i = 1, num_fluids
                                Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                          -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
@@ -5223,9 +5292,16 @@ MODULE m_rhs
                                          /(1.d0+fluid_pp(i)%gamma)) &
                                          /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
+                               PRINT *, 'k : ',i,', Tk : ',Tk(i)
+                               PRINT *, 'k : ',i,', alphak : ',q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)
                            END DO
-                           IF(Tk(1) .LT. Tsat) relax = .FALSE.
-                        END IF
+
+                           IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. ptgalpha_epsL ) .AND. &
+                                (Tk(1) .GT. Tsat) ) relax = .FALSE.
+                           IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d0-ptgalpha_epsH ) .AND. &
+                                (Tk(1) .LT. Tsat) ) relax = .FALSE.
+                        !END IF
+                        CALL s_mpi_abort()
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
