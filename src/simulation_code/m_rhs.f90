@@ -272,13 +272,13 @@ MODULE m_rhs
     !> @{
     REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-10    !< p_relaxk \alpha threshold,           set to 1E-15
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
-    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-12    !< Saturation temperature tol,          set to 1E-12
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempH = 900.d0    !< Saturation temperature threshold,    set to 900
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_tempL = 100.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 5.d-2     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
     INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
@@ -4700,13 +4700,13 @@ MODULE m_rhs
                              END DO
                         END IF
                         ! Thermodynamic equilibrium relaxation procedure ================================
-                        ! relax = .TRUE.
-                        ! IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. palpha_epsL ) .OR. &
-                        !      q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d0-palpha_epsH ) relax = .FALSE.
+                        relax = .FALSE.
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
                         !> ==============================================================================
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
-                        !IF (relax) THEN
+                        IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
                                  rhoeq_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -4715,10 +4715,12 @@ MODULE m_rhs
                                  p_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
                             END DO
                             CALL s_compute_p_prelax(pres_relax,a1,p_k,alpha_k)
-                            ! Cell update of the volume fraction
-                            q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
-                            q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
-                        !END IF
+                            IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
+                              ! Cell update of the volume fraction
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
+                              q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
+                            END IF
+                        END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
                         ! ==================================================================                     
@@ -4856,9 +4858,11 @@ MODULE m_rhs
                                 rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
                             END DO
                             CALL s_compute_pt_prelax(pres_relax,a1,rhoalpha1,rhoalpha2,rhoe)
-                            ! Cell update of the volume fraction
-                            q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
-                            q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
+                            IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
+                              ! Cell update of the volume fraction
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
+                              q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
+                            END IF
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================

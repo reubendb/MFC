@@ -487,7 +487,7 @@ MODULE m_variables_conversion
                                 q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) = & 
                                     q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) * & 
                                     (fluid_pp(i)%gamma*q_prim_vf(E_idx)%sf(j,k,l) + &
-                                    fluid_pp(i)%pi_inf) + &
+                                    fluid_pp(i)%pi_inf) + & 
                                     q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                             END DO
                         END IF 
