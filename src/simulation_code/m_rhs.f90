@@ -274,8 +274,8 @@ MODULE m_rhs
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
-    REAL(KIND(0d0)), PARAMETER :: TsatH             = 950.d0    !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatL             = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: TsatH             = 1000.d0   !< Saturation temperature threshold,    set to 900
+    REAL(KIND(0d0)), PARAMETER :: TsatL             = 200.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
@@ -3743,7 +3743,7 @@ MODULE m_rhs
             TYPE(mono_parameters), INTENT(IN) :: mymono
             INTEGER, INTENT(IN) :: idir, t_step
             
-            INTEGER :: ndirs,j,k,l
+            INTEGER :: ndirs,j,k,l,ii
             
             REAL(KIND(0d0)) :: mytime, sound, n_tait, B_tait
             REAL(KIND(0d0)) :: s2, myRho, const_sos
@@ -3763,18 +3763,25 @@ MODULE m_rhs
 
                 DO j = 0,m; DO k = 0,n; DO l=0,p
                     CALL s_convert_to_mixture_variables( q_prim_vf, myRho, n_tait, B_tait, Re, We, j, k, l )
-                    n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
 
-                    sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)/myRho
-                    sound = dsqrt(sound)
+                    IF(model_eqns == 3) THEN
+                      sound = 0d0
+                      DO ii = 1, num_fluids
+                        sound = sound + q_prim_vf(ii+adv_idx%beg-1)%sf(j,k,l) * (1d0/fluid_pp(ii)%gamma+1d0) * &
+                            (q_prim_vf(E_idx)%sf(j,k,l) + fluid_pp(ii)%pi_inf/(fluid_pp(ii)%gamma+1d0))
+                      END DO
+                    ELSE 
+                       n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
+                       sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
+                    END IF
 
+                    sound = dsqrt(sound/myRho)
                     const_sos = dsqrt( n_tait )
 
                     s2 = f_g(mytime,sound,const_sos,mymono) * f_delta(j,k,l,mymono%loc,mymono%length,mymono)
                    
                     mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
                     IF (n ==0) THEN
-                        
                         ! 1D
                         IF (mymono%dir < -0.1d0) THEN
                             !left-going wave
@@ -3836,8 +3843,10 @@ MODULE m_rhs
                 END IF
             ELSE IF (mymono%pulse == 2) THEN
                 ! Gaussian pulse
-                sigt = mymono%length/sos/7.d0
-                t0 = 3.5d0*sigt 
+                !sigt = mymono%length/sos/7.d0
+                !t0 = 3.5d0*sigt 
+                sigt = mymono%length/sos/4.d0
+                t0 = 4.d0*sigt 
                 f_g = mymono%mag/(dsqrt(2.d0*pi) * sigt) * &
                     dexp( -0.5d0 * ((mytime-t0)**2.d0)/(sigt**2.d0) )
             ELSE IF (mymono%pulse == 3) THEN
@@ -4321,8 +4330,12 @@ MODULE m_rhs
                 ELSE
                    TstarH = Tstar
                 END IF
-                IF (iter .EQ. ptgnewton_iter-1) Tstar = 1.d6
+                IF (iter .EQ. ptgnewton_iter-1) THEN
+                    PRINT *, 'Tsat did not converge, stopping code'
+                    CALL s_mpi_abort()
+                END IF                   !Tstar = 1.d6
             END DO
+
         END SUBROUTINE s_compute_Tsat !-------------------------------
 
         !> The purpose of this procedure is to employ the inputted
@@ -4676,7 +4689,7 @@ MODULE m_rhs
             bp = C1*alpha_k(2)+C2*alpha_k(1)-(n2+1.d0)*alpha_k(1)*p_k(1)-(n1+1.d0)*alpha_k(2)*p_k(2)
             dp = -(C2*alpha_k(1)*p_k(1) + C1*alpha_k(2)*p_k(2))
             ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
-            pstar = (-bp + sqrt(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
+            pstar = (-bp + DSQRT(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
             alpha1 = alpha_k(1)*((n1-1.d0)*pstar + 2.d0*p_k(1) + C1)/((n1+1.d0)*pstar+C1)
         END SUBROUTINE s_compute_p_prelax
 
@@ -4814,7 +4827,7 @@ MODULE m_rhs
                  rhoalpha1*rhoalpha2*(q1*cv2*(n2-1.d0)*pinf1 + q2*cv1*(n1-1.d0)*pinf2) - &
                  E0*(cv1*(n1-1.d0)*pinf2*rhoalpha1 + cv2*(n2-1.d0)*pinf1*rhoalpha2)
             ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
-            pstar = (-bp + sqrt(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
+            pstar = (-bp + DSQRT(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
             alpha1 = (cv1*(n1-1.d0)*(pstar+pinf2)*rhoalpha1)/&
                      (cv1*(n1-1.d0)*(pstar+pinf2)*rhoalpha1 + &
                       cv2*(n2-1.d0)*(pstar+pinf1)*rhoalpha2)
@@ -4893,11 +4906,11 @@ MODULE m_rhs
                                 rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
                             END DO
                             CALL s_compute_pt_prelax(pres_relax,a1,rhoalpha1,rhoalpha2,rhoe)
-                            !IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
+                            IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
                               ! Cell update of the volume fraction
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
                               q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
-                            !END IF
+                            END IF
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
@@ -4954,7 +4967,7 @@ MODULE m_rhs
                  cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
             dp = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
             ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
-            Tstar = (-bp + sqrt(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
+            Tstar = (-bp + DSQRT(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
             ! Calculating the derivatives wrt pressure of the coefficients
             dadp = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
             dbdp = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
@@ -4963,10 +4976,10 @@ MODULE m_rhs
                    cv1*((pstar+pinf2)+(pstar+n1*pinf1))
             dddp = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
             ! Derivative of the temperature wrt to pressure, needed for dfdp
-            dTdp = (-dbdp + (0.5d0/sqrt(bp*bp-4.d0*ap*dp))*(2.d0*bp*dbdp-&
+            dTdp = (-dbdp + (0.5d0/DSQRT(bp*bp-4.d0*ap*dp))*(2.d0*bp*dbdp-&
                    4.d0*(ap*dddp+dp*dadp)))/(2.d0*ap) - (dadp/ap)*Tstar
-            fp   = gibbsA + gibbsB/Tstar + gibbsC*dlog(Tstar) + & 
-                   gibbsD*dlog(pstar+pinf1) - dlog(pstar+pinf2)
+            fp   = gibbsA + gibbsB/Tstar + gibbsC*DLOG(Tstar) + & 
+                   gibbsD*DLOG(pstar+pinf1) - DLOG(pstar+pinf2)
             dfdp = -gibbsB/(Tstar*Tstar)*dTdp + gibbsC/Tstar*dTdp + & 
                    gibbsD/(pstar+pinf1) - 1.d0/(pstar+pinf2)
         END SUBROUTINE s_compute_ptg_fdf !------------------------
@@ -4998,9 +5011,10 @@ MODULE m_rhs
             n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Finding lower bound, getting the bracket within one order of magnitude
             pstarA = 1.d2
+            pstarB = pstarA
             CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
             fB = fA
-            DO WHILE ( fA*fB .GT. 0 )
+            DO WHILE ( fA*fB .GT. 0.d0 )
                   IF (ISNAN(Tstar)) RETURN
                   IF (pstarA .GT. 1.d13) THEN
                          PRINT *, 'ptg bracketing failed to find lower bound'
@@ -5008,40 +5022,42 @@ MODULE m_rhs
                          CALL s_mpi_abort()
                   END IF
                   fA = fB
-                  pstarB = pstarA*10.d0
+                  pstarB = pstarA*5.d0
                   CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
+                  pstarA = pstarB
+                  PRINT *, 'fB : ',fB,', fA : ',fA
             END DO
             ! Finding upper bound, protecting against temperatures that is complex number
-            iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
-            IF (ISNAN(Tstar)) THEN
-              DO WHILE (DABS(delta/pstarB) .GT. ptgnewton_eps) 
-                  ! f(Tsat) is the function of the equality that should be zero
-                  iter = iter + 1
-                  ! Calculating coefficients, Eq. C.6, Pelanti 2014
-                  ap    = rho0*cv1*cv2*((n2-1.d0)*(pstar+n1*pinf1)-(n1-1.d0)*(pstar+n2*pinf2))
-                  bp    = E0*((n1-1.d0)*cv1*(pstar+pinf2) - (n2-1.d0)*cv2*(pstar+pinf1)) + &
-                          rho0*((n2-1.d0)*cv2*q1*(pstar+pinf1) - (n1-1.d0)*cv1*q2*(pstar+pinf2)) + &
-                          cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
-                  dp    = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
-                  ! Calculating the derivatives wrt pressure of the coefficients
-                  dadp  = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
-                  dbdp  = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
-                         rho0*((n2-1.d0)*cv2*q1 - (n1-1.d0)*cv1*q2) + &
-                         cv2*((pstar+pinf1)+(pstar+n2*pinf2)) - & 
-                         cv1*((pstar+pinf2)+(pstar+n1*pinf1))
-                  dddp  = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
-                  ! Derivative of the temperature wrt to pressure, needed for dfdp
-                  fp    = bp*bp-4.d0*ap*dp
-                  dfdp  = 2.d0*bp*dbdp-4.d0*dadp*dp-4.d0*ap*dddp
-                  delta = fp/dfdp
-                  pstarB = pstarB - delta
-                  IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstarB)) THEN
-                         PRINT *, 'ptg bracketing failed to find upper bound'
-                         PRINT *, 'pstarA :: ',pstarA
-                         CALL s_mpi_abort()
-                  END IF
-              END DO
-            END IF
+            !iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
+            !IF (ISNAN(Tstar)) THEN
+            !  DO WHILE (DABS(delta/pstarB) .GT. ptgnewton_eps) 
+            !      ! f(Tsat) is the function of the equality that should be zero
+            !      iter = iter + 1
+            !      ! Calculating coefficients, Eq. C.6, Pelanti 2014
+            !      ap    = rho0*cv1*cv2*((n2-1.d0)*(pstar+n1*pinf1)-(n1-1.d0)*(pstar+n2*pinf2))
+            !      bp    = E0*((n1-1.d0)*cv1*(pstar+pinf2) - (n2-1.d0)*cv2*(pstar+pinf1)) + &
+            !              rho0*((n2-1.d0)*cv2*q1*(pstar+pinf1) - (n1-1.d0)*cv1*q2*(pstar+pinf2)) + &
+            !              cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
+            !      dp    = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
+            !      ! Calculating the derivatives wrt pressure of the coefficients
+            !      dadp  = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
+            !      dbdp  = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
+            !             rho0*((n2-1.d0)*cv2*q1 - (n1-1.d0)*cv1*q2) + &
+            !             cv2*((pstar+pinf1)+(pstar+n2*pinf2)) - & 
+            !             cv1*((pstar+pinf2)+(pstar+n1*pinf1))
+            !      dddp  = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
+            !      ! Derivative of the temperature wrt to pressure, needed for dfdp
+            !      fp    = bp*bp-4.d0*ap*dp
+            !      dfdp  = 2.d0*bp*dbdp-4.d0*dadp*dp-4.d0*ap*dddp
+            !      delta = fp/dfdp
+            !      pstarB = pstarB - delta
+            !      IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstarB)) THEN
+            !             PRINT *, 'ptg bracketing failed to find upper bound'
+            !             PRINT *, 'pstarA :: ',pstarA
+            !             CALL s_mpi_abort()
+            !      END IF
+            !  END DO
+            !END IF
         END SUBROUTINE s_compute_ptg_bracket
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -5062,10 +5078,14 @@ MODULE m_rhs
             REAL(KIND(0d0))                ::  fL, fH, pstarL, pstarH
             INTEGER :: iter      !< Generic loop iterators
             ! Computing the bracket of the root solution
+            PRINT *, 'calculating ptg bracket'
             CALL s_compute_ptg_bracket(pstarA,pstarB,pstar,rho0,E0)
+            PRINT *, 'ptg bracket success'
             ! Computing f at lower and higher end of the bracket
+            PRINT *, 'calculating ptg fdf'
             CALL s_compute_ptg_fdf(fL,dfdp,pstarA,Tstar,rho0,E0)
             CALL s_compute_ptg_fdf(fH,dfdp,pstarB,Tstar,rho0,E0)
+            PRINT *, 'calculating ptg fdf success'
             ! Establishing the direction of the descent to find zero
             IF(fL < 0.d0) THEN
                 pstarL  = pstarA; pstarH  = pstarB;
@@ -5076,6 +5096,7 @@ MODULE m_rhs
             delta_old = DABS(pstarB-pstarA)
             delta = delta_old
             CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
+            PRINT *, 'calculating ptg conditions'
             ! Combining bisection and newton-raphson methods
             DO iter = 0, ptgnewton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
@@ -5098,7 +5119,9 @@ MODULE m_rhs
                 ELSE
                    pstarH = pstar
                 END IF
+                PRINT *, 'iter in ptg : ',iter
             END DO
+            PRINT *, 'calculating ptg conditions success'
         END SUBROUTINE s_compute_ptg_pTrelax !-------------------------------
 
         !>  The purpose of this procedure is to infinitely relax
@@ -5195,6 +5218,7 @@ MODULE m_rhs
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
                         IF (relax) THEN
+                            PRINT *, 'ptg relaxing'
                             CALL s_compute_ptg_pTrelax(pres_relax,Trelax,rho,rhoe)
                             p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
                             rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
@@ -5203,13 +5227,19 @@ MODULE m_rhs
                             rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
                                    (fluid_pp(2)%cv*Trelax)
                             ! Calculate vapor and liquid volume fractions
-                            a1 = (rho-rho2)/(rho1-rho2)
-                            a2 = 1.d0 - a1
-                            ! Cell update of the volume fraction
-                            q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
-                            q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
-                            q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
-                            q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
+                            IF (a1 .LT. 1.d0 .AND. a1 .GT. 0.d0) THEN
+                                a1 = (rho-rho2)/(rho1-rho2)
+                                a2 = 1.d0 - a1
+                                ! Cell update of the volume fraction
+                                q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
+                                q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
+                                q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
+                                q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
+                            ELSE
+                              PRINT *, 'ptg relax failed to compute a1, stopping'
+                              CALL s_mpi_abort()
+                            END IF
+                            PRINT *, 'ptg success'
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================

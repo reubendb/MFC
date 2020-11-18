@@ -490,6 +490,7 @@ MODULE m_data_output
                             c = c + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l) * (1d0/fluid_pp(i)%gamma+1d0) * &
                                 (pres + fluid_pp(i)%pi_inf/(fluid_pp(i)%gamma+1d0))
                         END DO
+                        c = c/rho
                      ELSE
                          DO i = 1, crv_size
                              alpha(crv_idx(i))= q_prim_vf(E_idx+crv_idx(i))%sf(j,k,l)
