@@ -4999,17 +4999,19 @@ MODULE m_rhs
             REAL(KIND(0d0))                                   ::  dadp, dbdp, dddp
             REAL(KIND(0d0))                                   ::   delta, fp, dfdp
             REAL(KIND(0d0))                                   ::     fA, fB, Tstar
-
+            REAL(KIND(0d0))                                   ::            factor
+          
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
             n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
             ! Material 2
             n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Finding lower bound, getting the bracket within one order of magnitude
-            pstarA = 1.d2
+            pstarA = 1.d1
             pstarB = pstarA
             CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
             fB = fA
+            factor = 10.d0
             DO WHILE ( fA*fB .GT. 0.d0 )
                   IF (ISNAN(Tstar)) RETURN
                   IF (pstarA .GT. 1.d13) THEN
@@ -5019,40 +5021,15 @@ MODULE m_rhs
                   END IF
                   fA = fB
                   pstarA = pstarB
-                  pstarB = pstarA*10.d0
+                  pstarB = pstarA*factor
                   CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
+                  IF( ISNAN(fB) ) THEN
+                        fB = fA
+                        factor = factor*0.5d0
+                  ELSE 
+                        factor = 10.d0
+                  END IF
             END DO
-            ! Finding upper bound, protecting against temperatures that is complex number
-            !iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
-            !IF (ISNAN(Tstar)) THEN
-            !  DO WHILE (DABS(delta/pstarB) .GT. ptgnewton_eps) 
-            !      ! f(Tsat) is the function of the equality that should be zero
-            !      iter = iter + 1
-            !      ! Calculating coefficients, Eq. C.6, Pelanti 2014
-            !      ap    = rho0*cv1*cv2*((n2-1.d0)*(pstar+n1*pinf1)-(n1-1.d0)*(pstar+n2*pinf2))
-            !      bp    = E0*((n1-1.d0)*cv1*(pstar+pinf2) - (n2-1.d0)*cv2*(pstar+pinf1)) + &
-            !              rho0*((n2-1.d0)*cv2*q1*(pstar+pinf1) - (n1-1.d0)*cv1*q2*(pstar+pinf2)) + &
-            !              cv2*(pstar+pinf1)*(pstar+n2*pinf2) - cv1*(pstar+pinf2)*(pstar+n1*pinf1)
-            !      dp    = (q2-q1)*(pstar+pinf1)*(pstar+pinf2)
-            !      ! Calculating the derivatives wrt pressure of the coefficients
-            !      dadp  = rho0*cv1*cv2*((n2-1.d0)-(n1-1.d0))
-            !      dbdp  = E0*((n1-1.d0)*cv1 - (n2-1.d0)*cv2) + &
-            !             rho0*((n2-1.d0)*cv2*q1 - (n1-1.d0)*cv1*q2) + &
-            !             cv2*((pstar+pinf1)+(pstar+n2*pinf2)) - & 
-            !             cv1*((pstar+pinf2)+(pstar+n1*pinf1))
-            !      dddp  = (q2-q1)*((pstar+pinf1)+(pstar+pinf2))
-            !      ! Derivative of the temperature wrt to pressure, needed for dfdp
-            !      fp    = bp*bp-4.d0*ap*dp
-            !      dfdp  = 2.d0*bp*dbdp-4.d0*dadp*dp-4.d0*ap*dddp
-            !      delta = fp/dfdp
-            !      pstarB = pstarB - delta
-            !      IF ((iter .GT. ptgnewton_iter) .OR. ISNAN(pstarB)) THEN
-            !             PRINT *, 'ptg bracketing failed to find upper bound'
-            !             PRINT *, 'pstarA :: ',pstarA
-            !             CALL s_mpi_abort()
-            !      END IF
-            !  END DO
-            !END IF
         END SUBROUTINE s_compute_ptg_bracket
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -5216,8 +5193,8 @@ MODULE m_rhs
                             ! Calculate vapor and liquid volume fractions
                             a1 = (rho-rho2)/(rho1-rho2)
                             a2 = 1.d0 - a1
-                            IF(a1 .GT. 1.d0) a1 = 1.d0 - ptg_alpha_epsH
-                            IF(a1 .LT. 0.d0) a1 = ptg_alpha_epsHL
+                            IF(a1 .GT. 1.d0) a1 = 1.d0 - ptgalpha_epsH
+                            IF(a1 .LT. 0.d0) a1 = ptgalpha_epsL
                             ! Cell update of the volume fraction
                             q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
                             q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
