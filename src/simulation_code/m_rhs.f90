@@ -273,15 +273,15 @@ MODULE m_rhs
     REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-10    !< p_relaxk \alpha threshold,           set to 1E-15
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
-    INTEGER,         PARAMETER :: pTsatnewton_iter  = 25        !< Saturation temperature iteration,    set to 25
-    REAL(KIND(0d0)), PARAMETER :: TsatH             = 1000.d0   !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatL             = 200.d0    !< Saturation temperature threshold,    set to 250
+    INTEGER,         PARAMETER :: pTsatnewton_iter  = 20        !< Saturation temperature iteration,    set to 25
+    REAL(KIND(0d0)), PARAMETER :: TsatH             = 900.d0    !< Saturation temperature threshold,    set to 900
+    REAL(KIND(0d0)), PARAMETER :: TsatL             = 250.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
-    INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
+    INTEGER,         PARAMETER :: ptgnewton_iter    = 20        !< Saturation p-T-mu iteration,         set to 50
     !> @}
 
     character(50) :: file_path !< Local file path for saving debug files
@@ -4282,10 +4282,10 @@ MODULE m_rhs
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_Tsat(pressure,Tstar)
+        FUNCTION f_Tsat(pressure)
 
             REAL(KIND(0d0)), INTENT(IN) :: pressure
-            REAL(KIND(0d0)), INTENT(OUT)   :: Tstar
+            REAL(KIND(0d0))             :: f_Tsat, Tstar
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
@@ -4316,14 +4316,14 @@ MODULE m_rhs
                    delta_old = delta
                    delta = 0.5d0*(TstarH-TstarL)
                    Tstar = TstarL + delta
-                   IF (delta .EQ. 0.d0) RETURN
+                   IF (delta .EQ. 0.d0) EXIT
                 ELSE                                            ! Newton step acceptable, take it
                    delta_old = delta
                    delta = fp/dfdp
                    Tstar = Tstar - delta
-                   IF (delta .EQ. 0.d0) RETURN
+                   IF (delta .EQ. 0.d0) EXIT
                 END IF
-                IF (DABS(delta) < ptgnewton_eps) RETURN
+                IF (DABS(delta) < ptgnewton_eps) EXIT
                 CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)           
                 IF (fp < 0.d0) THEN !Maintain the bracket on the root
                    TstarL = Tstar
@@ -4333,10 +4333,10 @@ MODULE m_rhs
                 IF (iter .EQ. ptgnewton_iter-1) THEN
                     PRINT *, 'Tsat did not converge, stopping code'
                     CALL s_mpi_abort()
-                END IF                   !Tstar = 1.d6
+                END IF                  
             END DO
-
-        END SUBROUTINE s_compute_Tsat !-------------------------------
+            f_Tsat = Tstar
+        END FUNCTION f_Tsat !-------------------------------
 
         !> The purpose of this procedure is to employ the inputted
         !!      cell-average conservative variables in order to compute
@@ -4431,7 +4431,7 @@ MODULE m_rhs
                                     /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv)
                        END DO
                        !TODO IMPROVE THIS APPROACH
-                       CALL s_compute_Tsat(p_k(1),Tsat)
+                       Tsat = f_Tsat(p_k(1))
                        !PRINT *,'prelax =',p_k(1),'Trelax = ',T_k(1),', Tsat = ',Tsat
 
                        IF ( ISNAN(p_k(1)) .OR. p_k(1) < 0.d0 ) THEN 
@@ -4660,9 +4660,9 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_p_prelax(pstar,alpha1,p_k,alpha_k)
+        FUNCTION f_alpha1_prelax(p_k,alpha_k)
 
-            REAL(KIND(0d0)), INTENT(OUT)                          :: pstar, alpha1
+            REAL(KIND(0d0))                                       ::  pstar, f_alpha1_prelax
             REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)    ::  p_k, alpha_k
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
@@ -4691,8 +4691,8 @@ MODULE m_rhs
             dp = -(C2*alpha_k(1)*p_k(1) + C1*alpha_k(2)*p_k(2))
             ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
             pstar = (-bp + DSQRT(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
-            alpha1 = alpha_k(1)*((n1-1.d0)*pstar + 2.d0*p_k(1) + C1)/((n1+1.d0)*pstar+C1)
-        END SUBROUTINE s_compute_p_prelax
+            f_alpha1_prelax = alpha_k(1)*((n1-1.d0)*pstar + 2.d0*p_k(1) + C1)/((n1+1.d0)*pstar+C1)
+        END FUNCTION f_alpha1_prelax
 
         !>  The purpose of this procedure is to infinitely relax
         !!      the pressures from the internal-energy equations to a
@@ -4763,12 +4763,10 @@ MODULE m_rhs
                                           /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
                                  p_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
                             END DO
-                            CALL s_compute_p_prelax(pres_relax,a1,p_k,alpha_k)
-                            !IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
-                              ! Cell update of the volume fraction
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
-                              q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
-                            !END IF
+                            a1 = f_alpha1_prelax(p_k,alpha_k)
+                            ! Cell update of the volume fraction
+                            q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
+                            q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
@@ -4800,8 +4798,8 @@ MODULE m_rhs
         !!         equilibrium pressure and EoS of the binary phase system.
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
-        SUBROUTINE s_compute_pt_prelax(pstar,alpha1,rhoalpha1,rhoalpha2,E0)
-            REAL(KIND(0d0)), INTENT(INOUT) :: pstar, alpha1
+        FUNCTION f_alpha1_ptrelax(rhoalpha1,rhoalpha2,E0)
+            REAL(KIND(0d0))                :: pstar, f_alpha1_ptrelax
             REAL(KIND(0d0)), INTENT(IN)    :: rhoalpha1, rhoalpha2, E0
             !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
@@ -4829,10 +4827,10 @@ MODULE m_rhs
                  E0*(cv1*(n1-1.d0)*pinf2*rhoalpha1 + cv2*(n2-1.d0)*pinf1*rhoalpha2)
             ! Calculating the Tstar temperature, Eq. C.7, Pelanti 2014
             pstar = (-bp + DSQRT(bp*bp - 4.d0*ap*dp))/(2.d0*ap)
-            alpha1 = (cv1*(n1-1.d0)*(pstar+pinf2)*rhoalpha1)/&
+            f_alpha1_ptrelax = (cv1*(n1-1.d0)*(pstar+pinf2)*rhoalpha1)/&
                      (cv1*(n1-1.d0)*(pstar+pinf2)*rhoalpha1 + &
                       cv2*(n2-1.d0)*(pstar+pinf1)*rhoalpha2)
-        END SUBROUTINE s_compute_pt_prelax
+        END FUNCTION f_alpha1_ptrelax
 
         !>  The purpose of this procedure is to infinitely relax
         !!      the pressures from the internal-energy equations to a
@@ -4906,12 +4904,10 @@ MODULE m_rhs
                             DO i = 1, num_fluids
                                 rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l)
                             END DO
-                            CALL s_compute_pt_prelax(pres_relax,a1,rhoalpha1,rhoalpha2,rhoe)
-                            IF( a1 .LE. 1.d0 .AND. a1 .GE. 0.d0 ) THEN
-                              ! Cell update of the volume fraction
-                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
-                              q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
-                            END IF
+                            a1 = f_alpha1_ptrelax(rhoalpha1,rhoalpha2,rhoe)
+                            ! Cell update of the volume fraction
+                            q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l)  = a1
+                            q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
                         END IF
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
@@ -5023,10 +5019,9 @@ MODULE m_rhs
                          CALL s_mpi_abort()
                   END IF
                   fA = fB
-                  pstarB = pstarA*5.d0
-                  CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
                   pstarA = pstarB
-                  PRINT *, 'fB : ',fB,', fA : ',fA
+                  pstarB = pstarA*10.d0
+                  CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
             END DO
             ! Finding upper bound, protecting against temperatures that is complex number
             !iter = 0; fp = 0.d0; dfdp = 0.d0; delta = pstarB; 
@@ -5079,14 +5074,10 @@ MODULE m_rhs
             REAL(KIND(0d0))                ::  fL, fH, pstarL, pstarH
             INTEGER :: iter      !< Generic loop iterators
             ! Computing the bracket of the root solution
-            PRINT *, 'calculating ptg bracket'
             CALL s_compute_ptg_bracket(pstarA,pstarB,pstar,rho0,E0)
-            PRINT *, 'ptg bracket success'
             ! Computing f at lower and higher end of the bracket
-            PRINT *, 'calculating ptg fdf'
             CALL s_compute_ptg_fdf(fL,dfdp,pstarA,Tstar,rho0,E0)
             CALL s_compute_ptg_fdf(fH,dfdp,pstarB,Tstar,rho0,E0)
-            PRINT *, 'calculating ptg fdf success'
             ! Establishing the direction of the descent to find zero
             IF(fL < 0.d0) THEN
                 pstarL  = pstarA; pstarH  = pstarB;
@@ -5097,7 +5088,6 @@ MODULE m_rhs
             delta_old = DABS(pstarB-pstarA)
             delta = delta_old
             CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
-            PRINT *, 'calculating ptg conditions'
             ! Combining bisection and newton-raphson methods
             DO iter = 0, ptgnewton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
@@ -5105,14 +5095,14 @@ MODULE m_rhs
                    delta_old = delta
                    delta = 0.5d0*(pstarH-pstarL)
                    pstar = pstarL + delta
-                   IF (delta .EQ. 0.d0) RETURN                    ! Change in root is negligible
+                   IF (delta .EQ. 0.d0) EXIT                    ! Change in root is negligible
                 ELSE                                              ! Newton step acceptable, take it
                    delta_old = delta
                    delta = fp/dfdp
                    pstar = pstar - delta
-                   IF (delta .EQ. 0.d0) RETURN 
+                   IF (delta .EQ. 0.d0) EXIT
                 END IF
-                IF (DABS(delta) < ptgnewton_eps) RETURN           ! Stopping criteria
+                IF (DABS(delta) < ptgnewton_eps) EXIT           ! Stopping criteria
                 ! Updating to next iteration
                 CALL s_compute_ptg_fdf(fp,dfdp,pstar,Tstar,rho0,E0)
                 IF (fp < 0.d0) THEN !Maintain the bracket on the root
@@ -5120,9 +5110,7 @@ MODULE m_rhs
                 ELSE
                    pstarH = pstar
                 END IF
-                PRINT *, 'iter in ptg : ',iter
             END DO
-            PRINT *, 'calculating ptg conditions success'
         END SUBROUTINE s_compute_ptg_pTrelax !-------------------------------
 
         !>  The purpose of this procedure is to infinitely relax
@@ -5199,7 +5187,7 @@ MODULE m_rhs
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
-                           CALL s_compute_Tsat(pres_relax,Tsat)
+                           Tsat = f_Tsat(pres_relax)
                            DO i = 1, num_fluids
                              Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                     -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
@@ -5219,7 +5207,6 @@ MODULE m_rhs
                         !! STARTING THE RELAXATION PROCEDURE ============================================
                         !< ==============================================================================
                         IF (relax) THEN
-                            PRINT *, 'ptg relaxing'
                             CALL s_compute_ptg_pTrelax(pres_relax,Trelax,rho,rhoe)
                             p_infk = fluid_pp(1)%pi_inf/(1.d0+fluid_pp(1)%gamma)
                             rho1 = (pres_relax + p_infk)*fluid_pp(1)%gamma /& 
@@ -5228,20 +5215,17 @@ MODULE m_rhs
                             rho2 = (pres_relax + p_infk)*fluid_pp(2)%gamma /& 
                                    (fluid_pp(2)%cv*Trelax)
                             ! Calculate vapor and liquid volume fractions
-                            IF (a1 .LT. 1.d0 .AND. a1 .GT. 0.d0) THEN
-                                a1 = (rho-rho2)/(rho1-rho2)
-                                a2 = 1.d0 - a1
-                                ! Cell update of the volume fraction
-                                q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
-                                q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
-                                q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
-                                q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
-                            ELSE
-                              PRINT *, 'ptg relax failed to compute a1, stopping'
-                              CALL s_mpi_abort()
-                            END IF
-                            PRINT *, 'ptg success'
+                            a1 = (rho-rho2)/(rho1-rho2)
+                            a2 = 1.d0 - a1
+                            IF(a1 .GT. 1.d0) a1 = 1.d0 - ptg_alpha_epsH
+                            IF(a1 .LT. 0.d0) a1 = ptg_alpha_epsHL
+                            ! Cell update of the volume fraction
+                            q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
+                            q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
+                            q_cons_vf(adv_idx%beg)%sf(j,k,l)    = a1
+                            q_cons_vf(1+adv_idx%beg)%sf(j,k,l)  = a2
                         END IF
+
                         ! ==================================================================                     
                         ! Mixture-total-energy correction ==================================
                         ! ==================================================================                     
