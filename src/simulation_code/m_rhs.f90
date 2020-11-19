@@ -5007,7 +5007,7 @@ MODULE m_rhs
             ! Material 2
             n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Finding lower bound, getting the bracket within one order of magnitude
-            pstarA = 1.d1
+            pstarA = 1.d2
             pstarB = pstarA
             CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
             fB = fA
@@ -5163,6 +5163,10 @@ MODULE m_rhs
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
+                           IF ( ISNAN(pres_relax) ) THEN
+                               PRINT *, 'pressure is NaN, stopping code'
+                               CALL s_mpi_abort()
+                           END IF
                            Tsat = f_Tsat(pres_relax)
                            DO i = 1, num_fluids
                              Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -5177,6 +5181,7 @@ MODULE m_rhs
                               (Tk(1) .GT. Tsat) ) relax = .FALSE.
                            IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. 1.d0-ptgalpha_epsH ) .AND. &
                               (Tk(1) .LT. Tsat) ) relax = .FALSE.
+                           IF (Tk(1) .LT. Tsat) relax = .FALSE.
                         END IF
 
                         !> ==============================================================================
@@ -5193,8 +5198,8 @@ MODULE m_rhs
                             ! Calculate vapor and liquid volume fractions
                             a1 = (rho-rho2)/(rho1-rho2)
                             a2 = 1.d0 - a1
-                            IF(a1 .GT. 1.d0) a1 = 1.d0 - ptgalpha_epsH
-                            IF(a1 .LT. 0.d0) a1 = ptgalpha_epsL
+                            !IF(a1 .GT. 1.d0) a1 = 1.d0 - ptgalpha_epsH
+                            !IF(a1 .LT. 0.d0) a1 = ptgalpha_epsL
                             ! Cell update of the volume fraction
                             q_cons_vf(cont_idx%beg)%sf(j,k,l)   = rho1*a1
                             q_cons_vf(1+cont_idx%beg)%sf(j,k,l) = rho2*a2
