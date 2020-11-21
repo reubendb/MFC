@@ -274,8 +274,8 @@ MODULE m_rhs
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 20        !< Saturation temperature iteration,    set to 25
-    REAL(KIND(0d0)), PARAMETER :: TsatH             = 900.d0    !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatL             = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: TsatHv            = 900.d0    !< Saturation temperature threshold,    set to 900
+    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
@@ -4269,13 +4269,10 @@ MODULE m_rhs
 
             REAL(KIND(0d0)), INTENT(OUT)        :: fp, dfdp
             REAL(KIND(0d0)), INTENT(IN)         :: pstar, Tstar
-            REAL(KIND(0d0))                     :: pinf1, pinf2
-            INTEGER :: iter      !< Generic loop iterators
-            pinf1 = gibbspinf1
-            pinf2 = gibbspinf2
             fp = gibbsA + gibbsB/Tstar + gibbsC*DLOG(Tstar) - & 
-                 DLOG((pstar+pinf2)/(pstar+pinf1)**gibbsD)
+                 DLOG((pstar+gibbspinf2)/(pstar+gibbspinf1)**gibbsD)
             dfdp = -gibbsB/(Tstar*Tstar) + gibbsC/Tstar
+
         END SUBROUTINE s_compute_fdfTsat !-------------------------------
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -4290,23 +4287,20 @@ MODULE m_rhs
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
             !> @{
-            REAL(KIND(0d0))                ::  TstarA, TstarB
             REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
             REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH
             INTEGER :: iter      !< Generic loop iterators
-            ! Computing the bracket of the root solution
-            TstarA = TsatL; TstarB = TsatH;
             ! Computing f at lower and higher end of the bracket
-            CALL s_compute_fdfTsat(fL,dfdp,pressure,TstarA)
-            CALL s_compute_fdfTsat(fH,dfdp,pressure,TstarB)
+            CALL s_compute_fdfTsat(fL,dfdp,pressure,TsatLv)
+            CALL s_compute_fdfTsat(fH,dfdp,pressure,TsatHv)
             ! Establishing the direction of the descent to find zero
             IF(fL < 0.d0) THEN
-                TstarL  = TstarA; TstarH  = TstarB;
+                TstarL  = TsatLv; TstarH  = TsatHv;
             ELSE
-                TstarL  = TstarB; TstarH  = TstarA;
+                TstarL  = TsatHv; TstarH  = TsatLv;
             END IF
-            Tstar = 0.5d0*(TstarA+TstarB)
-            delta_old = DABS(TstarB-TstarA)
+            Tstar = 0.5d0*(TstarL+TstarH)
+            delta_old = DABS(TstarH-TstarL)
             delta = delta_old
             CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)
             ! Combining bisection and newton-raphson methods
@@ -4317,7 +4311,7 @@ MODULE m_rhs
                    delta = 0.5d0*(TstarH-TstarL)
                    Tstar = TstarL + delta
                    IF (delta .EQ. 0.d0) EXIT
-                ELSE                                            ! Newton step acceptable, take it
+                ELSE                    ! Newton step acceptable, take it
                    delta_old = delta
                    delta = fp/dfdp
                    Tstar = Tstar - delta
@@ -4325,7 +4319,7 @@ MODULE m_rhs
                 END IF
                 IF (DABS(delta) < ptgnewton_eps) EXIT
                 CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)           
-                IF (fp < 0.d0) THEN !Maintain the bracket on the root
+                IF (fp < 0.d0) THEN     !Maintain the bracket on the root
                    TstarL = Tstar
                 ELSE
                    TstarH = Tstar
@@ -4669,23 +4663,20 @@ MODULE m_rhs
             !!       iteration procedure, A-D, and iteration variables, f and df
             !> @{
             REAL(KIND(0d0))                                   ::            n1, n2
-            REAL(KIND(0d0))                                   ::      pinf1, pinf2
             REAL(KIND(0d0))                                   ::Z1, Z2, pI, C1, C2
             REAL(KIND(0d0))                                   ::        ap, bp, dp
 
             INTEGER :: iter      !< Generic loop iterators
             ! Material 1
             n1    = gibbsn1 
-            pinf1 = gibbspinf1
             ! Material 2
             n2    = gibbsn2 
-            pinf2 = gibbspinf2 
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
-            Z1 = n1*(p_k(1)+pinf1)
-            Z2 = n2*(p_k(2)+pinf2)
+            Z1 = n1*(p_k(1)+gibbspinf1)
+            Z2 = n2*(p_k(2)+gibbspinf2)
             pI = (Z2*p_k(1)+Z1*p_k(2))/(Z1+Z2)
-            C1 = 2.d0*n1*pinf1+(n1-1.d0)*p_k(1)
-            C2 = 2.d0*n2*pinf2+(n2-1.d0)*p_k(2)
+            C1 = 2.d0*n1*gibbspinf1+(n1-1.d0)*p_k(1)
+            C2 = 2.d0*n2*gibbspinf2+(n2-1.d0)*p_k(2)
             ap = 1.d0 + n2*alpha_k(1) + n1*alpha_k(2)
             bp = C1*alpha_k(2)+C2*alpha_k(1)-(n2+1.d0)*alpha_k(1)*p_k(1)-(n1+1.d0)*alpha_k(2)*p_k(2)
             dp = -(C2*alpha_k(1)*p_k(1) + C1*alpha_k(2)*p_k(2))
@@ -4814,7 +4805,7 @@ MODULE m_rhs
             ! Material 1
             n1 = gibbsn1; pinf1 = gibbspinf1; cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
             ! Material 2
-            n2    = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
+            n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             ap = rhoalpha1*cv1 + rhoalpha2*cv2
             bp = q1*cv1*(n1-1.d0)*rhoalpha1*rhoalpha1 + q2*cv2*(n2-1.d0)*rhoalpha2*rhoalpha2 + &
@@ -5008,7 +4999,7 @@ MODULE m_rhs
             ! Material 2
             n2 = gibbsn2; pinf2 = gibbspinf2; cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Finding lower bound, getting the bracket within one order of magnitude
-            pstarA = 1.d2
+            pstarA = 1.d0
             pstarB = pstarA
             CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
             fB = fA
@@ -5157,7 +5148,7 @@ MODULE m_rhs
                                                              Re, We, j, k, l )
 
                         IF ((q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptgalpha_epsL ) .AND. &
-                            q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptgalpha_epsH ) relax = .TRUE.
+                             q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptgalpha_epsH ) relax = .TRUE.
 
                         IF (relax) THEN
                            DO i = 1, num_fluids
