@@ -276,8 +276,8 @@ MODULE m_rhs
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 20        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 900.d0    !< Saturation temperature threshold,    set to 900
     REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-8     !< p_relax high \alpha tolerance,       set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-8     !< p_relax low \alpha tolerance,        set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10

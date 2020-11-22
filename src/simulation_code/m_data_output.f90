@@ -487,10 +487,9 @@ MODULE m_data_output
                      ELSEIF(model_eqns == 3) THEN
                         c = 0d0
                         DO i = 1, num_fluids
-                            c = c + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l) * (1d0/fluid_pp(i)%gamma+1d0) * &
-                                (pres + fluid_pp(i)%pi_inf/(fluid_pp(i)%gamma+1d0))
+                            c = c + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*(1.d0/fluid_pp(i)%gamma+1.d0)*&
+                                (pres + fluid_pp(i)%pi_inf/(fluid_pp(i)%gamma+1.d0))/rho
                         END DO
-                        c = c/rho
                      ELSE
                          DO i = 1, crv_size
                              alpha(crv_idx(i))= q_prim_vf(E_idx+crv_idx(i))%sf(j,k,l)
@@ -498,10 +497,10 @@ MODULE m_data_output
                          c = (((gamma + 1d0)*pres + pi_inf)/(gamma*rho))
                      END IF
 
-                     IF (mixture_err .AND. c < 0d0) THEN
+                     IF ( mixture_err .AND. (c .LE. 0.d0) ) THEN
                          c = sgm_eps
                      ELSE
-                         c = SQRT(c)
+                         c = DSQRT(c)
                      END IF
 
                      IF (grid_geometry == 3) THEN
@@ -700,7 +699,9 @@ MODULE m_data_output
                 IF (icfl_max_glb /= icfl_max_glb) THEN
                     PRINT '(A)', 'ICFL is NaN. Exiting ...'
                     ! print*, (dt/dx(:)),ABS(vel(1)),c
-
+                    CALL s_mpi_abort()
+                ELSEIF (icfl_max_glb < 0.d0) THEN 
+                    PRINT '(A)', 'ICFL is negative. Exiting ...'
                     CALL s_mpi_abort()
                 ELSEIF (icfl_max_glb > 1d0) THEN
                     PRINT '(A)', 'ICFL is greater than 1.0. Exiting ...'
