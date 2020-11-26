@@ -120,6 +120,8 @@ MODULE m_derived_types
         REAL(KIND(0d0)) :: dir !< Direction of pulse
         INTEGER :: pulse 
         INTEGER :: support
+        REAL(KIND(0d0)) :: foc_length !< tranducer focal lenght for support = 5
+        REAL(KIND(0d0)) :: aperture !< transducer aperture for support = 5
     END TYPE mono_parameters
 
 END MODULE m_derived_types

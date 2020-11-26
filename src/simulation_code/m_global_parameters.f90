@@ -446,6 +446,8 @@ MODULE m_global_parameters
                 mono(j)%npulse = 1.d0
                 mono(j)%pulse = 1
                 mono(j)%support = 1
+                mono(j)%foc_length = dflt_real
+                mono(j)%aperture   = dflt_real
             END DO
 
             fd_order = dflt_int
