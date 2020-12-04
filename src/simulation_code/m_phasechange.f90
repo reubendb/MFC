@@ -60,13 +60,13 @@ MODULE m_phasechange
     REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-10    !< p_relaxk \alpha threshold,           set to 1E-15
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
-    INTEGER,         PARAMETER :: pTsatnewton_iter  = 20        !< Saturation temperature iteration,    set to 25
-    REAL(KIND(0d0)), PARAMETER :: TsatHv            = 900.d0    !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
+    INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
+    REAL(KIND(0d0)), PARAMETER :: TsatHv            = 2000.d0    !< Saturation temperature threshold,    set to 900
+    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 100.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 5.d-2     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 5.d-2     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-10    !< Saturation p-T-mu tolerance,         set to 1.d-10
     INTEGER,         PARAMETER :: ptgnewton_iter    = 20        !< Saturation p-T-mu iteration,         set to 50
     !> @}
@@ -141,20 +141,17 @@ MODULE m_phasechange
             ! ==================================================================
         END SUBROUTINE s_mixture_total_energy_correction
 
-        ! ==================================================================                     
-        ! Mixture volume fraction correction ===============================
-        ! ==================================================================                     
+        !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
+        !! derivative df(p), isentropic partial density, sum of volume fractions,
+        !! mixture density, dynamic pressure, surface energy, specific heat ratio
+        !! function, liquid stiffness function (two variations of the last two
+        !! ones), shear and volume Reynolds numbers and the Weber numbers
+        !> @{
         SUBROUTINE s_mixture_volume_fraction_correction(q_cons_vf, j, k, l )
 
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf 
             INTEGER, INTENT(IN)                                    :: j, k, l
-            !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
-            !! derivative df(p), isentropic partial density, sum of volume fractions,
-            !! mixture density, dynamic pressure, surface energy, specific heat ratio
-            !! function, liquid stiffness function (two variations of the last two
-            !! ones), shear and volume Reynolds numbers and the Weber numbers
-            !> @{
-            REAL(KIND(0d0))                                   :: sum_alpha
+            REAL(KIND(0d0))                                        :: sum_alpha
             !> @}
             INTEGER :: i           !< Generic loop iterators
             sum_alpha = 0d0
@@ -191,6 +188,47 @@ MODULE m_phasechange
 
         END SUBROUTINE s_compute_fdfTsat !-------------------------------
 
+        !>     The purpose of this subroutine is to determine the bracket of 
+        !!         the pressure by finding the pressure at which b^2=4*a*c
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_Tsat_bracket(TstarA,TstarB,pressure)
+
+            REAL(KIND(0d0)), INTENT(OUT)   :: TstarA, TstarB
+            REAL(KIND(0d0)), INTENT(IN)    :: pressure
+            REAL(KIND(0d0))                :: fA, fB, dfdpA, dfdpB, factor
+
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+
+            ! Finding lower bound, getting the bracket within one order of magnitude
+            TstarA = 1.d0
+            TstarB = TstarA
+            CALL s_compute_fdfTsat(fA,dfdpA,pressure,TstarA)
+            fB = fA
+            factor = 10.d0
+            DO WHILE ( fA*fB .GT. 0.d0 )
+                  PRINT *, 'fA: ',fA,', fB: ',fB,', TstarA: ',TstarA,', TstarB :',TstarB
+                  IF (TstarA .GT. 1.d13) THEN
+                         PRINT *, 'Tsat bracketing failed to find lower bound'
+                         PRINT *, 'TstarA :: ',TstarA
+                         CALL s_mpi_abort()
+                  END IF
+                  fA = fB
+                  TstarA = TstarB
+                  TstarB = TstarA + factor
+                  dfdpA = dfdpB
+                  CALL s_compute_fdfTsat(fB,dfdpB,pressure,TstarB)
+                  IF( ISNAN(fB) ) THEN
+                        fB = fA
+                        factor = factor*0.5d0
+                  ELSE 
+                        factor = 10.d0
+                  END IF
+            END DO
+        END SUBROUTINE s_compute_Tsat_bracket
+
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
@@ -204,23 +242,29 @@ MODULE m_phasechange
             !!       iteration procedure, A-D, and iteration variables, f and df
             !> @{
             REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
-            REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH
+            REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH, TsatA, TsatB
             INTEGER :: iter      !< Generic loop iterators
+            PRINT *, 'dfdpA :',dfdp,', pressure: ',pressure
+            CALL s_compute_Tsat_bracket(TsatA,TsatB,pressure)
             ! Computing f at lower and higher end of the bracket
-            CALL s_compute_fdfTsat(fL,dfdp,pressure,TsatLv)
-            CALL s_compute_fdfTsat(fH,dfdp,pressure,TsatHv)
+            CALL s_compute_fdfTsat(fL,dfdp,pressure,TsatA)
+            PRINT *, 'dfdpA :',dfdp,', pressure: ',pressure
+            CALL s_compute_fdfTsat(fH,dfdp,pressure,TsatB)
+            PRINT *, 'dfdpB :',dfdp
+
             ! Establishing the direction of the descent to find zero
             IF(fL < 0.d0) THEN
-                TstarL  = TsatLv; TstarH  = TsatHv;
+                TstarL  = TsatA; TstarH  = TsatB;
             ELSE
-                TstarL  = TsatHv; TstarH  = TsatLv;
+                TstarL  = TsatA; TstarH  = TsatB;
             END IF
+            PRINT *, 'fL : ',fL,', fH : ',fH,', TL : ',TstarL,', TH : ',TstarH
             Tstar = 0.5d0*(TstarL+TstarH)
             delta_old = DABS(TstarH-TstarL)
             delta = delta_old
             CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)
             ! Combining bisection and newton-raphson methods
-            DO iter = 0, ptgnewton_iter
+            DO iter = 0, pTsatnewton_iter
                 IF ((((Tstar-TstarH)*dfdp-fp)*((Tstar-TstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
@@ -233,20 +277,22 @@ MODULE m_phasechange
                    Tstar = Tstar - delta
                    IF (delta .EQ. 0.d0) EXIT
                 END IF
-                IF (DABS(delta) < ptgnewton_eps) EXIT
+                IF (DABS(delta) < pTsatnewton_eps) EXIT
                 CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)           
+                PRINT *,'Tstar : ',Tstar,', fp : ',fp,', dfdp : ',dfdp
                 IF (fp < 0.d0) THEN     !Maintain the bracket on the root
                    TstarL = Tstar
                 ELSE
                    TstarH = Tstar
                 END IF
-                IF (iter .EQ. ptgnewton_iter-1) THEN
+                IF (iter .EQ. pTsatnewton_iter-1) THEN
+                    PRINT *, 'Tsat : ',Tstar,', iter : ',iter
                     PRINT *, 'Tsat did not converge, stopping code'
                     CALL s_mpi_abort()
                 END IF                  
             END DO
             f_Tsat = Tstar
-
+            PRINT *, 'Tsat : ',f_Tsat,', iter : ',iter,', delta : ',delta
         END FUNCTION f_Tsat !-------------------------------
 
         !>     The purpose of this subroutine is to determine the saturation
@@ -302,23 +348,9 @@ MODULE m_phasechange
 
             REAL(KIND(0d0)), INTENT(OUT)   :: pstarA, pstarB
             REAL(KIND(0d0)), INTENT(IN)    :: pstar, rho0, E0
-            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
-            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
-            !!       iteration procedure, A-D, and iteration variables, f and df
-            !> @{
-            REAL(KIND(0d0))                                   ::  cv1, cv2, q1, q2
-            REAL(KIND(0d0))                                   ::        ap, bp, dp
-            REAL(KIND(0d0))                                   ::  dadp, dbdp, dddp
-            REAL(KIND(0d0))                                   ::   delta, fp, dfdp
-            REAL(KIND(0d0))                                   ::     fA, fB, Tstar
-            REAL(KIND(0d0))                                   ::            factor
-          
-            INTEGER :: iter      !< Generic loop iterators
-            ! Material 1
-            cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
-            ! Material 2
-            cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
-            ! Finding lower bound, getting the bracket within one order of magnitude
+            REAL(KIND(0d0))                :: fA, fB, dfdp, Tstar
+            REAL(KIND(0d0))                :: factor
+
             pstarA = 1.d0
             pstarB = pstarA
             CALL s_compute_ptg_fdf(fA,dfdp,pstarA,Tstar,rho0,E0)
@@ -861,7 +893,10 @@ MODULE m_phasechange
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
                         END IF
                         CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
+                        relax = .FALSE.
 
+                        IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
+                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
                         !> ==============================================================================
                         !! PT RELAXATION ================================================================
                         !< ==============================================================================
@@ -878,10 +913,10 @@ MODULE m_phasechange
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  = 1.d0 - a1
                         END IF
                         CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
+                        relax = .FALSE.
 
                         IF ((q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. ptgalpha_epsL ) .AND. &
                              q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-ptgalpha_epsH ) relax = .TRUE.
-
                         !> ==============================================================================
                         !! CHECKING IF PTG RELAXATION IS NEEDED  ========================================
                         !< ==============================================================================
@@ -894,6 +929,7 @@ MODULE m_phasechange
                                PRINT *, 'pressure is NaN, stopping code'
                                CALL s_mpi_abort()
                            END IF
+                           PRINT *,'a1 : ',q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l),',a2 :',q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l)  
                            Tsat = f_Tsat(pres_relax)
                            DO i = 1, num_fluids
                              Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -910,7 +946,6 @@ MODULE m_phasechange
                               (Tk(1) .LT. Tsat) ) relax = .FALSE.
                            IF (Tk(1) .LT. Tsat) relax = .FALSE.
                         END IF
-
                         !> ==============================================================================
                         !! PTG RELAXATION PROCEDURE =====================================================
                         !< ==============================================================================
@@ -935,6 +970,7 @@ MODULE m_phasechange
                     END DO
                 END DO
             END DO
+        !CALL s_mpi_abort()
         END SUBROUTINE s_infinite_ptg_relaxation ! -----------------------
 
 
