@@ -55,6 +55,8 @@ MODULE m_time_steppers
 
     USE m_bubbles              !< Bubble dynamics routines
 
+    USE m_phasechange          !< Phase change relaxation algorithms
+
     USE m_mpi_proxy            !< Message passing interface (MPI) module proxy
     ! ==========================================================================
     
@@ -414,15 +416,7 @@ MODULE m_time_steppers
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 4) THEN
                      CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)      
-                ELSEIF (relax_model == 1) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                ELSEIF (relax_model == 2) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                     CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 END IF
             END IF
@@ -456,15 +450,7 @@ MODULE m_time_steppers
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 4) THEN
                     CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)                  
-                ELSEIF (relax_model == 1) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
-                ELSEIF (relax_model == 2) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                     CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
                 END IF
             END IF
@@ -491,15 +477,7 @@ MODULE m_time_steppers
                     CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
                 ELSEIF(relax_model == 4) THEN
                     CALL s_infinite_p_relaxation_k(q_cons_ts(1)%vf)
-                ELSEIF (relax_model == 1) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
-                ELSEIF (relax_model == 2) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_ptg_relaxation(q_cons_ts(1)%vf)
                 ELSEIF (relax_model == 3) THEN
-                    CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                    CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
                     CALL s_infinite_ptg_relaxation(q_cons_ts(1)%vf)
                 END IF
             END IF

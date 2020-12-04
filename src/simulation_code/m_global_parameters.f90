@@ -334,13 +334,6 @@ MODULE m_global_parameters
     INTEGER         :: num_mono !< Number of monopoles
     !> @}
 
-    !> @name Gibbs free energy phase change parameters
-    !> @{
-    REAL(KIND(0d0)) :: gibbsn1, gibbsn2
-    REAL(KIND(0d0)) :: gibbspinf1, gibbspinf2
-    REAL(KIND(0d0)) :: gibbsA, gibbsB, gibbsC, gibbsD
-    !> @}
-
     REAL(KIND(0d0)) :: mytime       !< Current simulation time
     REAL(KIND(0d0)) :: finaltime    !< Final simulation time
     REAL(KIND(0d0)) :: t_tol        !< Tolerance
@@ -699,22 +692,6 @@ MODULE m_global_parameters
                     internalEnergies_idx%beg  = adv_idx%end + 1
                     internalEnergies_idx%end  = adv_idx%end + num_fluids
                     sys_size     = internalEnergies_idx%end                       
-
-                    IF(relax_model .GE. 0 .AND. relax_model .LE. 5) THEN
-                        gibbsn1    = 1.d0/fluid_pp(1)%gamma + 1.d0
-                        gibbspinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
-                        gibbsn2    = 1.d0/fluid_pp(2)%gamma + 1.d0
-                        gibbspinf2 = fluid_pp(2)%pi_inf/(1.d0 + fluid_pp(2)%gamma)
-                        gibbsA = (gibbsn1*fluid_pp(1)%cv - gibbsn2*fluid_pp(2)%cv +  & 
-                                  fluid_pp(2)%qvp - fluid_pp(1)%qvp) / &
-                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
-                        gibbsB = (fluid_pp(1)%qv - fluid_pp(2)%qv) / &
-                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
-                        gibbsC = (gibbsn2*fluid_pp(2)%cv - gibbsn1*fluid_pp(1)%cv) / &
-                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
-                        gibbsD = (gibbsn1*fluid_pp(1)%cv - fluid_pp(1)%cv) / & 
-                                  (gibbsn2*fluid_pp(2)%cv - fluid_pp(2)%cv)
-                    END IF
 
                 ELSE IF(model_eqns == 4) THEN
                     cont_idx%beg = 1 ! one continuity equation
