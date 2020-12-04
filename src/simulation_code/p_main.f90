@@ -74,6 +74,8 @@ PROGRAM p_main
 
     USE m_qbmm                 !< Quadrature MOM
 
+    USE m_phasechange          !< Phase change relaxation algorithms
+
     ! ==========================================================================
     
     IMPLICIT NONE
@@ -118,6 +120,7 @@ PROGRAM p_main
     CALL s_initialize_derived_variables_module()
     CALL s_initialize_time_steppers_module()    
     IF (qbmm) CALL s_initialize_qbmm_module()
+    IF(relax_model .GE. 0 .AND. relax_model .LE. 5) CALL s_initialize_phasechange_module()
 
     !IF (proc_rank==0) print*, 'Initialize'
     

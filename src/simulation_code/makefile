@@ -43,6 +43,7 @@ m_data_output.o :          m_derived_types.o m_global_parameters.o m_variables_c
 m_riemann_solvers.o :      m_derived_types.o m_global_parameters.o m_variables_conversion.o m_mpi_proxy.o m_bubbles.o
 m_bubbles.o :              m_derived_types.o m_global_parameters.o m_variables_conversion.o m_mpi_proxy.o 
 m_qbmm.o :                 m_derived_types.o m_global_parameters.o m_variables_conversion.o m_mpi_proxy.o 
+m_phasechange.o :          m_derived_types.o m_global_parameters.o m_variables_conversion.o m_mpi_proxy.o 
 
 m_cbc.o :                  m_derived_types.o m_global_parameters.o m_variables_conversion.o
 m_weno.o :                 m_derived_types.o m_global_parameters.o m_variables_conversion.o
