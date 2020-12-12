@@ -57,9 +57,9 @@ MODULE m_phasechange
 
     !> @name Parameters for the phase change part of the code
     !> @{
-    REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-10    !< p_relaxk \alpha threshold,           set to 1E-15
+    REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-15    !< p_relaxk \alpha threshold,           set to 1E-15
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
-    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-12    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 2000.d0    !< Saturation temperature threshold,    set to 900
     REAL(KIND(0d0)), PARAMETER :: TsatLv            = 100.d0    !< Saturation temperature threshold,    set to 250
