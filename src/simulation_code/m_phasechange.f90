@@ -391,17 +391,13 @@ MODULE m_phasechange
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
-                        ! Numerical correction of the volume fractions
+                        ! P RELAXATION ==================================
+                        relax = .FALSE.
                         IF (mpp_lim) THEN
                             CALL s_mixture_volume_fraction_correction(q_cons_vf, j, k, l )
                         END IF
-                        ! Thermodynamic equilibrium relaxation procedure ================================
-                        relax = .FALSE.
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
-                        !> ==============================================================================
-                        !! STARTING THE RELAXATION PROCEDURE ============================================
-                        !< ==============================================================================
                         IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
@@ -466,7 +462,6 @@ MODULE m_phasechange
                         END IF
                         IF ( (q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_epsL ) .AND. &
                               q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) .LT. 1.d0-palpha_epsH ) relax = .TRUE.
-
                         IF (relax) THEN
                             DO i = 1, num_fluids
                                  alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
@@ -542,7 +537,6 @@ MODULE m_phasechange
             DO j = 0, m
                 DO k = 0, n
                     DO l = 0, p
-                        ! Resetting the internal energy value and the relax and failed flags
                         ! P RELAXATION ========================================
                         relax = .FALSE.
                         IF (mpp_lim) THEN
@@ -608,10 +602,6 @@ MODULE m_phasechange
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
-                           IF ( ISNAN(pres_relax) ) THEN
-                               PRINT *, 'pressure is NaN, stopping code'
-                               CALL s_mpi_abort()
-                           END IF
                            Tsat = f_Tsat(pres_relax)
                            DO i = 1, num_fluids
                              Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
@@ -810,12 +800,9 @@ MODULE m_phasechange
 
             REAL(KIND(0d0)), INTENT(OUT)   :: TstarA, TstarB
             REAL(KIND(0d0)), INTENT(IN)    :: pressure
-            REAL(KIND(0d0))                :: fA, fB, dfdp, factor
-
-            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
-            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
-            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @name In-subroutine variables: vapor and liquid material properties
             !> @{
+            REAL(KIND(0d0))                :: fA, fB, dfdp, factor
 
             ! Finding lower bound, getting the bracket 
             factor = 100.d0
@@ -857,7 +844,7 @@ MODULE m_phasechange
             !> @{
             REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
             REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH, TsatA, TsatB
-            INTEGER :: iter      !< Generic loop iterators
+            INTEGER :: iter                !< Generic loop iterators
             CALL s_compute_Tsat_bracket(TsatA,TsatB,pressure)
             ! Computing f at lower and higher end of the bracket
             CALL s_compute_fdfTsat(fL,dfdp,pressure,TsatA)
@@ -920,7 +907,6 @@ MODULE m_phasechange
             REAL(KIND(0d0))                ::  dadp, dbdp, dddp
             REAL(KIND(0d0))                ::              dTdp
 
-            ! Material 1
             cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
             cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
@@ -955,6 +941,10 @@ MODULE m_phasechange
 
             REAL(KIND(0d0)), INTENT(OUT)   :: pstarA, pstarB
             REAL(KIND(0d0)), INTENT(IN)    :: pstar, rho0, E0
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
             REAL(KIND(0d0))                :: fA, fB, dfdp, Tstar
             REAL(KIND(0d0))                :: pS, factor
 
@@ -976,7 +966,7 @@ MODULE m_phasechange
                   IF( ISNAN(fB) ) THEN
                         fB = fA
                         pstarB = pstarA
-                        factor = factor*0.9d0
+                        factor = 1.01d0
                   ELSE 
                         factor = 1.05d0
                   END IF
@@ -1039,7 +1029,6 @@ MODULE m_phasechange
                    pstarH = pstar
                 END IF
             END DO
-
         END SUBROUTINE s_compute_ptg_pTrelax !-------------------------------
 
 END MODULE m_phasechange
