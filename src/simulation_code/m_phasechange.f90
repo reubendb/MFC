@@ -293,7 +293,7 @@ MODULE m_phasechange
                                             - fluid_pp(i)%pi_inf) & 
                                             /fluid_pp(i)%gamma
                                     IF (pres_K_init(i) .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) & 
-                                        pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-8
+                                        pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-0
                                     !TODO BE VERY CAREFUL ABOUT THE LIMIT HERE as it may be 1d0 instead
                                 ELSE
                                     pres_K_init(i) = 0d0
@@ -325,24 +325,24 @@ MODULE m_phasechange
                                 df_pres = 0d0
                                 DO i = 1, num_fluids
                                     IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
-                                        !numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
-                                        !denominator = numerator + pres_K_init(i)-pres_relax
-                                        !rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
-                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
-                                        !              numerator/denominator
-                                        !drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
-                                        !    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
-                                        !    gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
-                                        !f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
-                                        !df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
-                                        !              drhodp / (rho_K_s(i)*rho_K_s(i))
-                                        rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                                    MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
-                                                    * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
-                                                    pres_inf(i)))**(1d0/gamma_min(i))
-                                        f_pres   = f_pres + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/rho_K_s(i)
-                                        df_pres  = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
-                                                   /(gamma_min(i)*rho_K_s(i)*(pres_relax+pres_inf(i)))
+                                        numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
+                                        denominator = numerator + pres_K_init(i)-pres_relax
+                                        rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
+                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
+                                                      numerator/denominator
+                                        drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
+                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
+                                            gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
+                                        f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
+                                        df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
+                                                      drhodp / (rho_K_s(i)*rho_K_s(i))
+                                        !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
+                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
+                                        !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
+                                        !            pres_inf(i)))**(1d0/gamma_min(i))
+                                        !f_pres   = f_pres + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/rho_K_s(i)
+                                        !df_pres  = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
+                                        !           /(gamma_min(i)*rho_K_s(i)*(pres_relax+pres_inf(i)))
                                     END IF
                                 END DO
                             END DO
@@ -410,8 +410,8 @@ MODULE m_phasechange
                             ! Cell update of the volume fraction
                             q_cons_vf(1+adv_idx%beg-1)%sf(j,k,l) = a1
                             q_cons_vf(2+adv_idx%beg-1)%sf(j,k,l) = 1.d0 - a1
+                            CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                         END IF
-                        CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                     END DO
                 END DO
             END DO
@@ -756,9 +756,7 @@ MODULE m_phasechange
             REAL(KIND(0d0))                ::  cv1, cv2, q1, q2
             REAL(KIND(0d0))                ::        ap, bp, dp
 
-            ! Material 1
             cv1 = fluid_pp(1)%cv; q1 = fluid_pp(1)%qv;
-            ! Material 2
             cv2 = fluid_pp(2)%cv; q2 = fluid_pp(2)%qv;
             ! Calculating coefficients, Eq. C.6, Pelanti 2014
             ap = rhoalpha1*cv1 + rhoalpha2*cv2
