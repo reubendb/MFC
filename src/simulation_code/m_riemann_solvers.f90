@@ -1094,6 +1094,14 @@ MODULE m_riemann_solvers
                                 !             * (vel_R(dir_idx(1)) + s_P*(xi_R - 1d0))
                                 ! END DO
 
+                                ! Advection of bubbles source (modified from above)
+                                DO i = bub_idx%beg,bub_idx%end
+                                    flux_rs_vf(i)%sf(j,k,l) = &
+                                        ( nbub_L*qL_prim_rs_vf(i)%sf( j ,k,l)   &
+                                        - nbub_R*qR_prim_rs_vf(i)%sf(j+1,k,l) ) &
+                                        * s_M*s_P/(s_M - s_P)
+                                END DO
+                        
                             END IF
 
                         END IF
@@ -3082,7 +3090,7 @@ MODULE m_riemann_solvers
                                                   (((4d0*G_L)/3d0) + &
                                                   tau_e_L(dir_idx_tau(1)))/rho_L))
 
-!                IF (j == 100 .OR. j == 760) THEN
+!                IF (j == 10 .OR. j == 190) THEN
 !                PRINT*, 'j = ',j
 !                PRINT*, 'G_L = ',G_L
 !                PRINT*, 'G_R = ',G_R

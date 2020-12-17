@@ -3875,7 +3875,6 @@ MODULE m_rhs
                     sound = dsqrt(sound)
 
                     const_sos = dsqrt( n_tait )
-
                     s2 = f_g(mytime,sound,const_sos,mymono) * f_delta(j,k,l,mymono%loc,mymono%length,mymono)
                    
                     mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
@@ -3934,7 +3933,7 @@ MODULE m_rhs
                 period = mymono%length/sos
 
                 IF (mytime .le. mymono%npulse*period) THEN
-                    f_g = mymono%mag*sin(mytime*2.d0*pi/period)
+                    f_g = mymono%mag*sin((mytime)*2.d0*pi/period)
                 ELSE
                     f_g = 0d0
                 END IF
@@ -3956,8 +3955,9 @@ MODULE m_rhs
             ELSE IF (mymono%pulse == 4) THEN
                 ! Ricker wave for validation case
                 freq = sos/mymono%length
+                !freq = 15.d0 !TEST (changing sos may be causing discrepancy)
                 period = 1/freq
-                t0 = 0.115E-05 ! hard-coded here: modify if we keep Ricker in code
+                t0 = 0.115 ! hard-coded here: modify if we keep Ricker in code
                 IF ((mytime > 0) .AND. (mytime < 2.d0*t0)) THEN
                     f_g = mymono%mag*(2.d0*(pi**2.d0)*(freq**2.d0)) * &
                         (1.d0 - 2.d0*(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0)) * &

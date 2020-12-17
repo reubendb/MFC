@@ -289,6 +289,14 @@ MODULE m_variables_conversion
                     gamma_K  = fluid_pp(1)%gamma
                     pi_inf_K = fluid_pp(1)%pi_inf
                 END IF
+            END IF
+
+            IF (present(G_K)) THEN
+                G_K = 0d0
+                DO l = 1, num_fluids
+                    G_K = G_K + alpha_K(l)*G(l)
+                END DO
+                G_K = MAX(0d0,G_K)
             END IF 
             
         END SUBROUTINE s_convert_species_to_mixture_variables_bubbles ! ----------------
@@ -1102,7 +1110,7 @@ MODULE m_variables_conversion
                         FK_vf(E_idx)%sf(j,k,l) = 0. 
 
                         ! vol. frac, nR, and nRdot fluxes, u{\alpha, nR, nRdot}
-                        DO i = adv_idx%beg, sys_size
+                        DO i = adv_idx%beg, bub_idx%end
                             FK_vf(i)%sf(j,k,l) = vel_K(dir_idx(1))*qK_cons_vf(i)%sf(j,k,l)
                         END DO
                     END DO

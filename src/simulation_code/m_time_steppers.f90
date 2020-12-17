@@ -177,7 +177,7 @@ MODULE m_time_steppers
             END DO
 
             IF (bubbles) THEN
-                DO i = bub_idx%beg,sys_size
+                DO i = bub_idx%beg,bub_idx%end
                     ALLOCATE(q_prim_vf(i)%sf( ix%beg:ix%end, &
                                           iy%beg:iy%end, &
                                           iz%beg:iz%end ))
