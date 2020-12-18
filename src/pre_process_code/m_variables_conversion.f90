@@ -182,6 +182,9 @@ MODULE m_variables_conversion
                     gamma_K  = fluid_pp(1)%gamma
                     pi_inf_K = fluid_pp(1)%pi_inf   
                 ELSE IF (num_fluids > 2) THEN
+                    ! TODO: This will have to be changed around
+                    ! because num_fluids is no longer the bubble 
+                    ! fluid part if hypoelasticity
                     DO i = 1, num_fluids-1 !leave out bubble part of mixture
                         rho_k    = rho_k    + qK_vf(i)%sf(j,k,l) 
                         gamma_k  = gamma_k  + qK_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%gamma
