@@ -574,6 +574,7 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)), DIMENSION(2)                     ::       Re_K
             REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::       We_K
             REAL(KIND(0d0)), DIMENSION(nb) :: nRtmp
+            REAL(KIND(0d0))                                   ::        G_K
             
 
             INTEGER :: i,j,k,l !< Generic loop iterators
@@ -586,10 +587,17 @@ MODULE m_variables_conversion
                         dyn_pres_K = 0d0; E_We_K = 0d0
                      
                         IF (model_eqns .NE. 4 ) THEN
+                            IF (hypoelasticity) THEN
+                                CALL s_convert_to_mixture_variables( qK_cons_vf, rho_K, &
+                                                                     gamma_K, pi_inf_K, &
+                                                                     Re_K, We_K, j,k,l, &
+                                                                     G_K, fluid_pp(:)%G)
+                            ELSE 
                             CALL s_convert_to_mixture_variables( qK_cons_vf, rho_K, &
                                                                  gamma_K, pi_inf_K, &
                                                                  Re_K, We_K, j,k,l  )
                             !no mixture variables if single bubble mixture
+                            END IF
                         END IF
 
                         DO i = mom_idx%beg, mom_idx%end
@@ -673,7 +681,22 @@ MODULE m_variables_conversion
                             DO i = stress_idx%beg, stress_idx%end
                                 qK_prim_vf(i)%sf(j,k,l) = qK_cons_vf(i)%sf(j,k,l) &
                                                         / MAX(rho_K,sgm_eps)
+                                ! subtracting elastic contribution for pressure calculation
+                                qK_prim_vf(E_idx)%sf(j,k,l) = qK_prim_vf(E_idx)%sf(j,k,l) - &
+                                    ((qK_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G_K))/gamma_K
+                                ! extra terms in 2 and 3D
+                                IF ((i == stress_idx%beg + 1) .OR. &
+                                      (i == stress_idx%beg + 3) .OR. &
+                                        (i == stress_idx%beg + 4)) THEN
+                                    qK_prim_vf(E_idx)%sf(j,k,l) = qK_prim_vf(E_idx)%sf(j,k,l) - &
+                                        ((qK_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G_K))/gamma_K
+                                END IF
                             END DO
+                            ! elastic energy term subtraction for pressure:
+                            ! ONLY 1D FOR NOW
+!                            qK_prim_vf(E_idx)%sf(j,k,l) = qK_prim_vf(E_idx)%sf(j,k,l) - &
+!                                ((qK_prim_vf(stress_idx%beg)%sf(j,k,l)**2d0) / &
+!                                                              (4d0*G_K))/gamma_K
                         END IF                        
                     END DO
                 END DO

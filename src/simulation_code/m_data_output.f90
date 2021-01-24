@@ -742,6 +742,7 @@ MODULE m_data_output
             REAL(KIND(0d0)) :: rho                          !< Temporary density
             REAL(KIND(0d0)), DIMENSION(2)                   :: Re !< Temporary Reynolds number
             REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:,:)    :: We !< Temporary Weber number
+            REAL(KIND(0d0)) :: E_e                          !< Temporary elastic energy contribution
 
             ! Creating or overwriting the time-step root directory
             WRITE(t_step_dir,'(A,I0,A,I0)') TRIM(case_dir) // '/p_all'
@@ -830,7 +831,8 @@ MODULE m_data_output
 
                         OPEN(2,FILE= TRIM(file_path) )
                             DO j=0,m
-                                CALL s_convert_to_mixture_variables( q_cons_vf, rho, gamma, pi_inf, Re, We, j,0,0)
+                                CALL s_convert_to_mixture_variables( q_cons_vf, rho, gamma, pi_inf, Re, We, j,0,0, &
+                                                                                                    G,fluid_pp(:)%G )
                                 lit_gamma = 1d0/gamma + 1d0
                                 
                                 IF ( ((i.ge.cont_idx%beg) .AND. (i.le.cont_idx%end))    &
@@ -851,6 +853,27 @@ MODULE m_data_output
                                             (rhoref*(1.d0-q_cons_vf(4)%sf(j,0,0)))  & 
                                             ) ** lit_gamma )                        &
                                             - pi_inf
+                                    ELSE IF (hypoelasticity) THEN
+                                        ! elastic contribution to energy
+                                        E_e = 0d0
+                                        DO k = stress_idx%beg, stress_idx%end
+                                            E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
+                                                        /(4d0*G)
+                                            ! Additional terms in 2D and 3D
+                                            IF ((k == stress_idx%beg + 1) .OR. &
+                                                  (k == stress_idx%beg + 3) .OR. &
+                                                    (k == stress_idx%beg + 4)) THEN
+                                                E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
+                                                            /(4d0*G)
+                                            END IF
+                                        END DO
+                                        
+                                        WRITE(2,FMT) x_cb(j), &
+                                            (                                       & 
+                                            q_cons_vf(E_idx)%sf(j,0,0)  -            &
+                                            0.5d0*(q_cons_vf(mom_idx%beg)%sf(j,0,0)**2.d0)/rho - &
+                                            pi_inf - E_e &
+                                            ) / gamma
                                     ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
                                         !Stiffened gas pressure from energy
                                         WRITE(2,FMT) x_cb(j), &

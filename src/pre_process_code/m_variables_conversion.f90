@@ -62,7 +62,7 @@ MODULE m_variables_conversion
         !!  @param gamma Specific heat ratio function
         !!  @param pi_inf Liquid stiffness function
         SUBROUTINE s_convert_xxxxx_to_mixture_variables(   q_vf, i,j,k,   &
-                                                         rho,gamma,pi_inf )
+                                                         rho,gamma,pi_inf,G )
 
             ! Importing the derived type scalar_field from m_derived_types.f90
             ! and global variable sys_size, from m_global_variables.f90, as
@@ -76,6 +76,8 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)), INTENT(OUT) :: rho
             REAL(KIND(0d0)), INTENT(OUT) :: gamma
             REAL(KIND(0d0)), INTENT(OUT) :: pi_inf
+
+            REAL(KIND(0d0)), optional, INTENT(OUT) :: G
             
         END SUBROUTINE s_convert_xxxxx_to_mixture_variables
         
@@ -107,7 +109,7 @@ MODULE m_variables_conversion
         !! @param gamma  specific heat ratio function
         !! @param pi_inf liquid stiffness
         SUBROUTINE s_convert_mixture_to_mixture_variables(     q_vf, i,j,k,    &
-                                                             rho,gamma,pi_inf  )
+                                                             rho,gamma,pi_inf,G  )
 
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_vf
             INTEGER, INTENT(IN) :: i,j,k
@@ -115,6 +117,8 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)), INTENT(OUT) :: rho
             REAL(KIND(0d0)), INTENT(OUT) :: gamma
             REAL(KIND(0d0)), INTENT(OUT) :: pi_inf
+
+            REAL(KIND(0d0)), optional, INTENT(OUT) :: G
             
             
             ! Transfering the density, the specific heat ratio function and the
@@ -141,8 +145,8 @@ MODULE m_variables_conversion
         !! @param l Cell index
         SUBROUTINE s_convert_species_to_mixture_variables_bubbles ( qK_vf,  &
                                                             j,k,l,&
-                                                            rho_K,gamma_K, pi_inf_K &
-                                                             )
+                                                            rho_K,gamma_K, pi_inf_K, &
+                                                            G )
 
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: qK_vf
             
@@ -151,6 +155,8 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)), DIMENSION(num_fluids) :: alpha_rho_K, alpha_K !<
             !! Partial densities and volume fractions
             
+            REAL(KIND(0d0)), optional, INTENT(OUT) :: G
+
             INTEGER, INTENT(IN) :: j,k,l
             INTEGER :: i
             
@@ -213,7 +219,7 @@ MODULE m_variables_conversion
         !! @param k Cell index
         !! @param l Cell index
         SUBROUTINE s_convert_species_to_mixture_variables(     q_vf, j,k,l,    &
-                                                             rho,gamma,pi_inf  )
+                                                             rho,gamma,pi_inf,G )
            
             
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_vf
@@ -225,6 +231,7 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)), INTENT(OUT) :: rho
             REAL(KIND(0d0)), INTENT(OUT) :: gamma
             REAL(KIND(0d0)), INTENT(OUT) :: pi_inf
+            REAL(KIND(0d0)), optional, INTENT(OUT) :: G
             
             INTEGER :: i !< Generic loop iterator
             
@@ -258,8 +265,15 @@ MODULE m_variables_conversion
                 END DO
                 
             END IF
-            
-            
+ 
+            IF (present(G)) THEN
+                G = 0d0
+                DO i = 1, num_fluids
+                    G = G + q_vf(i+E_idx)%sf(j,k,l)*fluid_pp(i)%G
+                END DO
+                G = MAX(0d0,G)
+            END IF
+
         END SUBROUTINE s_convert_species_to_mixture_variables ! ----------------
         
         
@@ -313,6 +327,8 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)) :: dyn_pres
             REAL(KIND(0d0)) :: nbub
             REAL(KIND(0d0)), DIMENSION(nb) :: nRtmp
+
+            REAL(KIND(0d0)) :: G
             
             ! Generic loop iterators
             INTEGER :: i,j,k,l
@@ -326,6 +342,11 @@ MODULE m_variables_conversion
                         ! Obtaining the density, specific heat ratio function
                         ! and the liquid stiffness function, respectively
                         IF (model_eqns .ne. 4 ) THEN
+                            IF (hypoelasticity) THEN
+                                CALL s_convert_to_mixture_variables( q_cons_vf,j,k,l, &
+                                                                rho,gamma,pi_inf,G)
+                            END IF
+
                             CALL s_convert_to_mixture_variables( q_cons_vf,j,k,l, &
                                                              rho,gamma,pi_inf )
                         END IF
@@ -397,7 +418,22 @@ MODULE m_variables_conversion
                         IF (hypoelasticity) THEN
                             DO i = stress_idx%beg, stress_idx%end
                                 q_prim_vf(i)%sf(j,k,l) = q_cons_vf(i)%sf(j,k,l)/rho
+                                ! subtracting elastic contribution for pressure calculation
+                                q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
+                                    ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
+                                ! extra terms in 2 and 3D
+                                IF ((i == stress_idx%beg + 1) .OR. &
+                                    (i == stress_idx%beg + 3) .OR. &
+                                    (i == stress_idx%beg + 4)) THEN
+                                q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
+                                    ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
+                                END IF
                             END DO
+                            ! TESTING IN 1D ONLY
+!                            IF (G > 1) THEN
+!                            q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
+!                                ((q_prim_vf(stress_idx%beg)%sf(j,k,l)**2d0)/(4d0*G))/gamma
+!                            END IF
                         END IF
                     END DO
                 END DO
@@ -430,6 +466,8 @@ MODULE m_variables_conversion
             REAL(KIND(0d0)) :: dyn_pres
             REAL(KIND(0d0)) :: nbub
             REAL(KIND(0d0)), DIMENSION(nb) :: Rtmp
+
+            REAL(KIND(0d0)) :: G
 
             INTEGER :: i,j,k,l !< Generic loop iterators
             
@@ -501,9 +539,23 @@ MODULE m_variables_conversion
                         IF (hypoelasticity) THEN
                             DO i = stress_idx%beg, stress_idx%end
                                 q_cons_vf(i)%sf(j,k,l) = rho*q_prim_vf(i)%sf(j,k,l)
+                                ! adding elastic contribution
+                                q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
+                                    (q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G)
+                                ! extra terms in 2 and 3D
+                                IF ((i == stress_idx%beg + 1) .OR. &
+                                    (i == stress_idx%beg + 3) .OR. &
+                                    (i == stress_idx%beg + 4)) THEN
+                                q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
+                                    (q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G)
+                                END IF
                             END DO
+                            ! TESTING IN 1D only
+!                            IF (G > 1) THEN
+!                            q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
+!                                (q_prim_vf(stress_idx%beg)%sf(j,k,l)**2d0)/(4d0*G)
+!                            END IF
                         END IF
-
                     END DO
                 END DO
             END DO

@@ -209,6 +209,9 @@ MODULE m_data_output
                                             (rhoref*(1.d0-q_cons_vf(4)%sf(j,0,0)))  & 
                                             ) ** lit_gamma )                        &
                                             - pi_inf
+                                    ! For cases with initial tau_e nonzero, will need to add elastic contribution here:
+!                                   ELSE IF (hypoelasticity) THEN
+!                                       not yet implemented                                        
                                     ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
                                         !Stiffened gas pressure from energy
                                         WRITE(2,FMT) x_cb(j), &

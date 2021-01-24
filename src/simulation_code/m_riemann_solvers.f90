@@ -938,9 +938,11 @@ MODULE m_riemann_solvers
                                             ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
                                                    - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))   &
                                                    - (tau_e_R(dir_idx_tau(2)) * vel_R(dir_idx(2))) ) &
+!                                                   - (0d0 * vel_R(dir_idx(2))) ) &
                                             - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
                                                    - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))   &
                                                    - (tau_e_L(dir_idx_tau(2)) * vel_L(dir_idx(2))) ) &
+!                                                   - (0d0 * vel_L(dir_idx(2))) ) &
                                             + s_M*s_P*(E_L - E_R) )                        &
                                             / (s_M - s_P)
                                 END IF        
@@ -1111,8 +1113,8 @@ MODULE m_riemann_solvers
             
             
             ! Computing the viscous and capillary source flux
-            IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
-!            IF(ANY(Re_size > 0)) THEN
+!            IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
+            IF(ANY(Re_size > 0)) THEN
                 IF (weno_Re_flux) THEN
                     CALL s_compute_viscous_source_flux( &
                                    qL_prim_vf(mom_idx%beg:mom_idx%end), &
@@ -2871,7 +2873,24 @@ MODULE m_riemann_solvers
                 DO i = 1, (num_dims*(num_dims+1)) / 2
                     tau_e_L(i) = qL_prim_rs_vf(stress_idx%beg-1+i)%sf( j ,k,l)
                     tau_e_R(i) = qR_prim_rs_vf(stress_idx%beg-1+i)%sf(j+1,k,l)
+
+                    ! Adding elastic contribution to E
+                    E_L = E_L + (tau_e_L(i)*tau_e_L(i))/(4d0*G_L)
+                    E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_L)
+                    ! Additional terms in 2D and 3D
+                    IF ((i == 2) .OR. (i == 4) .OR. (i == 5)) THEN
+                        E_L = E_L + (tau_e_L(i)*tau_e_L(i))/(4d0*G_L)
+                        E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_L)
+                    END IF
                 END DO
+                ! temporary for 1D
+!                IF (G_L > 1) THEN
+!                E_L = E_L + (tau_e_L(1)*tau_e_L(1))/(4d0*G_L)
+!                END iF
+
+!                IF (G_R > 1) THEN
+!                E_R = E_R + (tau_e_R(1)*tau_e_L(1))/(4d0*G_R)
+!                END IF
             END IF
 
             ! Compute left/right states for bubble number density
@@ -3089,6 +3108,14 @@ MODULE m_riemann_solvers
                          ,vel_L(dir_idx(1)) + SQRT(c_L*c_L + &
                                                   (((4d0*G_L)/3d0) + &
                                                   tau_e_L(dir_idx_tau(1)))/rho_L))
+
+                ! Test
+!                s_L =  vel_L(dir_idx(1)) - SQRT(c_L*c_L + & 
+!                                                  (((4d0*G_L)/3d0) + &
+!                                                  tau_e_L(dir_idx_tau(1)))/rho_L)
+!                s_R =  vel_R(dir_idx(1)) + SQRT(c_R*c_R + &
+!                                                  (((4d0*G_R)/3d0) + &
+!                                                  tau_e_R(dir_idx_tau(1)))/rho_L)
 
 !                IF (j == 10 .OR. j == 190) THEN
 !                PRINT*, 'j = ',j
