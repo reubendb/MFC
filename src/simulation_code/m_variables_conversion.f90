@@ -682,6 +682,7 @@ MODULE m_variables_conversion
                                 qK_prim_vf(i)%sf(j,k,l) = qK_cons_vf(i)%sf(j,k,l) &
                                                         / MAX(rho_K,sgm_eps)
                                 ! subtracting elastic contribution for pressure calculation
+                                IF (G_K > 1000) THEN
                                 qK_prim_vf(E_idx)%sf(j,k,l) = qK_prim_vf(E_idx)%sf(j,k,l) - &
                                     ((qK_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G_K))/gamma_K
                                 ! extra terms in 2 and 3D
@@ -690,6 +691,7 @@ MODULE m_variables_conversion
                                         (i == stress_idx%beg + 4)) THEN
                                     qK_prim_vf(E_idx)%sf(j,k,l) = qK_prim_vf(E_idx)%sf(j,k,l) - &
                                         ((qK_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G_K))/gamma_K
+                                END IF
                                 END IF
                             END DO
                             ! elastic energy term subtraction for pressure:

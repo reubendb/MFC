@@ -2198,9 +2198,9 @@ MODULE m_rhs
                                                                             G_K, fluid_pp(:)%G)
                                         rho_K_field(j,k,l) = rho_K
                                         G_K_field(j,k,l) = G_K
-!                                        IF (q_prim_qp(0,0,0)%vf(adv_idx%beg)%sf(j,k,l) < 0.01) THEN
-!                                            G_K_field(j,k,l) = 0
-!                                        END IF 
+                                        IF (G_K < 1000) THEN
+                                            G_K_field(j,k,l) = 0
+                                        END IF 
 !                                        PRINT*,'G',G_K_field(410,0,0)
 !                                        PRINT*,'alpha1',q_prim_qp(0,0,0)%vf(adv_idx%beg)%sf(410,0,0)
                                     END DO
@@ -2236,7 +2236,7 @@ MODULE m_rhs
                             ! Best fin diff version:
                             rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
                                 ((4d0*G_K_field(k,0:n,0:p)/3d0) + &
-                                q_prim_qp(0,0,0)%vf(j)%sf(k,0,0)) * &
+                                q_prim_qp(0,0,0)%vf(j)%sf(k,0:n,0:p)) * &
                                 du_dx(k,0:n,0:p)
 
 !                            rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &

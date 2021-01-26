@@ -2875,12 +2875,14 @@ MODULE m_riemann_solvers
                     tau_e_R(i) = qR_prim_rs_vf(stress_idx%beg-1+i)%sf(j+1,k,l)
 
                     ! Adding elastic contribution to E
+                    IF ((G_L > 1000) .AND. (G_R > 1000)) THEN 
                     E_L = E_L + (tau_e_L(i)*tau_e_L(i))/(4d0*G_L)
-                    E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_L)
+                    E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_R)
                     ! Additional terms in 2D and 3D
                     IF ((i == 2) .OR. (i == 4) .OR. (i == 5)) THEN
                         E_L = E_L + (tau_e_L(i)*tau_e_L(i))/(4d0*G_L)
-                        E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_L)
+                        E_R = E_R + (tau_E_R(i)*tau_e_R(i))/(4d0*G_R)
+                    END IF
                     END IF
                 END DO
                 ! temporary for 1D

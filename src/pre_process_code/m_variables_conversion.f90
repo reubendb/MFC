@@ -422,6 +422,7 @@ MODULE m_variables_conversion
                             DO i = stress_idx%beg, stress_idx%end
                                 q_prim_vf(i)%sf(j,k,l) = q_cons_vf(i)%sf(j,k,l)/rho
                                 ! subtracting elastic contribution for pressure calculation
+                                IF (G > 1000) THEN
                                 q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
                                     ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
                                 ! extra terms in 2 and 3D
@@ -430,6 +431,7 @@ MODULE m_variables_conversion
                                     (i == stress_idx%beg + 4)) THEN
                                 q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
                                     ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
+                                END IF
                                 END IF
                             END DO
                             ! TESTING IN 1D ONLY
@@ -543,6 +545,7 @@ MODULE m_variables_conversion
                             DO i = stress_idx%beg, stress_idx%end
                                 q_cons_vf(i)%sf(j,k,l) = rho*q_prim_vf(i)%sf(j,k,l)
                                 ! adding elastic contribution
+                                IF (G > 1000) THEN
                                 q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
                                     (q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G)
                                 ! extra terms in 2 and 3D
@@ -551,6 +554,7 @@ MODULE m_variables_conversion
                                     (i == stress_idx%beg + 4)) THEN
                                 q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
                                     (q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G)
+                                END IF
                                 END IF
                             END DO
                             ! TESTING IN 1D only

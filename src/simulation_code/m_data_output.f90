@@ -857,6 +857,7 @@ MODULE m_data_output
                                         ! elastic contribution to energy
                                         E_e = 0d0
                                         DO k = stress_idx%beg, stress_idx%end
+                                            IF (G > 1000) THEN
                                             E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
                                                         /(4d0*G)
                                             ! Additional terms in 2D and 3D
@@ -865,6 +866,7 @@ MODULE m_data_output
                                                     (k == stress_idx%beg + 4)) THEN
                                                 E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
                                                             /(4d0*G)
+                                            END IF
                                             END IF
                                         END DO
                                         
