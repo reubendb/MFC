@@ -2168,7 +2168,6 @@ MODULE m_rhs
                                             + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j+1,k,l)   &
                                             - q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j+2,k,l) )       &
                                             / (12d0*(x_cc(j+1) - x_cc(j)))
-!                                                / (12d0*dx(j))
                                         IF (n > 0) THEN
                                             dv_dy(j,k,l) =           &
                                                 ( q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k-2,l)         &
@@ -2182,6 +2181,37 @@ MODULE m_rhs
                                                     - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l-1)   &
                                                     + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l+1)   &
                                                     - q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l+2) )       &
+                                                    / (12d0*(z_cc(l+1) - x_cc(l)))
+                                            END IF
+                                        END IF
+                                    END DO
+                                END DO
+                            END DO
+                        END IF
+                        ! w derivatives
+                        IF(p > 0) THEN
+                            DO j = 0, m
+                                DO k = 0, n
+                                    DO l = 0, p
+                                        dw_dx(j,k,l) = &
+                                            ( q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j-2,k,l)         &
+                                            - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j-1,k,l)   &
+                                            + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j+1,k,l)   &
+                                            - q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j+2,k,l) )       &
+                                            / (12d0*(x_cc(j+1) - x_cc(j)))
+                                        IF (n > 0) THEN
+                                            dw_dy(j,k,l) =           &
+                                                ( q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k-2,l)         &
+                                                - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k-1,l)   &
+                                                + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k+1,l)   &
+                                                - q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k+2,l) )       &
+                                                / (12d0*(y_cc(k+1) - y_cc(k)))
+                                            IF (p > 0) THEN
+                                                dw_dz(j,k,l) = &
+                                                    ( q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l-2)         &
+                                                    - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l-1)   &
+                                                    + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l+1)   &
+                                                    - q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l+2) )       &
                                                     / (12d0*(z_cc(l+1) - x_cc(l)))
                                             END IF
                                         END IF
@@ -2230,9 +2260,6 @@ MODULE m_rhs
 !                                                             pi_inf_K, Re_K, We_K, k,0,0, &
 !                                                             G_K, fluid_pp(:)%G)
 
-!                            PRINT*, 'rho_K = ',rho_K
-!                            PRINT*, 'rho_K_field(k,0,0) = ',rho_K_field(k,0,0)
-
                             ! Best fin diff version:
                             rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
                                 ((4d0*G_K_field(k,0:n,0:p)/3d0) + &
@@ -2244,150 +2271,7 @@ MODULE m_rhs
 !                                q_prim_qp(0,0,0)%vf(j)%sf(k,0:n,0:p) ) * &
 !                                du_dx(k,0:n,0:p)
 
-                            IF (n > 0) THEN
-                                
-                                ! Old method
-!                                CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-!                                                                       qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-!                                                                       dq_prim_dy_qp(0,0,0)%vf(iv%beg:iv%end), 2)
-!
-!                                CALL s_reconstruct_cell_interior_values(dq_prim_dy_qp)
 
-!                                j = stress_idx%beg
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-!                                2.0 * G_K_field(k,0:n,0:p) * (1.0/3.0) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) )
-!                                
-!                                j = stress_idx%beg+1
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-!                                2.0 * G_K_field(k,0:n,0:p) * (1.0/2.0) * (dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) + &
-!                                                                    dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p)) )
-!                                
-!                                j = stress_idx%beg+2
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-!                                2.0 * G_K_field(k,0:n,0:p) * (dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - (1.0/3.0) * &
-!                                                           (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) + &
-!                                                            dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p))) )
-
-                                ! V2
-!                                j = stress_idx%beg
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*du_dy(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*du_dy(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) - &
-!                                2d0 * G_K_field(k,0:n,0:p) * (1d0/3d0) * dv_dy(k,0:n,0:p) )
-                                
-!                                j = stress_idx%beg+1
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*du_dx(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dv_dx(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*du_dx(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*du_dy(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) + &
-!                                2d0 * G_K_field(k,0:n,0:p) * (1d0/2d0) * (du_dy(k,0:n,0:p) + &
-!                                                                    dv_dx(k,0:n,0:p)) )
-                                
-!                                j = stress_idx%beg+2
-!                                rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                               (q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dv_dx(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dv_dx(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*du_dx(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) + &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) - &
-!                                q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dv_dy(k,0:n,0:p) + &
-!                                2d0 * G_K_field(k,0:n,0:p) * (dv_dy(k,0:n,0:p) - (1d0/3d0) * &
-!                                                            (du_dx(k,0:n,0:p) + &
-!                                                            dv_dy(k,0:n,0:p))) )
-
-                                IF (p > 0) THEN
-
-                                    CALL s_apply_scalar_divergence_theorem(qL_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                           qR_prim_ndqp(1,0,0)%vf(iv%beg:iv%end), &
-                                                                           dq_prim_dz_qp(0,0,0)%vf(iv%beg:iv%end), 3)
-
-                                    CALL s_reconstruct_cell_interior_values(dq_prim_dz_qp)
-
-                                    j = stress_idx%beg
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf(j+3)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+3)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    2.0 * G_K_field(k,0:n,0:p) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p) )
-                                    
-                                    j = stress_idx%beg+1
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf(j+3)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+2)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p))
-                                    
-                                    j = stress_idx%beg+2
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf(j+2)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+2)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    2.0 * G_K_field(k,0:n,0:p) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p) )
-                                    
-                                    j = stress_idx%beg+3
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-3)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-2)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+2)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    2.0 * G_K_field(k,0:n,0:p) * (1.0/2.0) * (dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) + &
-                                                                        dq_prim_dx_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p)) )
-                                    
-                                    j = stress_idx%beg+4
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-3)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-2)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j+1)%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    2.0*G_K_field(k,0:n,0:p)*(1.0/2.0)*(dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                                                        dq_prim_dy_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p)) )
-                                   
-                                    j = stress_idx%end
-                                    rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-                                   (q_prim_qp(0,0,0)%vf(j-2)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-2)%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf(j-1)%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) - &
-                                    q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(k,0:n,0:p) + &
-                                    2.0 * G_K_field(k,0:n,0:p)*(dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p) - (1.0/3.0) * &
-                                                               (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) + &
-                                                                dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(k,0:n,0:p) + &
-                                                                dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(k,0:n,0:p))) )
-                                    
-                                END IF
-                            END IF
                         END DO
                         !DEALLOCATE(var%sf,grad_x%sf,grad_y%sf,grad_z%sf,norm%sf)
                     END IF
@@ -2593,58 +2477,13 @@ MODULE m_rhs
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
                         DO k = 0, n
-
-!                            CALL s_convert_to_mixture_variables(q_prim_vf, rho_K, gamma_K, &
-!                                                             pi_inf_K, Re_K, We_K, 0,k,0, &
-!                                                             G_K, fluid_pp(:)%G)
-
-                            j = stress_idx%beg
-
-!                            rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-!                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                            2.0 * G_K_field(0:m,k,0:p) * (2.0/3.0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) )
-                            
-                            ! We must have n > 0 given i == 2 
-!                            j = stress_idx%beg
-!                            rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-!                           (q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) - &
-!                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-!                            2.0 * G_K_field(0:m,k,0:p) * (1.0/3.0) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) )
-                                
-!                            j = stress_idx%beg+1
-!                            rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-!                           (q_prim_qp(0,0,0)%vf(j)%sf(0:m,k,0:p) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-!                            q_prim_qp(0,0,0)%vf(j)%sf(0:m,k,0:p) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf(j)%sf(0:m,k,0:p) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-!                            q_prim_qp(0,0,0)%vf(j)%sf(0:m,k,0:p) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-!                            2.0 * G_K_field(0:m,k,0:p) * (1.0/2.0) * (dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                                                                    dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p)) )
-                                
-!                            j = stress_idx%beg+2
-!                            rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-!                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-!                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-!                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-!                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-!                            2.0 * G_K_field(0:m,k,0:p)*(dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - (1.0/3.0) * &
-!                                                       (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-!                                                        dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p))) )
-                            ! New version (3D)
-!                            rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(0:m,k,0:p) * &
-!                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*du_dx(0:m,k,0:p) + &
-!                            2d0 * G_K_field(0:m,k,0:p) * (2d0/3d0) * du_dx(0:m,k,0:p) )
-                            
+                           
                            ! We must have n > 0 given i == 2 
                             j = stress_idx%beg
                             rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(0:m,k,0:p) * &
-                           (q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*du_dy(0:m,k,0:p) + &
-                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*du_dy(0:m,k,0:p) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dv_dy(0:m,k,0:p) - &
+                           (q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p) * du_dy(0:m,k,0:p) + &
+                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p) * du_dy(0:m,k,0:p) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * dv_dy(0:m,k,0:p) - &
                             2d0 * G_K_field(0:m,k,0:p) * (1d0/3d0) * dv_dy(0:m,k,0:p) )
                               
                             j = stress_idx%beg+1
@@ -2660,82 +2499,16 @@ MODULE m_rhs
                               
                             j = stress_idx%beg+2
                             rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(0:m,k,0:p) * &
-                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dv_dx(0:m,k,0:p) + &
-                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dv_dx(0:m,k,0:p) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*du_dx(0:m,k,0:p) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dv_dy(0:m,k,0:p) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dv_dy(0:m,k,0:p) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dv_dy(0:m,k,0:p) + &
+                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p) * dv_dx(0:m,k,0:p) + &
+                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p) * dv_dx(0:m,k,0:p) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * du_dx(0:m,k,0:p) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * dv_dy(0:m,k,0:p) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * dv_dy(0:m,k,0:p) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * dv_dy(0:m,k,0:p) + &
                             2d0 * G_K_field(0:m,k,0:p)*(dv_dy(0:m,k,0:p) - (1d0/3d0) * &
                                                        (du_dx(0:m,k,0:p) + &
                                                         dv_dy(0:m,k,0:p))) )
-                            IF (p > 0) THEN
-                                j = stress_idx%beg
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                2.0 * G_K_field(0:m,k,0:p) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p) )
-                                  
-                                j = stress_idx%beg+1
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p))
-                                    
-                                j = stress_idx%beg+2
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                2.0 * G_K_field(0:m,k,0:p) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p) )
-                                   
-                                j = stress_idx%beg+3
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                2.0 * G_K_field(0:m,k,0:p)*(1.0/2.0) * (dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-                                                                    dq_prim_dx_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p)) )
-                                   
-                                j = stress_idx%beg+4
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                2.0 * G_K_field(0:m,k,0:p)*(1.0/2.0)*(dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                                                    dq_prim_dy_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p)) )
-                                    
-                                j = stress_idx%end
-                                rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(:,k,:) * &
-                               (q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) - &
-                                q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,k,0:p) + &
-                                2.0 * G_K_field(0:m,k,0:p)*(dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p) - (1.0/3.0) * &
-                                                           (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,k,0:p) + &
-                                                            dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,k,0:p) + &
-                                                            dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,k,0:p))) )
 
-                                
-                            END IF
                         END DO
                     END IF
 
@@ -3070,107 +2843,71 @@ MODULE m_rhs
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
                         DO k = 0, p
-                            j = stress_idx%beg
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (2.0/3.0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,0:n,k) )
-                            
-                            ! We must have n > 0
-                            j = stress_idx%beg
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/3.0) * dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) )
-                                
-                            j = stress_idx%beg+1
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/2.0) * (dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,0:n,k) + &
-                                                                      dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k)) )
-                                
-                            j = stress_idx%beg+2
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - (1.0/3.0) * &
-                                                         (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,0:n,k) + &
-                                                          dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k))) )
-                                
 
                             ! We must have p > 0
                             j = stress_idx%beg
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k) )
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
+                            2d0 * G_K_field(0:m,0:n,k) * (1d0/3d0) * dw_dz(0:m,0:n,k) )
                                     
                             j = stress_idx%beg+1
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k))
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k))
                                     
                             j = stress_idx%beg+2
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/3.0) * dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k) )
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
+                            2d0 * G_K_field(0:m,0:n,k) * (1d0/3d0) * dw_dz(0:m,0:n,k) )
                                    
                             j = stress_idx%beg+3
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k)+ &
-                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/2.0) * (dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,0:n,k) + &
-                                                                      dq_prim_dx_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k)) )
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k) * du_dy(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dy(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dv_dy(0:m,0:n,k)+ &
+                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            2d0 * G_K_field(0:m,0:n,k) * (1d0/2d0) * (du_dz(0:m,0:n,k) + &
+                                                                      dw_dx(0:m,0:n,k)) )
                                     
                             j = stress_idx%beg+4
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (1.0/2.0) * (dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                                                                      dq_prim_dy_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k)) )
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k) * dv_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dv_dy(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dy(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dv_dy(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            2d0 * G_K_field(0:m,0:n,k) * (1d0/2d0) * (dv_dz(0:m,0:n,k) + &
+                                                                      dw_dy(0:m,0:n,k)) )
                                     
                             j = stress_idx%end
-                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(:,:,k) * &
-                           (q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) - &
-                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k)*dq_prim_dz_qp(0,0,0)%vf( mom_idx%end )%sf(0:m,0:n,k) + &
-                            2.0 * G_K_field(0:m,0:n,k) * (dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k) - (1.0/3.0) * &
-                                                         (dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(0:m,0:n,k) + &
-                                                          dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg+1)%sf(0:m,0:n,k) + &
-                                                          dq_prim_dz_qp(0,0,0)%vf(mom_idx%end)%sf(0:m,0:n,k))) )
+                            rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
+                           (q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k) * dw_dy(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k) * dw_dy(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dv_dy(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
+                            q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            2d0 * G_K_field(0:m,0:n,k) * (dw_dz(0:m,0:n,k) - (1d0/3d0) * &
+                                                         (du_dx(0:m,0:n,k) + &
+                                                          dv_dy(0:m,0:n,k) + &
+                                                          dw_dz(0:m,0:n,k))) )
                                     
                                 
                             

@@ -938,11 +938,21 @@ MODULE m_riemann_solvers
                                             ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
                                                    - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))   &
                                                    - (tau_e_R(dir_idx_tau(2)) * vel_R(dir_idx(2))) ) &
-!                                                   - (0d0 * vel_R(dir_idx(2))) ) &
                                             - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
                                                    - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))   &
                                                    - (tau_e_L(dir_idx_tau(2)) * vel_L(dir_idx(2))) ) &
-!                                                   - (0d0 * vel_L(dir_idx(2))) ) &
+                                            + s_M*s_P*(E_L - E_R) )                        &
+                                            / (s_M - s_P)
+                                ELSE IF(num_dims == 3) THEN
+                                    flux_rs_vf(E_idx)%sf(j,k,l) = &
+                                            ( s_M* ( vel_R(dir_idx(1))*(E_R + pres_R)      &
+                                                   - (tau_e_R(dir_idx_tau(1)) * vel_R(dir_idx(1)))   &
+                                                   - (tau_e_R(dir_idx_tau(2)) * vel_R(dir_idx(2)))   &
+                                                   - (tau_e_R(dir_idx_tau(3)) * vel_R(dir_idx(3))) ) &
+                                            - s_P* ( vel_L(dir_idx(1))*(E_L + pres_L)      &
+                                                   - (tau_e_L(dir_idx_tau(1)) * vel_L(dir_idx(1)))   &
+                                                   - (tau_e_L(dir_idx_tau(2)) * vel_L(dir_idx(2)))   &
+                                                   - (tau_e_L(dir_idx_tau(3)) * vel_L(dir_idx(3))) ) &
                                             + s_M*s_P*(E_L - E_R) )                        &
                                             / (s_M - s_P)
                                 END IF        
@@ -4074,7 +4084,7 @@ MODULE m_riemann_solvers
                 ELSEIF(norm_dir == 2) THEN
                     dir_idx_tau = (/3,2,5/)
                 ELSE
-                    dir_idx_tau = (/4,5,6/)
+                    dir_idx_tau = (/6,4,5/)
                 END IF
             END IF
  

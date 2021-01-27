@@ -426,19 +426,14 @@ MODULE m_variables_conversion
                                 q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
                                     ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
                                 ! extra terms in 2 and 3D
-                                IF ((i == stress_idx%beg + 1) .OR. &
-                                    (i == stress_idx%beg + 3) .OR. &
-                                    (i == stress_idx%beg + 4)) THEN
-                                q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
-                                    ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
-                                END IF
+                                    IF ((i == stress_idx%beg + 1) .OR. &
+                                        (i == stress_idx%beg + 3) .OR. &
+                                        (i == stress_idx%beg + 4)) THEN
+                                    q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
+                                        ((q_prim_vf(i)%sf(j,k,l)**2d0)/(4d0*G))/gamma
+                                    END IF
                                 END IF
                             END DO
-                            ! TESTING IN 1D ONLY
-!                            IF (G > 1) THEN
-!                            q_prim_vf(E_idx)%sf(j,k,l) = q_prim_vf(E_idx)%sf(j,k,l) - &
-!                                ((q_prim_vf(stress_idx%beg)%sf(j,k,l)**2d0)/(4d0*G))/gamma
-!                            END IF
                         END IF
                     END DO
                 END DO
@@ -557,11 +552,6 @@ MODULE m_variables_conversion
                                 END IF
                                 END IF
                             END DO
-                            ! TESTING IN 1D only
-!                            IF (G > 1) THEN
-!                            q_cons_vf(E_idx)%sf(j,k,l) = q_cons_vf(E_idx)%sf(j,k,l) + &
-!                                (q_prim_vf(stress_idx%beg)%sf(j,k,l)**2d0)/(4d0*G)
-!                            END IF
                         END IF
                     END DO
                 END DO
