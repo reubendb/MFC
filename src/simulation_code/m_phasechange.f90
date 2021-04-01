@@ -821,7 +821,7 @@ MODULE m_phasechange
                   IF( ISNAN(fB) ) THEN
                         fB = fA
                         TstarB = TstarA
-                        factor = 10.d0
+                        factor = factor-10.d0
                   ELSE 
                         factor = 100.d0
                   END IF
