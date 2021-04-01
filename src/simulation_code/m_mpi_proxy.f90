@@ -465,7 +465,14 @@ MODULE m_mpi_proxy
                     MPI_COMM_WORLD, ierr                  )
                 CALL MPI_BCAST( mono(j)%support   ,              1      , &
                     MPI_INTEGER,        0      , &
+                    MPI_COMM_WORLD, ierr                  ) 
+                CALL MPI_BCAST( mono(j)%foc_length   ,              1      , &
+                    MPI_DOUBLE_PRECISION,        0      , &
                     MPI_COMM_WORLD, ierr                  )
+                CALL MPI_BCAST( mono(j)%aperture   ,              1      , &
+                    MPI_DOUBLE_PRECISION,        0      , &
+                    MPI_COMM_WORLD, ierr                  )
+
             END DO
 
 
