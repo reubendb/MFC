@@ -3808,9 +3808,8 @@ MODULE m_rhs
 
             REAL(KIND(0d0)), INTENT(IN) :: mytime, sos, mysos
             TYPE(mono_parameters), INTENT(IN) :: mymono
-            REAL(KIND(0d0)) :: period, t0, sigt, pa
-            REAL(KIND(0d0)) :: offset
-            REAL(KIND(0d0)) :: f_g
+            REAL(KIND(0d0)) :: period, t0, sigt, pa, freq
+            REAL(KIND(0d0)) :: offset, f_g
 
             offset = 0d0
             IF (mymono%delay /= dflt_real) offset = mymono%delay
@@ -3837,6 +3836,19 @@ MODULE m_rhs
                 IF (mytime > t0 .AND. mytime < sigt) THEN
                     f_g = mymono%mag
                 END IF
+            ELSE IF (mymono%pulse == 4) THEN
+                ! Ricker wave for validation case
+                freq = sos/mymono%length
+                !freq = 15.d0 !TEST (changing sos may be causing discrepancy)
+                period = 1/freq
+                t0 = 0.115 ! hard-coded here: modify if we keep Ricker in code
+                IF ((mytime > 0) .AND. (mytime < 2.d0*t0)) THEN
+                    f_g = mymono%mag*(2.d0*(pi**2.d0)*(freq**2.d0)) * &
+                        (1.d0 - 2.d0*(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0)) * &
+                        dexp(-(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0))
+                ELSE
+                    f_g = 0d0
+                END IF
             ELSE
                 PRINT '(A)', 'No pulse type detected. Exiting ...'
                 CALL s_mpi_abort()
@@ -3860,7 +3872,7 @@ MODULE m_rhs
 
             INTEGER :: q
             REAL(KIND(0d0)) :: h,hx,hy,hz
-            REAL(KIND(0d0)) :: hxnew,hynew
+            REAL(KIND(0d0)) :: hxnew, hynew
             REAL(KIND(0d0)) :: sig
             REAL(KIND(0d0)) :: f_delta
 
@@ -3921,7 +3933,23 @@ MODULE m_rhs
                 ELSE IF (mymono%support == 4) THEN
                     ! Support for all y
                     f_delta = 1.d0/(dsqrt(2.d0*pi)*sig) * &
-                        dexp( -0.5d0 * (hx/sig)**2.d0 ) 
+                        dexp( -0.5d0 * (hx/sig)**2.d0 )
+                ELSE IF (mymono%support == 5) THEN
+                    ! Support along 'transducer'
+                    hx = x_cc(j) - mono_loc(1) 
+                    hy = y_cc(k) - mono_loc(2)
+                    
+                    ! Rotate actual point by incresing angle with increasing y
+                    hxnew = cos(-atan(hy/(2*mymono%foc_length-hx)))*hx + &
+                                sin(-atan(hy/(2*mymono%foc_length-hx)))*hy
+                    hynew = hy*dsqrt((mymono%aperture/2.d0)**2.d0 + &
+                                      mymono%foc_length**2.d0)/(mymono%foc_length)
+                    IF ( abs(hynew) < mymono%aperture/2.d0 ) THEN
+                        f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
+                            dexp( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
+                    ELSE
+                        f_delta = 0d0
+                    END IF
                 END IF
             ELSE !3D
                 IF (mymono%support == 3) THEN
