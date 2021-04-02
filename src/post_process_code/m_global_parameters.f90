@@ -327,6 +327,7 @@ MODULE m_global_parameters
                 fluid_pp(i)%gamma  = dflt_real
                 fluid_pp(i)%pi_inf = dflt_real
                 fluid_pp(i)%qv     = dflt_real
+                fluid_pp(i)%G     = dflt_real
             END DO
             
             
