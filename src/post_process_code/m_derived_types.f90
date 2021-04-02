@@ -87,6 +87,9 @@ MODULE m_derived_types
         REAL(KIND(0d0)) :: mu_v !< Bubble constants (see Preston (2007), Ando (2010))
         REAL(KIND(0d0)) :: k_v  !< Bubble constants (see Preston (2007), Ando (2010))
         REAL(KIND(0d0)) :: qv   !< Liquid stiffness for temperature
+        REAL(KIND(0d0)) :: G    !< Shear Modulus
+        REAL(KIND(0d0)), DIMENSION(2)              :: Re    !< Reynolds number
+        REAL(KIND(0d0)), DIMENSION(num_fluids_max) :: We    !< Weber number
     END TYPE physical_parameters
     
     
