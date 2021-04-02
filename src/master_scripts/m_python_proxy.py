@@ -1326,6 +1326,14 @@ simulation_dict =                                                              \
                     'Mono(2)%delay'                 : None,                     \
                     'Mono(3)%delay'                 : None,                     \
                     'Mono(4)%delay'                 : None,                     \
+                    'Mono(1)%aperture'              : None,                     \
+                    'Mono(2)%aperture'              : None,                     \
+                    'Mono(3)%aperture'              : None,                     \
+                    'Mono(4)%aperture'              : None,                     \
+                    'Mono(1)%foc_length'            : None,                     \
+                    'Mono(2)%foc_length'            : None,                     \
+                    'Mono(3)%foc_length'            : None,                     \
+                    'Mono(4)%foc_length'            : None,                     \
                     'integral_wrt'                  : None,                     \
                     'num_integrals'                 : None,                     \
                     'integral(1)%xmin'              : None,                     \
