@@ -3751,9 +3751,10 @@ MODULE m_rhs
                         sound = sound + q_prim_vf(ii+adv_idx%beg-1)%sf(j,k,l) * (1d0/fluid_pp(ii)%gamma+1d0) * &
                             (q_prim_vf(E_idx)%sf(j,k,l) + fluid_pp(ii)%pi_inf/(fluid_pp(ii)%gamma+1d0))
                       END DO
+                      n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
                     ELSE 
-                       n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
-                       sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
+                      n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
+                      sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
                     END IF
 
                     sound = dsqrt(sound/myRho)
