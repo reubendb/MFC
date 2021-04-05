@@ -3732,10 +3732,8 @@ MODULE m_rhs
             REAL(KIND(0d0)), DIMENSION(2) :: Re
             REAL(KIND(0d0)), DIMENSION( num_fluids, &
                                         num_fluids  ) :: We
-           
+          
             ndirs = 1; IF (n > 0) ndirs = 2; IF (p > 0) ndirs = 3
-
-
 
             IF (idir == ndirs) THEN
                 mytime = t_step*dt
@@ -3745,18 +3743,8 @@ MODULE m_rhs
                 DO j = 0,m; DO k = 0,n; DO l=0,p
                     CALL s_convert_to_mixture_variables( q_prim_vf, myRho, n_tait, B_tait, Re, We, j, k, l )
 
-                    IF(model_eqns == 3) THEN
-                      sound = 0d0
-                      DO ii = 1, num_fluids
-                        sound = sound + q_prim_vf(ii+adv_idx%beg-1)%sf(j,k,l) * (1d0/fluid_pp(ii)%gamma+1d0) * &
-                            (q_prim_vf(E_idx)%sf(j,k,l) + fluid_pp(ii)%pi_inf/(fluid_pp(ii)%gamma+1d0))
-                      END DO
-                      n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
-                    ELSE 
-                      n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
-                      sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
-                    END IF
-
+                    n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
+                    sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
                     sound = dsqrt(sound/myRho)
                     const_sos = dsqrt( n_tait )
 
@@ -3940,7 +3928,7 @@ MODULE m_rhs
                     hx = x_cc(j) - mono_loc(1) 
                     hy = y_cc(k) - mono_loc(2)
                     
-                    ! Rotate actual point by incresing angle with increasing y
+                    ! Rotate actual point by increasing angle with increasing y
                     hxnew = cos(-atan(hy/(2*mymono%foc_length-hx)))*hx + &
                                 sin(-atan(hy/(2*mymono%foc_length-hx)))*hy
                     hynew = hy*dsqrt((mymono%aperture/2.d0)**2.d0 + &

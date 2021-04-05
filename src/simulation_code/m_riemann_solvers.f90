@@ -1073,7 +1073,7 @@ MODULE m_riemann_solvers
 
                             ! Compute left solution state
                             IF (s_L >= 0d0) THEN
-                                p_Star = pres_L ! Only usefull to recalculate the radial momentum geometric source flux
+                                p_Star = pres_L ! Only useful to recalculate the radial momentum geometric source flux
                                 DO i = 1, num_fluids
                                     flux_rs_vf(i+adv_idx%beg-1)%sf(j,k,l) = &
                                         qL_prim_rs_vf(i+adv_idx%beg-1)%sf( j ,k,l)*s_S
