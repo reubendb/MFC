@@ -1479,7 +1479,7 @@ MODULE m_start_up
                            v_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) =      & 
                                v_vf(i+adv_idx%beg-1)%sf(j,k,l) *               &
                                (fluid_pp(i)%gamma*pres + fluid_pp(i)%pi_inf) + & 
-                               v_vf(i)%sf(j,k,l)*fluid_pp(i)%qv
+                               v_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                         END DO
 
                     END DO

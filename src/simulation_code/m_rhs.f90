@@ -2487,16 +2487,13 @@ MODULE m_rhs
                     END IF
 
                     IF (monopole) THEN
-                        mono_mass_src = 0d0; mono_mom_src = 0d0; mono_e_src = 0d0;
-                        
+                        mono_mass_src = 0d0; mono_mom_src = 0d0; mono_e_src = 0d0;                     
                         DO j = 1,num_mono
                             CALL s_get_monopole(i,q_prim_vf,t_step,mono(j))
-                        END DO
-                        
+                        END DO                       
                         DO k = cont_idx%beg,cont_idx%end
                             rhs_vf(k)%sf(:,:,:) = rhs_vf(k)%sf(:,:,:) + mono_mass_src(:,:,:)
-                        END DO
-                        
+                        END DO                        
                         DO k = mom_idx%beg,mom_idx%end
                             rhs_vf(k)%sf(:,:,:) = rhs_vf(k)%sf(:,:,:) + mono_mom_src(k-cont_idx%end,:,:,:)
                         END DO
@@ -3724,9 +3721,9 @@ MODULE m_rhs
             TYPE(mono_parameters), INTENT(IN) :: mymono
             INTEGER, INTENT(IN) :: idir, t_step
             
-            INTEGER :: ndirs,j,k,l,ii
+            INTEGER :: ndirs,j,k,l,i
             
-            REAL(KIND(0d0)) :: mytime, sound, n_tait, B_tait
+            REAL(KIND(0d0)) :: mytime, c2, sound, n_tait, B_tait, qsum
             REAL(KIND(0d0)) :: s2, myRho, const_sos
             
             REAL(KIND(0d0)), DIMENSION(2) :: Re
@@ -3743,13 +3740,22 @@ MODULE m_rhs
                 DO j = 0,m; DO k = 0,n; DO l=0,p
                     CALL s_convert_to_mixture_variables( q_prim_vf, myRho, n_tait, B_tait, Re, We, j, k, l )
 
-                    n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
-                    sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)
-                    sound = dsqrt(sound/myRho)
-                    const_sos = dsqrt( n_tait )
+                    IF(model_eqns == 3) THEN
+                       B_tait = 0d0
+                       qsum = 0d0
+                       DO i = 1, num_fluids
+                          B_tait = B_tait + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%pi_inf
+                          qsum = qsum + q_prim_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
+                       END DO
+                       qsum = qsum/myRho
+                    END IF
 
-                    s2 = f_g(mytime,sound,const_sos,mymono) * f_delta(j,k,l,mymono%loc,mymono%length,mymono)
-                   
+                    n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
+                    c2 = (n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1.d0)/n_tait)*B_tait))/myRho
+                    sound = DSQRT(c2)
+                    const_sos = DSQRT(n_tait)
+                    s2 = f_g(mytime,sound,const_sos,mymono)*f_delta(j,k,l,mymono%loc,mymono%length,mymono)
+                  
                     mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
                     IF (n ==0) THEN
                         ! 1D
@@ -3780,7 +3786,7 @@ MODULE m_rhs
                     END IF
 
                     IF (model_eqns .NE. 4) THEN
-                        mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s2*sound/(n_tait - 1.d0)
+                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) + 0.d0*qsum/sound)
                     END IF
                 END DO; END DO; END DO
             END IF
@@ -3834,7 +3840,7 @@ MODULE m_rhs
                 IF ((mytime > 0) .AND. (mytime < 2.d0*t0)) THEN
                     f_g = mymono%mag*(2.d0*(pi**2.d0)*(freq**2.d0)) * &
                         (1.d0 - 2.d0*(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0)) * &
-                        dexp(-(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0))
+                        DEXP(-(pi**2.d0)*(freq**2.d0)*((mytime-t0)**2.d0))
                 ELSE
                     f_g = 0d0
                 END IF
@@ -3955,7 +3961,7 @@ MODULE m_rhs
                     IF ( abs(hynew) < mymono%length/2. .AND. &
                          abs(hz) < mymono%length/2. ) THEN
                         f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
-                            dexp( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
+                            DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                     ELSE
                         f_delta = 0d0
                     END IF

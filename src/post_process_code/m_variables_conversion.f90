@@ -226,7 +226,7 @@ MODULE m_variables_conversion
                         IF(model_eqns == 3) THEN
                           DO i = 1, num_fluids
                                 pi_inf_sf(j,k,l) = pi_inf_sf(j,k,l)             &
-                                     + q_cons_vf(   i   )%sf(j,k,l)             &
+                                     + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)    &
                                      * fluid_pp(i)%qv
                           END DO
                         END IF 
