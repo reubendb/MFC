@@ -3723,7 +3723,7 @@ MODULE m_rhs
             
             INTEGER :: ndirs,j,k,l,i
             
-            REAL(KIND(0d0)) :: mytime, c2, sound, n_tait, B_tait, qsum
+            REAL(KIND(0d0)) :: mytime, c2, sound, n_tait, B_tait
             REAL(KIND(0d0)) :: s2, myRho, const_sos
             
             REAL(KIND(0d0)), DIMENSION(2) :: Re
@@ -3740,15 +3740,10 @@ MODULE m_rhs
                 DO j = 0,m; DO k = 0,n; DO l=0,p
                     CALL s_convert_to_mixture_variables( q_prim_vf, myRho, n_tait, B_tait, Re, We, j, k, l )
 
-                    IF(model_eqns == 3) THEN
-                       B_tait = 0d0
-                       qsum = 0d0
-                       DO i = 1, num_fluids
-                          B_tait = B_tait + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%pi_inf
-                          qsum = qsum + q_prim_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
-                       END DO
-                       qsum = qsum/myRho
-                    END IF
+                    B_tait = 0.d0
+                    DO i = 0, num_fluids
+                         B_tait = B_tait + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%pi_inf
+                    END DO
 
                     n_tait = 1.d0/n_tait + 1.d0 !make this the usual little 'gamma'
                     c2 = (n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1.d0)/n_tait)*B_tait))/myRho
@@ -3786,7 +3781,7 @@ MODULE m_rhs
                     END IF
 
                     IF (model_eqns .NE. 4) THEN
-                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) + 0.d0*qsum/sound)
+                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*sound/(n_tait-1.d0)
                     END IF
                 END DO; END DO; END DO
             END IF
