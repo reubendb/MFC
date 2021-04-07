@@ -2029,12 +2029,12 @@ MODULE m_riemann_solvers
             IF (mixture_err .AND. c_L < 0d0) THEN
                 c_L = 100.d0*sgm_eps
             ELSE
-                c_L = SQRT(c_L)
+                c_L = DSQRT(c_L)
             END IF
             IF (mixture_err .AND. c_R < 0d0) THEN
                 c_R = 100.d0*sgm_eps
             ELSE
-                c_R = SQRT(c_R)
+                c_R = DSQRT(c_R)
             END IF
 
             IF (tvd_riemann_flux) THEN
@@ -2067,12 +2067,12 @@ MODULE m_riemann_solvers
                 IF (mixture_err .AND. lo_c_L < 0d0) THEN
                     lo_c_L = sgm_eps
                 ELSE
-                    lo_c_L = SQRT(lo_c_L)
+                    lo_c_L = DSQRT(lo_c_L)
                 END IF
                 IF (mixture_err .AND. lo_c_R < 0d0) THEN
                     lo_c_R = sgm_eps
                 ELSE
-                    lo_c_R = SQRT(lo_c_R)
+                    lo_c_R = DSQRT(lo_c_R)
                 END IF
             END IF
 
