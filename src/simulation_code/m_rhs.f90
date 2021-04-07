@@ -3786,7 +3786,7 @@ MODULE m_rhs
                     END IF
 
                     IF (model_eqns .NE. 4) THEN
-                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) + 0.d0*qsum/sound)
+                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) - qsum/sound)
                     END IF
                 END DO; END DO; END DO
             END IF
