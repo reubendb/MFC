@@ -3786,7 +3786,7 @@ MODULE m_rhs
                     END IF
 
                     IF (model_eqns .NE. 4) THEN
-                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) - qsum/sound)
+                        mono_e_src(j,k,l)   = mono_e_src(j,k,l) + s2*(sound/(n_tait-1.d0) + qsum/sound)
                     END IF
                 END DO; END DO; END DO
             END IF
@@ -3945,6 +3945,11 @@ MODULE m_rhs
                     ELSE
                         f_delta = 0d0
                     END IF
+                ELSE IF (mymono%support == 6) THEN
+                    ! Support for radial pulse
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mono_loc(1)
+                    f_delta = -SIGN(1.d0,x_cc(j))*1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
+                            DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 END IF
             ELSE !3D
                 IF (mymono%support == 3) THEN
