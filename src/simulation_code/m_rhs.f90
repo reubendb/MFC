@@ -3724,7 +3724,7 @@ MODULE m_rhs
             INTEGER :: ndirs,j,k,l,i
             
             REAL(KIND(0d0)) :: mytime, c2, sound, n_tait, B_tait, qsum
-            REAL(KIND(0d0)) :: s2, myRho, const_sos
+            REAL(KIND(0d0)) :: s2, myRho, const_sos, distance
             
             REAL(KIND(0d0)), DIMENSION(2) :: Re
             REAL(KIND(0d0)), DIMENSION( num_fluids, &
@@ -3769,8 +3769,13 @@ MODULE m_rhs
                     ELSE IF (p==0) THEN
                         ! IF ( (j==1) .AND. (k==1) .AND. proc_rank == 0) &
                         !    PRINT*, '====== Monopole magnitude: ', f_g(mytime,sound,const_sos,mymono) 
- 
-                        IF (mymono%dir .NE. dflt_real) THEN
+                        IF (mymono%support == 6) THEN
+
+                            distance = DSQRT(x_cc(j)**2 + y_cc(k)**2)
+                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) - s2*x_cc(j)/distance
+                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) - s2*y_cc(k)/distance
+
+                        ELSE IF (mymono%dir .NE. dflt_real) THEN
                             ! 2d
                             !mono_mom_src(1,j,k,l) = s2
                             !mono_mom_src(2,j,k,l) = s2
@@ -3948,7 +3953,7 @@ MODULE m_rhs
                 ELSE IF (mymono%support == 6) THEN
                     ! Support for radial pulse
                     hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mono_loc(1)
-                    f_delta = -SIGN(1.d0,x_cc(j))*1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
+                    f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
                             DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 END IF
             ELSE !3D
