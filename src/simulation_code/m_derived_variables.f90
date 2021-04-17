@@ -449,7 +449,7 @@ MODULE m_derived_variables
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_prim_vf1
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_prim_vf2
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_prim_vf3
-            REAL(KIND(0d0)), DIMENSION(num_fluids,10), INTENT(INOUT) :: q_com
+            REAL(KIND(0d0)), DIMENSION(num_fluids,11), INTENT(INOUT) :: q_com
 
             REAL(KIND(0d0)) :: xbeg,xend,ybeg,yend,zbeg,zend !<
             !! Maximum and minimum values of cell boundaries in each direction used in check for
@@ -495,6 +495,8 @@ MODULE m_derived_variables
                                                     - 18d0*(q_prim_vf1(i)%sf(j,k,l)*q_prim_vf1(mom_idx%beg)%sf(j,k,l)) &
                                                     +  9d0*(q_prim_vf2(i)%sf(j,k,l)*q_prim_vf2(mom_idx%beg)%sf(j,k,l)) &
                                                     -  2d0*(q_prim_vf3(i)%sf(j,k,l)*q_prim_vf3(mom_idx%beg)%sf(j,k,l)))/(6d0*dt)
+                                    ! Volume fraction
+                                    q_com(i,11) = q_com(i,11) + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*dV
                                 END DO
                             END DO
                         END DO
@@ -508,6 +510,8 @@ MODULE m_derived_variables
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,5))
                             tmp = q_com(i,8)
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,8))
+                            tmp = q_com(i,11)
+                            CALL s_mpi_allreduce_sum(tmp,q_com(i,11))
                         END IF
 
                         ! Compute quotients
@@ -550,6 +554,9 @@ MODULE m_derived_variables
                                         - 18d0*(q_prim_vf1(i)%sf(j,k,l)*q_prim_vf1(mom_idx%beg+1)%sf(j,k,l)) &
                                         +  9d0*(q_prim_vf2(i)%sf(j,k,l)*q_prim_vf2(mom_idx%beg+1)%sf(j,k,l)) &
                                         -  2d0*(q_prim_vf3(i)%sf(j,k,l)*q_prim_vf3(mom_idx%beg+1)%sf(j,k,l)))/(6d0*dt)
+                                    ! Volume fraction
+                                    q_com(i,11) = q_com(i,11) + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*dV
+
                                 END DO
                             END DO
                         END DO
@@ -569,6 +576,8 @@ MODULE m_derived_variables
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,8))
                             tmp = q_com(i,9)
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,9))
+                            tmp = q_com(i,11)
+                            CALL s_mpi_allreduce_sum(tmp,q_com(i,11))
                         END IF
 
                         ! Compute quotients
@@ -641,6 +650,9 @@ MODULE m_derived_variables
                                             - 18d0*(q_prim_vf1(i)%sf(j,k,l)*q_prim_vf1(mom_idx%beg)%sf(j,k,l)) &
                                             +  9d0*(q_prim_vf2(i)%sf(j,k,l)*q_prim_vf2(mom_idx%beg)%sf(j,k,l)) &
                                             -  2d0*(q_prim_vf3(i)%sf(j,k,l)*q_prim_vf3(mom_idx%beg)%sf(j,k,l)))/(6d0*dt)
+                                        ! Volume fraction
+                                        q_com(i,11) = q_com(i,11) + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*dV
+
                                     ELSE
 
                                         dV = dx(j)*dy(k)*dz(l)
@@ -677,6 +689,8 @@ MODULE m_derived_variables
                                             - 18d0*(q_prim_vf1(i)%sf(j,k,l)*q_prim_vf1(mom_idx%end)%sf(j,k,l)) &
                                             +  9d0*(q_prim_vf2(i)%sf(j,k,l)*q_prim_vf2(mom_idx%end)%sf(j,k,l)) &
                                             -  2d0*(q_prim_vf3(i)%sf(j,k,l)*q_prim_vf3(mom_idx%end)%sf(j,k,l)))/(6d0*dt)
+                                        ! Volume fraction
+                                        q_com(i,11) = q_com(i,11) + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*dV
                                     END IF
                                 END DO
                             END DO
@@ -703,6 +717,8 @@ MODULE m_derived_variables
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,9))
                             tmp = q_com(i,10)
                             CALL s_mpi_allreduce_sum(tmp,q_com(i,10))
+                            tmp = q_com(i,11)
+                            CALL s_mpi_allreduce_sum(tmp,q_com(i,11))
                         END IF
 
                         ! Compute quotients
@@ -753,11 +769,13 @@ MODULE m_derived_variables
                         q_com(i,2) = xbeg
                         q_com(i,5) = 0d0
                         q_com(i,8) = 0d0
+                        q_com(i,11) = q_com(i,11)*2d0
                     ELSEIF (bc_x_glb%end == -2) THEN
                         q_com(i,1) = q_com(i,1)*2d0
                         q_com(i,2) = xend
                         q_com(i,5) = 0d0
                         q_com(i,8) = 0d0
+                        q_com(i,11) = q_com(i,11)*2d0
                     END IF
                     IF ( n > 0 ) THEN
                         ! Check for reflective BC in y-direction
@@ -766,11 +784,13 @@ MODULE m_derived_variables
                             q_com(i,3) = ybeg
                             q_com(i,6) = 0d0
                             q_com(i,9) = 0d0
+                            q_com(i,11) = q_com(i,11)*2d0
                         ELSEIF (bc_y_glb%end == -2) THEN
                             q_com(i,1) = q_com(i,1)*2d0
                             q_com(i,3) = yend
                             q_com(i,6) = 0d0
                             q_com(i,9) = 0d0
+                            q_com(i,11) = q_com(i,11)*2d0
                         END IF
                         IF ( p > 0 ) THEN
                             ! Check for reflective BC in z-direction
@@ -779,13 +799,14 @@ MODULE m_derived_variables
                                 q_com(i,4) = zbeg
                                 q_com(i,7) = 0d0
                                 q_com(i,10) = 0d0
+                                q_com(i,11) = q_com(i,11)*2d0
                             ELSEIF (bc_z_glb%end == -2) THEN
                                 q_com(i,1) = q_com(i,1)*2d0
                                 q_com(i,4) = zend
                                 q_com(i,7) = 0d0
                                 q_com(i,10) = 0d0
-                            END IF
-                            
+                                q_com(i,11) = q_com(i,11)*2d0
+                            END IF                            
                         END IF
                     END IF
                 END IF
