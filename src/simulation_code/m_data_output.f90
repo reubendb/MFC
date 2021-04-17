@@ -308,7 +308,8 @@ MODULE m_data_output
                                      '=== z-vel ' // &
                                      '=== x-accel ' // &
                                      '=== y-accel ' // &
-                                     '=== z-accel ==='
+                                     '=== z-accel ==='// &
+                                     '=== Total Volume ==='
                         END IF
                     END IF
                 END IF
@@ -1101,7 +1102,7 @@ MODULE m_data_output
         SUBROUTINE s_write_com_files(t_step,q_com,moments) ! -------------------
 
             INTEGER, INTENT(IN) :: t_step
-            REAL(KIND(0d0)), DIMENSION(num_fluids,10), INTENT(IN) :: q_com
+            REAL(KIND(0d0)), DIMENSION(num_fluids,11), INTENT(IN) :: q_com
             REAL(KIND(0d0)), DIMENSION(num_fluids,2,5), INTENT(IN) :: moments
 
 
@@ -1119,13 +1120,13 @@ MODULE m_data_output
                 DO i = 1, num_fluids ! Loop through fluids
                     IF (com_wrt(i)) THEN ! Writing out CoM data
                         IF (proc_rank == 0) THEN
-                            WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8)') &
+                            WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 q_com(i,1), &
                                 q_com(i,2), &
                                 q_com(i,5), &
-                                q_com(i,8)
-                                
+                                q_com(i,8), &
+                                q_com(i,11)
 
                         END IF
                     END IF
@@ -1136,18 +1137,7 @@ MODULE m_data_output
                         IF (proc_rank == 0) THEN
                             IF (moment_order(1) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8)') &
-                                    nondim_time, &
-                                    q_com(i,1), &
-                                    q_com(i,2), &
-                                    q_com(i,3), &
-                                    q_com(i,5), &
-                                    q_com(i,6), &
-                                    q_com(i,8), &
-                                    q_com(i,9)
-                            ELSEIF (moment_order(2) == dflt_int) THEN
-                                WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,E24.8)') &
+                                             'F24.8,F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1156,10 +1146,23 @@ MODULE m_data_output
                                     q_com(i,6), &
                                     q_com(i,8), &
                                     q_com(i,9), &
+                                    q_com(i,11)
+                            ELSEIF (moment_order(2) == dflt_int) THEN
+                                WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,E24.8)') &
+                                    nondim_time, &
+                                    q_com(i,1), &
+                                    q_com(i,2), &
+                                    q_com(i,3), &
+                                    q_com(i,5), &
+                                    q_com(i,6), &
+                                    q_com(i,8), &
+                                    q_com(i,9), &
+                                    q_com(i,11), &
                                     moments(i,1,1)
                             ELSEIF (moment_order(3) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,E24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,E24.8,' // &
                                              'E24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
@@ -1169,11 +1172,12 @@ MODULE m_data_output
                                     q_com(i,6), &
                                     q_com(i,8), &
                                     q_com(i,9), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2)
                             ELSEIF (moment_order(4) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,E24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,E24.8,' // &
                                              'E24.8,E24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
@@ -1183,12 +1187,13 @@ MODULE m_data_output
                                     q_com(i,6), &
                                     q_com(i,8), &
                                     q_com(i,9), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3)
                             ELSEIF (moment_order(5) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,E24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,E24.8,' // &
                                              'E24.8,E24.8,E24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
@@ -1198,13 +1203,14 @@ MODULE m_data_output
                                     q_com(i,6), &
                                     q_com(i,8), &
                                     q_com(i,9), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3), &
                                     moments(i,1,4)
                             ELSE
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,E24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,E24.8,' // &
                                              'E24.8,E24.8,E24.8,E24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
@@ -1214,6 +1220,7 @@ MODULE m_data_output
                                     q_com(i,6), &
                                     q_com(i,8), &
                                     q_com(i,9), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3), &
@@ -1230,22 +1237,7 @@ MODULE m_data_output
                             IF (moment_order(1) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8)') &
-                                    nondim_time, &
-                                    q_com(i,1), &
-                                    q_com(i,2), &
-                                    q_com(i,3), &
-                                    q_com(i,4), &
-                                    q_com(i,5), &
-                                    q_com(i,6), &
-                                    q_com(i,7), &
-                                    q_com(i,8), &
-                                    q_com(i,9), &
-                                    q_com(i,10)
-                            ELSEIF (moment_order(2) == dflt_int) THEN
-                                WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,F24.8)') &
+                                             'F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1257,13 +1249,30 @@ MODULE m_data_output
                                     q_com(i,8), &
                                     q_com(i,9), &
                                     q_com(i,10), &
+                                    q_com(i,11)
+                            ELSEIF (moment_order(2) == dflt_int) THEN
+                                WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,' // &
+                                             'F24.8,F24.8,F24.8,F24.8,F24.8)') &
+                                    nondim_time, &
+                                    q_com(i,1), &
+                                    q_com(i,2), &
+                                    q_com(i,3), &
+                                    q_com(i,4), &
+                                    q_com(i,5), &
+                                    q_com(i,6), &
+                                    q_com(i,7), &
+                                    q_com(i,8), &
+                                    q_com(i,9), &
+                                    q_com(i,10), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,2,1)
                             ELSEIF (moment_order(3) == dflt_int) THEN
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8)') &
+                                             'F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1275,6 +1284,7 @@ MODULE m_data_output
                                     q_com(i,8), &
                                     q_com(i,9), &
                                     q_com(i,10), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,2,1), &
@@ -1283,7 +1293,7 @@ MODULE m_data_output
                                 WRITE(i+10, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,F24.8)') &
+                                             'F24.8,F24.8,F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1295,6 +1305,7 @@ MODULE m_data_output
                                     q_com(i,8), &
                                     q_com(i,9), &
                                     q_com(i,10), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3), &
@@ -1306,7 +1317,7 @@ MODULE m_data_output
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8)') &
+                                             'F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1318,6 +1329,7 @@ MODULE m_data_output
                                     q_com(i,8), &
                                     q_com(i,9), &
                                     q_com(i,10), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3), &
@@ -1331,7 +1343,7 @@ MODULE m_data_output
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
                                              'F24.8,F24.8,F24.8,F24.8,' // &
-                                             'F24.8,F24.8,F24.8,F24.8)') &
+                                             'F24.8,F24.8,F24.8,F24.8,F24.8)') &
                                     nondim_time, &
                                     q_com(i,1), &
                                     q_com(i,2), &
@@ -1343,6 +1355,7 @@ MODULE m_data_output
                                     q_com(i,8), &
                                     q_com(i,9), &
                                     q_com(i,10), &
+                                    q_com(i,11), &
                                     moments(i,1,1), &
                                     moments(i,1,2), &
                                     moments(i,1,3), &
