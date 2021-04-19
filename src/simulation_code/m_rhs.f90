@@ -3798,7 +3798,6 @@ MODULE m_rhs
 
         END SUBROUTINE s_get_monopole
        
-
         !> This function gives the temporally varying amplitude of the pulse
         !! @param mytime Simulation time
         !! @param sos Sound speed
@@ -3952,22 +3951,19 @@ MODULE m_rhs
                     END IF
                 ELSE IF (mymono%support == 6) THEN
                     ! Support for radial pulse
-                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mono_loc(1)
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mymono%length
                     f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
                             DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 END IF
             ELSE !3D
                 IF (mymono%support == 3) THEN
                     ! Only support along some patch
-
                     hx = x_cc(j) - mono_loc(1) 
                     hy = y_cc(k) - mono_loc(2)
                     hz = z_cc(l) - mono_loc(3)
-
                     ! Rotate actual point by -theta
-                    hxnew = cos(      mymono%dir)*hx + sin(     mymono%dir)*hy
-                    hynew = -1.d0*sin(mymono%dir)*hx + cos(     mymono%dir)*hy
-                   
+                    hxnew = cos(      mymono%dir)*hx + sin(mymono%dir)*hy
+                    hynew = -1.d0*sin(mymono%dir)*hx + cos(mymono%dir)*hy
                     IF ( abs(hynew) < mymono%length/2. .AND. &
                          abs(hz) < mymono%length/2. ) THEN
                         f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
@@ -3975,6 +3971,11 @@ MODULE m_rhs
                     ELSE
                         f_delta = 0d0
                     END IF
+                ELSE IF (mymono%support == 6) THEN
+                    ! Support for radial pulse
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0+z_cc(k)**2) - mymono%length
+                    f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
+                            DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 ELSE
                     PRINT '(a)', 'Monopole support not properly defined'
                     CALL s_mpi_abort()
