@@ -3951,7 +3951,7 @@ MODULE m_rhs
                     END IF
                 ELSE IF (mymono%support == 6) THEN
                     ! Support for radial pulse
-                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mymono%length
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0) - mono_loc(1)
                     f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
                             DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 END IF
@@ -3973,7 +3973,7 @@ MODULE m_rhs
                     END IF
                 ELSE IF (mymono%support == 6) THEN
                     ! Support for radial pulse
-                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0+z_cc(k)**2) - mymono%length
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0+z_cc(k)**2) - mono_loc(1)
                     f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
                             DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 ELSE
