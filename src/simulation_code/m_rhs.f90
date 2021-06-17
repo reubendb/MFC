@@ -3757,7 +3757,7 @@ MODULE m_rhs
                     s2 = f_g(mytime,sound,const_sos,mymono)*f_delta(j,k,l,mymono%loc,mymono%length,mymono)
                   
                     mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
-                    IF (n ==0) THEN
+                    IF (n==0) THEN
                         ! 1D
                         IF (mymono%dir < -0.1d0) THEN
                             !left-going wave
@@ -3770,11 +3770,9 @@ MODULE m_rhs
                         ! IF ( (j==1) .AND. (k==1) .AND. proc_rank == 0) &
                         !    PRINT*, '====== Monopole magnitude: ', f_g(mytime,sound,const_sos,mymono) 
                         IF (mymono%support == 6) THEN
-
                             distance = DSQRT(x_cc(j)**2 + y_cc(k)**2)
                             mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) - s2*x_cc(j)/distance
                             mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) - s2*y_cc(k)/distance
-
                         ELSE IF (mymono%dir .NE. dflt_real) THEN
                             ! 2d
                             !mono_mom_src(1,j,k,l) = s2
@@ -3784,7 +3782,12 @@ MODULE m_rhs
                         END IF
                     ELSE    
                         ! 3D
-                        IF (mymono%dir .NE. dflt_real) THEN
+                        IF (mymono%support == 6) THEN
+                            distance = DSQRT(x_cc(j)**2 + y_cc(k)**2 + z_cc(l)**2)
+                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) - s2*x_cc(j)/distance
+                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) - s2*y_cc(k)/distance
+                            mono_mom_src(3,j,k,l) = mono_mom_src(3,j,k,l) - s2*z_cc(l)/distance
+                        ELSE IF (mymono%dir .NE. dflt_real) THEN
                             mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
                             mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
                         END IF
@@ -3973,7 +3976,7 @@ MODULE m_rhs
                     END IF
                 ELSE IF (mymono%support == 6) THEN
                     ! Support for radial pulse
-                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0+z_cc(k)**2) - mono_loc(1)
+                    hxnew = DSQRT(x_cc(j)**2.0+y_cc(k)**2.0+z_cc(l)**2) - mono_loc(1)
                     f_delta = 1.d0/(DSQRT(2.d0*pi)*sig/2.d0) * &
                             DEXP( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
                 ELSE
