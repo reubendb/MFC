@@ -1748,8 +1748,9 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
         # (PBS)
         # '#PBS -A xxx'                                          + '\n' \
         # (Slurm)
-         '#SBATCH -A cit129'                                       + '\n' \
-                                                                               \
+        # '#SBATCH -A xxx'                                       + '\n' \
+        '#SBATCH -A "cit129" '                                             + '\n' \
+                                                                                \
         # Name of the queue to which the job should be submitted:
         # (PBS)
         # '#PBS -q ' + str(pbs_dict['queue'])                             + '\n' \
