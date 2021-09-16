@@ -1850,6 +1850,7 @@ MODULE m_data_output
             REAL(KIND(0d0))                                   :: max_pres
             REAL(KIND(0d0)), DIMENSION(2)             :: Re
             REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:,:)      :: We
+            REAL(KIND(0d0))                                   :: E_e
             
             INTEGER :: i,j,k,l,s !< Generic loop iterator
 
@@ -1914,6 +1915,29 @@ MODULE m_data_output
                                 (rhoref*(1.d0-q_cons_vf(4)%sf(j-2,k,l)))  & 
                                 ) ** lit_gamma )                        &
                                 - pi_inf
+                        ELSE IF (hypoelasticity) THEN
+                            ! calculate elastic contribution to Energy
+                            E_e = 0d0
+                            DO s = stress_idx%beg, stress_idx%end
+                                IF (G > 0) THEN
+                                E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j-2,k,l)/rho)**2d0) &
+                                            /(4d0*G)
+                                ! Additional terms in 2D and 3D
+                                 IF ((s == stress_idx%beg + 1) .OR. &
+                                      (s == stress_idx%beg + 3) .OR. &
+                                       (s == stress_idx%beg + 4)) THEN
+                                     E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
+                                                /(4d0*G)
+                                 END IF
+                                END IF
+                            END DO
+                            
+                            pres = (                                      &
+                               q_cons_vf(E_idx)%sf(j-2,k,l)  -            &
+                               0.5d0*(q_cons_vf(mom_idx%beg)%sf(j-2,k,l)**2.d0)/rho - &
+                               pi_inf - E_e &
+                               ) / gamma 
+
                         ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
                             !Stiffened gas pressure from energy
                             pres = (                                       & 
@@ -2206,10 +2230,11 @@ MODULE m_data_output
                                 R(1),&
                                 Rdot(1)
                         ELSE
-                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8)') &
+                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 rho, &
                                 vel(1), &
+                                vel(2), &
                                 pres
                         end IF
                         !WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
