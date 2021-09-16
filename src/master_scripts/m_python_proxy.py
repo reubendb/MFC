@@ -1837,7 +1837,8 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
          't_start=$(date +%s)'                                          + '\n' \
                                                                                \
         # Executing job:
-        'mpirun '                                                               \
+        'mpirun '                                                              \
+                                       + '-n '   + str(pbs_dict['ppn'])        \
                                        + mfc_dir + '/' + comp_name             \
                                        + '_code' + '/' + comp_name      + '\n' \
         # Stopping the timer for the job

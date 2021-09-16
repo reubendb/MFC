@@ -2230,11 +2230,10 @@ MODULE m_data_output
                                 R(1),&
                                 Rdot(1)
                         ELSE
-                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8)') &
+                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 rho, &
                                 vel(1), &
-                                vel(2), &
                                 pres
                         end IF
                         !WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
@@ -2262,10 +2261,11 @@ MODULE m_data_output
                                 R(1), &
                                 Rdot(1)
                         ELSE
-                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8)') &
+                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 rho, &
                                 vel(1), &
+                                vel(2), &
                                 pres
                         end IF
                     ELSE
