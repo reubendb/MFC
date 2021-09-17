@@ -1837,8 +1837,14 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
          't_start=$(date +%s)'                                          + '\n' \
                                                                                \
         # Executing job:
-        'mpirun '                                                              \
-                                       + '-n '   + str(pbs_dict['ppn'])        \
+#        'mpirun '                                                              \
+        'module purge'                                                  + '\n' \
+        'module load cpu'                                               + '\n' \
+        'module load gcc/9.2.0'                                         + '\n' \
+        'module load openmpi/3.1.6'                                     + '\n' \
+        'module load slurm'                                             + '\n' \
+        'srun '                                                                \
+                                       + '-n '   + str(pbs_dict['ppn']) + ' '  \
                                        + mfc_dir + '/' + comp_name             \
                                        + '_code' + '/' + comp_name      + '\n' \
         # Stopping the timer for the job
