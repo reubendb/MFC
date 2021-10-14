@@ -6,7 +6,7 @@ include ../../Makefile.user
 ifdef lapack_lib_dir
 ld_pre_flags = -L$(lapack_lib_dir) -llapack -lblas
 else
-ld_pre_flags =
+ld_pre_flags = 
 endif
 
 ########################## FFTW Flags ###########################
@@ -19,6 +19,8 @@ endif
 
 ifdef lapack_lib_dir
 ld_sim_flags += -L$(lapack_lib_dir) -llapack -lblas
+else 
+ld_sim_flags = 
 endif
 
 # Header flags

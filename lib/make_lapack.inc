@@ -17,7 +17,7 @@ FORTRAN  = $(FC)
 FFLAGS   = 
 OPTS     = -O2 -frecursive
 DRVOPTS  = $(OPTS)
-NOOPT    = -O0 -frecursive
+NOOPT      = -O0 -frecursive
 LOADER   = gfortran
 LOADOPTS =
 #
@@ -67,7 +67,7 @@ XBLASLIB     =
 #  machine-specific, optimized BLAS library should be used whenever
 #  possible.)
 #
-BLASLIB      = ../../librefblas.a
+BLASLIB      = ../../libblas.a
 LAPACKLIB    = liblapack.a
 TMGLIB       = libtmglib.a
 LAPACKELIB   = liblapacke.a
