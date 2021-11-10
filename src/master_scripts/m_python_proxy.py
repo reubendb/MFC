@@ -1710,8 +1710,8 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
     # a bash script is generated and the job is submitted to a queue via PBS.
     if engine == 'serial':
         print( '\n' + comp_name + '>> Serial job in progress ...' + '\n')
-        #cmd_status = Popen('./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
-        cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+ ' '+comp_dir+'/'+comp_name, shell=True )
+        cmd_status = Popen(comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
+        #cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+ ' '+comp_dir+'/'+comp_name, shell=True )
         output, errors = cmd_status.communicate()
         #print '\n' + output
         print( comp_name + '>> Serial job completed!' + '\n')
@@ -1836,9 +1836,10 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
         # '#PBS -l nodes=0' + str(pbs_dict['nodes'])                             \
         #        + ':ppn=' + str(pbs_dict[ 'ppn' ])                       + '\n' \
         # (Slurm)
-        '#SBATCH --nodes=' + str(pbs_dict['nodes'])                     + '\n' \
-        '#SBATCH --ntasks-per-node=' + str(pbs_dict['ppn'])             + '\n' \
-                                                                               \
+        #'#SBATCH --nodes=' + str(pbs_dict['nodes'])                     + '\n' \
+        #'#SBATCH --ntasks-per-node=' + str(pbs_dict['ppn'])             + '\n' \
+        '#SBATCH -n ' + str(pbs_dict['ppn'])                     + '\n' \
+                                                                              \
         # Maximum amount of time to commit to the execution of the job:
         # (PBS)
         # '#PBS -l walltime=' + str(pbs_dict['walltime'])                 + '\n' \

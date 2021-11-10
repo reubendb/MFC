@@ -74,7 +74,7 @@ PROGRAM p_main
 
     USE m_qbmm                 !< Quadrature MOM
 
-    USE m_phasechange          !< Phase change relaxation algorithms
+    USE m_phase_change         !< Phase change relaxation algorithms
 
     ! ==========================================================================
     

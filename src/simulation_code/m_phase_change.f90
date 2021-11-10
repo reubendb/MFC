@@ -25,15 +25,22 @@
 !!  If not, see <http://www.gnu.org/licenses/>.
 
 !>
-!! @file m_phasechange.f90
+!! @file m_phase_change.f90
 !! @brief Contains module m_phasechange
 !! @author M. Rodriguez
-!! @version 1.0
-!! @date DEC 3, 2020
+!! @version 1.1
+!! @date November 10, 2021
+
+! TODO 
+! 1. add multi-component thermal equilibrium
+! 2. fix normalization issue
+! 3. test finite relaxation for 2D and/or 3D bubble dynamics (steady state and
+! then non-equilibrium)
+! 4. improve iteration method to include the Riemann method of Chiapolino
 
 !> @brief This module is used to compute phase relaxation for pressure,
 !         temperature and chemical interfacial relaxation
-MODULE m_phasechange
+MODULE m_phase_change
 
     ! Dependencies =============================================================
 
@@ -1111,4 +1118,4 @@ MODULE m_phasechange
             END DO
         END SUBROUTINE s_compute_ptg_pTrelax !-------------------------------
 
-END MODULE m_phasechange
+END MODULE m_phase_change

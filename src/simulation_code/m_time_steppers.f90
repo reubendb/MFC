@@ -55,7 +55,7 @@ MODULE m_time_steppers
 
     USE m_bubbles              !< Bubble dynamics routines
 
-    USE m_phasechange          !< Phase change relaxation algorithms
+    USE m_phase_change         !< Phase change relaxation algorithms
 
     USE m_mpi_proxy            !< Message passing interface (MPI) module proxy
     ! ==========================================================================
