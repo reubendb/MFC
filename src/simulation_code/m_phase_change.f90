@@ -63,8 +63,8 @@ MODULE m_phase_change
 
     !> @name Parameters for the phase change part of the code
     !> @{
-    REAL(KIND(0d0)), PARAMETER :: pnewtonk_eps      = 1.d-15    !< p_relaxk \alpha threshold,           set to 1E-15
-    INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
+    REAL(KIND(0d0)), PARAMETER :: pknewton_eps      = 1.d-15    !< p_relaxk \alpha threshold,           set to 1E-15
+    INTEGER,         PARAMETER :: pknewton_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
@@ -231,6 +231,143 @@ MODULE m_phase_change
             END DO
         END SUBROUTINE s_finite_ptg_relaxation ! --------------------------------------
 
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!  K-PHASE PTG RELAXATION FUNCTIONS !!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        !>     The purpose of this subroutine is to determine the saturation
+        !!         temperature by using a Newton-Raphson method from the provided
+        !!         equilibrium pressure and EoS of the binary phase system.
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_pk_fdf(fp,dfdp,pstar,rho_K_s,gamma_min,pres_inf)
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+            ! Cell-average conservative variables
+            TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN)  :: q_cons_vf
+            REAL(KIND(0d0)), INTENT(OUT)                         :: fp, dfdp
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)   :: gamma_min, pres_inf
+            REAL(KIND(0d0)), INTENT(IN)                          :: pstar
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(OUT)  :: rho_K_s
+            REAL(KIND(0d0))                                      :: numerator, denominator
+            REAL(KIND(0d0))                                      :: drhodp
+            INTEGER                        :: i
+            fp = 0.d0; dfdp = 0.d0;
+            DO i = 1, num_fluids
+               !! TODO IS THIS IF STATEMENT NECESSARY?
+               !IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
+                  numerator   = gamma_min(i)*(pstar+pres_inf(i))
+                  denominator = numerator + pres_K_init(i)-pstar
+                  rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
+                     MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*numerator/denominator
+                  drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
+                     MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
+                     gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
+                  fp          = fp  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
+                  dfdp        = dfdp - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
+                     drhodp / (rho_K_s(i)*rho_K_s(i))
+               !END IF
+            END DO
+
+        END SUBROUTINE s_compute_pk_fdf !------------------------
+
+        !>     The purpose of this subroutine is to determine the bracket of 
+        !!         the pressure by finding the pressure at which b^2=4*a*c
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_pk_bracket(pstarA,pstarB,rho_K_s,gamma_min,pres_inf)
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+            REAL(KIND(0d0)), INTENT(OUT)   :: pstarA, pstarB
+            REAL(KIND(0d0))                :: fA, fB, dfdp
+            REAL(KIND(0d0))                :: factor
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)   :: gamma_min, pres_inf
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(OUT)  :: rho_K_s
+
+            pstarA = 100.d0
+            pstarB = 1.d5
+            CALL s_compute_pk_fdf(fA,dfdp,pstarA,rho_K_s,gamma_min,pres_inf)
+            CALL s_compute_pk_fdf(fB,dfdp,pstarB,rho_K_s,gamma_min,pres_inf)
+            factor = 1.05d0
+            DO WHILE ( fA*fB .GT. 0.d0 )
+                  IF (pstarA .GT. 1.d13) THEN
+                         PRINT *, 'ptg bracketing failed to find lower bound'
+                         PRINT *, 'pstarA :: ',pstarA
+                         CALL s_mpi_abort()
+                  END IF
+                  fA = fB
+                  pstarA = pstarB
+                  pstarB = pstarA*factor
+                  CALL s_compute_pk_fdf(fB,dfdp,pstarB,rho_K_s,gamma_min,pres_inf)
+                  IF( ISNAN(fB) ) THEN
+                        fB = fA
+                        pstarB = pstarA
+                        factor = factor*0.95d0
+                  ELSE 
+                        factor = 1.05d0
+                  END IF
+            END DO
+        END SUBROUTINE s_compute_pk_bracket
+
+        !>     The purpose of this subroutine is to determine the saturation
+        !!         temperature by using a Newton-Raphson method from the provided
+        !!         equilibrium pressure and EoS of the binary phase system.
+        !!     @param p_star equilibrium pressure at the interface    
+        SUBROUTINE s_compute_pk_relax(rho_K_s,gamma_min,pres_inf)
+            !> @name In-subroutine variables: vapor and liquid material properties n, p_infinity
+            !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
+            !!       iteration procedure, A-D, and iteration variables, f and df
+            !> @{
+            REAL(KIND(0d0))                ::  pstar, pstarA, pstarB
+            REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
+            REAL(KIND(0d0))                ::  fL, fH, pstarL, pstarH
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)   :: gamma_min, pres_inf
+            REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(OUT)  :: rho_K_s
+            INTEGER :: iter                !< Generic loop iterators
+            ! Computing the bracket of the root solution
+            CALL s_compute_pk_bracket(pstarA,pstarB,rho_K_s,gamma_min,pres_inf)
+            ! Computing f at lower and higher end of the bracket
+            CALL s_compute_pk_fdf(fL,dfdp,pstarL,rho_K_s,gamma_min,pres_inf)
+            CALL s_compute_pk_fdf(fH,dfdp,pstarH,rho_K_s,gamma_min,pres_inf)
+            ! Establishing the direction of the descent to find zero
+            IF(fL < 0.d0) THEN
+                pstarL  = pstarA; pstarH  = pstarB;
+            ELSE
+                pstarL  = pstarB; pstarH  = pstarA;
+            END IF
+            pstar = 0.5d0*(pstarA+pstarB)
+            delta_old = DABS(pstarB-pstarA)
+            delta = delta_old
+            CALL s_compute_pk_fdf(fp,dfdp,pstar,rho_K_s,gamma_min,pres_inf)
+            ! Combining bisection and newton-raphson methods
+            DO iter = 0, pknewton_iter
+                IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
+                        .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
+                   delta_old = delta
+                   delta = 0.5d0*(pstarH-pstarL)
+                   pstar = pstarL + delta
+                   IF (delta .EQ. 0.d0) EXIT                    ! Change in root is negligible
+                ELSE                                              ! Newton step acceptable, take it
+                   delta_old = delta
+                   delta = fp/dfdp
+                   pstar = pstar - delta
+                   IF (delta .EQ. 0.d0) EXIT
+                END IF
+                IF (DABS(delta/pstar) < pknewton_eps) EXIT           ! Stopping criteria
+                ! Updating to next iteration
+                CALL s_compute_pk_fdf(fp,dfdp,pstar,rho_K_s,gamma_min,pres_inf)
+                IF (fp < 0.d0) THEN !Maintain the bracket on the root
+                   pstarL = pstar
+                ELSE
+                   pstarH = pstar
+                END IF
+            END DO
+            CALL s_compute_pk_fdf(fp,dfdp,pstar,rho_K_s,gamma_min,pres_inf)      
+        END SUBROUTINE s_compute_pk_relax !-------------------------------
+
         !> Description: The purpose of this procedure is to infinitely relax
         !!              the pressures from the internal-energy equations to a
         !!              unique pressure, from which the corresponding volume
@@ -247,26 +384,12 @@ MODULE m_phase_change
             ! mixture density, dynamic pressure, surface energy, specific heat ratio
             ! function, liquid stiffness function (two variations of the last two
             ! ones), shear and volume Reynolds numbers and the Weber numbers
-            REAL(KIND(0d0))                                   ::  pres_relax
-            REAL(KIND(0d0)), DIMENSION(num_fluids)            :: pres_K_init
-            REAL(KIND(0d0))                                   ::   numerator
-            REAL(KIND(0d0))                                   :: denominator
-            REAL(KIND(0d0))                                   ::      drhodp
-            REAL(KIND(0d0))                                   ::      f_pres
-            REAL(KIND(0d0))                                   ::     df_pres
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::     rho_K_s
-            REAL(KIND(0d0))                                   ::         rho
-            REAL(KIND(0d0))                                   ::    dyn_pres
-            REAL(KIND(0d0))                                   ::        E_We
-            REAL(KIND(0d0))                                   ::       gamma
-            REAL(KIND(0d0))                                   ::      pi_inf
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::   gamma_min
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::    pres_inf
-            REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
-            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
 
             ! Generic loop iterators
-            INTEGER :: i,j,k,l,iter
+            INTEGER :: i,j,k,l
 
             ! Relaxation procedure determination variable
             LOGICAL :: relax
@@ -289,71 +412,9 @@ MODULE m_phase_change
                         DO i = 1, num_fluids
                             IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1d0-sgm_eps)) relax = .FALSE.
                         END DO
-                        IF (relax) THEN
-                            ! Initial state
-                            pres_relax = 0.d0
-                            DO i = 1, num_fluids
-                                IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
-                                    pres_K_init(i) = &
-                                            ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
-                                            -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
-                                            /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) &
-                                            - fluid_pp(i)%pi_inf) & 
-                                            /fluid_pp(i)%gamma
-                                    IF (pres_K_init(i) .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) & 
-                                        pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-0
-                                    !TODO BE VERY CAREFUL ABOUT THE LIMIT HERE as it may be 1d0 instead
-                                ELSE
-                                    pres_K_init(i) = 0d0
-                                END IF
-                                pres_relax = pres_relax + q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)*pres_K_init(i)
-                            END DO
 
-                            ! Iterative process for relaxed pressure determination
-                            ! Convergence?
-                            iter    = 0; f_pres  = 1.d-9; df_pres = 1d9
-                            DO i = 1, num_fluids
-                                rho_K_s(i) = 0d0
-                            END DO
-                            DO WHILE (DABS(f_pres) .GT. pnewtonk_eps)
-                                pres_relax = pres_relax - f_pres/df_pres
-                                iter = iter + 1
-                                IF ( iter == pnewtonk_iter ) THEN
-                                    PRINT '(A)', 'Pressure relaxation procedure failed to converge to a solution. Exiting ...'
-                                    CALL s_mpi_abort()
-                                END IF
-                                ! Physical pressure?
-                                DO i = 1, num_fluids
-                                    IF (pres_relax .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) THEN
-                                        pres_relax = -(1d0 - 1d-8)*pres_inf(i) + 1d0
-                                    END IF
-                                END DO
-                                ! Newton-Raphson method
-                                f_pres  = -1d0
-                                df_pres = 0d0
-                                DO i = 1, num_fluids
-                                    IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) THEN
-                                        numerator   = gamma_min(i)*(pres_relax+pres_inf(i))
-                                        denominator = numerator + pres_K_init(i)-pres_relax
-                                        rho_K_s(i)  = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/&
-                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps)*& 
-                                                      numerator/denominator
-                                        drhodp      = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / & 
-                                            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) * & 
-                                            gamma_min(i)*(pres_K_init(i)+pres_inf(i)) / (denominator*denominator)
-                                        f_pres      = f_pres  + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
-                                        df_pres     = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) * & 
-                                                      drhodp / (rho_K_s(i)*rho_K_s(i))
-                                        !rho_K_s(i) = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / &
-                                        !            MAX(q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l),sgm_eps) &
-                                        !            * ((pres_relax+pres_inf(i)) / (pres_K_init(i) + &
-                                        !            pres_inf(i)))**(1d0/gamma_min(i))
-                                        !f_pres   = f_pres + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)/rho_K_s(i)
-                                        !df_pres  = df_pres - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) &
-                                        !           /(gamma_min(i)*rho_K_s(i)*(pres_relax+pres_inf(i)))
-                                    END IF
-                                END DO
-                            END DO
+                        IF (relax) THEN
+                            CALL s_compute_pk_relax(rho_K_s,gamma_min,pres_inf)
                             ! Cell update of the volume fraction
                             DO i = 1, num_fluids
                                 IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. sgm_eps) & 
