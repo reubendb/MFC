@@ -800,6 +800,9 @@ MODULE m_phase_change
             ! ==================================================================
         END SUBROUTINE s_mixture_total_energy_correction
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!! TWO PHASE PRESSURE FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
@@ -829,6 +832,9 @@ MODULE m_phase_change
             f_alpha1_prelax = alpha_k(1)*((n1-1.d0)*pstar + 2.d0*p_k(1) + C1)/((n1+1.d0)*pstar+C1)
         END FUNCTION f_alpha1_prelax
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!! TWO PHASE PT FUNCTION !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
@@ -865,6 +871,9 @@ MODULE m_phase_change
 
         END FUNCTION f_alpha1_ptrelax
 
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!! SATURATION TEMPERATURE FUNCTIONS !!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
@@ -977,6 +986,10 @@ MODULE m_phase_change
             f_Tsat = Tstar
         END FUNCTION f_Tsat !-------------------------------
 
+
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!! TWO-PHASE PTG RELAXATION FUNCTIONS !!!!!!!!!!!!!!!!!
+        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         !>     The purpose of this subroutine is to determine the saturation
         !!         temperature by using a Newton-Raphson method from the provided
         !!         equilibrium pressure and EoS of the binary phase system.
