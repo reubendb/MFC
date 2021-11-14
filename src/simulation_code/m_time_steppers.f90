@@ -412,14 +412,18 @@ MODULE m_time_steppers
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
             IF (model_eqns == 3) THEN
-                IF(relax_model == 0 .OR. relax_model == 5) THEN
+                IF(relax_model == 0 .OR. relax_model == 1) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                ELSEIF (relax_model == 4) THEN
-                     CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)      
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
+                ELSEIF (relax_model == 4) THEN
+                     CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)      
+                ELSEIF (relax_model == 5) THEN
+                     CALL s_infinite_pt_relaxation_k(q_cons_ts(2)%vf)      
+                ELSEIF (relax_model == 6) THEN
+                     CALL s_infinite_ptg_relaxation_k(q_cons_ts(2)%vf)      
                 END IF
             END IF
 
@@ -448,14 +452,18 @@ MODULE m_time_steppers
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
 
             IF (model_eqns == 3) THEN
-                IF(relax_model == 0 .OR. relax_model == 5) THEN
+                IF(relax_model == 0 .OR. relax_model == 1) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(2)%vf)
-                ELSEIF (relax_model == 4) THEN
-                    CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)                  
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(2)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_ptg_relaxation(q_cons_ts(2)%vf)
+                ELSEIF (relax_model == 4) THEN
+                    CALL s_infinite_p_relaxation_k(q_cons_ts(2)%vf)                  
+                ELSEIF (relax_model == 5) THEN
+                    CALL s_infinite_pt_relaxation_k(q_cons_ts(2)%vf)                  
+                ELSEIF (relax_model == 6) THEN
+                    CALL s_infinite_ptg_relaxation_k(q_cons_ts(2)%vf)                  
                 END IF
             END IF
 
@@ -477,14 +485,18 @@ MODULE m_time_steppers
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
 
             IF (model_eqns == 3) THEN
-                IF(relax_model == 0 .OR. relax_model == 5) THEN
+                IF(relax_model == 0 .OR. relax_model == 1) THEN
                     CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
-                ELSEIF(relax_model == 4) THEN
-                    CALL s_infinite_p_relaxation_k(q_cons_ts(1)%vf)
                 ELSEIF (relax_model == 2) THEN
                     CALL s_infinite_pt_relaxation(q_cons_ts(1)%vf)
                 ELSEIF (relax_model == 3) THEN
                     CALL s_infinite_ptg_relaxation(q_cons_ts(1)%vf)
+                ELSEIF(relax_model == 4) THEN
+                    CALL s_infinite_p_relaxation_k(q_cons_ts(1)%vf)
+                ELSEIF (relax_model == 5) THEN
+                    CALL s_infinite_pt_relaxation_k(q_cons_ts(1)%vf)                  
+                ELSEIF (relax_model == 6) THEN
+                    CALL s_infinite_ptg_relaxation_k(q_cons_ts(1)%vf)                  
                 END IF
             END IF
    
