@@ -430,26 +430,37 @@ MODULE m_phase_change
             REAL(KIND(0d0)), INTENT(OUT)                         :: fp, dfdp
             REAL(KIND(0d0)), INTENT(INOUT)                       :: pstar, Tstar
             REAL(KIND(0d0)), INTENT(IN)                          :: rhoe
+            REAL(KIND(0d0))                                      :: dTdp
             REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)   :: gamma_min, pres_inf
             REAL(KIND(0d0))                                      :: fsum, A, B, dTdp
             INTEGER, INTENT(IN)                                  :: j, k, l
             INTEGER                                              :: i
             fp = 1.d0; dfdp = 0.d0;
-            A = 0.d0; B = 0.d0
+            A = 0.d0; B = 0.d0; C = 0.d0;
             DO i = 1, num_fluids
                   ! T * = \frac{(rho e)^0 - sum (\rho_k \alpha_k)^0 q_k }{sum
                   ! (\rho_k \alpha_k)cv_k (\frac{B_k}{p* + B_k}+1) }
                   ! f = 1 - sum \frac{T* rho_k alpha_k^0 cv_k (n_k-1) }{p* - B_k} 
-                  A = A + 1.d0/(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
+
+                  rhoq = rhoq + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv 
+
+                  B1k = 1.d0/(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                        *(pres_inf(i)/(pstar+pres_inf(i)) + 1.d0))  
-                  B = B + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv & 
-                       /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
-                       *(pres_inf(i)/(pstar+pres_inf(i)) + 1.d0))  
-                  fsum = (q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
-                       *(gamma_min(i)-1.d0))/(pstar+pres_inf(i))
+
+                  B1 = B1 + B1k
+
+                  df0 = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv & 
+                        *(gamma_min-1.d0)/(pstar+pres_inf(i))
+
+                  df1 = df1 + df0/(pstar+pres_inf(i))
+
+                  fsum = fsum + df0 
+
+                  dTdp = dTdp + B1k*B1k*(pres_inf(i)/(pstar+pres_inf(i))**2.d0)
             END DO
-            Tstar = rhoe*A-B
+            Tstar = (rhoe-rhoq)*B1
             fp = 1.d0 - Tstar*fsum
+            dfdp = Tstar*df1-(rhoe-rhoq)*dTdp
 
         END SUBROUTINE s_compute_ptk_fdf !------------------------
 
