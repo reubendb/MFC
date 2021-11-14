@@ -427,40 +427,32 @@ MODULE m_phase_change
             !> @{
             ! Cell-average conservative variables
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN)  :: q_cons_vf
-            REAL(KIND(0d0)), INTENT(OUT)                         :: fp, dfdp
-            REAL(KIND(0d0)), INTENT(INOUT)                       :: pstar, Tstar
-            REAL(KIND(0d0)), INTENT(IN)                          :: rhoe
-            REAL(KIND(0d0))                                      :: dTdp
+            REAL(KIND(0d0)), INTENT(OUT)                         :: fp, dfdp, Tstar
+            REAL(KIND(0d0)), INTENT(IN)                          :: rhoe, pstar
             REAL(KIND(0d0)), DIMENSION(num_fluids), INTENT(IN)   :: gamma_min, pres_inf
-            REAL(KIND(0d0))                                      :: fsum, A, B, dTdp
+            REAL(KIND(0d0))                                      :: rhoq, Tdem, dTdp, fA
+            REAL(KIND(0d0))                                      :: df, fk, Tdemk
             INTEGER, INTENT(IN)                                  :: j, k, l
             INTEGER                                              :: i
-            fp = 1.d0; dfdp = 0.d0;
-            A = 0.d0; B = 0.d0; C = 0.d0;
+            rhoq = 0.d0; Tdem = 0.d0; dTdp = 0.d0; fA = 0.d0; df = 0.d0;
             DO i = 1, num_fluids
                   ! T * = \frac{(rho e)^0 - sum (\rho_k \alpha_k)^0 q_k }{sum
                   ! (\rho_k \alpha_k)cv_k (\frac{B_k}{p* + B_k}+1) }
                   ! f = 1 - sum \frac{T* rho_k alpha_k^0 cv_k (n_k-1) }{p* - B_k} 
-
                   rhoq = rhoq + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv 
 
-                  B1k = 1.d0/(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
+                  Tdemk = 1.d0/(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                        *(pres_inf(i)/(pstar+pres_inf(i)) + 1.d0))  
-
-                  B1 = B1 + B1k
-
-                  df0 = q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv & 
-                        *(gamma_min-1.d0)/(pstar+pres_inf(i))
-
-                  df1 = df1 + df0/(pstar+pres_inf(i))
-
-                  fsum = fsum + df0 
-
-                  dTdp = dTdp + B1k*B1k*(pres_inf(i)/(pstar+pres_inf(i))**2.d0)
+                  fk = (q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv & 
+                        *(gamma_min(i)-1.d0))/(pstar+pres_inf(i))
+                  Tdem = Tdem + Tdemk
+                  dTdp = dTdp + Tdemk*Tdemk*(pres_inf(i)/(pstar+pres_inf(i))**2.d0)
+                  fA = fA + fk
+                  df = df + fk/(pstar+pres_inf(i))
             END DO
-            Tstar = (rhoe-rhoq)*B1
-            fp = 1.d0 - Tstar*fsum
-            dfdp = Tstar*df1-(rhoe-rhoq)*dTdp
+            Tstar = (rhoe-rhoq)*Tdem
+            fp = 1.d0 - Tstar*fA
+            dfdp = Tstar*df-(rhoe-rhoq)*dTdp
 
         END SUBROUTINE s_compute_ptk_fdf !------------------------
 
@@ -580,6 +572,7 @@ MODULE m_phase_change
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf         
             REAL(KIND(0d0)), DIMENSION(num_fluids) ::     rho_K_s, pres_K_init
             REAL(KIND(0d0)), DIMENSION(num_fluids) ::   gamma_min, pres_inf
+            REAL(KIND(0d0))                        ::     rhoe, pstar, Tstar
             ! Generic loop iterators
             INTEGER :: i,j,k,l
             ! Relaxation procedure determination variable
@@ -616,9 +609,19 @@ MODULE m_phase_change
                                     q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
                             END DO
                         END IF
-                        CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
+                        !CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                         ! PT RELAXATION==============================================
-
+                        rhoe = 0.d0
+                        DO i = 1, num_fluids
+                             rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
+                        END DO                   
+                        CALL s_compute_pt_relax_k(pstar,Tstar,rhoe,gamma_min,pres_inf,q_cons_vf,j,k,l)
+                        DO i = 1, num_fluids
+                             q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
+                              (gamma_min(i)-1.d0)*q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) & 
+                              *fluid_pp(i)%cv*Tstar/(pstar+pres_inf(i))
+                        END DO
+                        CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                     END DO
                 END DO
             END DO
