@@ -377,8 +377,9 @@ MODULE m_time_steppers
             INTEGER, INTENT(IN) :: t_step
             
             INTEGER :: i,j !< Generic loop iterator
-            
+            ! ==================================================================
             ! Stage 1 of 3 =====================================================
+            ! ==================================================================
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => q_cons_ts(1)%vf(i)%sf
             END DO
@@ -389,7 +390,7 @@ MODULE m_time_steppers
            
             CALL s_compute_rhs(q_cons_ts(1)%vf, q_prim_vf, rhs_vf, t_step)
 
-            IF (model_eqns == 3 .AND. relax_model == 5) THEN
+            IF (model_eqns == 3 .AND. relax_model == 1) THEN
                 CALL s_finite_ptg_relaxation(q_cons_ts(1)%vf,rhs_vf)
             END IF
 
@@ -429,6 +430,7 @@ MODULE m_time_steppers
 
             ! ==================================================================
             ! Stage 2 of 3 =====================================================
+            ! ==================================================================
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => q_cons_ts(2)%vf(i)%sf
             END DO
@@ -438,7 +440,7 @@ MODULE m_time_steppers
             END DO
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step)
-            IF (model_eqns == 3 .AND. relax_model == 5) THEN
+            IF (model_eqns == 3 .AND. relax_model == 1) THEN
                 CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
             END IF
 
@@ -469,9 +471,9 @@ MODULE m_time_steppers
 
             ! ==================================================================
             ! Stage 3 of 3 =====================================================
-
+            ! ==================================================================
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step) 
-            IF (model_eqns == 3 .AND. relax_model == 5) THEN
+            IF (model_eqns == 3 .AND. relax_model == 1) THEN
                 CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
             END IF
 

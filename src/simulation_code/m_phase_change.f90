@@ -32,11 +32,10 @@
 !! @date November 10, 2021
 
 ! TODO 
-! 1. add multi-component thermal equilibrium
-! 2. fix normalization issue
-! 3. test finite relaxation for 2D and/or 3D bubble dynamics (steady state and
+! 1. fix normalization issue
+! 2. test finite relaxation for 2D and/or 3D bubble dynamics (steady state and
 ! then non-equilibrium)
-! 4. improve iteration method to include the Riemann method of Chiapolino
+! 3. improve iteration method to include the Riemann method of Chiapolino
 
 !> @brief This module is used to compute phase relaxation for pressure,
 !         temperature and chemical interfacial relaxation
