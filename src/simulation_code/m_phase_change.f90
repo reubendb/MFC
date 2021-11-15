@@ -69,11 +69,11 @@ MODULE m_phase_change
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 100.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-4     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-4     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-8     !< Saturation p-T-mu tolerance,         set to 1.d-10
     INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
     !> @}
@@ -723,6 +723,8 @@ MODULE m_phase_change
                                     /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                            END DO
                            IF (Tk(1) .LT. Tsat) relax = .FALSE.
+                           !IF (Tk(1) .GT. 700.d0) relax = .FALSE. ! Critical temperature
+                           !PRINT *,'Tk(1) :: ',Tk(1),', Tk(2) ::',Tk(2)
                         END IF
                         ! PTG RELAXATION PROCEDURE ===========================
                         IF (relax) THEN
@@ -923,16 +925,19 @@ MODULE m_phase_change
             TstarB = TsatLv+factor
             CALL s_compute_fdfTsat(fA,dfdp,pressure,TstarA)
             CALL s_compute_fdfTsat(fB,dfdp,pressure,TstarB)
+            !PRINT *, 'fA :: ',fA,', fB :: ',fB
             DO WHILE ( fA*fB .GT. 0.d0 )
                   IF (TstarA .GT. TsatHv) THEN
                          PRINT *, 'Tsat bracketing failed to find lower bound'
-                         PRINT *, 'TstarA :: ',TstarA
+                         PRINT *, 'TstarA :: ',TstarA,', pressure :: ',pressure
+                         PRINT *, 'fA :: ',fA,', fB :: ',fB
                          CALL s_mpi_abort()
                   END IF
                   fA = fB
                   TstarA = TstarB
                   TstarB = TstarA+factor
                   CALL s_compute_fdfTsat(fB,dfdp,pressure,TstarB)
+                  !PRINT *,'fB :: ',fB,', TstarB :: ',TstarB
                   IF( ISNAN(fB) ) THEN
                         fB = fA
                         TstarB = TstarA
@@ -961,7 +966,6 @@ MODULE m_phase_change
             ! Computing f at lower and higher end of the bracket
             CALL s_compute_fdfTsat(fL,dfdp,pressure,TsatA)
             CALL s_compute_fdfTsat(fH,dfdp,pressure,TsatB)
-
             ! Establishing the direction of the descent to find zero
             IF(fL < 0.d0) THEN
                 TstarL  = TsatA; TstarH  = TsatB;
