@@ -243,7 +243,7 @@ MODULE m_start_up
             ELSEIF( model_eqns == 2 .AND. bubbles .AND. bubble_model == 1  ) THEN
                 PRINT '(A)', 'The 5-equation bubbly flow model requires bubble_model = 2 (Keller--Miksis)'
                 CALL s_mpi_abort()
-            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 7) THEN
+            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 6) THEN
                 PRINT '(A)', 'Relaxation model untested with 6-equation model'
                 CALL s_mpi_abort()
             ELSEIF( bubbles .AND. bubble_model == 3 .AND. (polytropic .NEQV. .TRUE.)  ) THEN
