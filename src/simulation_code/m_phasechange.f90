@@ -60,12 +60,13 @@ MODULE m_phasechange
     INTEGER,         PARAMETER :: pnewtonk_iter     = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
     INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
+    REAL(KIND(0d0)), PARAMETER :: pres_sat          = 22.06d6   !< Critical water pressure, higher than this is a critical fluid
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 100.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 150.d0    !< Saturation temperature threshold,    set to 250
     REAL(KIND(0d0)), PARAMETER :: palpha_epsH       = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: palpha_epsL       = 1.d-6     !< p_relax low \alpha tolerance,        set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-4     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-4     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsH     = 1.d-3     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_epsL     = 1.d-3     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-8     !< Saturation p-T-mu tolerance,         set to 1.d-10
     INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
     !> @}
@@ -84,7 +85,6 @@ MODULE m_phasechange
         !!     @param q_cons_vf Cell-average conservative variables
         !!     @param p_star equilibrium pressure at the interface    
         SUBROUTINE s_initialize_phasechange_module()
-
             n1    = 1.d0/fluid_pp(1)%gamma + 1.d0
             pinf1 = fluid_pp(1)%pi_inf/(1.d0 + fluid_pp(1)%gamma)
             n2    = 1.d0/fluid_pp(2)%gamma + 1.d0
@@ -103,7 +103,7 @@ MODULE m_phasechange
             !PRINT *, 'pinf1 : ',pinf1,', pinf2 : ',pinf2
             !PRINT *, 'gibbsA : ',gibbsA,', gibbsB : ',gibbsB
             !PRINT *, 'gibbsC : ',gibbsC,', gibbsD : ',gibbsD
-
+            !CALL s_mpi_abort()
         END SUBROUTINE s_initialize_phasechange_module !-------------------------------
 
         !> The purpose of this procedure is to employ the inputted
@@ -605,14 +605,10 @@ MODULE m_phasechange
             REAL(KIND(0d0))                                   :: rho, rhoe, rhoeq_k
             REAL(KIND(0d0))                                   :: rho1, rho2
             REAL(KIND(0d0))                                   :: a1, a2
-            REAL(KIND(0d0))                                   :: dyn_pres
-            REAL(KIND(0d0))                                   :: E_We
-            REAL(KIND(0d0))                                   :: gamma
-            REAL(KIND(0d0))                                   :: pi_inf, p_infk
-            REAL(KIND(0d0))                                   :: pres_sat, Tsat
-            REAL(KIND(0d0))                                   ::  A, B, C, D
-            REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
-            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
+            REAL(KIND(0d0))                                   :: gamma, pi_inf, p_infk
+            REAL(KIND(0d0))                                   :: Tsat
+            REAL(KIND(0d0)), DIMENSION(2)                     :: Re
+            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) :: We
             !> @}
             INTEGER :: i, j, k, l        !< Generic loop iterators
             LOGICAL :: relax             !< Relaxation procedure determination variable
@@ -737,20 +733,21 @@ MODULE m_phasechange
             REAL(KIND(0d0)), DIMENSION(num_fluids)            :: pres_K_init, rho_K_s, Tk
             REAL(KIND(0d0)), DIMENSION(num_fluids)            :: gamma_min, pres_inf
             REAL(KIND(0d0))                                   :: rhoalpha1, rhoalpha2
-            REAL(KIND(0d0))                                   :: rho, rhoe, rhoeq_k
+            REAL(KIND(0d0))                                   :: rho, rhoe, rhoeq
+            REAL(KIND(0d0))                                   :: rcv, Bsum, Tmix
             REAL(KIND(0d0))                                   :: rho1, rho2
             REAL(KIND(0d0))                                   :: a1, a2
             REAL(KIND(0d0))                                   :: gamma, pi_inf, p_infk
-            REAL(KIND(0d0))                                   :: pres_sat, Tsat
-            REAL(KIND(0d0)), DIMENSION(2)                     ::          Re
-            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) ::          We
+            REAL(KIND(0d0))                                   :: Tsat
+            REAL(KIND(0d0)), DIMENSION(2)                     :: Re
+            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) :: We
             !> @}
             INTEGER :: i, j, k, l        !< Generic loop iterators
             LOGICAL :: relax             !< Relaxation procedure determination variable
             !< Computing the constant saturation properties 
             DO i = 1, num_fluids
-                gamma_min(i) = 1d0/fluid_pp(i)%gamma + 1d0
-                pres_inf(i)  = fluid_pp(i)%pi_inf / (1d0+fluid_pp(i)%gamma)
+                gamma_min(i) = 1.d0/fluid_pp(i)%gamma + 1.d0
+                pres_inf(i)  = fluid_pp(i)%pi_inf / (1.d0+fluid_pp(i)%gamma)
             END DO
             DO j = 0, m
                 DO k = 0, n
@@ -784,20 +781,22 @@ MODULE m_phasechange
                         END IF
                         CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                         ! PT RELAXATION==============================================
-                        rhoe = 0.d0
+                        rhoeq = 0.d0
                         DO i = 1, num_fluids
-                             rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) &
-                                         - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
+                             rhoeq = rhoeq + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) &
+                                           - q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv
                         END DO                   
-                        CALL s_compute_pt_relax_k(pres_relax,Trelax,rhoe,gamma_min,pres_inf,q_cons_vf,j,k,l)
+                        CALL s_compute_pt_relax_k(pres_relax,Trelax,rhoeq,gamma_min,pres_inf,q_cons_vf,j,k,l)
                         DO i = 1, num_fluids
-                             q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
-                              (gamma_min(i)-1.d0)*q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) & 
-                              *fluid_pp(i)%cv*Trelax/(pres_relax+pres_inf(i))
+                                q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
+                                (gamma_min(i)-1.d0)*q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) & 
+                                *fluid_pp(i)%cv*Trelax/(pres_relax+pres_inf(i))
                         END DO
                         CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
                         ! CHECKING IF PTG RELAXATION IS NEEDED  =====================
                         rhoe = 0.d0
+                        !Bsum = 0.d0
+                        !rcv  = 0.d0
                         relax = .FALSE.
                         IF (mpp_lim) THEN
                             CALL s_mixture_volume_fraction_correction(q_cons_vf, j, k, l )
@@ -810,21 +809,31 @@ MODULE m_phasechange
                         IF (relax) THEN
                            DO i = 1, num_fluids
                                rhoe = rhoe + q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) 
+                               !Bsum = Bsum + q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)*pres_inf(i) 
+                               !rcv = rcv + q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv
+                               !PRINT *, 'alpha :: ',q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)
                            END DO                   
                            pres_relax = (rhoe - pi_inf)/gamma
-                           Tsat = f_Tsat(pres_relax)
-                           DO i = 1, num_fluids
-                             Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
+                           !Tmix = (pres_relax+Bsum)*gamma/rcv
+                           !PRINT *, 'rhoe :: ',rhoe,', Bsum :: ',Bsum,', rcv :: ',rcv
+                           !PRINT *, 'Tmix :: ',Tmix,', pres :: ',pres_relax
+                           IF(pres_relax .LT. pres_sat) THEN
+                             Tsat = f_Tsat(pres_relax)
+                             DO i = 1, 1
+                               Tk(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
                                     -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
                                     /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) &
                                     -fluid_pp(i)%pi_inf & 
                                     /(1.d0+fluid_pp(i)%gamma)) &
                                     /(q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%cv &
                                     /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
-                           END DO
-                           IF (Tk(1) .LT. Tsat) relax = .FALSE.
-                           !IF (Tk(1) .GT. 700.d0) relax = .FALSE. ! Critical temperature
-                           !PRINT *,'Tk(1) :: ',Tk(1),', Tk(2) ::',Tk(2)
+                             END DO
+                             IF (Tk(1) .LT. Tsat) relax = .FALSE.
+                             IF (Tk(1) .GT. 700.d0) relax = .FALSE. ! Critical temperature
+                             !PRINT *,'Tk(1) :: ',Tk(1),', Tk(2) ::',Tk(2)
+                           ELSE
+                             relax = .FALSE.
+                           END IF
                         END IF
                         ! PTG RELAXATION PROCEDURE ===========================
                         IF (relax) THEN
@@ -1018,7 +1027,7 @@ MODULE m_phasechange
             REAL(KIND(0d0))                :: fA, fB, dfdp, factor
 
             ! Finding lower bound, getting the bracket 
-            factor = 100.d0
+            factor = 20.d0
             TstarA = TsatLv
             TstarB = TsatLv+factor
             CALL s_compute_fdfTsat(fA,dfdp,pressure,TstarA)
@@ -1035,13 +1044,14 @@ MODULE m_phasechange
                   TstarA = TstarB
                   TstarB = TstarA+factor
                   CALL s_compute_fdfTsat(fB,dfdp,pressure,TstarB)
+                  !PRINT *, 'fB :: ',fB,', TstarB :: ',TstarB,', p :: ',pressure
                   !PRINT *,'fB :: ',fB,', TstarB :: ',TstarB
                   IF( ISNAN(fB) ) THEN
                         fB = fA
                         TstarB = TstarA
                         factor = factor-10.d0
                   ELSE 
-                        factor = 100.d0
+                        factor = 20.d0
                   END IF
             END DO
         END SUBROUTINE s_compute_Tsat_bracket
@@ -1058,6 +1068,8 @@ MODULE m_phasechange
             !!       heat capacities, cv, reference energy per unit mass, q, coefficients for the
             !!       iteration procedure, A-D, and iteration variables, f and df
             !> @{
+            REAL(KIND(0d0)), INTENT(IN)    :: pressure
+            REAL(KIND(0d0))                :: f_Tsat, Tstar
             REAL(KIND(0d0))                ::  delta, delta_old, fp, dfdp
             REAL(KIND(0d0))                ::  fL, fH, TstarL, TstarH, TsatA, TsatB
             INTEGER :: iter                !< Generic loop iterators
