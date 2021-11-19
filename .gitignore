@@ -1,7 +1,6 @@
 tags
 src/*/tags
 doc/Doxygen/*/html
-doc/Doxygen/*logo*
 doc/Doxygen/*icon*
 src/*/*.mod
 src/*/*.o
