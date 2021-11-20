@@ -145,8 +145,8 @@ MODULE m_derived_variables
 
             INTEGER :: i,j,k !< Generic loop iterators
 
-            ! IF ((ANY(com_wrt) .OR. ANY(cb_wrt) .OR. probe_wrt) .AND. (t_step > t_step_start + 2)) THEN
-            IF ((ANY(com_wrt) .OR. ANY(cb_wrt) .OR. probe_wrt) ) THEN
+            IF ((ANY(com_wrt) .OR. ANY(cb_wrt) .OR. probe_wrt) .AND. (t_step > t_step_start + 2)) THEN
+            !IF ((ANY(com_wrt) .OR. ANY(cb_wrt) .OR. probe_wrt) ) THEN
                 IF (ANY(com_wrt)) THEN
                     CALL s_derive_center_of_mass(q_prim_ts(0)%vf, &
                                                  q_prim_ts(1)%vf, &
@@ -556,7 +556,6 @@ MODULE m_derived_variables
                                         -  2d0*(q_prim_vf3(i)%sf(j,k,l)*q_prim_vf3(mom_idx%beg+1)%sf(j,k,l)))/(6d0*dt)
                                     ! Volume fraction
                                     q_com(i,11) = q_com(i,11) + q_prim_vf(i+adv_idx%beg-1)%sf(j,k,l)*dV
-
                                 END DO
                             END DO
                         END DO

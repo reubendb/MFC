@@ -1847,7 +1847,8 @@ MODULE m_data_output
             REAL(KIND(0d0))                                   :: max_pres
             REAL(KIND(0d0)), DIMENSION(2)             :: Re
             REAL(KIND(0d0)), ALLOCATABLE, DIMENSION(:,:)      :: We
-            
+            REAL(KIND(0d0)), DIMENSION(num_fluids)            :: alpha_rho
+           
             INTEGER :: i,j,k,l,s !< Generic loop iterator
 
             REAL(KIND(0d0)) :: nondim_time !< Non-dimensional time
@@ -2000,6 +2001,7 @@ MODULE m_data_output
                             CALL s_convert_to_mixture_variables( q_cons_vf, rho, &
                                                  gamma, pi_inf, &
                                                  Re, We, j-2,k-2,l)
+
                             DO s = 1, num_dims
                                 vel(s) = q_cons_vf(cont_idx%end+s)%sf(j-2,k-2,l)/rho
                             END DO
@@ -2013,7 +2015,7 @@ MODULE m_data_output
                                     (rhoref*(1.d0-q_cons_vf(4)%sf(j-2,k-2,l)))  & 
                                     ) ** lit_gamma )                        &
                                     - pi_inf
-                            ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
+                            ELSE IF ((model_eqns == 2 .OR. model_eqns == 3) .AND. (bubbles .NEQV. .TRUE.)) THEN
                                 !Stiffened gas pressure from energy
                                 pres = (                                       & 
                                     q_cons_vf(E_idx)%sf(j-2,k-2,l)  -            &
@@ -2021,6 +2023,10 @@ MODULE m_data_output
                                     q_cons_vf(3)%sf(j-2,k-2,l)**2.d0)/q_cons_vf(1)%sf(j-2,k-2,l)) - &
                                     pi_inf &
                                     ) / gamma
+                                DO s = 1, num_fluids
+                                    alpha_rho(s) = q_cons_vf(E_idx+s)%sf(j-2,k-2,l)
+                                END DO
+
                             ELSE
                                 !Stiffened gas pressure from energy with bubbles
                                 pres = (                                       & 
@@ -2063,7 +2069,6 @@ MODULE m_data_output
                             ELSE
                                 c = SQRT(c)
                             END IF
-
                             accel = accel_mag(j-2,k-2,l)
                         END IF
                     END IF
@@ -2250,11 +2255,14 @@ MODULE m_data_output
                                 R(1), &
                                 Rdot(1)
                         ELSE
-                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8)') &
+                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 rho, &
                                 vel(1), &
-                                pres
+                                pres, & 
+                                alpha_rho(1), &
+                                alpha_rho(2), & 
+                                alpha_rho(3)
                         END IF
                     ELSE
                         WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
@@ -2531,7 +2539,7 @@ MODULE m_data_output
             ! going to be written to the CoM data files
             IF (ANY(com_wrt)) THEN
                 ! num_fluids, mass, x-loc, y-loc, z-loc, x-vel, y-vel, z-vel, x-acc, y-acc, z-acc
-                ALLOCATE(q_com(num_fluids,10))
+                ALLOCATE(q_com(num_fluids,11))
                 ! num_fluids, 2 lateral directions, 5 higher moment orders
                 ALLOCATE(moments(num_fluids,2,5))
             END IF
