@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit with an error code if any command herein fails
+set -e
+
 declare -a dependencies
 
 dependencies[0]="FFTW3|http://www.fftw.org/fftw-3.3.10.tar.gz"
