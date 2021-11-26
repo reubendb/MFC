@@ -17,14 +17,19 @@ jobs:
 
       - name: Fetch Aptitude Dependencies
         run: |
-          sudo apt install -y tar wget make gcc clang python3 openmpi-* python python-dev python3-dev
+          sudo apt install -y tar wget make cmake gcc g++ python3 openmpi-* python python-dev python3-dev libopenmpi-dev
 
       - name: Fetch & Install Dependencies (/dependencies)
         run: |
           cd dependencies
           ./install.sh -j $(nproc)
           cd ..
-      
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: dependency-logs
+          path: dependencies/log/
+
       - name: Build MFC
         run: make -j $(nproc)
       
