@@ -100,8 +100,8 @@ Operating Systems and package managers,
 
 Package Manager                                            | Suggested Command 
 ---                                                        | ---
-[Aptitude](https://wiki.debian.org/Aptitude) (Debian-like) | `sudo apt install tar wget make gcc g++ python3 openmpi-* python python-dev python3-dev`
-[Homebrew](https://brew.sh/) (macOS)                       | `brew install wget make python open-mpi make gcc`
+[Aptitude](https://wiki.debian.org/Aptitude) (Debian-like) | `sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev`
+[Homebrew](https://brew.sh/) (macOS)                       | `brew install wget make python open-mpi make cmake gcc`
 
 The following commands fetch and build the required dependencies to to the
 `dependencies/` folder within your MFC installation. This should have no impact on your
