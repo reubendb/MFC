@@ -49,3 +49,12 @@ endif
 
 # Compiler flags
 f90_post_flags = $(f90_flags) -O0 $(hd_post_flags)
+
+# The following assumes the use of a gcc-based fortran compiler
+# GFortran v10+ require -fallow-argument-mismatch to turn what were previously errors into warnings
+
+ALLOW_ARGUMENT_MISMATCH_TEST := $(shell expr "$$($(FC) -dumpversion)" ">=" "10")
+
+ifeq "$(ALLOW_ARGUMENT_MISMATCH_TEST)" "1"
+    FFLAGS := $(FFLAGS) -fallow-argument-mismatch
+endif
