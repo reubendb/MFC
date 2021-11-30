@@ -1,6 +1,6 @@
 #!/bin/bash
 
-./_install.sh
+./_install.sh "$@"
 
 exit_code=$?
 
