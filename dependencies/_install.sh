@@ -11,9 +11,8 @@ declare -a dependencies
 
 dependencies[0]="FFTW3|http://www.fftw.org/fftw-3.3.10.tar.gz"
 dependencies[1]="LAPACK|https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.0.tar.gz"
-dependencies[2]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.1/src/hdf5-1.12.1.tar.gz"
-dependencies[3]="OPENMPI|https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.2.tar.gz"
-dependencies[4]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
+dependencies[2]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
+dependencies[3]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
 
 dependencies_dir=$(pwd)
 src_dir=$dependencies_dir"/src"
@@ -126,20 +125,6 @@ cd $src_dir"/HDF5"
     echo "|  |--> Installing (w/ Make)..."
     make install prefix=$build_dir >> $log_filepath 2>&1
 
-# OPENMPI
-echo "+--+> OPENMPI"
-log_filepath=$log_dir"/OPENMPI.log"
-
-cd $src_dir"/OPENMPI"
-    echo "|  |--> Configuring (./configure)..."
-    ./configure --prefix=$build_dir > $log_filepath 2>&1
-
-    echo "|  |--> Building (w/ Make)..."
-    make "$@" >> $log_filepath 2>&1
-
-    echo "|  |--> Installing (w/ Make)..."
-    make install prefix=$build_dir >> $log_filepath 2>&1
-
 # SILO
 echo "+--+> SILO"
 log_filepath=$log_dir"/SILO.log"
@@ -147,6 +132,9 @@ log_filepath=$log_dir"/SILO.log"
 cd $src_dir"/SILO"
     export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --cflags)"
 
+    # We use the following flags
+    # CC=mpicc CXX=mpicxx
+    # So that "--with-hdf5" works...
     echo "|  |--> Configuring (./configure)..."
     ./configure --prefix=$build_dir --enable-pythonmodule --enable-optimization \
                 --disable-hzip      --disable-fpzip                             \
