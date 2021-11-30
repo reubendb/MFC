@@ -13,18 +13,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone MFC
+        uses: actions/checkout@v2
 
       - name: Fetch Aptitude Dependencies
         run: |
-          sudo apt install -y tar wget make gcc clang python3 openmpi-* python python-dev python3-dev
+          sudo apt install -y tar wget make cmake gcc g++ python3 openmpi-* python python-dev python3-dev libopenmpi-dev
 
-      - name: Fetch & Install Dependencies (/dependencies)
+      - name: Get Dependencies (/dependencies/install.sh)
         run: |
           cd dependencies
           ./install.sh -j $(nproc)
           cd ..
-      
+
+      - name: Upload /dependencies/logs
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: dependency-logs
+          path: dependencies/log/
+
       - name: Build MFC
         run: make -j $(nproc)
       
