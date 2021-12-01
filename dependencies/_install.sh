@@ -107,7 +107,7 @@ cd $lapack_staging_dir_absolute
           $src_dir"/LAPACK" > $log_filepath 2>&1
 
     echo "|  |--> Building (w/ Cmake)..."
-    cmake --build . -j --target install >> $log_filepath 2>&1
+    cmake --build . --target install >> $log_filepath 2>&1
 
 rm -rf $lapack_staging_dir_absolute
 
