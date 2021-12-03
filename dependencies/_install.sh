@@ -117,7 +117,7 @@ log_filepath=$log_dir"/HDF5.log"
 
 cd $src_dir"/HDF5"
     echo "|  |--> Configuring (./configure)..."
-    ./configure --prefix=$build_dir --enable-parallel --enable-deprecated-symbols > $log_filepath 2>&1
+    ./configure CC=mpicc CXX=mpicxx --prefix=$build_dir --enable-parallel --enable-deprecated-symbols > $log_filepath 2>&1
 
     echo "|  |--> Building (w/ Make)..."
     make "$@" >> $log_filepath 2>&1
