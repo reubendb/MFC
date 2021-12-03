@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Color ANSI Escape Sequences
+FG_RED='\033[0;31m'
+FG_GREEN='\033[0;32m'
+FG_ORANGE='\033[0;33m'
+FG_NONE='\033[0m'
+
 # Exit with an error code if any command herein fails
 set -e
 set -o pipefail
@@ -65,6 +71,83 @@ cd $src_dir
         fi
     done
 cd ..
+
+# 2) Add "build/<lib, bin, include, ...>" to the system's search path
+#
+# We append the export commands to every dotfile we can find because it's
+# tricky to know which ones will be executed and when, especially if the
+# user has multiple shells installed at the same time. There are also
+# some complexities with login and non-login shell sessions.
+#
+# The code we add to the dotfiles has include guards to prevent
+# errors and redundancy. Also, we only append to the dotfiles if
+# the header guard isn't set to prevent duplicates.
+
+echo 
+echo -------------------------------------------------------
+echo --------------- Exporting Library Paths ---------------
+echo -------------------------------------------------------
+echo 
+
+found_dotfile_count=0
+found_dotfile_list_string=""
+if [[ -z "${MFC_ENV_SH_HEADER_GUARD}" ]]; then 
+    export_cmds_0="export MFC_ENV_SH_HEADER_GUARD=\"SET\""
+    export_cmds_1="export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH:$build_dir/lib\""
+    full_dotfile_string="\n# --- [Added by MFC | Start Section] --- #\nif [[ -z \"\${MFC_ENV_SH_HEADER_GUARD}\" ]]; then \n\t$export_cmds_0 \n\t$export_cmds_1 \nfi \n# --- [Added by MFC | End Section]   --- #\n"
+
+    declare -a dotfile_paths
+
+    dotfile_names[0]=".bashrc"
+    dotfile_names[1]=".bash_profile"
+    dotfile_names[2]=".bash_login"
+    dotfile_names[3]=".profile"
+    dotfile_names[4]=".zshrc"
+    dotfile_names[5]=".cshrc"
+
+    i=1
+
+    for dotfile_name in "${dotfile_names[@]}"; do
+        dotfile_path=$HOME"/"$dotfile_name
+
+        echo -n "+--+> ($i/${#dotfile_names[@]}) $dotfile_path: "
+
+        if [[ -a "$dotfile_path" ]]; then
+            echo "Present."
+            echo -e $full_dotfile_string >> "$dotfile_path"
+
+            found_dotfile_count=$((found_dotfile_count+1))
+            
+            if [ $i -ne "1" ]; then
+                if [ $i -ne "${#dotfile_names[@]}" ]; then
+                    found_dotfile_list_string="$found_dotfile_list_string, "
+                else
+                    found_dotfile_list_string="$found_dotfile_list_string, and "
+                fi
+            fi
+
+            found_dotfile_list_string="$found_dotfile_list_string$dotfile_path"
+        else
+            echo "Absent."
+        fi
+
+        i=$((i+1))
+    done
+
+    if [ "$found_dotfile_count" -eq "0" ]; then
+        echo -e "$FG_RED\n"
+        echo "=================================================================================================="
+        echo "| [ERROR] Could not find any dotfiles where we could export the path to the installed libraries. |"
+        echo "=================================================================================================="
+        echo -e "$FG_NONE"
+        exit 1
+    fi
+
+    eval "$export_cmds_0"
+    eval "$export_cmds_1"
+else
+    echo "+--+> The MFC header guard already present, no library path will be exported."
+fi
 
 # 3) Build
 
@@ -133,7 +216,7 @@ cd $src_dir"/SILO"
     export PYTHON=python3
     export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --cflags)"
 
-    # We use the following flags
+    # We use the following parameters
     # CC=mpicc CXX=mpicxx
     # So that "--with-hdf5" works...
     echo "|  |--> Configuring (./configure)..."
@@ -149,8 +232,12 @@ cd $src_dir"/SILO"
     echo "|  |--> Installing (w/ Make)..."
     make install prefix=$build_dir >> $log_filepath 2>&1
 
-echo 
+echo -e "\n$FG_GREEN"
 echo "|-----------------------------------------------------|"
 echo "|-------------- Completed Successfully ---------------|"
 echo "|-----------------------------------------------------|"
-echo 
+echo -e "\n$FG_NONE"
+
+if [ "$found_dotfile_count" -ne "0" ]; then
+    echo -e "$FG_ORANGE\n\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). Please restart your shell before running MFC. \n\n$FG_NONE"
+fi
