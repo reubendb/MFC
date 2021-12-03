@@ -239,5 +239,5 @@ echo "|-----------------------------------------------------|"
 echo -e "\n$FG_NONE"
 
 if [ "$found_dotfile_count" -ne "0" ]; then
-    echo -e "$FG_ORANGE\n\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). Please restart your shell before running MFC. \n\n$FG_NONE"
+    echo -e "$FG_ORANGE\n\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). Please start a new shell session (e.g exec \$SHELL) before running MFC or source one of the listed dotfiles (e.g source ~/.bashrc). \n\n$FG_NONE"
 fi
