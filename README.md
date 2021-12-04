@@ -178,14 +178,14 @@ can also be found in [example_cases/3d_sphbubcollapse/](example_cases/3D_sphbubc
 MFC can be executed as  
 
 ```
-python pre_process
+./input.py pre_process
 ```
 
 which will generate the restart and grid files that will be read 
 by the simulation code. Then  
 
 ```
-python simulation
+./input.py simulation
 ```
 
 will execute the flow solver. The last (optional) step
@@ -193,7 +193,7 @@ is to post treat the data files and output HDF5 databases
 for the flow variables via  
 
 ```
-python post_process
+./input.py post_process
 ```
 
 # License
