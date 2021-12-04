@@ -6,10 +6,10 @@ import os
 with open(r'_data/publist.yml') as file:
 
     for pub in pubs:
-        for k,v in pub.items():
+        for k,v in list(pub.items()):
             if (k=='url'):
                 url=v
             if (k=='arxiv'):
-                print('working on ArXiv file ' + url)
+                print(('working on ArXiv file ' + url))
                 os.system("./scripts/arxiv2bib.py " + str(v) + " > papers/" + url +".txt")
 
