@@ -53,7 +53,7 @@ cd $src_dir
             echo "|  |--> Fetching "$name" @ "$link"."
 
             # Download Archive
-            wget -O $archive_filename -q --show-progress $link
+            wget -O $archive_filename -q $link
 
             mkdir -p $name
 
