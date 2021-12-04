@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import math
 
@@ -80,8 +80,8 @@ Nout = int(math.ceil(Nt/Nfiles))
 Nt = int(Nout*Nfiles)
 
 
-print('Web', We)
-print('Re_inv', Re_inv)
+print(('Web', We))
+print(('Re_inv', Re_inv))
 
 # Command to navigate between directories
 from os import chdir
