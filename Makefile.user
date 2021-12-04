@@ -18,9 +18,6 @@ FFLAGS = -cpp -c -w -Ofast
 # FFLAGS = -cpp -c -w -fimplicit-none  -Wall  -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all  -std=f2008  -pedantic  -fbacktrace
 #NOTE: Cray compilers require: -eZ
 
-######### LAPACK library location #########
-lapack_lib_dir = $(MFC_DIR)/dependencies/build/lib
-
 ######### FFTW library and include locations #########
 ######### Set these to the location of FFTW  #########
 
