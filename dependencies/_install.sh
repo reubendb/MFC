@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo 
+echo Please ensure you have an appropriate build environment
+echo Note: This file is meant to be called from within dependencies/
+echo 
+
 # Color ANSI Escape Sequences
 FG_RED='\033[0;31m'
 FG_GREEN='\033[0;32m'
@@ -11,6 +16,41 @@ set -e
 set -o pipefail
 set -o errtrace
 
+# Create some useful constants
+dependencies_dir=$(pwd)
+src_dir=$dependencies_dir"/src"
+build_dir=$dependencies_dir"/build"
+log_dir=$dependencies_dir"/log"
+
+# Create required directories
+mkdir -p src build log
+
+# 0) Pre-Flight Safety
+echo 
+echo "-------------------------------------------------------"
+echo "----------- Checking your build environment -----------"
+echo "-------------------------------------------------------"
+echo 
+
+declare -a required_commands
+
+required_commands[0]="make"
+required_commands[1]="cmake"
+required_commands[2]="wget"
+required_commands[3]="tar"
+
+echo "+ Command Existance"
+
+for required_command in "${required_commands[@]}"; do
+    echo -e -n "+--+> Checking existance of \"$required_command\"... "
+    if ! command -v $required_command &> /dev/null; then
+        echo -e $FG_RED"Not Found"$FG_NONE
+        exit 1
+    fi
+
+    echo -e $FG_GREEN"Found"$FG_NONE
+done
+
 # 1) Fetch
 
 declare -a dependencies
@@ -20,15 +60,6 @@ dependencies[1]="LAPACK|https://github.com/Reference-LAPACK/lapack/archive/refs/
 dependencies[2]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
 dependencies[3]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
 
-dependencies_dir=$(pwd)
-src_dir=$dependencies_dir"/src"
-build_dir=$dependencies_dir"/build"
-log_dir=$dependencies_dir"/log"
-
-mkdir -p src build log
-
-echo Please ensure you have an appropriate build environment
-echo Note: This file is meant to be called from within dependencies/
 echo 
 echo "-------------------------------------------------------"
 echo "---------------- Fetching Dependencies ----------------"
