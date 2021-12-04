@@ -51,6 +51,11 @@ for required_command in "${required_commands[@]}"; do
     echo -e $FG_GREEN"Found"$FG_NONE
 done
 
+# If running on the Expanse supercomputer
+if [[ $(env | grep -i 'expanse' | wc -c) -ne 0 ]]; then
+    module load numactl
+fi
+
 # 1) Fetch
 
 declare -a dependencies
