@@ -1,10 +1,5 @@
 #!/bin/bash
 
-echo 
-echo Please ensure you have an appropriate build environment
-echo Note: This file is meant to be called from within dependencies/
-echo 
-
 # Color ANSI Escape Sequences
 FG_RED='\033[0;31m'
 FG_GREEN='\033[0;32m'
@@ -15,6 +10,10 @@ FG_NONE='\033[0m'
 set -e
 set -o pipefail
 set -o errtrace
+
+echo 
+echo -e $FG_ORANGE"Please ensure you have an appropriate build environment."$FG_NONE
+echo -e $FG_ORANGE"Note: This file is meant to be called from within dependencies/."$FG_NONE
 
 # Create some useful constants
 dependencies_dir=$(pwd)
@@ -35,9 +34,10 @@ echo
 declare -a required_commands
 
 required_commands[0]="make"
-required_commands[1]="cmake"
-required_commands[2]="wget"
-required_commands[3]="tar"
+required_commands[1]="wget"
+required_commands[2]="tar"
+required_commands[3]="python3"
+required_commands[4]="python3-config"
 
 echo "+ Command Existance"
 
@@ -56,9 +56,8 @@ done
 declare -a dependencies
 
 dependencies[0]="FFTW3|http://www.fftw.org/fftw-3.3.10.tar.gz"
-dependencies[1]="LAPACK|https://github.com/Reference-LAPACK/lapack/archive/refs/tags/v3.10.0.tar.gz"
-dependencies[2]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
-dependencies[3]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
+dependencies[1]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
+dependencies[2]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
 
 echo 
 echo "-------------------------------------------------------"
@@ -75,30 +74,27 @@ cd $src_dir
         name="${arr[0]}"
         link="${arr[1]}"
 
-        echo "+--+> "$name
+        echo -n "+--+> "$name"... "
 
         # If we haven't downloaded it before (the directory named $name doesn't exist)
         if [ ! -d $(pwd)"/"$name ]; then
             archive_filename=$name".tar.gz"
             
-            echo "|  |--> Fetching "$name" @ "$link"."
-
-            # Download Archive
+            echo -e -n "\n|  |--> Downloading Source Code Archive... "
             wget -O $archive_filename -q $link
+            echo -e $FG_GREEN"Success"$FG_NONE
 
             mkdir -p $name
 
             cd $name
-                echo "|  |--> Uncompressing "$archive_filename"."
-
+                echo -n "|  |--> Uncompressing Downloaded Archive... "
                 tar --strip-components 1 -xf "../"$archive_filename
+                echo -e $FG_GREEN"Success"$FG_NONE
             cd ..
-
-            echo "|  |--> Removing "$archive_filename"."
             
             rm $archive_filename
         else
-            echo "|  |--> Skipping "$name" because it has already been downloaded."
+            echo -e $FG_GREEN"Nothing to do"$FG_NONE
         fi
     done
 cd ..
@@ -144,7 +140,7 @@ if [[ -z "${MFC_ENV_SH_HEADER_GUARD}" ]]; then
         echo -n "+--+> ($i/${#dotfile_names[@]}) $dotfile_path: "
 
         if [[ -a "$dotfile_path" ]]; then
-            echo "Present."
+            echo -e $FG_GREEN"Present."$FG_NONE
             echo -e $full_dotfile_string >> "$dotfile_path"
 
             found_dotfile_count=$((found_dotfile_count+1))
@@ -159,7 +155,7 @@ if [[ -z "${MFC_ENV_SH_HEADER_GUARD}" ]]; then
 
             found_dotfile_list_string="$found_dotfile_list_string$dotfile_path"
         else
-            echo "Absent."
+            echo -e $FG_ORANGE"Absent."$FG_NONE
         fi
 
         i=$((i+1))
@@ -177,7 +173,7 @@ if [[ -z "${MFC_ENV_SH_HEADER_GUARD}" ]]; then
     eval "$export_cmds_0"
     eval "$export_cmds_1"
 else
-    echo "+--+> The MFC header guard already present, no library path will be exported."
+    echo -e "+--+> "$FG_GREEN"The MFC header guard is already present."$FG_NONE$FG_ORANGE" No library path will be exported."$FG_NONE
 fi
 
 # 3) Build
@@ -186,61 +182,47 @@ echo
 echo -------------------------------------------------------
 echo ---------------- Building Dependencies ----------------
 echo -------------------------------------------------------
-echo Note: If any error occurs, please visit $log_dir/.
-echo Note: Building to $build_dir/.
+echo
+echo -e $FG_ORANGE"Note: If any error occurs, please visit $log_dir/."$FG_NONE
+echo -e $FG_ORANGE"Note: Building to $build_dir/."$FG_NONE
 echo 
 
 # FFTW3
-echo "+--+> FFTW3"
+echo "+--+> FFTW3..."
 log_filepath=$log_dir"/FFTW3.log"
 
 cd $src_dir"/FFTW3"
-    echo "|  |--> Configuring (w/ ./configure)..."
+    echo -n "|  |--> Configuring... "
     ./configure --prefix=$build_dir --enable-threads --enable-mpi > $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Building (w/ Make)..." 
+    echo -n "|  |--> Building... " 
     make "$@" >> $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Installing (w/ Make)..."
+    echo -n "|  |--> Installing... "
     make install >> $log_filepath 2>&1
-
-# LAPACK
-echo "+--+> LAPACK"
-log_filepath=$log_dir"/LAPACK.log"
-
-lapack_staging_dir_absolute=$build_dir"/temp-LAPACK"
-
-mkdir -p $lapack_staging_dir_absolute
-cd $lapack_staging_dir_absolute
-    echo "|  |--> Generating Build Files (w/ Cmake)..."
-    cmake -DCMAKE_INSTALL_PREFIX=$build_dir               \
-          -DCMAKE_INSTALL_LIBDIR=$build_dir"/lib"         \
-          -DCMAKE_INSTALL_FULL_LIBDIR=$build_dir"/lib"    \
-          -DCMAKE_INSTALL_INCLUDEDIR=$build_dir"/include" \
-          -DCMAKE_INSTALL_BINDIR=$build_dir"/bin"         \
-          $src_dir"/LAPACK" > $log_filepath 2>&1
-
-    echo "|  |--> Building (w/ Cmake)..."
-    cmake --build . --target install >> $log_filepath 2>&1
-
-rm -rf $lapack_staging_dir_absolute
+    echo -e $FG_GREEN"Success"$FG_NONE
 
 # HDF5
-echo "+--+> HDF5"
+echo "+--+> HDF5..."
 log_filepath=$log_dir"/HDF5.log"
 
 cd $src_dir"/HDF5"
-    echo "|  |--> Configuring (./configure)..."
+    echo -n "|  |--> Configuring... "
     ./configure CC=mpicc CXX=mpicxx --prefix=$build_dir --enable-parallel --enable-deprecated-symbols > $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Building (w/ Make)..."
+    echo -n "|  |--> Building... "
     make "$@" >> $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Installing (w/ Make)..."
+    echo -n "|  |--> Installing... "
     make install prefix=$build_dir >> $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
 # SILO
-echo "+--+> SILO"
+echo "+--+> SILO..."
 log_filepath=$log_dir"/SILO.log"
 
 cd $src_dir"/SILO"
@@ -250,18 +232,21 @@ cd $src_dir"/SILO"
     # We use the following parameters
     # CC=mpicc CXX=mpicxx
     # So that "--with-hdf5" works...
-    echo "|  |--> Configuring (./configure)..."
+    echo -n "|  |--> Configuring... "
     ./configure --prefix=$build_dir --enable-pythonmodule --enable-optimization \
                 --disable-hzip      --disable-fpzip                             \
                 FC=mpif90 F77=mpif77 CC=mpicc CXX=mpicxx                        \
                 --with-hdf5=$build_dir"/include",$build_dir"/lib"               \
                 --disable-silex > $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Building (w/ Make)..."
+    echo -n "|  |--> Building... "
     make "$@" >> $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
-    echo "|  |--> Installing (w/ Make)..."
+    echo -n "|  |--> Installing... "
     make install prefix=$build_dir >> $log_filepath 2>&1
+    echo -e $FG_GREEN"Success"$FG_NONE
 
 echo -e "\n$FG_GREEN"
 echo "|-----------------------------------------------------|"
