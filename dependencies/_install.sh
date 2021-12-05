@@ -232,7 +232,7 @@ log_filepath=$log_dir"/SILO.log"
 
 cd $src_dir"/SILO"
     export PYTHON=python3
-    export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --cflags)"
+    export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)"
 
     # We use the following parameters
     # CC=mpicc CXX=mpicxx
