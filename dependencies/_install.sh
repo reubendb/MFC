@@ -41,14 +41,17 @@ required_commands[4]="python3-config"
 
 echo "+ Command Existance"
 
+i=1
 for required_command in "${required_commands[@]}"; do
-    echo -e -n "+--+> Checking existance of \"$required_command\"... "
+    echo -e -n "+--+> ($i/${#required_commands[@]}) Checking existance of \"$required_command\"... "
     if ! command -v $required_command &> /dev/null; then
         echo -e $FG_RED"Not Found"$FG_NONE
         exit 1
     fi
 
     echo -e $FG_GREEN"Found"$FG_NONE
+
+    i=$((i+1))
 done
 
 # If running on the Expanse supercomputer
@@ -72,6 +75,7 @@ echo
 
 cd $src_dir
     # For each dependency
+    i=1
     for dependency in "${dependencies[@]}"; do    
         # Extract name and download link
         IFS="|" read -r -a arr <<< "${dependency}"
@@ -79,7 +83,7 @@ cd $src_dir
         name="${arr[0]}"
         link="${arr[1]}"
 
-        echo -n "+--+> "$name"... "
+        echo -n "+--+> ($i/${#dependencies[@]}) "$name"... "
 
         # If we haven't downloaded it before (the directory named $name doesn't exist)
         if [ ! -d $(pwd)"/"$name ]; then
@@ -101,6 +105,8 @@ cd $src_dir
         else
             echo -e $FG_GREEN"Nothing to do"$FG_NONE
         fi
+
+        i=$((i+1))
     done
 cd ..
 
@@ -193,7 +199,7 @@ echo -e $FG_ORANGE"Note: Building to $build_dir/."$FG_NONE
 echo 
 
 # FFTW3
-echo "+--+> FFTW3..."
+echo "+--+> (1/3) FFTW3..."
 log_filepath=$log_dir"/FFTW3.log"
 
 cd $src_dir"/FFTW3"
@@ -210,7 +216,7 @@ cd $src_dir"/FFTW3"
     echo -e $FG_GREEN"Success"$FG_NONE
 
 # HDF5
-echo "+--+> HDF5..."
+echo "+--+> (2/3) HDF5..."
 log_filepath=$log_dir"/HDF5.log"
 
 cd $src_dir"/HDF5"
@@ -227,7 +233,7 @@ cd $src_dir"/HDF5"
     echo -e $FG_GREEN"Success"$FG_NONE
 
 # SILO
-echo "+--+> SILO..."
+echo "+--+> (3/3) SILO..."
 log_filepath=$log_dir"/SILO.log"
 
 cd $src_dir"/SILO"
@@ -260,5 +266,7 @@ echo "|-----------------------------------------------------|"
 echo -e "\n$FG_NONE"
 
 if [ "$found_dotfile_count" -ne "0" ]; then
-    echo -e "$FG_ORANGE\n\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). Please start a new shell session (e.g exec \$SHELL) before running MFC or source one of the listed dotfiles (e.g source ~/.bashrc). \n\n$FG_NONE"
+    echo -e "$FG_ORANGE\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). \n$FG_NONE"
+    echo -e "$FG_GREEN""You are now in a new instance of your default shell ("$SHELL") and ready to build & run MFC! \n\n$FG_NONE"
+    exec "$SHELL"
 fi
