@@ -24,7 +24,7 @@ Now it is developed and maintained by the groups of Professors <a href="https://
 ## User's guide
  
   A user's guide is included 
-  <a href="https://github.com/MFlowCode/MFC/raw/master/doc/MFC_user_guide.pdf">here.</a>
+  <a href="https://github.com/ComputationalFlowPhysics/MFC/raw/master/doc/MFC_user_guide.pdf">here.</a>
  
 ## MFC paper
  
@@ -67,7 +67,6 @@ Now it is developed and maintained by the groups of Professors <a href="https://
         V. Coralic and T. Colonius (2014) Journal of Computational Physics, Vol. 274, pp. 95-121 
         </a>
  
- 
 Ph.D. Disserations:
 * <a href="https://thesis.library.caltech.edu/11395/">
         J.-C. Veilleux (2019) Ph.D. thesis, California Institute of Technology 
@@ -81,8 +80,6 @@ Ph.D. Disserations:
 * <a href="https://thesis.library.caltech.edu/8758/">
         V. Coralic (2014) Ph.D. thesis, California Institute of Technology
         </a>
-
-
 
 # Simple Installation
 
@@ -103,20 +100,15 @@ Package Manager                                            | Suggested Command
 [Aptitude](https://wiki.debian.org/Aptitude) (Debian-like) | `sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev`
 [Homebrew](https://brew.sh/) (macOS)                       | `brew install wget make python open-mpi make cmake gcc`
 
-The following commands fetch and build the required dependencies to to the
-`dependencies/` folder within your MFC installation. This should have no impact on your
-local installations of these packages.
+The following commands fetch and build MFC and its required dependencies? The dependencies are built 
+to the `dependencies/build/` folder within your MFC installation. This should have no impact on your
+local installation(s) of these packages.
 
 ```
-cd dependencies
-sh ./install.sh -j <num_threads>
+git clone --recursive https://github.com/MFlowCode/MFC
+cd MFC/dependencies
+./install.sh -j <num_threads>
 cd ..
-```
-
-You can now run `make -j <num_threads>` on MFC to build it, and check your
-installation by running tests with `make tests`.
-
-```
 make -j <num_threads>
 make tests
 ```

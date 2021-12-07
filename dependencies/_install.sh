@@ -33,13 +33,14 @@ echo
 
 declare -a required_commands
 
-required_commands[0]="make"
-required_commands[1]="wget"
-required_commands[2]="tar"
-required_commands[3]="python3"
-required_commands[4]="python3-config"
+required_commands[0]="git"
+required_commands[1]="make"
+required_commands[2]="wget"
+required_commands[3]="tar"
+required_commands[4]="python3"
+required_commands[5]="python3-config"
 
-echo "+ Command Existance"
+echo "+> Command Existance"
 
 i=1
 for required_command in "${required_commands[@]}"; do
@@ -64,14 +65,18 @@ fi
 declare -a dependencies
 
 dependencies[0]="FFTW3|http://www.fftw.org/fftw-3.3.10.tar.gz"
-dependencies[1]="HDF5|https://support.hdfgroup.org/ftp/HDF5/releases/hdf5-1.12/hdf5-1.12.0/src/hdf5-1.12.0.tar.gz"
-dependencies[2]="SILO|https://wci.llnl.gov/sites/wci/files/2021-09/silo-4.11.tgz"
 
 echo 
 echo "-------------------------------------------------------"
 echo "---------------- Fetching Dependencies ----------------"
 echo "-------------------------------------------------------"
 echo 
+
+echo -n "+--+> Fetching Submodules... "
+git submodule update --init --recursive
+echo -e $FG_GREEN"Success"$FG_NONE
+
+echo "+--+> Fetching Archives..."
 
 cd $src_dir
     # For each dependency
@@ -83,20 +88,20 @@ cd $src_dir
         name="${arr[0]}"
         link="${arr[1]}"
 
-        echo -n "+--+> ($i/${#dependencies[@]}) "$name"... "
+        echo -n "+  +--+> ($i/${#dependencies[@]}) "$name"... "
 
         # If we haven't downloaded it before (the directory named $name doesn't exist)
         if [ ! -d $(pwd)"/"$name ]; then
             archive_filename=$name".tar.gz"
             
-            echo -e -n "\n|  |--> Downloading Source Code Archive... "
+            echo -e -n "\n|     |--> Downloading Source Code Archive... "
             wget -O $archive_filename -q $link
             echo -e $FG_GREEN"Success"$FG_NONE
 
             mkdir -p $name
 
             cd $name
-                echo -n "|  |--> Uncompressing Downloaded Archive... "
+                echo -n "|     |--> Uncompressing Downloaded Archive... "
                 tar --strip-components 1 -xf "../"$archive_filename
                 echo -e $FG_GREEN"Success"$FG_NONE
             cd ..
