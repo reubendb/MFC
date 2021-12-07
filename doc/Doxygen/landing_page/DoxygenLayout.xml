@@ -3,9 +3,9 @@
   <!-- Navigation index tabs for HTML output -->
   <navindex>
       <tab type="mainpage" visible="no" title=""/>
-      <tab type="user" url="https://mfc-caltech.github.io/pre_process/index.html" title="Pre_process"/>
-    <tab type="user" url="https://mfc-caltech.github.io/simulation/index.html" title="Simulation"/>
-    <tab type="user" url="https://mfc-caltech.github.io/post_process/index.html" title="Post_process"/>
+      <tab type="user" url="https://mflowcode.github.io/pre_process/index.html" title="Pre_process"/>
+    <tab type="user" url="https://mflowcode.github.io/simulation/index.html" title="Simulation"/>
+    <tab type="user" url="https://mflowcode.github.io/post_process/index.html" title="Post_process"/>
   </navindex>
 
   <!-- Layout definition for a class page -->
