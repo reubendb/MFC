@@ -1,29 +1,3 @@
-!!       __  _______________
-!!      /  |/  / ____/ ____/
-!!     / /|_/ / /_  / /     
-!!    / /  / / __/ / /___   
-!!   /_/  /_/_/    \____/   
-!!                       
-!!  This file is part of MFC.
-!!
-!!  MFC is the legal property of its developers, whose names 
-!!  are listed in the copyright file included with this source 
-!!  distribution.
-!!
-!!  MFC is free software: you can redistribute it and/or modify
-!!  it under the terms of the GNU General Public License as published 
-!!  by the Free Software Foundation, either version 3 of the license 
-!!  or any later version.
-!!
-!!  MFC is distributed in the hope that it will be useful,
-!!  but WITHOUT ANY WARRANTY; without even the implied warranty of
-!!  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-!!  GNU General Public License for more details.
-!!  
-!!  You should have received a copy of the GNU General Public License
-!!  along with MFC (LICENSE).  
-!!  If not, see <http://www.gnu.org/licenses/>.
-
 !>
 !! @file m_bubbles.f90
 !! @brief Contains module m_bubbles
@@ -445,7 +419,7 @@ MODULE m_bubbles
             IF (Re_inv/=dflt_real) cdot_star = cdot_star + 4d0*Re_inv*((fV/fR)**2d0)
 
             tmp1 = fV/fC
-            tmp2 = 1.5D0*(fV**2d0)*( tmp1/2d0-1d0 ) +   &
+            tmp2 = 1.5D0*(fV**2d0)*( tmp1/3d0-1d0 ) +   &
                    (1d0 + tmp1)*(fCpbw - fCp)/fRho  +   &
                    cdot_star * fR/(fRho*fC)
 

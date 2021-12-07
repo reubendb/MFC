@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import math
 
@@ -41,7 +41,7 @@ R0ref   = 10.E-06
 
 pa      = 0.1 * 1.E+06 / 101325.
 
-print('pa',pa)
+print(('pa',pa))
 
 #Characteristic velocity
 uu = math.sqrt( p0/rho0 )

@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Color ANSI Escape Sequences
+FG_RED='\033[0;31m'
+FG_GREEN='\033[0;32m'
+FG_ORANGE='\033[0;33m'
+FG_NONE='\033[0m'
+
 ### Note: Designed to be run from MFC root directory, not tests/
 
 rm -rf ./tests/*/D ./tests/*/*.inp ./tests/*/p_all ./tests/*/*.out
@@ -19,8 +25,8 @@ for mytest in "${mytests[@]}"; do
     cd $mytest
         
         #Run test case
-        ./input.py pre_process > pre_process.out
-        ./input.py  simulation > simulation.out
+        /usr/bin/env python3 ./input.py pre_process > pre_process.out
+        /usr/bin/env python3 ./input.py  simulation > simulation.out
         
         cd check
             check_file=$(echo *)
@@ -33,13 +39,13 @@ for mytest in "${mytests[@]}"; do
         mytest="Test $i of $ntest: $mytest"
         #Print if not
         if [ -s diff.txt ]; then
-            echo $mytest: Test failed! Output files are different.
+            echo -e $mytest": "$FG_RED"Test failed! Output files are different."$FG_NONE
             ((++nfail))
         elif [ ! -f "D/$check_file" ]; then
-            echo $mytest: Test failed! Output file was not found.
+            echo -e $mytest": "$FG_RED"Test failed! Output file was not found."$FG_NONE
             ((++nfail))
         else
-            echo $mytest: Test passed!
+            echo -e $mytest": "$FG_GREEN"Test passed!"$FG_NONE
             ((++npass))
         fi
 
@@ -49,5 +55,10 @@ for mytest in "${mytests[@]}"; do
 done
 
 echo -----------------------------------------------
-echo ---- $nfail Tests failed
-echo ---- $npass Tests passed
+echo -e ---- $FG_RED$nfail Tests failed$FG_NONE
+echo -e ---- $FG_GREEN$npass Tests passed$FG_NONE
+
+# Proper Exit Code
+#      0 - Success
+# Not(0) - Fail (1 or more tests)
+exit $nfail

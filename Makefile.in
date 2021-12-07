@@ -17,12 +17,6 @@ else
 ld_sim_flags = 
 endif
 
-ifdef lapack_lib_dir
-ld_sim_flags += -L$(lapack_lib_dir) -llapack -lblas
-else 
-ld_sim_flags = 
-endif
-
 # Header flags
 ifdef fftw_include_dir
 hd_flags = -I$(fftw_include_dir)
@@ -51,3 +45,15 @@ endif
 
 # Compiler flags
 f90_post_flags = $(f90_flags) -O0 $(hd_post_flags)
+
+# Check if GFortran is used (GNU Fortran)
+USES_GCC=$(shell expr "$$($(FC) --version | grep -i 'GNU' | wc -l)")
+
+ifneq ("$(USES_GCC)", "0")
+    # GFortran v10+ require -fallow-argument-mismatch to turn what were previously errors into warnings
+    ALLOW_ARGUMENT_MISMATCH_TEST := $(shell expr "$$($(FC) -dumpversion | cut -f1 -d.)" ">=" "10")
+
+    ifeq ("$(ALLOW_ARGUMENT_MISMATCH_TEST)", "1")
+        FFLAGS := $(FFLAGS) -fallow-argument-mismatch
+    endif
+endif

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import math
 
@@ -12,10 +12,10 @@ c0      = math.sqrt( p0/rho0 )
 #patm    = 101325./p0
 patm    = 1.
 
-print 'x0', x0
-print 'p0', p0
-print 'c0', c0
-print 'rho0', rho0
+print('x0', x0)
+print('p0', p0)
+print('c0', c0)
+print('rho0', rho0)
 
 pl0     = p0 #101325.0
 rhol0   = rho0 #998.2063
@@ -87,14 +87,14 @@ mydt    = cfl*dx/cref
 Tend    = 0.4*leng/cref
 Nt      = int(Tend/mydt)
 
-print 'leng = ', leng
-print 'Rnet = ', Rnet
-print 'Thickness = ', Thickness
+print('leng = ', leng)
+print('Rnet = ', Rnet)
+print('Thickness = ', Thickness)
 
-print 'maximum initial sound speed = ', cref
-print 'dt, Nt = ', mydt, Nt
-print 'Ma = ', vv/cref
-print 'Re_inv, We, Ca = ', Re_inv, We, Ca
+print('maximum initial sound speed = ', cref)
+print('dt, Nt = ', mydt, Nt)
+print('Ma = ', vv/cref)
+print('Re_inv, We, Ca = ', Re_inv, We, Ca)
 
 # Command to navigate between directories
 from os import chdir

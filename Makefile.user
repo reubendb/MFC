@@ -10,18 +10,19 @@ FC = mpif90
 #Note: Requires -cpp to enable preprocessor 
 
 FFLAGS = -cpp -c -w -O2
-# FFLAGS = -cpp -c -w -freal-4-real-8 -O2 -fimplicit-none  -Wall  -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all  -pedantic  -fbacktrace
+# FFLAGS = -cpp -c -w -fast -Minfo=accel
+# FFLAGS = -cpp -c -w -freal-4-real-8 -O3 -fallow-argument-mismatch
+# FFLAGS = -cpp -c -w -freal-4-real-8 -O3 -pg -fallow-argument-mismatch
+# FFLAGS = -cpp -c -w -freal-4-real-8 -O3
+# FFLAGS = -cpp -c -w -fimplicit-none  -Wall  -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all  -std=f2008  -pedantic  -fbacktrace
 #NOTE: Cray compilers require: -eZ
-
-######### LAPACK library location #########
-lapack_lib_dir = $(MFC_DIR)/lib/lapack-3.4.2/
 
 ######### FFTW library and include locations #########
 ######### Set these to the location of FFTW  #########
 
 ## For the FFTW included in the MFC package
-fftw_lib_dir     = $(MFC_DIR)/lib/fftw-3.3.8/lib
-fftw_include_dir = $(MFC_DIR)/lib/fftw-3.3.8/include
+fftw_lib_dir     = $(MFC_DIR)/dependencies/build/lib
+fftw_include_dir = $(MFC_DIR)/dependencies/build/include
 
 ## Other possible locatins [only use absolute paths]
 #fftw_lib_dir = /usr/local/lib
@@ -32,8 +33,8 @@ fftw_include_dir = $(MFC_DIR)/lib/fftw-3.3.8/include
 ######### Set these to the location of Silo  #########
 #########   [  only use absolute paths   ]   #########
 
-silo_lib_dir = /home/mrdz/packages/silo/lib
-silo_include_dir = /home/mrdz/packages/silo/include
+silo_lib_dir     = $(MFC_DIR)/dependencies/build/lib
+silo_include_dir = $(MFC_DIR)/dependencies/build/include
 
 #silo_lib_dir = /home/spencer/packages/silo-4.10.2/lib
 #silo_include_dir = /home/spencer/packages/silo-4.10.2/include
