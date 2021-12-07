@@ -2061,7 +2061,8 @@ MODULE m_data_output
                                     pi_inf &
                                     ) / gamma
                                 DO s = 1, num_fluids
-                                    alpha_rho(s) = q_cons_vf(E_idx+s)%sf(j-2,k-2,l)
+                                    alpha(s) = q_cons_vf(E_idx+s)%sf(j-2,k-2,l)
+                                    alpha_rho(s) = q_cons_vf(s)%sf(j-2,k-2,l)
                                 END DO
 
                             ELSE
@@ -2314,14 +2315,15 @@ MODULE m_data_output
                                 R(1), &
                                 Rdot(1)
                         ELSE
-                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8)') &
+                            WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8)') &
                                 nondim_time, &
                                 rho, &
                                 vel(1), &
                                 pres, & 
-                                alpha_rho(1), &
-                                alpha_rho(2), & 
-                                alpha_rho(3)
+                                alpha_rho(1)/rho, &
+                                alpha_rho(2)/rho, & 
+                                alpha_rho(3)/rho, & 
+                                alpha(2)
                         END IF
                     ELSE
                         WRITE(i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,' // &
