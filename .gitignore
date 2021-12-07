@@ -1,3 +1,5 @@
+tags
+src/*/tags
 doc/Doxygen/*/html
 doc/Doxygen/*logo*
 doc/Doxygen/*icon*
@@ -21,12 +23,14 @@ tests/*/silo*
 tests/*/restart*
 tests/*/*.out
 tests/*/binary
+example_cases/*batch/*/
 example_cases/*/D/*
 example_cases/*/p*
 example_cases/*/D_*
 example_cases/*/*.inf
 example_cases/*/*.inp
 example_cases/*/*.dat
+example_cases/*/*.o*
 example_cases/*/silo*
 example_cases/*/restart*
 example_cases/*/*.out

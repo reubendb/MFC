@@ -13,7 +13,6 @@ FFLAGS = -cpp -c -w -O2
 # FFLAGS = -cpp -c -w -freal-4-real-8 -O2 -fimplicit-none  -Wall  -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all  -pedantic  -fbacktrace
 #NOTE: Cray compilers require: -eZ
 
-
 ######### LAPACK library location #########
 lapack_lib_dir = $(MFC_DIR)/lib/lapack-3.4.2/
 

@@ -969,6 +969,7 @@ MODULE m_cbc
                 L(i) = lambda(2)*(dadv_ds(i-mom_idx%end))
             END DO
             
+            ! bubble index
             L(adv_idx%end) = 0d0
             
             
