@@ -34,4 +34,6 @@ example_cases/*/silo*
 example_cases/*/restart*
 example_cases/*/*.out
 example_cases/*/binary
-dependencies/*/
+dependencies/build/
+dependencies/log/
+dependencies/src/FFTW3
