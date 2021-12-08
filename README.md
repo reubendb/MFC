@@ -24,7 +24,7 @@ Now it is developed and maintained by the groups of Professors <a href="https://
 ## User's guide
  
   A user's guide is included 
-  <a href="https://github.com/ComputationalFlowPhysics/MFC/raw/master/doc/MFC_user_guide.pdf">here.</a>
+  <a href="https://github.com/MFlowCode/MFC/raw/master/doc/MFC_user_guide.pdf">here.</a>
  
 ## MFC paper
  
@@ -100,8 +100,8 @@ Package Manager                                            | Suggested Command
 [Aptitude](https://wiki.debian.org/Aptitude) (Debian-like) | `sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev`
 [Homebrew](https://brew.sh/) (macOS)                       | `brew install wget make python open-mpi make cmake gcc`
 
-The following commands fetch and build MFC and its required dependencies? The dependencies are built 
-to the `dependencies/build/` folder within your MFC installation. This should have no impact on your
+The following commands fetch and build MFC and its required dependencies. The dependencies are built 
+to the `dependencies/build/` directory within your MFC installation. This should have no impact on your
 local installation(s) of these packages.
 
 ```
