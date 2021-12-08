@@ -31,26 +31,50 @@ echo "----------- Checking your build environment -----------"
 echo "-------------------------------------------------------"
 echo 
 
-declare -a required_commands
+declare -a REQUIRED_COMMANDS
 
-required_commands[0]="git"
-required_commands[1]="make"
-required_commands[2]="wget"
-required_commands[3]="tar"
-required_commands[4]="python3"
-required_commands[5]="python3-config"
+REQUIRED_COMMANDS[0]="git"
+REQUIRED_COMMANDS[1]="make"
+REQUIRED_COMMANDS[2]="wget|curl"
+REQUIRED_COMMANDS[3]="tar"
+REQUIRED_COMMANDS[4]="python3"
+REQUIRED_COMMANDS[5]="python3-config"
+
+declare -A COMMANDS
 
 echo "+> Command Existance"
 
 i=1
-for required_command in "${required_commands[@]}"; do
-    echo -e -n "+--+> ($i/${#required_commands[@]}) Checking existance of \"$required_command\"... "
-    if ! command -v $required_command &> /dev/null; then
-        echo -e $FG_RED"Not Found"$FG_NONE
+for required_command_opt_list in "${REQUIRED_COMMANDS[@]}"; do
+    echo -e "+--+> ($i/${#REQUIRED_COMMANDS[@]}) Searching for "$(echo $required_command_opt_list | sed s/\|/\ or\ /)"... "
+
+    # Extract name and download link
+    IFS="|" read -r -a required_command_options <<< "${required_command_opt_list}"
+
+    j=1
+    found_required_command=""
+    for required_command_option in "${required_command_options[@]}"; do
+        echo -e -n "+  +--+> ($j/${#required_command_options[@]}) "$required_command_option"... "
+        if command -v $required_command_option &> /dev/null; then
+            echo -e $FG_GREEN"Found"$FG_NONE
+
+            if [ "$found_required_command" == "" ]; then
+                found_required_command=$required_command_option
+            fi
+        else
+            echo -e $FG_ORANGE"Not Found"$FG_NONE
+        fi
+        j=$((j+1))
+    done
+
+    if [ ! "$found_required_command" == "" ]; then
+        echo -e "+  +--+> "$FG_GREEN"Selected $found_required_command."$FG_NONE
+
+        COMMANDS[${required_command_options[0]}]=$found_required_command
+    else
+        echo -e "+  +--+> "$FG_RED"Failed to find any of the above utilities (only 1 required)."$FG_NONE
         exit 1
     fi
-
-    echo -e $FG_GREEN"Found"$FG_NONE
 
     i=$((i+1))
 done
@@ -95,7 +119,17 @@ cd $src_dir
             archive_filename=$name".tar.gz"
             
             echo -e -n "\n|     |--> Downloading Source Code Archive... "
-            wget -O $archive_filename -q $link
+
+            case ${COMMANDS[wget]} in
+            "wget")
+                wget -O $archive_filename -q $link
+                ;;
+
+            "curl")
+                curl -s $link --output $archive_filename
+                ;;
+            esac
+
             echo -e $FG_GREEN"Success"$FG_NONE
 
             mkdir -p $name
