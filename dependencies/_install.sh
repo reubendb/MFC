@@ -48,7 +48,7 @@ i=1
 for required_command_opt_list in "${REQUIRED_COMMANDS[@]}"; do
     echo -e "+--+> ($i/${#REQUIRED_COMMANDS[@]}) Searching for "$(echo $required_command_opt_list | sed s/\|/\ or\ /)"... "
 
-    # Extract name and download link
+    # Extract each alternative
     IFS="|" read -r -a required_command_options <<< "${required_command_opt_list}"
 
     j=1
