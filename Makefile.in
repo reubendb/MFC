@@ -47,13 +47,13 @@ endif
 f90_post_flags = $(f90_flags) -O0 $(hd_post_flags)
 
 # Check if GFortran is used (GNU Fortran)
-USES_GCC=$(shell expr "$$($(FC) --version | grep -i 'GNU' | wc -l)")
+# USES_GCC=$(shell expr "$$($(FC) --version | grep -i 'GNU' | wc -l)")
 
-ifneq ("$(USES_GCC)", "0")
-    # GFortran v10+ require -fallow-argument-mismatch to turn what were previously errors into warnings
-    ALLOW_ARGUMENT_MISMATCH_TEST := $(shell expr "$$($(FC) -dumpversion | cut -f1 -d.)" ">=" "10")
+# ifneq ("$(USES_GCC)", "0")
+#     # GFortran v10+ require -fallow-argument-mismatch to turn what were previously errors into warnings
+#     ALLOW_ARGUMENT_MISMATCH_TEST := $(shell expr "$$($(FC) -dumpversion | cut -f1 -d.)" ">=" "10")
 
-    ifeq ("$(ALLOW_ARGUMENT_MISMATCH_TEST)", "1")
-        FFLAGS := $(FFLAGS) -fallow-argument-mismatch
-    endif
-endif
+#     ifeq ("$(ALLOW_ARGUMENT_MISMATCH_TEST)", "1")
+#         FFLAGS := $(FFLAGS) -fallow-argument-mismatch
+#     endif
+# endif
