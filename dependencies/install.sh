@@ -1,83 +1,18 @@
 #!/usr/bin/env bash
 
-# Logo generated here - and then modified - https://patorjk.com/software/taag/#p=moreopts&c=echo&f=Isometric2&t=MFC.
-function print_logo() {
-    echo -en "\033[0;34m"
-    echo "      ___           ___           ___     "
-    echo "     /\\  \\         /\\__\\         /\\__\\    "
-    echo "    |##\\  \\       /#/ _/_       /#/  /    "
-    echo "    |#|#\\  \\     /#/ /\\__\\     /#/  /     "
-    echo "  __|#|\#\\  \\   /#/ /#/  /    /#/  /  ___ "
-    echo " /####|_\#\\__\\ /#/_/#/  /    /#/__/  /\\__\\"
-    echo " \\#\\~~\\  \\/__/ \\#\\/#/  /     \\#\\  \\ /#/  /"
-    echo "  \\#\\  \\        \\##/__/       \\#\\  /#/  / "
-    echo "   \\#\\  \\        \\#\\  \\        \\#\\/#/  /  "
-    echo "    \\#\\__\\        \\#\\__\\        \\##/  /   "
-    echo "     \\/__/         \\/__/         \\/__/    "
-    echo -e "\033[0m"
-}
+if [ ! -f ./install.sh ]; then
+    echo -e "\033[0;31mError: You must call this script from within the 'dependencies' folder.\n\033[0m"
+    exit 1
+fi
 
-print_logo
-
-echo -e "${COLORS[ORANGE]}\nPlease run ./install.sh <-h|--help> for more information.\n${COLORS[NONE]}"
-
-# Helper Functions
-
-function print_centered_text() { printf "%*s\n" $(((${#1}+$(tput cols))/2)) "$1" ; }
-function print_line_of_char()  { printf "%$(tput cols)s\n" | tr " " "$1"         ; }
-function print_bounded_line()  { printf "|| %-$(($(tput cols)-6))s ||" "$1"      ; }
-function clear_line()          { echo -en "\r\033[2K"                            ; }
-
-# Error Handling
-
-function on_exit() {
-    exit_code=$?
-
-    if [[ exit_code -ne "0" ]]; then
-        echo -e "\033[0;31m"
-        print_line_of_char "="
-        print_bounded_line "Fatal Error"
-        print_bounded_line "---> Exit Code ($exit_code)."
-        print_bounded_line "---> Take a look at the output above."
-        print_bounded_line "---> Some stages output logs to log/."
-        print_bounded_line "---> Please ensure your build environment is adequate (view README.md)."
-        print_line_of_char "="
-        echo -e "\033[0m"
-        exit $exit_code
-    fi
-}
-
-trap on_exit EXIT ; set -e ; set -o pipefail ; set -o errtrace
-
-# Check Shell Compatibility
-
-SEHLL_TEST_COMMANDS=("declare -A __shell_test_dict__")
-
-i=1
-for shell_test_command in "${SEHLL_TEST_COMMANDS[@]}"; do
-    clear_line
-    echo -en "\r|--> ($i/${#SEHLL_TEST_COMMANDS[@]}) Checking whether \"$shell_test_command\" runs..."
-    if ! ($shell_test_command); then
-        clear_line
-        echo -e "\r|--> \033[0;31mFailed to run \"$shell_test_command\". Please check your shell is supported and up to date\033[0m."
-        echo -e "\r|--> \033[0;33mNotably, macOS is known to run older versions of Bash\033[0m."
-        exit 1
-    fi
-    i=$((i+1))
-done
-
-clear_line
-echo -e "\r|--> \033[0;32mSuccessfully ran shell compatibility checks\033[0m."
+source ../misc/shell_base.sh install.sh
 
 # Start of install.sh
 
-declare -A DOWNLOADED_DEPENDENCIES COLORS            DEFAULT_UTILITIES \
+declare -A DOWNLOADED_DEPENDENCIES DEFAULT_UTILITIES \
            CHECK_UTILITIES         DIRECTORIES       USED_UTILITIES
 
 DOWNLOADED_DEPENDENCIES=( ["FFTW3"]="http://www.fftw.org/fftw-3.3.10.tar.gz" )
-
-COLORS=( [RED]="\033[0;31m"    [GREEN]="\033[0;32m" \
-         [ORANGE]="\033[0;33m" [NONE]="\033[0m"     )
 
 DEFAULT_UTILITIES=( [GIT]="git"         [MAKE]="make"                     \
                     [WGET]="wget|curl"  [TAR]="tar"                       \
@@ -91,19 +26,12 @@ DOTFILE_FILENAMES=( ".bashrc" ".bash_profile" ".bash_login" ".profile" \
 DIRECTORIES=( [DEPENDENCIES]="$(pwd)" [SRC]="$(pwd)/src" \
               [BUILD]="$(pwd)/build"  [LOG]="$(pwd)/log" )
 
-SPIN_ANIMATION=("-" "\\" "|" "/")
-
 SLEEP_DURATION=0.1
 
 JOB_COUNT=1
 
 CFLAGS=""
 CPPFLAGS=""
-
-if [ ! -f ./install.sh ]; then
-    echo -e "${COLORS[RED]}Error: You must call this script from within the 'dependencies' folder.\n${COLORS[NONE]}"
-    exit 1
-fi
 
 function show_help() {
     echo -e "Usage: ./install.sh ${COLORS[ORANGE]}[options]${COLORS[NONE]}                                                                                  "
@@ -120,32 +48,6 @@ function show_help() {
     echo -e "  ${COLORS[ORANGE]}-ff   [X] --fortran-flags       [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran compiler's flags."
 
     echo -e "\nProvided courtesy of MFC (https://github.com/MFlowCode/MFC)."
-}
-
-function show_command_running() {
-    base_string="$1" ; shift
-
-    # A visial cue if "$@" fails right away
-    echo -en "$base_string ${SPIN_ANIMATION[0]}"
-
-    SECONDS=0
-    "$@" &
-
-    pid=$!
-    while ps -p $pid &>/dev/null; do
-        for ((i=0;i<${#SPIN_ANIMATION[@]};i++)); do
-            echo -en "\r$base_string ${SPIN_ANIMATION[$i]} ($(("$SECONDS" / 60))m $(("$SECONDS" % 60))s)"
-            sleep 0.25
-        done
-    done
-
-    # Once the command has finished running, we run `wait` to get its exit code
-    wait $pid
-}
-
-function log_command() {
-    log_filepath="$1" ; shift
-    "$@" >> "$log_filepath" 2>&1
 }
 
 while [[ $# -gt 0 ]]; do
