@@ -5,8 +5,13 @@
 SCRIPT_FILENAME="$1" # String
 DO_SHOW_HEADER="$2"  # T/F
 SPIN_ANIMATION=("-" "\\" "|" "/")
-SPIN_ANIMATION_WAIT=0.25
 SEHLL_TEST_COMMANDS=("declare -A __shell_test_dict__")
+
+# Array indexing starts at:
+# - Bash: 0
+# - Zsh:  1...why?
+tmp=(1 0)
+FIRST_ARRAY_IDX=${tmp[1]}
 
 # Logo generated here:
 # https://patorjk.com/software/taag/#p=moreopts&c=echo&f=Isometric2&t=MFC.
@@ -52,7 +57,11 @@ function print_bounded_line() {
 }
 
 function clear_line() {
-    echo -en "\r\033[2K"
+    if [ ! -z ${TERM+x} ]; then
+        echo -en "\r\033[2K"
+    else
+        echo 
+    fi
 }
 
 function show_command_running() {
@@ -62,13 +71,18 @@ function show_command_running() {
     echo -en "$base_string ${SPIN_ANIMATION[0]}"
 
     SECONDS=0
-    "$@" &
+    "$@" 2>&1 > /dev/null &
+
+    echo -n "$base_string ${SPIN_ANIMATION[$i]}..."
 
     pid=$!
     while ps -p $pid &>/dev/null; do
-        for ((i=0;i<${#SPIN_ANIMATION[@]};i++)); do
-            echo -en "\r$base_string ${SPIN_ANIMATION[$i]} ($(("$SECONDS" / 60))m $(("$SECONDS" % 60))s)"
-            sleep $SPIN_ANIMATION_WAIT
+        for ((i=0;i<${#SPIN_ANIMATION[@]};i++)); do            
+            if [ ! -z ${TERM+x} ]; then
+                clear_line
+                echo -e -n "\r$base_string ${SPIN_ANIMATION[$i]} ($(("$SECONDS" / 60))m $(("$SECONDS" % 60))s)"
+            fi
+            sleep 0.25
         done
     done
 
@@ -79,6 +93,20 @@ function show_command_running() {
 function log_command() {
     log_filepath="$1" ; shift
     "$@" >> "$log_filepath" 2>&1
+}
+
+function was_shell_option_used() {
+    # $1: e.g "$@": "-cc -cpp --no-header"
+    # $2: e.g "-cc"
+    # Result: true
+
+    match_count="$(echo "$1" | sed "s/\ /\n/g" | grep "\\$2" | wc -l)"
+
+    if [[ "$match_count" == "0" ]]; then
+        return 1 # false (ah yes... 1==false)
+    else
+        return 0 # true
+    fi
 }
 
 # Print Default Text
@@ -111,7 +139,7 @@ function on_exit() {
     exit_code=$?
 
     if [[ exit_code -ne "0" ]]; then
-        echo -e "\033[0;31m"
+        echo -e "\n\033[0;31m"
         print_line_of_char "="
         print_bounded_line "Fatal Error"
         print_bounded_line "---> Exit Code ($exit_code)."
@@ -127,5 +155,10 @@ trap on_exit EXIT ; set -e ; set -o pipefail ; set -o errtrace
 
 # Define Colors
 
-declare -A COLORS=( [RED]="\033[0;31m"    [GREEN]="\033[0;32m" \
-                    [ORANGE]="\033[0;33m" [NONE]="\033[0m"     )
+if [ ! -z ${TERM+x} ]; then
+    declare -A COLORS=( [RED]="\033[0;31m"    [GREEN]="\033[0;32m" \
+                        [ORANGE]="\033[0;33m" [NONE]="\033[0m"     )
+else
+    declare -A COLORS=( [RED]=""    [GREEN]="" \
+                        [ORANGE]="" [NONE]=""  )
+fi
