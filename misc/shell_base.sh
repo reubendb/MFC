@@ -33,7 +33,7 @@ END
 # Helper Functions
 
 function print_centered_text() {
-    if [ ! -z ${TERM+x} ]; then
+    if [ -t 1 ]; then
         printf "%*s\n" $(((${#1}+$(tput cols))/2)) "$1"
     else
         echo "$1"
@@ -41,7 +41,7 @@ function print_centered_text() {
 }
 
 function print_line_of_char() {
-    if [ ! -z ${TERM+x} ]; then
+    if [ -t 1 ]; then
         printf "%$(tput cols)s\n" | tr " " "$1"
     else
         echo "$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1$1"
@@ -49,7 +49,7 @@ function print_line_of_char() {
 }
 
 function print_bounded_line() {
-    if [ ! -z ${TERM+x} ]; then
+    if [ -t 1 ]; then
         printf "|| %-$(($(tput cols)-6))s ||" "$1"
     else
         echo "|| $1 ||"
@@ -57,7 +57,7 @@ function print_bounded_line() {
 }
 
 function clear_line() {
-    if [ ! -z ${TERM+x} ]; then
+    if [ -t 1 ]; then
         echo -en "\r\033[2K"
     else
         echo 
@@ -78,7 +78,7 @@ function show_command_running() {
     pid=$!
     while ps -p $pid &>/dev/null; do
         for ((i=0;i<${#SPIN_ANIMATION[@]};i++)); do            
-            if [ ! -z ${TERM+x} ]; then
+            if [ -t 1 ]; then
                 clear_line
                 echo -e -n "\r$base_string ${SPIN_ANIMATION[$i]} ($(("$SECONDS" / 60))m $(("$SECONDS" % 60))s)"
             fi
@@ -155,7 +155,7 @@ trap on_exit EXIT ; set -e ; set -o pipefail ; set -o errtrace
 
 # Define Colors
 
-if [ ! -z ${TERM+x} ]; then
+if [ -t 1 ]; then
     declare -A COLORS=( [RED]="\033[0;31m"    [GREEN]="\033[0;32m" \
                         [ORANGE]="\033[0;33m" [NONE]="\033[0m"     )
 else
