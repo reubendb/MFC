@@ -5,7 +5,12 @@ if [ ! -f ./install.sh ]; then
     exit 1
 fi
 
-source ../misc/shell_base.sh install.sh
+DO_SHOW_HEADER=true
+if [[ $@ == *"--no-header"* ]] || [[ $@ == *"-nh"* ]]; then
+    DO_SHOW_HEADER=false
+fi
+
+source ../misc/shell_base.sh install.sh $DO_SHOW_HEADER
 
 # Start of install.sh
 
@@ -26,28 +31,48 @@ DOTFILE_FILENAMES=( ".bashrc" ".bash_profile" ".bash_login" ".profile" \
 DIRECTORIES=( [DEPENDENCIES]="$(pwd)" [SRC]="$(pwd)/src" \
               [BUILD]="$(pwd)/build"  [LOG]="$(pwd)/log" )
 
-SLEEP_DURATION=0.1
-
 JOB_COUNT=1
 
 CFLAGS=""
 CPPFLAGS=""
 
 function show_help() {
-    echo -e "Usage: ./install.sh ${COLORS[ORANGE]}[options]${COLORS[NONE]}                                                                                  "
-    echo "Options:                                                                                                                                          "
-    echo -e "  ${COLORS[ORANGE]}-h,       --help                   ${COLORS[NONE]} Prints this message and exits.                                           "
-    echo -e "  ${COLORS[ORANGE]}-c,       --clean                  ${COLORS[NONE]} Cleans.                                                                  "
-    echo -e "  ${COLORS[ORANGE]}-j    [N] --jobs                [N]${COLORS[NONE]} Allows for ${COLORS[ORANGE]}'N'${COLORS[NONE]} concurrent jobs.          "
-    echo -e "  ${COLORS[ORANGE]}-cc   [X] --c-compiler          [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler.              "
-    echo -e "  ${COLORS[ORANGE]}-cppc [X] --cpp-compiler        [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler.            "
-    echo -e "  ${COLORS[ORANGE]}-fc77 [X] --fortran-compiler-77 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 77 compiler.     "
-    echo -e "  ${COLORS[ORANGE]}-fc90 [X] --fortran-compiler-90 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 90 compiler.     "
-    echo -e "  ${COLORS[ORANGE]}-cf   [X] --c-flags             [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler's flags.      "
-    echo -e "  ${COLORS[ORANGE]}-cppf [X] --cpp-flags           [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler's flags.    "
+    echo -e "Usage: ./install.sh ${COLORS[ORANGE]}[options]${COLORS[NONE]}"
+    echo "Options:"
+    echo -e "  ${COLORS[ORANGE]}-h,       --help                   ${COLORS[NONE]} Prints this message and exits."
+    echo -e "  ${COLORS[ORANGE]}-nh,      --no-header              ${COLORS[NONE]} Does not print the usual MFC header before executing the script."
+    echo -e "  ${COLORS[ORANGE]}-c,       --clean                  ${COLORS[NONE]} Cleans."
+    echo -e "  ${COLORS[ORANGE]}-j    [N] --jobs                [N]${COLORS[NONE]} Allows for ${COLORS[ORANGE]}'N'${COLORS[NONE]} concurrent jobs."
+    echo -e "  ${COLORS[ORANGE]}-cc   [X] --c-compiler          [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler."
+    echo -e "  ${COLORS[ORANGE]}-cppc [X] --cpp-compiler        [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler."
+    echo -e "  ${COLORS[ORANGE]}-fc77 [X] --fortran-compiler-77 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 77 compiler."
+    echo -e "  ${COLORS[ORANGE]}-fc90 [X] --fortran-compiler-90 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 90 compiler."
+    echo -e "  ${COLORS[ORANGE]}-cf   [X] --c-flags             [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler's flags."
+    echo -e "  ${COLORS[ORANGE]}-cppf [X] --cpp-flags           [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler's flags."
     echo -e "  ${COLORS[ORANGE]}-ff   [X] --fortran-flags       [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran compiler's flags."
 
     echo -e "\nProvided courtesy of MFC (https://github.com/MFlowCode/MFC)."
+}
+
+function clean() {
+    directory_paths="${DIRECTORIES[LOG]} ${DIRECTORIES[BUILD]}"
+
+    echo -en "\r|--> Removing $directory_paths..."
+    rm -rf $directory_paths
+
+    i=1
+    for dependency_name in "${!DOWNLOADED_DEPENDENCIES[@]}"; do
+        directory_path="${DIRECTORIES[SRC]}:?/$dependency_name"
+
+        clear_line
+        echo -en "\r|--> ($i/${#DOWNLOADED_DEPENDENCIES[@]}) Remvoing $directory_path..."
+        
+        rm -rf "$directory_path"
+        i=$((i+1))
+    done
+
+    clear_line
+    echo -e "\r|--> ${COLORS[GREEN]}Cleaned.${COLORS[NONE]}"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -61,12 +86,9 @@ while [[ $# -gt 0 ]]; do
         -j   |--jobs               ) JOB_COUNT="$2"             ; shift ; shift ;;
         -cf  |--c-flags            ) CFLAGS="$2"                ; shift ; shift ;;
         -cppf|--cpp-flags          ) CPPFLAGS="$2"              ; shift ; shift ;;
-        -c   |--clean              )
-            rm -rf "${DIRECTORIES[LOG]}" "${DIRECTORIES[BUILD]}"
-            for dependency_name in "${!DOWNLOADED_DEPENDENCIES[@]}"; do
-                rm -rf "${DIRECTORIES[SRC]}:?/$dependency_name"
-            done
-            exit 0
+        -nh  |--no-header          )                                      shift ;;
+        -c   |--clean              )                              shift ;
+            clean
             ;;
         *                          )
             echo -e "${COLORS[RED]}Error: Unknown command line option \"$option\".${COLORS[NONE]}"
@@ -117,8 +139,6 @@ function check_command_existance() {
         fi
 
         i=$((i+1))
-
-        sleep $SLEEP_DURATION
     done
 
     clear_line
@@ -174,7 +194,7 @@ clear_line
 
 N_DEPENDENCIES=$(find "${DIRECTORIES[SRC]}" -mindepth 1 -maxdepth 1 -type d | wc -l)
 
-echo -en "\r|--> ${COLORS[GREEN]}Successfully fetched the source code of all $N_DEPENDENCIES dependencies${COLORS[NONE]}: "
+echo -en "\r|--> ${COLORS[GREEN]}Fetched the source code of all $N_DEPENDENCIES dependencies${COLORS[NONE]}: "
 
 i=1 ; for entry in "${DIRECTORIES[SRC]}"/*; do
     if [ -d "$entry" ]; then
@@ -239,8 +259,6 @@ if [[ -z "${MFC_ENV_SH_HEADER_GUARD}" ]]; then
         
         printf "\r$line_color| %5s | %-70s | %-7s |${COLORS[NONE]}"         \
                "$i/${#DOTFILE_FILENAMES[@]}" "$dotfile_path" "$status_text"
-
-        sleep $SLEEP_DURATION
 
         i=$((i+1))
     done
@@ -332,7 +350,7 @@ cd "${DIRECTORIES[SRC]}/SILO"
             make install prefix="${DIRECTORIES[BUILD]}"                       \
     clear_line
 
-echo -e "\r|--> ${COLORS[GREEN]}Successfully built all $N_DEPENDENCIES dependencies${COLORS[NONE]}."
+echo -e "\r|--> ${COLORS[GREEN]}Built all $N_DEPENDENCIES dependencies${COLORS[NONE]}."
 
 print_logo
 
