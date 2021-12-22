@@ -2,14 +2,15 @@
 
 # Constants
 
-SCRIPT_FILENAME="$1"
+SCRIPT_FILENAME="$1" # String
+DO_SHOW_HEADER="$2"  # T/F
 SPIN_ANIMATION=("-" "\\" "|" "/")
 SPIN_ANIMATION_WAIT=0.25
 SEHLL_TEST_COMMANDS=("declare -A __shell_test_dict__")
 
 # Logo generated here:
 # https://patorjk.com/software/taag/#p=moreopts&c=echo&f=Isometric2&t=MFC.
-MFC_LOGO=$(cat <<-END
+MFC_HEADER=$(cat <<-END
 \033[0;34m      ___           ___           ___ 
      /\\  \\         /\\__\\         /\\__\\      \033[0mMulti-component Flow Code\033[0;34m 
     |##\\  \\       /#/ _/_       /#/  / 
@@ -82,7 +83,9 @@ function log_command() {
 
 # Print Default Text
 
-echo -e "$MFC_LOGO\n"
+if [ $DO_SHOW_HEADER = true ]; then
+    echo -e "$MFC_HEADER\n"
+fi
 
 # Check Shell Compatibility
 
@@ -100,7 +103,7 @@ for shell_test_command in "${SEHLL_TEST_COMMANDS[@]}"; do
 done
 
 clear_line
-echo -e "\r|--> \033[0;32mSuccessfully ran shell compatibility checks.\033[0m\n"
+echo -e "\r|--> \033[0;32mRan shell compatibility checks.\033[0m"
 
 # Error Handling
 
