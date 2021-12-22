@@ -5,6 +5,7 @@ if [ ! -f ./install.sh ]; then
     exit 1
 fi
 
+# Note: We shouldn't use wildcards here
 DO_SHOW_HEADER=true
 if [[ $@ == *"--no-header"* ]] || [[ $@ == *"-nh"* ]]; then
     DO_SHOW_HEADER=false
@@ -13,6 +14,41 @@ fi
 source ../misc/shell_base.sh install.sh $DO_SHOW_HEADER
 
 # Start of install.sh
+
+function show_help() {
+    echo -e "Usage: ./install.sh ${COLORS[ORANGE]}[optional options]${COLORS[NONE]}"
+    echo "Optional options:"
+    echo -e "  ${COLORS[ORANGE]}-h    (--help)                    ${COLORS[NONE]}Prints this message and exits."
+    echo -e "  ${COLORS[ORANGE]}-nh   (--no-header)               ${COLORS[NONE]}Does not print the usual MFC header before executing the script."
+    echo -e "  ${COLORS[ORANGE]}-c    (--clean)                   ${COLORS[NONE]}Cleans."
+    echo -e "  ${COLORS[ORANGE]}-b    (--build)               [X] ${COLORS[NONE]}Builds all dependencies defined in ${COLORS[ORANGE]}X${COLORS[NONE]} (Default=all). ${COLORS[ORANGE]}X${COLORS[NONE]} is a list of comma-separated dependency names."
+    echo -e "  ${COLORS[ORANGE]}-j    (--jobs)                [N] ${COLORS[NONE]}Allows for ${COLORS[ORANGE]}N${COLORS[NONE]} concurrent jobs."
+    echo -e "  ${COLORS[ORANGE]}-cc   (--c-compiler)          [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the C compiler."
+    echo -e "  ${COLORS[ORANGE]}-cppc (--cpp-compiler)        [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the CPP compiler."
+    echo -e "  ${COLORS[ORANGE]}-fc77 (--fortran-compiler-77) [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the Fortran 77 compiler."
+    echo -e "  ${COLORS[ORANGE]}-fc90 (--fortran-compiler-90) [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the Fortran 90 compiler."
+    echo -e "  ${COLORS[ORANGE]}-cf   (--c-flags)             [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the C compiler's flags."
+    echo -e "  ${COLORS[ORANGE]}-cppf (--cpp-flags)           [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the CPP compiler's flags."
+    echo -e "  ${COLORS[ORANGE]}-ff   (--fortran-flags)       [X] ${COLORS[NONE]}Uses ${COLORS[ORANGE]}X${COLORS[NONE]} as the Fortran compiler's flags."
+
+    echo -e "\nExample: ./install.sh -b fftw3,hdf5,silo -j 8 -cc mpicc"
+
+    echo -e "\nProvided courtesy of MFC (https://github.com/MFlowCode/MFC).\n"
+}
+
+if was_shell_option_used "$*" "-h"; then
+    show_help
+    exit 0
+fi
+
+# Fetch submodules
+
+show_command_running "|--> Fetching submodules... "    \
+                     git submodule update --init --recursive
+clear_line
+echo -e "\r|--> ${COLORS[GREEN]}Fetched submodules.${COLORS[NONE]}"
+
+# CONSTANTS & GLOBAL VARIABLES
 
 declare -A DOWNLOADED_DEPENDENCIES DEFAULT_UTILITIES \
            CHECK_UTILITIES         DIRECTORIES       USED_UTILITIES
@@ -35,24 +71,23 @@ JOB_COUNT=1
 
 CFLAGS=""
 CPPFLAGS=""
+FFLAGS=""
 
-function show_help() {
-    echo -e "Usage: ./install.sh ${COLORS[ORANGE]}[options]${COLORS[NONE]}"
-    echo "Options:"
-    echo -e "  ${COLORS[ORANGE]}-h,       --help                   ${COLORS[NONE]} Prints this message and exits."
-    echo -e "  ${COLORS[ORANGE]}-nh,      --no-header              ${COLORS[NONE]} Does not print the usual MFC header before executing the script."
-    echo -e "  ${COLORS[ORANGE]}-c,       --clean                  ${COLORS[NONE]} Cleans."
-    echo -e "  ${COLORS[ORANGE]}-j    [N] --jobs                [N]${COLORS[NONE]} Allows for ${COLORS[ORANGE]}'N'${COLORS[NONE]} concurrent jobs."
-    echo -e "  ${COLORS[ORANGE]}-cc   [X] --c-compiler          [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler."
-    echo -e "  ${COLORS[ORANGE]}-cppc [X] --cpp-compiler        [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler."
-    echo -e "  ${COLORS[ORANGE]}-fc77 [X] --fortran-compiler-77 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 77 compiler."
-    echo -e "  ${COLORS[ORANGE]}-fc90 [X] --fortran-compiler-90 [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran 90 compiler."
-    echo -e "  ${COLORS[ORANGE]}-cf   [X] --c-flags             [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the C compiler's flags."
-    echo -e "  ${COLORS[ORANGE]}-cppf [X] --cpp-flags           [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the CPP compiler's flags."
-    echo -e "  ${COLORS[ORANGE]}-ff   [X] --fortran-flags       [X]${COLORS[NONE]} Uses ${COLORS[ORANGE]}'X'${COLORS[NONE]} as the Fortran compiler's flags."
+DEPENDENCY_NAMES=()
+DEPENDENCY_NAMES_TO_BUILD=()
 
-    echo -e "\nProvided courtesy of MFC (https://github.com/MFlowCode/MFC)."
-}
+# Fetch the names of all dependencies (submodules + downloads)
+
+DEPENDENCY_NAMES+=("${!DOWNLOADED_DEPENDENCIES[@]}")
+
+submodule_count="$(git submodule status | wc -l)"
+index=0 ; while [[ "$index" != "$submodule_count" ]]; do
+    DEPENDENCY_NAMES+=("$(git submodule status | tac | tac | head -n $((index+1)) | tail -n 1 | sed "s/\ /\n/g" | head -n 3 | tail -n 1 | sed "s/src\///g")")
+
+    index=$((index+1))
+done
+
+DEPENDENCY_NAMES_TO_BUILD=("${DEPENDENCY_NAMES[@]}")
 
 function clean() {
     directory_paths="${DIRECTORIES[LOG]} ${DIRECTORIES[BUILD]}"
@@ -71,6 +106,17 @@ function clean() {
         i=$((i+1))
     done
 
+    for dependency_name in "${DEPENDENCY_NAMES[@]}"; do
+        if [ -d "src/$dependency_name" ]; then
+            clear_line
+            echo -en "\r|--> Cleaning src/$dependency_name..."
+            
+            cd "src/$dependency_name"
+            make clean 2>&1 > /dev/null
+            cd "../../"
+        fi
+    done
+
     clear_line
     echo -e "\r|--> ${COLORS[GREEN]}Cleaned.${COLORS[NONE]}"
 }
@@ -78,7 +124,6 @@ function clean() {
 while [[ $# -gt 0 ]]; do
     option="$1"
     case $option in
-        -h   |--help               ) show_help                  ; exit  0       ;;
         -cc  |--c-compiler         ) CHECK_UTILITIES[CC]="$2"   ; shift ; shift ;;
         -fc77|--fortran-compiler-77) CHECK_UTILITIES[FC77]="$2" ; shift ; shift ;;
         -fc90|--fortran-compiler-90) CHECK_UTILITIES[FC90]="$2" ; shift ; shift ;;
@@ -86,13 +131,47 @@ while [[ $# -gt 0 ]]; do
         -j   |--jobs               ) JOB_COUNT="$2"             ; shift ; shift ;;
         -cf  |--c-flags            ) CFLAGS="$2"                ; shift ; shift ;;
         -cppf|--cpp-flags          ) CPPFLAGS="$2"              ; shift ; shift ;;
+        -ff  |--fortran-flags      ) FFLAGS="$2"                ; shift ; shift ;;
         -nh  |--no-header          )                                      shift ;;
-        -c   |--clean              )                              shift ;
-            clean
-            ;;
+        -c   |--clean              ) clean                              ; shift ;;
+        -b   |--build              ) 
+            DEPENDENCY_NAMES_TO_BUILD=()
+
+            tmp="$(echo "$2" | sed "s/,/\n/g")"
+
+            i=1
+            while [[ "$i" != "$(($(echo "$tmp" | wc -l)+1))" ]]; do
+                input_name="$(echo "$tmp" | tac | tac | head -n $i | tail -n 1 | sed "s/[0-9]//g" | tr "[:lower:]" "[:upper:]")"
+                found_dependency_name=""
+
+                # Check for a match
+                bFoundMatch=false
+                for dependency_name in "${DEPENDENCY_NAMES[@]}"; do
+                    if [[ "$input_name" == "$(echo "$dependency_name" | sed "s/[0-9]//g" | tr "[:lower:]" "[:upper:]")" ]]; then
+                        bFoundMatch=true
+                        found_dependency_name="$dependency_name"
+                        break
+                    fi
+                done
+
+                if [ $bFoundMatch = false ]; then
+                    echo -e "|--> ${COLORS[RED]}Failed to find dependency \"$dependency_name\".${COLORS[NONE]}"
+                    echo -e "|--> ${COLORS[ORANGE]}Please check your <-b|--build> options.${COLORS[NONE]}"
+                    exit 1
+                fi
+
+                # Check for duplicates
+                if [[ ! "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "${found_dependency_name}" ]]; then
+                    DEPENDENCY_NAMES_TO_BUILD+=("$found_dependency_name")
+                fi
+
+                i=$((i+1))
+            done
+
+            shift ; shift ;;
         *                          )
-            echo -e "${COLORS[RED]}Error: Unknown command line option \"$option\".${COLORS[NONE]}"
-            echo "Please run ./install.sh <-h|--help> for more information."
+            echo -e "|--> ${COLORS[RED]}Error: Unknown command line option \"$option\".${COLORS[NONE]}"
+            echo -e "|--> ${COLORS[ORANGE]}Please run ./install.sh <-h|--help> for more information.${COLORS[NONE]}"
             exit 1
             ;; 
     esac
@@ -153,15 +232,11 @@ if [[ $(env | grep -i 'expanse' | wc -c) -ne 0 ]]; then
     module load numactl
 fi
 
-show_command_running "|--> (1/2) Fetching Submodules... "    \
-                     git submodule update --init --recursive
-clear_line
-
 cd "${DIRECTORIES[SRC]}"
     i=1 ; for dependency_name in "${!DOWNLOADED_DEPENDENCIES[@]}"; do
         dependency_link=${DOWNLOADED_DEPENDENCIES[$dependency_name]}
 
-        base_string="|--> (2/2) Fetching Archives - ($i/${#DOWNLOADED_DEPENDENCIES[@]}) $dependency_name"
+        base_string="|--> Fetching Archives - ($i/${#DOWNLOADED_DEPENDENCIES[@]}) $dependency_name"
 
         # If we haven't downloaded it before (the directory named $name doesn't exist)
         if [ ! -d "$(pwd)/$dependency_name" ]; then
@@ -194,7 +269,7 @@ clear_line
 
 N_DEPENDENCIES=$(find "${DIRECTORIES[SRC]}" -mindepth 1 -maxdepth 1 -type d | wc -l)
 
-echo -en "\r|--> ${COLORS[GREEN]}Fetched the source code of all $N_DEPENDENCIES dependencies${COLORS[NONE]}: "
+echo -en "\r|--> ${COLORS[GREEN]}Fetched the source code of all $N_DEPENDENCIES dependencies (downloads and submodules)${COLORS[NONE]}: "
 
 i=1 ; for entry in "${DIRECTORIES[SRC]}"/*; do
     if [ -d "$entry" ]; then
@@ -213,7 +288,6 @@ i=1 ; for entry in "${DIRECTORIES[SRC]}"/*; do
         i=$((i+1))
     fi
 done
-
 
 # 2) Add "build/<lib, bin, include, ...>" to the system's search path
 #
@@ -280,28 +354,44 @@ else
     echo -e "|--> ${COLORS[GREEN]}The MFC header guard is already present${COLORS[NONE]}: ${COLORS[ORANGE]}No library path will be exported."${COLORS[NONE]}
 fi
 
-log_filepath="${DIRECTORIES[LOG]}/FFTW3.log"
-cd "${DIRECTORIES[SRC]}/FFTW3"
-    show_command_running "|--> (1/$N_DEPENDENCIES) FFTW3: (1/3) Configuring..." \
+dependency_build_counter=0
+
+if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "FFTW3" ]]; then
+    dependency_build_counter=$((dependency_build_counter+1))
+
+    log_filepath="${DIRECTORIES[LOG]}/FFTW3.log"
+    
+    cd "${DIRECTORIES[SRC]}/FFTW3"
+    
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (1/3) Configuring..." \
         log_command "$log_filepath"                                             \
             ./configure --prefix="${DIRECTORIES[BUILD]}"                        \
-            --enable-threads                                                    \
-            --enable-mpi
+                        --enable-threads                                        \
+                        --enable-mpi
     clear_line
 
-    show_command_running "|--> (1/$N_DEPENDENCIES) FFTW3: (2/3) Building..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (2/3) Building..." \
         log_command "$log_filepath"                                          \
-            make -j "$JOB_COUNT" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS"
+            make -j "$JOB_COUNT"      \
+                FFLAGS="$FFLAGS"     \
+                CFLAGS="$CFLAGS"     \
+                CPPFLAGS="$CPPFLAGS"
     clear_line
 
-    show_command_running "|--> (1/$N_DEPENDENCIES) FFTW3: (3/3) Installing..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (3/3) Installing..." \
         log_command "$log_filepath"                                            \
             make install
     clear_line
+fi
 
-log_filepath="${DIRECTORIES[LOG]}/HDF5.log"
-cd "${DIRECTORIES[SRC]}/HDF5"
-    show_command_running "|--> (2/$N_DEPENDENCIES) HDF5: (1/3) Configuring..." \
+if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "HDF5" ]]; then
+    dependency_build_counter=$((dependency_build_counter+1))
+
+    log_filepath="${DIRECTORIES[LOG]}/HDF5.log"
+    
+    cd "${DIRECTORIES[SRC]}/HDF5"
+    
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (1/3) Configuring..." \
         log_command "$log_filepath"                                            \
             ./configure --enable-parallel                                      \
                         --enable-deprecated-symbols                            \
@@ -310,22 +400,31 @@ cd "${DIRECTORIES[SRC]}/HDF5"
                         CXX="${USED_UTILITIES[CPPC]}"
     clear_line
 
-    show_command_running "|--> (2/$N_DEPENDENCIES) HDF5: (2/3) Building..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (2/3) Building..." \
         log_command "$log_filepath"                                         \
-            make -j "$JOB_COUNT" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS"
+            make -j "$JOB_COUNT"      \
+                 FFLAGS="$FFLAGS"     \
+                 CFLAGS="$CFLAGS"     \
+                 CPPFLAGS="$CPPFLAGS"
     clear_line
 
-    show_command_running "|--> (2/$N_DEPENDENCIES) HDF5: (3/3) Installing..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (3/3) Installing..." \
         log_command "$log_filepath"                                           \
             make install prefix="${DIRECTORIES[BUILD]}"
     clear_line
+fi
 
-log_filepath="${DIRECTORIES[LOG]}/SILO.log"
-cd "${DIRECTORIES[SRC]}/SILO"
+if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "SILO" ]]; then
+    dependency_build_counter=$((dependency_build_counter+1))
+
+    log_filepath="${DIRECTORIES[LOG]}/SILO.log"
+    
+    cd "${DIRECTORIES[SRC]}/SILO"
+    
     export PYTHON=python3
     export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)"
 
-    show_command_running "|--> (3/$N_DEPENDENCIES) SILO: (1/3) Configuring..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (1/3) Configuring..." \
         log_command "$log_filepath"                                            \
             ./configure --prefix="${DIRECTORIES[BUILD]}"                       \
                         --disable-hzip                                         \
@@ -340,22 +439,26 @@ cd "${DIRECTORIES[SRC]}/SILO"
                         CXX="${USED_UTILITIES[CPPC]}"
     clear_line
 
-    show_command_running "|--> (3/$N_DEPENDENCIES) SILO: (2/3) Building..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (2/3) Building..." \
         log_command "$log_filepath"                                         \
-            make -j "$JOB_COUNT" CFLAGS="$CFLAGS" CPPFLAGS="$CPPFLAGS"
+            make -j "$JOB_COUNT"      \
+                 FFLAGS="$FFLAGS"     \
+                 CFLAGS="$CFLAGS"     \
+                 CPPFLAGS="$CPPFLAGS"
     clear_line
 
-    show_command_running "|--> (3/$N_DEPENDENCIES) SILO: (3/3) Installing..." \
+    show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (3/3) Installing..." \
         log_command "$log_filepath"                                           \
             make install prefix="${DIRECTORIES[BUILD]}"                       \
     clear_line
+fi
 
-echo -e "\r|--> ${COLORS[GREEN]}Built all $N_DEPENDENCIES dependencies${COLORS[NONE]}."
+echo -e "\r|--> ${COLORS[GREEN]}Built all ${#DEPENDENCY_NAMES_TO_BUILD[@]} dependencies${COLORS[NONE]}."
 
-print_logo
+echo -e "$MFC_HEADER"
 
 if [ "$found_dotfile_count" -ne "0" ]; then
     echo -e "${COLORS[ORANGE]}\n[WARNING] MFC's dependency install script added code to $found_dotfile_count dotfiles ($found_dotfile_list_string) in order to correctly configure your environement variables (such as LD_LIBRARY_PATH). \n${COLORS[NONE]}"
-    echo -e "${COLORS[GREEN]}You are now in a new instance of your default shell ($SHELL) and ready to build & run MFC! \n\n${COLORS[NONE]}"
+    echo -e "${COLORS[GREEN]}You are now in a new instance of your default shell ($SHELL) and ready to build & run MFC! \n${COLORS[NONE]}"
     exec "$SHELL"
 fi
