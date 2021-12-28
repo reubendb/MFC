@@ -364,22 +364,22 @@ if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "FFTW3" ]]; then
     cd "${DIRECTORIES[SRC]}/FFTW3"
     
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (1/3) Configuring..." \
-        log_command "$log_filepath"                                             \
-            ./configure --prefix="${DIRECTORIES[BUILD]}"                        \
-                        --enable-threads                                        \
+        log_command "$log_filepath"                                                                                      \
+            ./configure --prefix="${DIRECTORIES[BUILD]}"                                                                 \
+                        --enable-threads                                                                                 \
                         --enable-mpi
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (2/3) Building..." \
-        log_command "$log_filepath"                                          \
-            make -j "$JOB_COUNT"      \
-                FFLAGS="$FFLAGS"     \
-                CFLAGS="$CFLAGS"     \
+        log_command "$log_filepath"                                                                                   \
+            make -j "$JOB_COUNT"                                                                                      \
+                FFLAGS="$FFLAGS"                                                                                      \
+                CFLAGS="$CFLAGS"                                                                                      \
                 CPPFLAGS="$CPPFLAGS"
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) FFTW3: (3/3) Installing..." \
-        log_command "$log_filepath"                                            \
+        log_command "$log_filepath"                                                                                     \
             make install
     clear_line
 fi
@@ -392,24 +392,24 @@ if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "HDF5" ]]; then
     cd "${DIRECTORIES[SRC]}/HDF5"
     
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (1/3) Configuring..." \
-        log_command "$log_filepath"                                            \
-            ./configure --enable-parallel                                      \
-                        --enable-deprecated-symbols                            \
-                        --prefix="${DIRECTORIES[BUILD]}"                       \
-                        CC="${USED_UTILITIES[CC]}"                             \
+        log_command "$log_filepath"                                                                                     \
+            ./configure --enable-parallel                                                                               \
+                        --enable-deprecated-symbols                                                                     \
+                        --prefix="${DIRECTORIES[BUILD]}"                                                                \
+                        CC="${USED_UTILITIES[CC]}"                                                                      \
                         CXX="${USED_UTILITIES[CPPC]}"
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (2/3) Building..." \
-        log_command "$log_filepath"                                         \
-            make -j "$JOB_COUNT"      \
-                 FFLAGS="$FFLAGS"     \
-                 CFLAGS="$CFLAGS"     \
+        log_command "$log_filepath"                                                                                  \
+            make -j "$JOB_COUNT"                                                                                     \
+                 FFLAGS="$FFLAGS"                                                                                    \
+                 CFLAGS="$CFLAGS"                                                                                    \
                  CPPFLAGS="$CPPFLAGS"
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) HDF5: (3/3) Installing..." \
-        log_command "$log_filepath"                                           \
+        log_command "$log_filepath"                                                                                    \
             make install prefix="${DIRECTORIES[BUILD]}"
     clear_line
 fi
@@ -425,31 +425,28 @@ if [[ "${DEPENDENCY_NAMES_TO_BUILD[*]}" =~ "SILO" ]]; then
     export PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)"
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (1/3) Configuring..." \
-        log_command "$log_filepath"                                            \
-            ./configure --prefix="${DIRECTORIES[BUILD]}"                       \
-                        --disable-hzip                                         \
-                        --disable-fpzip                                        \
-                        --disable-silex                                        \
-                        --enable-pythonmodule                                  \
-                        --enable-optimization                                  \
-                        --with-hdf5="${DIRECTORIES[BUILD]}/include","${DIRECTORIES[BUILD]}/lib" \
-                        FC="${USED_UTILITIES[FC90]}"                           \
-                        F77="${USED_UTILITIES[FC77]}"                          \
-                        CC="${USED_UTILITIES[CC]}"                             \
-                        CXX="${USED_UTILITIES[CPPC]}"
+        log_command "$log_filepath"                                                                                     \
+            ./configure --prefix="${DIRECTORIES[BUILD]}"                                                                \
+                        --enable-pythonmodule                                                                           \
+                        --enable-optimization                                                                           \
+                        --disable-hzip                                                                                  \
+                        --disable-fpzip                                                                                 \
+                        FC="${USED_UTILITIES[FC90]}"                                                                    \
+                        F77="${USED_UTILITIES[FC77]}"                                                                   \
+                        CC="${USED_UTILITIES[CC]}"                                                                      \
+                        CXX="${USED_UTILITIES[CPPC]}"                                                                   \
+                        --with-hdf5="${DIRECTORIES[BUILD]}/include","${DIRECTORIES[BUILD]}/lib"                         \
+                        --disable-silex
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (2/3) Building..." \
-        log_command "$log_filepath"                                         \
-            make -j "$JOB_COUNT"      \
-                 FFLAGS="$FFLAGS"     \
-                 CFLAGS="$CFLAGS"     \
-                 CPPFLAGS="$CPPFLAGS"
+        log_command "$log_filepath"                                                                                  \
+            make -j "$JOB_COUNT"
     clear_line
 
     show_command_running "|--> ($dependency_build_counter/${#DEPENDENCY_NAMES_TO_BUILD[@]}) SILO: (3/3) Installing..." \
-        log_command "$log_filepath"                                           \
-            make install prefix="${DIRECTORIES[BUILD]}"                       \
+        log_command "$log_filepath"                                                                                    \
+            make install prefix="${DIRECTORIES[BUILD]}"                                                                \
     clear_line
 fi
 

@@ -68,12 +68,10 @@ function show_command_running() {
     base_string="$1" ; shift
 
     # A visial cue if "$@" fails right away
-    echo -en "$base_string ${SPIN_ANIMATION[0]}"
+    echo -en "$base_string ${SPIN_ANIMATION[0]}..."
 
     SECONDS=0
     "$@" 2>&1 > /dev/null &
-
-    echo -n "$base_string ${SPIN_ANIMATION[$i]}..."
 
     pid=$!
     while ps -p $pid &>/dev/null; do
