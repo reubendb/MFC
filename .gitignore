@@ -35,6 +35,4 @@ example_cases/*/silo*
 example_cases/*/restart*
 example_cases/*/*.out
 example_cases/*/binary
-dependencies/build/
-dependencies/log/
-dependencies/src/
+dependencies/**/*
