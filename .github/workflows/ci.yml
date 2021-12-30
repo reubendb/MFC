@@ -25,6 +25,7 @@ jobs:
 
       - name: Get Dependencies (/dependencies/install.sh)
         run: |
+          chmod +x ./mfc.py
           ./mfc.py -t MFC -cc release -j $(nproc)
 
       - name: Upload /dependencies/logs
