@@ -1,4 +1,4 @@
-include ../../Makefile.in
+include ../../misc/Makefile.in
 
 # Find all source files, create a list of corresponding object files
 SRCS=$(wildcard *.f90)

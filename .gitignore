@@ -1,3 +1,4 @@
+mfc.lock.yaml
 tags
 src/*/tags
 doc/Doxygen/*/html
@@ -36,4 +37,4 @@ example_cases/*/*.out
 example_cases/*/binary
 dependencies/build/
 dependencies/log/
-dependencies/src/FFTW3
+dependencies/src/
