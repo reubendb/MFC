@@ -1,8 +1,8 @@
-include Makefile.user 
+include misc/Makefile.user 
 
 default: all
 
-include Makefile.messages
+include misc/Makefile.messages
 
 all: pre_process simulation post_process
 

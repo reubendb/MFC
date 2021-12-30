@@ -39,5 +39,3 @@ Error when compiling simulation: FFTW library files not found!
 ---->    ## ./install_fftw.sh
 ===============================================================================
 endef
-
-export SILO_LIB_ERR SILO_INC_ERR FFTW_INC_ERR FFTW_LIB_ERR
