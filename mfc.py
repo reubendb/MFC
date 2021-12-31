@@ -1,113 +1,128 @@
 #!/usr/bin/env python3
 
-# Imports.
-
-import os                 # 
-import re                 # Regular expressions.
+import os
+import re
 import sys
-import shutil             # Archive file handling.
+import shutil
 import tarfile
-import argparse           # Parsing command-line arguments.
-import urllib.request     # 
+import argparse
+import dataclasses
+import urllib.request
+
+
+@dataclasses.dataclass
+class MFCGlobalState:
+    conf: dict = dataclasses.field(default_factory=dict)
+    lock: dict = dataclasses.field(default_factory=dict)
+    args: dict = dataclasses.field(default_factory=dict)
+
+    root_path: str = ""
+
 
 class MFCException(Exception):
     pass
 
-def ExecuteShellCommandSafe(cmd):
-    if os.system(cmd) != 0:
-        raise MFCException("Failed to execute command \"{}\".".format(cmd))
 
-MFC_ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+def execute_shell_command_safe(command: str):
+    if os.system(command) != 0:
+        raise MFCException(f'Failed to execute command "{command}".')
 
-for module in [{ "import": "yaml",     "pip": "pyyaml"   },
-               { "import": "colorama", "pip": "colorama" }]:
+
+def import_module_safe(import_name: str, pip_name: str):
     while True:
         try:
-            globals()[module["import"]] = __import__(module["import"])
+            globals()[import_name] = __import__(import_name)
 
             break
         except ImportError as exc:
             prompt = f"The Python package {exc.name} needs to be installed. Would you like to install it now? (yY/nN): "
 
-            if input(prompt).upper().strip() == "Y":
-                status = ExecuteShellCommandSafe("python3 -m pip install --user {}".format(module["pip"]))
-                
-                if status != 0:
-                    exit(status)
-            else:
+            if input(prompt).upper().strip() != "Y":
                 exit(1)
 
-# Utility functions.
+            if 0 != execute_shell_command_safe("python3 -m pip install --user {}".format(pip_name)):
+                exit(1)
 
-def FileLoadYAML(filepath: str):
+
+def clear_line():
+    sys.stdout.write("\033[K")
+
+
+def file_load_yaml(filepath: str):
     try:
-        f = open(filepath, "r")
-        d = yaml.safe_load(f)
-        f.close()
-
-        return d
+        with open(filepath, "r") as f:
+            return yaml.safe_load(f)
     except (IOError, yaml.YAMLError) as exc:
         raise MFCException(f"Failed to load YAML from \"{filepath}\": {exc}")
 
-def FileDumpYAML(filepath: str, data):
+
+def file_dump_yaml(filepath: str, data):
     try:
-        f = open(filepath, "w")
-        yaml.dump(data, f)
-        f.close()
+        with open(filepath, "w") as f:
+            yaml.dump(data, f)
     except (IOError, yaml.YAMLError) as exc:
-        raise MFCException(f"Failed to dump YAML from \"{filepath}\": {exc}")
+        raise MFCException(f"Failed to dump YAML to \"{filepath}\": {exc}.")
 
-def SimplifyDependencyName(name: str):
-    return re.sub(r"[0-9]+", "", name.strip())
 
-def UncompressArchiveTo(archive_filepath, destination):
+# TODO: Better solution
+def uncompress_archive_to(archive_filepath, destination):
     archive = tarfile.open(archive_filepath, "r")
     archive.extractall("/".join(destination.rstrip("/").split("/")[:-1]))
     archive.close()
 
-    # WARNING: Technicall doesn't always work
-    # TODO: Better solution
     filename_wo_ext = archive_filepath.replace(".tar.gz", "")
 
     os.rename(filename_wo_ext, destination)
 
-def DeleteDictoryRecursiveSafe(dirpath):
+
+def delete_directory_recursive_safe(dirpath):
     if os.path.isdir(dirpath):
         shutil.rmtree(dirpath)
 
-# Good Luck. © Henry Le Berre :)
-CenterBlockOfText=lambda text: "\n".join(("{0}"+line+"{0}").format(" "*((shutil.get_terminal_size((80, 20)).columns - max([len(re.compile("|".join([re.escape(k) for k in [colorama.Style.RESET_ALL] + [ getattr(colorama.Fore, key) for key in dir(colorama.Fore) if not callable(getattr(colorama.Fore, key)) and not key.startswith("__") ]]), flags=re.DOTALL).sub("", line)) for line in text.splitlines()])) // 2)) for line in text.splitlines())
 
-# Main MFC functions.
+def center_ansi_escaped_text(message: str):
+    nCols = shutil.get_terminal_size((80, 20)).columns
 
-def MFC_ReadConfigurationFile():
-    return FileLoadYAML("mfc.cfg.yaml")
+    to_escape = [re.escape(colorama.Style.RESET_ALL)]
+    for key in dir(colorama.Fore):
+        if not callable(getattr(colorama.Fore, key)) and not key.startswith("__"):
+            to_escape.append(re.escape(getattr(colorama.Fore, key)))
 
-def MFC_ReadLockFile():
+    longest_string_len = max([len(re.compile("|".join(to_escape), flags=re.DOTALL).sub("", line)) for line in message.splitlines()])
+
+    padding = " "*((nCols - longest_string_len) // 2)
+
+    return "\n".join([f'{padding}{line}{padding}' for line in message.splitlines()])
+
+
+def mfc_read_configuration_file():
+    return file_load_yaml("mfc.cfg.yaml")
+
+
+def mfc_read_lock_file():
     if not os.path.exists("mfc.lock.yaml"):
-        f = open("mfc.lock.yaml", 'w')
-        f.write("""\
-targets: []
-""")
-        f.close()
+        with open("mfc.lock.yaml", 'w') as f:
+            f.write("targets: []")
 
-    return FileLoadYAML("mfc.lock.yaml")
+    return file_load_yaml("mfc.lock.yaml")
 
-def MFC_WriteLockFile():
-    FileDumpYAML("mfc.lock.yaml", MFC_CUR)
 
-def MFC_ParseArguments():    
-    parser = argparse.ArgumentParser(description="Wecome to the MFC master script.",)
+def mfc_write_lock_file(mfc_state: MFCGlobalState):
+    file_dump_yaml("mfc.lock.yaml", mfc_state.lock)
 
-    general   = parser.add_argument_group(title="General")
+
+def mfc_parse_arguments(mfc_conf: dict):
+    parser = argparse.ArgumentParser(description="Wecome to the MFC master script.", )
+
+    general = parser.add_argument_group(title="General")
     compiling = parser.add_argument_group(title="Compiling")
 
-    compiler_target_names = [ e["name"] for e in MFC_CFG["targets"] ]
+    compiler_target_names = [e["name"] for e in mfc_conf["targets"]]
     compiling.add_argument("-t", "--targets", nargs="+", type=str,
                            choices=compiler_target_names, default="",
                            help="The space-separated targets you wish to have built.")
 
-    compiler_configuration_names = [ e["name"] for e in MFC_CFG["compilers"]["configurations"] ]
+    compiler_configuration_names = [e["name"] for e in mfc_conf["compilers"]["configurations"]]
     compiling.add_argument("-cc", "--compiler-configuration", type=str,
                            choices=compiler_configuration_names, default=compiler_configuration_names[1])
 
@@ -122,8 +137,9 @@ def MFC_ParseArguments():
 
     return vars(parser.parse_args())
 
-def MFC_PrintHeader():
-    print(CenterBlockOfText("""\
+
+def mfc_print_header():
+    print(center_ansi_escaped_text("""\
 
                                       {0}      ___            ___          ___      {2}  
                                       {0}     /__/\          /  /\        /  /\     {2}  
@@ -139,64 +155,69 @@ def MFC_PrintHeader():
 
 """.format(colorama.Fore.BLUE, colorama.Fore.MAGENTA, colorama.Style.RESET_ALL)))
 
-def MFC_Get_Dependency(name, obj):
-    matches = list(filter(lambda x: x["name"]==name, obj["targets"]))
+
+def mfc_get_dependency(obj: dict, name: str):
+    matches = list(filter(lambda x: x["name"] == name, obj["targets"]))
 
     if len(matches) != 1:
         raise MFCException(f"Failed to find dependency \"{name}\" in \"{obj}\".")
 
     return matches[0]
 
-def MFC_String_Replace(string, dependency_name, obj, recursive=True):
-    dep = MFC_Get_Dependency(dependency_name, obj)
 
-    install_path = ""
-    source_path  = ""
+def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: str, string: str, recursive=True):
+    dep = mfc_get_dependency(obj, dependency_name)
+
     if dep["type"] in ["clone", "download"]:
-        install_path = MFC_ROOT_PATH + "/dependencies/build"
-        source_path  = MFC_ROOT_PATH + "/dependencies/src/" + dependency_name
+        install_path = mfc_state.root_path + "/dependencies/build"
+        source_path  = mfc_state.root_path + "/dependencies/src/" + dependency_name
     elif dep["type"] == "source":
         install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
         source_path  = dep["source"]["source"]
     else:
-        raise MFCException("hmmm....")
+        raise MFCException(f'Unknown type "{dep["type"]}".')
 
-    regulars, mpis = MFC_CFG["compilers"]["regular"], MFC_CFG["compilers"]["mpi"]
+    regulars, mpis = mfc_state.conf["compilers"]["regular"], mfc_state.conf["compilers"]["mpi"]
 
     compiler_cfg = None
-    for c_cfg in MFC_CFG["compilers"]["configurations"]:
-        if c_cfg["name"] == MFC_ARGS["compiler_configuration"]:
+    for c_cfg in mfc_state.conf["compilers"]["configurations"]:
+        if c_cfg["name"] == mfc_state.args["compiler_configuration"]:
             compiler_cfg = c_cfg
             break
-    
-    if compiler_cfg == None:
-        raise MFCException("Failed to locate the compiler configuration \"{}\".".format(MFC_ARGS["compiler_configuration"]))
 
-    compiler_flags = compiler_cfg["flags"]
+    if compiler_cfg is None:
+        raise MFCException(
+            "Failed to locate the compiler configuration \"{}\".".format(mfc_state.args["compiler_configuration"]))
 
-    repl_l = [
-        ("${MFC_ROOT_PATH}", MFC_ROOT_PATH), ("${CONFIGURE_OPTIONS}", f"--prefix=\"{install_path}\""),
-        ("${SOURCE_PATH}",   source_path),   ("${INSTALL_PATH}",      install_path),
-        ("${INSTALL_PATH}",  install_path),  ("${MAKE_OPTIONS}",      "-j {}".format(MFC_ARGS["jobs"])),
-        ("${COMPILER_FLAGS}",                "CFLAGS=\"{}\" CPPFLAGS=\"{}\" FFLAGS=\"{}\"".format(compiler_flags["c"], compiler_flags["c++"], compiler_flags["fortran"])),
-        ("${REGULAR_COMPILERS}", "CC=\"{}\" CXX=\"{}\" FC=\"{}\"".format(regulars["c"], regulars["c++"], regulars["fortran"])),
-        ("${MPI_COMPILERS}",     "CC=\"{}\" CXX=\"{}\" FC=\"{}\"".format(mpis["c"],     mpis["c++"],     mpis["fortran"]))
+    flags = compiler_cfg["flags"]
+
+    replace_list = [
+        ("${MFC_ROOT_PATH}",     mfc_state.root_path),
+        ("${CONFIGURE_OPTIONS}", f'--prefix="{install_path}"'),
+        ("${SOURCE_PATH}",       source_path),
+        ("${INSTALL_PATH}",      install_path),
+        ("${INSTALL_PATH}",      install_path),
+        ("${MAKE_OPTIONS}",      f'-j {mfc_state.args["jobs"]}'),
+        ("${COMPILER_FLAGS}",    f'CFLAGS="{flags["c"]}" CPPFLAGS="{flags["c++"]}" FFLAGS="{flags["fortran"]}"'),
+        ("${REGULAR_COMPILERS}", f'CC="{regulars["c"]}"  CXX="{regulars["c++"]}"   FC="{regulars["fortran"]}"'),
+        ("${MPI_COMPILERS}",     f'CC="{mpis["c"]}"      CXX="{mpis["c++"]}"       FC="{mpis["fortran"]}"')
     ]
 
-    for a,b in repl_l:
-        string = string.replace(a, b)
+    for e in replace_list:
+        string = string.replace(*e)
 
     if recursive:
         for dep2_info in obj["targets"]:
-            string = string.replace("${"+dep2_info["name"]+":", "${")
-            string = MFC_String_Replace(string, dep2_info["name"], obj, recursive=False)
+            string = string.replace("${" + dep2_info["name"] + ":", "${")
+            string = mfc_string_replace(mfc_state, obj, dep2_info["name"], string, recursive=False)
 
     return string
 
-def MFC_Was_Dependency_Updated(cfg_info, cur_info):
+
+def mfc_was_dependency_updated(cfg_info, cur_info):
     if cfg_info["type"] != cur_info["type"]:
         return True
-    
+
     if cfg_info["type"] == "source":
         return True
 
@@ -206,66 +227,72 @@ def MFC_Was_Dependency_Updated(cfg_info, cur_info):
 
     return False
 
-def MFC_Build_Dependency(name):
-    cfg = MFC_Get_Dependency(name, MFC_CFG)
+
+def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
+    cfg = mfc_get_dependency(mfc_state.conf, name)
 
     # Create Basic Directories
     for e in ["src", "build", "log"]:
-        os.makedirs(MFC_ROOT_PATH + "/dependencies/"+e, exist_ok=True)
+        os.makedirs(mfc_state.root_path + "/dependencies/" + e, exist_ok=True)
 
     # Build the dependencies it depends on
-    bHadToBuildADependency=False
+    bHadToBuildADependency = False
     for depends_name in cfg.get("depends", []):
-        bHadToBuildADependency |= MFC_Build_Dependency(depends_name)
+        bHadToBuildADependency |= mfc_build_dependency(mfc_state, depends_name)
 
-    cur            = None
-    cur_matches    = list(filter(lambda x: x["name"]==name, MFC_CUR["targets"]))
+    cur = None
+    cur_matches = list(filter(lambda x: x["name"] == name, mfc_state.lock["targets"]))
     bWasNeverBuilt = len(cur_matches) != 1
 
     # TODO: desciption
     bDifferentCFGandCUR = False
     if len(cur_matches) == 1:
         cur = cur_matches[0]
-        
-        bDifferentCFGandCUR = MFC_Was_Dependency_Updated(cfg, cur)
+
+        bDifferentCFGandCUR = mfc_was_dependency_updated(cfg, cur)
 
         # Remove old directories from previous build/download type
         if cfg["type"] != cur["type"]:
             if cur["type"] in ["clone", "download"]:
-                DeleteDictoryRecursiveSafe(MFC_ROOT_PATH + "/dependencies/src/" + name)
+                delete_directory_recursive_safe(mfc_state.root_path + "/dependencies/src/" + name)
 
     if not (bWasNeverBuilt or bHadToBuildADependency or bDifferentCFGandCUR):
         return False
 
     # Create Log File
-    log_filepath = MFC_ROOT_PATH + "/dependencies/log/" + name + ".log"
+    log_filepath = mfc_state.root_path + "/dependencies/log/" + name + ".log"
     if os.path.isfile(log_filepath):
         os.remove(log_filepath)
 
     # 
     if cfg["type"] == "clone" or cfg["type"] == "download":
-        source_path = MFC_ROOT_PATH + "/dependencies/src/" + name
+        source_path = mfc_state.root_path + "/dependencies/src/" + name
 
         if cfg["type"] == "clone":
             if cur != None and os.path.isdir(source_path):
                 if cfg["clone"]["git"] != cur["clone"]["git"]:
-                    DeleteDictoryRecursiveSafe(source_path)
+                    delete_directory_recursive_safe(source_path)
 
             if not os.path.isdir(source_path):
-                ExecuteShellCommandSafe("git clone --recursive \"{}\" \"{}\" >> \"{}\" 2>&1".format(cfg["clone"]["git"], source_path, log_filepath))
-            
-            ExecuteShellCommandSafe("cd \"{}\" && git checkout \"{}\" >> \"{}\" 2>&1".format(source_path, cfg["clone"]["hash"], log_filepath))   
+                execute_shell_command_safe(
+                    "git clone --recursive \"{}\" \"{}\" >> \"{}\" 2>&1".format(cfg["clone"]["git"], source_path,
+                                                                                log_filepath))
+
+            execute_shell_command_safe(
+                "cd \"{}\" && git checkout \"{}\" >> \"{}\" 2>&1".format(source_path, cfg["clone"]["hash"],
+                                                                         log_filepath))
         elif cfg["type"] == "download":
-            DeleteDictoryRecursiveSafe(MFC_ROOT_PATH + "/dependencies/src/" + name)
-            
+            delete_directory_recursive_safe(mfc_state.root_path + "/dependencies/src/" + name)
+
             download_link = cfg[cfg["type"]]["link"].replace("${version}", cfg[cfg["type"]]["version"])
-            filename      = download_link.split("/")[-1]
+            filename = download_link.split("/")[-1]
 
-            urllib.request.urlretrieve(download_link, MFC_ROOT_PATH + "/dependencies/src/" + filename)
+            urllib.request.urlretrieve(download_link, mfc_state.root_path + "/dependencies/src/" + filename)
 
-            UncompressArchiveTo(MFC_ROOT_PATH + "/dependencies/src/" + filename, MFC_ROOT_PATH + "/dependencies/src/" + name)
+            uncompress_archive_to(mfc_state.root_path + "/dependencies/src/" + filename,
+                                  mfc_state.root_path + "/dependencies/src/" + name)
 
-            os.remove(MFC_ROOT_PATH + "/dependencies/src/" + filename)
+            os.remove(mfc_state.root_path + "/dependencies/src/" + filename)
     elif cfg["type"] == "source":
         pass
     else:
@@ -275,70 +302,86 @@ def MFC_Build_Dependency(name):
     if cfg["type"] in ["clone", "download", "source"]:
         for command in cfg["build"]:
             if cfg["type"] in ["clone", "download", "source"]:
-                command = MFC_String_Replace(f"""\
+                command = mfc_string_replace(mfc_state, mfc_state.conf, name, f"""\
 cd "${{SOURCE_PATH}}" && \
 PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
-bash -c '{command}' >> "{log_filepath}" 2>&1
-""", name, MFC_CFG)
+bash -c '{command}' >> "{log_filepath}" 2>&1""")
 
                 print(command)
-                ExecuteShellCommandSafe(command)
+                execute_shell_command_safe(command)
             else:
-                raise MFCException("Dependency type \"{}\" is unsupported.", cfg["type"])
+                raise MFCException(f'Dependency type "{cfg["type"]}" is unsupported.')
     else:
-        raise MFCException("LKKLIAEIOAIAZEPIOKLQ...")
+        raise MFCException(f'Unknown type "{cfg["type"]}".')
 
     if cfg["type"] == "source":
         return True
 
     # Update CUR
     if len(cur_matches) == 0:
-        MFC_CUR["targets"].append(cfg)
+        mfc_state.lock["targets"].append(cfg)
     else:
-        for dep in MFC_CUR["targets"]:
+        for index, dep in enumerate(mfc_state.lock["targets"]):
             if dep["name"] == name:
-                dep = cfg
-    
-    MFC_WriteLockFile()
-    
+                mfc_state.lock["targets"][index] = cfg
+
+    mfc_write_lock_file(mfc_state)
+
     return True
 
-def MFC_PreflightChecks():
-    REQUIRED_COMMANDS = ["python3", "python3-config", "make", "git"]
-    REQUIRED_COMMANDS += MFC_CFG["compilers"]["regular"].values()
-    REQUIRED_COMMANDS += MFC_CFG["compilers"]["mpi"].values()
 
-    for utility in REQUIRED_COMMANDS:
-        if shutil.which(utility) == None:
-            raise MFCException("Failed to find the command line utility \"{}\". Please install it or make it visible.".format(utility))
+def mfc_environment_checks(mfc_state: MFCGlobalState):
+    print("|--> Checking for the presence of required command-line utilities...", end='\r')
 
-    #TODO: MacOS CHECKS
-    if sys.platform == "darwin": # MacOS
-        MFC_CFG["compilers"]["mpi"]["fortran"]
+    required = ["python3", "python3-config", "make", "git"]
+    required += mfc_state.conf["compilers"]["regular"].values()
+    required += mfc_state.conf["compilers"]["mpi"].values()
 
-# Code.
+    for index, utility in enumerate(required):
+        clear_line()
+        print(f"|--> {index+1}/{len(required)} Checking for {utility}...", end='\r')
+        if shutil.which(utility) is None:
+            raise MFCException(
+                "Failed to find the command line utility \"{}\". Please install it or make it visible.".format(utility))
 
-colorama.init()
+    # TODO: MacOS CHECKS
+    if sys.platform == "darwin":  # MacOS
+        pass
+        #mfc_state.conf["compilers"]["mpi"]["fortran"]
 
-try:
-    MFC_CFG  = MFC_ReadConfigurationFile()
-    MFC_CUR  = MFC_ReadLockFile()
-    MFC_ARGS = MFC_ParseArguments()
 
-    MFC_PrintHeader()
-    MFC_PreflightChecks()
+def mfc_main():
+    for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
+        import_module_safe(*module)
 
-    if MFC_ARGS["clean"]:
-        DeleteDictoryRecursiveSafe("./dependencies/")
+    colorama.init()
 
-        MFC_CUR["targets"] = []
+    try:
+        conf = mfc_read_configuration_file()
+        lock = mfc_read_lock_file()
+        args = mfc_parse_arguments(conf)
+        root_path = os.path.dirname(os.path.realpath(__file__))
+        mfc_state = MFCGlobalState(conf=conf, lock=lock, args=args, root_path=root_path)
 
-        MFC_WriteLockFile()
+        mfc_print_header()
+        mfc_environment_checks(mfc_state)
 
-    for target_name in MFC_ARGS["targets"]:
-        MFC_Build_Dependency(target_name)
+        if mfc_state.args["clean"]:
+            delete_directory_recursive_safe("./dependencies/")
 
-    MFC_WriteLockFile()
-except MFCException as exc:
-    print(colorama.Fore.RED + str(exc) + colorama.Style.RESET_ALL)
-    exit(1)
+            mfc_state.lock["targets"] = []
+
+            mfc_write_lock_file(mfc_state)
+
+        for target_name in mfc_state.args["targets"]:
+            mfc_build_dependency(mfc_state, target_name)
+
+        mfc_write_lock_file(mfc_state)
+    except MFCException as exc:
+        print(f"{colorama.Fore.RED}|--> {str(exc)}{colorama.Style.RESET_ALL}")
+        exit(1)
+
+
+if __name__ == "__main__":
+    mfc_main()
+
