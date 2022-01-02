@@ -76,7 +76,7 @@ targets:
   - HDF5
   - SILO
   source:
-    source: ${MFC_ROOT_PATH}/src/post_process_code
+    source:  ${MFC_ROOT_PATH}/src/post_process_code
   build:
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
 - name: MFC

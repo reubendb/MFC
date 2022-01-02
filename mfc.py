@@ -80,6 +80,16 @@ def uncompress_archive_to(archive_filepath, destination):
     os.rename(filename_wo_ext, destination)
 
 
+def delete_file_safe(filepath: str):
+    if os.path.exists(filepath):
+        os.remove(filepath)
+
+
+def create_file_safe(filepath: str):
+    if not os.path.exists(filepath):
+        open(filepath, "w").close()
+
+
 def delete_directory_recursive_safe(directory_path: str):
     if os.path.isdir(directory_path):
         shutil.rmtree(directory_path)
@@ -147,8 +157,8 @@ def mfc_parse_arguments(mfc_conf: dict):
     compiling.add_argument("-c", "--clean", action="store_true",
                            help="Cleans all binaries and build artificats.")
 
-    general.add_argument("-f", "--force", action="store_true",
-                         help="Force the operation.")
+    compiling.add_argument("-rb", "--rebuild", action="store_true",
+                         help="Build all targets from scratch.")
 
     return vars(parser.parse_args())
 
@@ -171,17 +181,28 @@ def mfc_print_header():
 """.format(colorama.Fore.BLUE, colorama.Fore.MAGENTA, colorama.Style.RESET_ALL)))
 
 
-def mfc_get_dependency(obj: dict, name: str):
-    matches = list(filter(lambda x: x["name"] == name, obj["targets"]))
+def mfc_peek_target(obj: dict, name: str):
+    return list(filter(lambda x: x["name"] == name, obj["targets"]))
 
-    if len(matches) != 1:
-        raise MFCException(f"Failed to find dependency \"{name}\" in \"{obj}\".")
+
+def mfc_unique_target_exists(obj: dict, name: str):
+    return len(mfc_peek_target(obj, name)) == 1
+
+
+def mfc_get_target(obj: dict, name: str):
+    matches = mfc_peek_target(obj, name)
+
+    if len(matches) == 0:
+        raise MFCException(f'Failed to retrieve dependency "{name}" in "{obj}".')
+
+    if len(matches) > 1:
+        raise MFCException(f'More than one dependency "{name}" is defined in "{obj}".')
 
     return matches[0]
 
 
 def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: str, string: str, recursive=True):
-    dep = mfc_get_dependency(obj, dependency_name)
+    dep = mfc_get_target(obj, dependency_name)
 
     if dep["type"] in ["clone", "download"]:
         install_path = mfc_state.root_path + f"/{MFC_USE_SUBDIR}/build"
@@ -228,89 +249,100 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
     return string
 
 
-def mfc_was_dependency_updated(cfg_info, cur_info):
-    if cfg_info["type"] != cur_info["type"]:
-        return True
+def mfc_get_dependency_names(obj: dict, name: str, recursive=False, visited: list=None):
+    result: list = []
 
-    if cfg_info["type"] == "source":
-        return True
+    if visited == None:
+        visited = []
 
-    t = cfg_info["type"]
-    if cfg_info[t] != cur_info[t]:
-        return True
+    if name not in visited:
+        visited.append(name)
 
-    return False
+        desc = mfc_get_target(obj, name)
+
+        for dependency_name in desc.get("depends", []):
+            result.append(dependency_name)
+
+            if recursive:
+                result  += mfc_get_dependency_names(obj, dependency_name, recursive, visited)
+                visited += result
+
+    return list(set(result))
 
 
-def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
-    cfg = mfc_get_dependency(mfc_state.conf, name)
-
-    # Create Basic Directories
-    for e in ["src", "build", "log"]:
-        os.makedirs(mfc_state.root_path + f"/{MFC_USE_SUBDIR}/" + e, exist_ok=True)
-
-    # Build the packages it depends on
-    bHadToBuildADependency = False
-    for depends_name in cfg.get("depends", []):
-        bHadToBuildADependency |= mfc_build_dependency(mfc_state, depends_name)
-
-    clear_print(f'|--> Package {name}: Preparing build...', end='\r')
-
-    cur = None
-    cur_matches = list(filter(lambda x: x["name"] == name, mfc_state.lock["targets"]))
-    bWasNeverBuilt = len(cur_matches) != 1
-
-    # TODO: desciption
-    bDifferentCFGandCUR = False
-    if len(cur_matches) == 1:
-        cur = cur_matches[0]
-
-        bDifferentCFGandCUR = mfc_was_dependency_updated(cfg, cur)
-
-        # Remove old directories from previous build/download type
-        if cfg["type"] != cur["type"]:
-            if cur["type"] in ["clone", "download"]:
-                clear_print(f'Package {name}: Removing previous package source...', end='\r')
-
-                delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
-
-    if not (bWasNeverBuilt or bHadToBuildADependency or bDifferentCFGandCUR):
-        clear_print(f'|--> Package {name}: Nothing to do ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})', end='\r')
-
+def mfc_is_target_build_satisfied(mfc_state: MFCGlobalState, name: str):
+    # Check if it hasn't been built before
+    if len(mfc_peek_target(mfc_state.lock, name)) == 0:
         return False
 
-    # Create Log File
-    log_filepath = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/log/{name}.log"
-    if os.path.isfile(log_filepath):
-        os.remove(log_filepath)
+    # Retrive CONF & LOCK descriptors
+    conf_desc = mfc_get_target(mfc_state.conf, name)
+    lock_desc = mfc_get_target(mfc_state.lock, name)
 
-    # 
-    if cfg["type"] in ["clone", "download"]:
+    # Check if it needs updating (LOCK & CONFIG descriptions don't match)
+    if conf_desc["type"] != lock_desc["type"] or \
+       conf_desc["type"] == "source"          or \
+       conf_desc[conf_desc["type"]] != conf_desc[conf_desc["type"]]:
+       return False
+
+    # Check if any of its dependencies needs updating
+    for dependency_name in mfc_get_dependency_names(mfc_state.conf, name, recursive=True):
+        if not mfc_is_target_build_satisfied(mfc_state, dependency_name):
+            return False
+
+    # Check for "rebuild" flag
+    if mfc_state.args["rebuild"]:
+        return False
+
+    return True
+
+
+def mfc_build_target__clean_previous(mfc_state: MFCGlobalState, name: str):
+    if not mfc_unique_target_exists(mfc_state.lock, name):
+        return
+    
+    conf_desc = mfc_get_target(mfc_state.conf, name)
+    lock_desc = mfc_get_target(mfc_state.lock, name)
+
+    
+    if ((    conf_desc["type"] != lock_desc["type"]
+         and lock_desc["type"] in ["clone", "download"]
+        ) or (mfc_state.args["rebuild"])):
+        delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
+
+
+def mfc_build_target__fetch(mfc_state: MFCGlobalState, name: str, logfile):
+    conf = mfc_get_target(mfc_state.conf, name)
+    
+    if conf["type"] in ["clone", "download"]:
         source_path = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}"
 
-        if cfg["type"] == "clone":
-            if cur != None and os.path.isdir(source_path):
-                if cfg["clone"]["git"] != cur["clone"]["git"]:
-                    clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
+        if conf["type"] == "clone":
+            lock_matches = mfc_peek_target(mfc_state.lock, name)
+            
+            if ((   len(lock_matches)    == 1
+                and conf["clone"]["git"] != mfc_get_target(mfc_state.lock, name)["clone"]["git"])
+                or (mfc_state.args["rebuild"])):
+                clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
 
-                    delete_directory_recursive_safe(source_path)
+                delete_directory_recursive_safe(source_path)
 
             if not os.path.isdir(source_path):
                 clear_print(f'|--> Package {name}: Cloning repository...', end='\r')
                 
                 execute_shell_command_safe(
-                    f'git clone --recursive "{cfg["clone"]["git"]}" "{source_path}" >> "{log_filepath}" 2>&1')
+                    f'git clone --recursive "{conf["clone"]["git"]}" "{source_path}" >> "{logfile.name}" 2>&1')
 
-            clear_print(f'|--> Package {name}: Checking out {cfg["clone"]["hash"]}...', end='\r')
+            clear_print(f'|--> Package {name}: Checking out {conf["clone"]["hash"]}...', end='\r')
 
             execute_shell_command_safe(
-                f'cd "{source_path}" && git checkout "{cfg["clone"]["hash"]}" >> "{log_filepath}" 2>&1')
-        elif cfg["type"] == "download":
+                f'cd "{source_path}" && git checkout "{conf["clone"]["hash"]}" >> "{logfile.name}" 2>&1')
+        elif conf["type"] == "download":
             clear_print(f'|--> Package {name}: Removing previously downloaded version...', end='\r')
 
             delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
 
-            download_link = cfg[cfg["type"]]["link"].replace("${version}", cfg[cfg["type"]]["version"])
+            download_link = conf[conf["type"]]["link"].replace("${version}", conf[conf["type"]]["version"])
             filename = download_link.split("/")[-1]
 
             clear_print(f'|--> Package {name}: Downloading source...', end='\r')
@@ -323,44 +355,64 @@ def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
                                   f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
 
             os.remove(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}")
-    elif cfg["type"] == "source":
+    elif conf["type"] == "source":
         pass
     else:
-        raise MFCException(f'Dependency type "{cfg["type"]}" is unsupported.')
+        raise MFCException(f'Dependency type "{conf["type"]}" is unsupported.')
 
-    # Build
-    if cfg["type"] in ["clone", "download", "source"]:
-        for command in cfg["build"]:
-            if cfg["type"] in ["clone", "download", "source"]:
-                command = mfc_string_replace(mfc_state, mfc_state.conf, name, f"""\
+
+def mfc_build_target__build(mfc_state: MFCGlobalState, name: str, logfile):
+    conf = mfc_get_target(mfc_state.conf, name)
+
+    if conf["type"] not in ["clone", "download", "source"]:
+        raise MFCException(f'Unknown target type "{conf["type"]}".')
+    
+    for command in conf["build"]:
+        command = mfc_string_replace(mfc_state, mfc_state.conf, name, f"""\
 cd "${{SOURCE_PATH}}" && \
 PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
-bash -c '{command}' >> "{log_filepath}" 2>&1""")
+bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
-                with open(log_filepath, "a") as f:
-                    f.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
+        logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
 
-                clear_print(f'|--> Package {name}: Building (Logging to {log_filepath})...', end='\r')
+        clear_print(f'|--> Package {name}: Building (Logging to {logfile.name})...', end='\r')
 
-                execute_shell_command_safe(command)
-            else:
-                raise MFCException(f'Dependency type "{cfg["type"]}" is unsupported.')
+        execute_shell_command_safe(command)                 
+
+
+def mfc_build_target__update_lock(mfc_state: MFCGlobalState, name: str):
+    conf = mfc_get_target(mfc_state.conf, name)
+
+    clear_print(f'|--> Package {name}: Updating lock file...', end='\r')
+
+    if len(mfc_peek_target(mfc_state.lock, name)) == 0:
+        mfc_state.lock["targets"].append(conf)
     else:
-        raise MFCException(f'Unknown type "{cfg["type"]}".')
+        for index, dep in enumerate(mfc_state.lock["targets"]):
+            if dep["name"] == name:
+                mfc_state.lock["targets"][index] = conf
 
-    if cfg["type"] != "source":
-        clear_print(f'|--> Package {name}: Updating lock file...', end='\r')
+    mfc_dump_lock_file(mfc_state)
 
-        # Update CUR
-        if len(cur_matches) == 0:
-            mfc_state.lock["targets"].append(cfg)
-        else:
-            for index, dep in enumerate(mfc_state.lock["targets"]):
-                if dep["name"] == name:
-                    mfc_state.lock["targets"][index] = cfg
 
-        mfc_dump_lock_file(mfc_state)
- 
+def mfc_build_target(mfc_state: MFCGlobalState, name: str):
+    # Check if it needs to be (re)built
+    if mfc_is_target_build_satisfied(mfc_state, name):
+        clear_print(f'|--> Package {name}: Nothing to do ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
+        return False
+    
+    # Build its dependencies
+    for dependency_names in mfc_get_dependency_names(mfc_state.conf, name, recursive=False):
+        mfc_build_target(mfc_state, dependency_names)
+
+    clear_print(f'|--> Package {name}: Preparing build...', end='\r')
+
+    with open(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/log/{name}.log", "w") as logfile:
+        mfc_build_target__clean_previous(mfc_state, name)          # Clean any old build artifacts
+        mfc_build_target__fetch         (mfc_state, name, logfile) # Fetch Source Code
+        mfc_build_target__build         (mfc_state, name, logfile) # Build
+        mfc_build_target__update_lock   (mfc_state, name)          # Update LOCK
+
     clear_print(f'|--> Package {name}: Done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
 
     return True
@@ -388,6 +440,12 @@ def mfc_environment_checks(mfc_state: MFCGlobalState):
     clear_print(f"|--> Build environment: Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
 
 
+def mfc_setup_directories():
+    create_directory_safe(MFC_USE_SUBDIR)
+    for e in ["src", "build", "log"]:
+        create_directory_safe(f"{MFC_USE_SUBDIR}/{e}")
+
+
 def mfc_main():
     try:
         for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
@@ -395,7 +453,7 @@ def mfc_main():
 
         colorama.init()
 
-        create_directory_safe(MFC_USE_SUBDIR)
+        mfc_setup_directories()
 
         conf = mfc_read_conf_file()
         lock = mfc_read_lock_file()
@@ -414,7 +472,7 @@ def mfc_main():
             mfc_dump_lock_file(mfc_state)
 
         for target_name in mfc_state.args["targets"]:
-            mfc_build_dependency(mfc_state, target_name)
+            mfc_build_target(mfc_state, target_name)
 
         mfc_dump_lock_file(mfc_state)
     except MFCException as exc:
