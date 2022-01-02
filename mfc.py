@@ -10,7 +10,9 @@ import dataclasses
 import urllib.request
 
 
-MFC_USE_SUBDIR = ".mfc"
+MFC_USE_SUBDIR    = ".mfc"
+MFC_CONF_FILEPATH = f"mfc.conf.yaml"
+MFC_LOCK_FILEPATH = f"{MFC_USE_SUBDIR}/mfc.lock.yaml"
 
 
 @dataclasses.dataclass
@@ -83,6 +85,11 @@ def delete_directory_recursive_safe(directory_path: str):
         shutil.rmtree(directory_path)
 
 
+def create_directory_safe(directory_path: str):
+    if not os.path.isdir(directory_path):
+        os.mkdir(directory_path)
+
+
 def center_ansi_escaped_text(message: str):
     nCols = shutil.get_terminal_size((80, 20)).columns
 
@@ -98,12 +105,25 @@ def center_ansi_escaped_text(message: str):
     return "\n".join([f'{padding}{line}{padding}' for line in message.splitlines()])
 
 
+def clear_print(message, end='\n'):
+    clear_line()
+    print(message, end=end)
+
+
 def mfc_read_lock_file():
-    if not os.path.exists("mfc.lock.yaml"):
-        with open("mfc.lock.yaml", 'w') as f:
+    if not os.path.exists(f"{MFC_LOCK_FILEPATH}"):
+        with open(f"{MFC_LOCK_FILEPATH}", 'w') as f:
             f.write("targets: []")
 
-    return file_load_yaml("mfc.lock.yaml")
+    return file_load_yaml(f"{MFC_LOCK_FILEPATH}")
+
+
+def mfc_dump_lock_file(mfc_state: MFCGlobalState):
+    file_dump_yaml(f"{MFC_LOCK_FILEPATH}", mfc_state.lock)
+
+
+def mfc_read_conf_file():
+    return file_load_yaml(MFC_CONF_FILEPATH)
 
 
 def mfc_parse_arguments(mfc_conf: dict):
@@ -234,8 +254,7 @@ def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
     for depends_name in cfg.get("depends", []):
         bHadToBuildADependency |= mfc_build_dependency(mfc_state, depends_name)
 
-    clear_line()
-    print(f'|--> Package {name}: Preparing build...', end='\r')
+    clear_print(f'|--> Package {name}: Preparing build...', end='\r')
 
     cur = None
     cur_matches = list(filter(lambda x: x["name"] == name, mfc_state.lock["targets"]))
@@ -251,14 +270,12 @@ def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
         # Remove old directories from previous build/download type
         if cfg["type"] != cur["type"]:
             if cur["type"] in ["clone", "download"]:
-                clear_line()
-                print(f'Package {name}: Removing previous package source...', end='\r')
+                clear_print(f'Package {name}: Removing previous package source...', end='\r')
 
                 delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
 
     if not (bWasNeverBuilt or bHadToBuildADependency or bDifferentCFGandCUR):
-        clear_line()
-        print(f'|--> Package {name}: Nothing to do ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})', end='\r')
+        clear_print(f'|--> Package {name}: Nothing to do ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})', end='\r')
 
         return False
 
@@ -274,39 +291,33 @@ def mfc_build_dependency(mfc_state: MFCGlobalState, name: str):
         if cfg["type"] == "clone":
             if cur != None and os.path.isdir(source_path):
                 if cfg["clone"]["git"] != cur["clone"]["git"]:
-                    clear_line()
-                    print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
+                    clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
 
                     delete_directory_recursive_safe(source_path)
 
             if not os.path.isdir(source_path):
-                clear_line()
-                print(f'|--> Package {name}: Cloning repository...', end='\r')
+                clear_print(f'|--> Package {name}: Cloning repository...', end='\r')
                 
                 execute_shell_command_safe(
                     f'git clone --recursive "{cfg["clone"]["git"]}" "{source_path}" >> "{log_filepath}" 2>&1')
 
-            clear_line()
-            print(f'|--> Package {name}: Checking out {cfg["clone"]["hash"]}...', end='\r')
+            clear_print(f'|--> Package {name}: Checking out {cfg["clone"]["hash"]}...', end='\r')
 
             execute_shell_command_safe(
                 f'cd "{source_path}" && git checkout "{cfg["clone"]["hash"]}" >> "{log_filepath}" 2>&1')
         elif cfg["type"] == "download":
-            clear_line()
-            print(f'|--> Package {name}: Removing previously downloaded version...', end='\r')
+            clear_print(f'|--> Package {name}: Removing previously downloaded version...', end='\r')
 
             delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
 
             download_link = cfg[cfg["type"]]["link"].replace("${version}", cfg[cfg["type"]]["version"])
             filename = download_link.split("/")[-1]
 
-            clear_line()
-            print(f'|--> Package {name}: Downloading source...', end='\r')
+            clear_print(f'|--> Package {name}: Downloading source...', end='\r')
 
             urllib.request.urlretrieve(download_link, f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}")
 
-            clear_line()
-            print(f'|--> Package {name}: Uncompressing archive...', end='\r')
+            clear_print(f'|--> Package {name}: Uncompressing archive...', end='\r')
 
             uncompress_archive_to(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}",
                                   f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
@@ -326,11 +337,10 @@ cd "${{SOURCE_PATH}}" && \
 PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
 bash -c '{command}' >> "{log_filepath}" 2>&1""")
 
-                with open(log_filepath, "w") as f:
+                with open(log_filepath, "a") as f:
                     f.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
 
-                clear_line()
-                print(f'|--> Package {name}: Building (Logging to {log_filepath})...', end='\r')
+                clear_print(f'|--> Package {name}: Building (Logging to {log_filepath})...', end='\r')
 
                 execute_shell_command_safe(command)
             else:
@@ -339,8 +349,7 @@ bash -c '{command}' >> "{log_filepath}" 2>&1""")
         raise MFCException(f'Unknown type "{cfg["type"]}".')
 
     if cfg["type"] != "source":
-        clear_line()
-        print(f'|--> Package {name}: Updating lock file...', end='\r')
+        clear_print(f'|--> Package {name}: Updating lock file...', end='\r')
 
         # Update CUR
         if len(cur_matches) == 0:
@@ -350,10 +359,9 @@ bash -c '{command}' >> "{log_filepath}" 2>&1""")
                 if dep["name"] == name:
                     mfc_state.lock["targets"][index] = cfg
 
-        file_dump_yaml("mfc.lock.yaml", mfc_state.lock)
+        mfc_dump_lock_file(mfc_state)
  
-    clear_line()
-    print(f'|--> Package {name}: Done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})', end='\r')
+    clear_print(f'|--> Package {name}: Done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
 
     return True
 
@@ -366,8 +374,7 @@ def mfc_environment_checks(mfc_state: MFCGlobalState):
     required += mfc_state.conf["compilers"]["mpi"].values()
 
     for index, utility in enumerate(required):
-        clear_line()
-        print(f"|--> {index+1}/{len(required)} Checking for {utility}...", end='\r')
+        clear_print(f"|--> {index+1}/{len(required)} Checking for {utility}...", end='\r')
 
         if shutil.which(utility) is None:
             raise MFCException(
@@ -378,8 +385,7 @@ def mfc_environment_checks(mfc_state: MFCGlobalState):
         pass
         #mfc_state.conf["compilers"]["mpi"]["fortran"]
     
-    clear_line()
-    print(f"|--> Build environment: Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
+    clear_print(f"|--> Build environment: Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
 
 
 def mfc_main():
@@ -389,7 +395,9 @@ def mfc_main():
 
         colorama.init()
 
-        conf = file_load_yaml("mfc.cfg.yaml")
+        create_directory_safe(MFC_USE_SUBDIR)
+
+        conf = mfc_read_conf_file()
         lock = mfc_read_lock_file()
         args = mfc_parse_arguments(conf)
         root_path = os.path.dirname(os.path.realpath(__file__))
@@ -403,12 +411,12 @@ def mfc_main():
 
             mfc_state.lock["targets"] = []
 
-            file_dump_yaml("mfc.lock.yaml", mfc_state.lock)
+            mfc_dump_lock_file(mfc_state)
 
         for target_name in mfc_state.args["targets"]:
             mfc_build_dependency(mfc_state, target_name)
 
-        file_dump_yaml("mfc.lock.yaml", mfc_state.lock)
+        mfc_dump_lock_file(mfc_state)
     except MFCException as exc:
         print(f"{colorama.Fore.RED}|--> {str(exc)}{colorama.Style.RESET_ALL}")
         exit(1)
