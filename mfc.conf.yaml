@@ -57,10 +57,9 @@ targets:
   - make install prefix="${INSTALL_PATH}"
 - name: MFC_PreProcess
   type: source
-  depends:
-  - FFTW3
+  depends: []
   source:
-    source: ${MFC_ROOT_PATH}/src/pre_process
+    source: ${MFC_ROOT_PATH}/src/pre_process_code
   build:
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
 - name: MFC_Simulation
@@ -68,15 +67,16 @@ targets:
   depends:
   - FFTW3
   source:
-    source: ${MFC_ROOT_PATH}/src/simulation
+    source: ${MFC_ROOT_PATH}/src/simulation_code
   build:
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
 - name: MFC_PostProcess
   type: source
   depends:
+  - HDF5
   - SILO
   source:
-    source: ${MFC_ROOT_PATH}/src/post_process
+    source: ${MFC_ROOT_PATH}/src/post_process_code
   build:
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
 - name: MFC
