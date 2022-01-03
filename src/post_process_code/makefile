@@ -9,8 +9,6 @@ MODS=$(wildcard m*.f90)
 MOD_OBJS=$(patsubst %.f90,%.o,$(MODS))
 
 # Compiler/Linker settings
-FLFLAGS = -g $(ld_post_flags)
-FCFLAGS = -g $(f90_post_flags)
 EXEC = post_process
 PROGRAM = p_main
 PRG_OBJ = $(PROGRAM).o
@@ -20,11 +18,11 @@ all : $(PROGRAM)
 
 # Compiler steps for all objects
 $(OBJS) : %.o : %.f90
-	$(FC) $(FCFLAGS) -o $@ $<
+	$(FC) $(FFLAGS) -o $@ $<
 
 # Linker
 $(PROGRAM) : $(OBJS)
-	$(FC) -o $(EXEC) $(OBJS) $(FLFLAGS)
+	$(FC) $(FFLAGS) -o $(EXEC) $(OBJS) $(FLFLAGS)
 
 .PHONY: all clean
 

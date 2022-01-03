@@ -1,5 +1,3 @@
-include ../../misc/Makefile.in
-
 # Find all source files, create a list of corresponding object files
 SRCS=$(wildcard *.f90)
 OBJS=$(patsubst %.f90,%.o,$(SRCS))
@@ -9,8 +7,6 @@ MODS=$(wildcard m*.f90)
 MOD_OBJS=$(patsubst %.f90,%.o,$(MODS))
 
 # Compiler/Linker settings
-FLFLAGS = -g $(ld_sim_flags)
-FCFLAGS = -g $(f90_flags)
 EXEC = simulation
 PROGRAM = p_main
 PRG_OBJ = $(PROGRAM).o
@@ -20,11 +16,11 @@ all : $(PROGRAM)
 
 # Compiler steps for all objects
 $(OBJS) : %.o : %.f90
-	$(FC) $(FCFLAGS) -o $@ $<
+	$(FC) $(FFLAGS) -o $@ $<
 
 # Linker
 $(PROGRAM) : $(OBJS)
-	$(FC) -o $(EXEC) $(OBJS) $(FLFLAGS) 
+	$(FC) $(FFLAGS) -o $(EXEC) $(OBJS) 
 
 .PHONY: all clean
 

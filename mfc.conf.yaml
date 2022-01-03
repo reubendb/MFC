@@ -53,7 +53,9 @@ targets:
     --disable-hzip --disable-fpzip --disable-silex
     --with-hdf5="${HDF5:INSTALL_PATH}/include","${HDF5:INSTALL_PATH}/lib"
     ${MPI_COMPILERS}
-  - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+  - >-
+    make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+    CFLAGS="-O0" CPPFLAGS="-O0" FFLAGS="-O0"
   - make install prefix="${INSTALL_PATH}"
 - name: MFC_PreProcess
   type: source
@@ -69,7 +71,9 @@ targets:
   source:
     source: ${MFC_ROOT_PATH}/src/simulation_code
   build:
-  - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+  - >-
+    make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+    FFLAGS="-lfftw3 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
 - name: MFC_PostProcess
   type: source
   depends:

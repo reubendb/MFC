@@ -6,7 +6,6 @@ import sys
 import shutil
 import tarfile
 import argparse
-import dataclasses
 import urllib.request
 
 
@@ -310,8 +309,28 @@ class MFC:
             ("${MPI_COMPILERS}",     f'CC="{mpis.get     ("c", "")}" CXX="{mpis.get      ("c++", "")}" FC="{mpis.get     ("fortran", "")}"')
         ]
 
-        for e in replace_list: string = string.replace(*e)
+        for e in replace_list:
+            string = string.replace(*e)
 
+        # Combine different assignments to flag variables (CFLAGS, FFLAGS, ...)
+        for FLAG_NAME in [ "CFLAGS", "CPPFLAGS", "FFLAGS" ]:
+            FLAG_PATTERN = f' {FLAG_NAME}=".+?"'
+
+            matches = re.findall(FLAG_PATTERN, string)
+
+            if len(matches) <= 1:
+                continue
+
+            for i in range(len(matches)):
+                matches[i] = re.sub(f'^ {FLAG_NAME}="', ' ', matches[i])
+                matches[i] = re.sub(r'"$', ' ', matches[i])
+
+            new_flag_str = f' {FLAG_NAME}="{" ".join(matches)}"'
+
+            string = re.sub(FLAG_PATTERN, ' ', string, len(matches) - 1)
+            string = re.sub(FLAG_PATTERN, new_flag_str, string)                
+        
+        # Fetch 
         if recursive:
             for dep2_info in self.conf["targets"]:
                 string = string.replace("${" + dep2_info["name"] + ":", "${")
@@ -369,7 +388,7 @@ class MFC:
                 lock_matches = self.lock.get_target_matches(name, self.args["compiler_configuration"])
                 
                 if ((   len(lock_matches)    == 1
-                    and conf["clone"]["git"] != self.lock.get_target(name)["clone"]["git"], self.args["compiler_configuration"])
+                    and conf["clone"]["git"] != self.lock.get_target(name, self.args["compiler_configuration"])["clone"]["git"])
                     or (self.args["scratch"])):
                     clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
 
@@ -416,9 +435,9 @@ class MFC:
         
         for command in conf["build"]:
             command = self.string_replace(name, f"""\
-    cd "${{SOURCE_PATH}}" && \
-    PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
-    bash -c '{command}' >> "{logfile.name}" 2>&1""")
+cd "${{SOURCE_PATH}}" && \
+PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
+bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
             logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
 
@@ -494,21 +513,27 @@ def main():
 
         colorama.init()
 
-        print(center_ansi_escaped_text("""\
+        print(center_ansi_escaped_text(f"""{colorama.Fore.BLUE}
+     ___            ___          ___     
+    /__/\          /  /\        /  /\    
+   |  |::\        /  /:/_      /  /:/    
+   |  |:|:\      /  /:/ /\    /  /:/     
+ __|__|:|\:\    /  /:/ /:/   /  /:/  ___ 
+/__/::::| \:\  /__/:/ /:/   /__/:/  /  /\ 
+\  \:\~~\__\/  \  \:\/:/    \  \:\ /  /:/
+ \  \:\         \  \::/      \  \:\  /:/ 
+  \  \:\         \  \:\       \  \:\/:/  
+   \  \:\         \  \:\       \  \::/   
+    \__\/          \__\/        \__\/    
+{colorama.Style.RESET_ALL}"""))
 
-                                      {0}      ___            ___          ___      {2}  
-                                      {0}     /__/\          /  /\        /  /\     {2}  
-                                   |  {0}    |  |::\        /  /:/_      /  /:/     {2}  |
-+----------------------------------+  {0}    |  |:|:\      /  /:/ /\    /  /:/      {2}  +----------------------------------+
-|__/\________/\__/\__/\________/\__|  {0}  __|__|:|\:\    /  /:/ /:/   /  /:/  ___  {2}  |    Multi-component Flow Code     |
-|_/__\__/\__/__\/__\/__\__/\__/__\_|  {0} /__/::::| \:\  /__/:/ /:/   /__/:/  /  /\ {2}  |                                  |
-|/____\/__\/____________\/__\/____\|  {0} \  \:\~~\__\/  \  \:\/:/    \  \:\ /  /:/ {2}  | https://github.com/MFlowCode/MFC |
-+----------------------------------+  {0}  \  \:\         \  \::/      \  \:\  /:/  {2}  +----------------------------------+
-                                   |  {0}   \  \:\         \  \:\       \  \:\/:/   {2}  |
-                                      {0}    \  \:\         \  \:\       \  \::/    {2}  
-                                      {0}     \__\/          \__\/        \__\/     {2}  
-
-""".format(colorama.Fore.BLUE, colorama.Fore.MAGENTA, colorama.Style.RESET_ALL)))
+        print(center_ansi_escaped_text("""
++----------------------------------+
+|    Multi-component Flow Code     |
+|                                  |
+| https://github.com/MFlowCode/MFC |
++----------------------------------+
+"""))
 
         mfc = MFC()
     except MFCException as exc:
