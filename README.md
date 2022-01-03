@@ -33,7 +33,7 @@ Now it is developed and maintained by the groups of Professors <a href="https://
  
   The paper that describes the MFC's capabilities:
 * <a href="https://doi.org/10.1016/j.cpc.2020.107396">
-        S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2020) Computer Physics Communications 4655, 107396
+        S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2021) Computer Physics Communications 4655, 107396
         </a>
   
 ## Related publications
