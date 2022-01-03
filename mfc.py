@@ -155,7 +155,7 @@ def mfc_parse_arguments(mfc_conf: dict):
                            help="Allows for N concurrent jobs.", default=1)
 
     compiling.add_argument("-c", "--clean", action="store_true",
-                           help="Cleans all binaries and build artificats.")
+                           help="Cleans all binaries and build artifacts.")
 
     compiling.add_argument("-rb", "--rebuild", action="store_true",
                          help="Build all targets from scratch.")
@@ -205,8 +205,8 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
     dep = mfc_get_target(obj, dependency_name)
 
     if dep["type"] in ["clone", "download"]:
-        install_path = mfc_state.root_path + f"/{MFC_USE_SUBDIR}/build"
-        source_path  = mfc_state.root_path + f"/{MFC_USE_SUBDIR}/src/" + dependency_name
+        install_path = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/build"
+        source_path  = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{dependency_name}"
     elif dep["type"] == "source":
         install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
         source_path  = dep["source"]["source"]
@@ -223,7 +223,7 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
 
     if compiler_cfg is None:
         raise MFCException(
-            "Failed to locate the compiler configuration \"{}\".".format(mfc_state.args["compiler_configuration"]))
+            f'Failed to locate the compiler configuration "{mfc_state.args["compiler_configuration"]}".')
 
     flags = compiler_cfg["flags"]
 
@@ -303,7 +303,6 @@ def mfc_build_target__clean_previous(mfc_state: MFCGlobalState, name: str):
     
     conf_desc = mfc_get_target(mfc_state.conf, name)
     lock_desc = mfc_get_target(mfc_state.lock, name)
-
     
     if ((    conf_desc["type"] != lock_desc["type"]
          and lock_desc["type"] in ["clone", "download"]
@@ -432,8 +431,8 @@ def mfc_environment_checks(mfc_state: MFCGlobalState):
             raise MFCException(
                 f'Failed to find the command line utility "{utility}". Please install it or make it visible.')
 
-    # TODO: MacOS CHECKS
-    if sys.platform == "darwin":  # MacOS
+    # TODO: MacOS Checks
+    if sys.platform == "darwin": # MacOS
         pass
         #mfc_state.conf["compilers"]["mpi"]["fortran"]
     
