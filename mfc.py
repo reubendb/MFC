@@ -96,8 +96,7 @@ def delete_directory_recursive_safe(directory_path: str):
 
 
 def create_directory_safe(directory_path: str):
-    if not os.path.isdir(directory_path):
-        os.mkdir(directory_path)
+    os.makedirs(directory_path, exist_ok=True)
 
 
 def center_ansi_escaped_text(message: str):
@@ -157,7 +156,7 @@ def mfc_parse_arguments(mfc_conf: dict):
     compiling.add_argument("-c", "--clean", action="store_true",
                            help="Cleans all binaries and build artifacts.")
 
-    compiling.add_argument("-rb", "--rebuild", action="store_true",
+    compiling.add_argument("-s", "--scratch", action="store_true",
                          help="Build all targets from scratch.")
 
     return vars(parser.parse_args())
@@ -181,37 +180,37 @@ def mfc_print_header():
 """.format(colorama.Fore.BLUE, colorama.Fore.MAGENTA, colorama.Style.RESET_ALL)))
 
 
-def mfc_peek_target(obj: dict, name: str):
-    return list(filter(lambda x: x["name"] == name, obj["targets"]))
+def mfc_peek_target(obj: dict, name: str, restrict_cc: str = None):
+    def peek_filter(e: dict):
+        if e["name"] != name:
+            return False
+        
+        if restrict_cc is None:
+            return True
+        
+        return e.get("compiler_configuration", None) == restrict_cc
+
+    return list(filter(peek_filter, obj["targets"]))
 
 
-def mfc_unique_target_exists(obj: dict, name: str):
-    return len(mfc_peek_target(obj, name)) == 1
+def mfc_unique_target_exists(obj: dict, name: str, restrict_cc: str = None):
+    return len(mfc_peek_target(obj, name, restrict_cc=restrict_cc)) == 1
 
 
-def mfc_get_target(obj: dict, name: str):
-    matches = mfc_peek_target(obj, name)
+def mfc_get_target(obj: dict, name: str, restrict_cc: str = None):
+    matches = mfc_peek_target(obj, name, restrict_cc=restrict_cc)
 
     if len(matches) == 0:
-        raise MFCException(f'Failed to retrieve dependency "{name}" in "{obj}".')
+        raise MFCException(f'Failed to retrieve dependency "{name}" in "{obj}" with restrict_cc="{restrict_cc}".')
 
     if len(matches) > 1:
-        raise MFCException(f'More than one dependency "{name}" is defined in "{obj}".')
+        raise MFCException(f'More than one dependency to choose from for "{name}", defined in "{obj}" with restrict_cc="{restrict_cc}".')
 
     return matches[0]
 
 
-def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: str, string: str, recursive=True):
-    dep = mfc_get_target(obj, dependency_name)
-
-    if dep["type"] in ["clone", "download"]:
-        install_path = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/build"
-        source_path  = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{dependency_name}"
-    elif dep["type"] == "source":
-        install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
-        source_path  = dep["source"]["source"]
-    else:
-        raise MFCException(f'Unknown type "{dep["type"]}".')
+def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: str, string: str, restrict_cc: str = None, recursive=True):
+    dep = mfc_get_target(obj, dependency_name, restrict_cc=restrict_cc)
 
     regulars, mpis = mfc_state.conf["compilers"]["regular"], mfc_state.conf["compilers"]["mpi"]
 
@@ -225,6 +224,15 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
         raise MFCException(
             f'Failed to locate the compiler configuration "{mfc_state.args["compiler_configuration"]}".')
 
+    if dep["type"] in ["clone", "download"]:
+        install_path = f'{mfc_state.root_path}/{MFC_USE_SUBDIR}/{compiler_cfg["name"]}/build'
+        source_path  = f'{mfc_state.root_path}/{MFC_USE_SUBDIR}/{compiler_cfg["name"]}/src/{dependency_name}'
+    elif dep["type"] == "source":
+        install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
+        source_path  = dep["source"]["source"]
+    else:
+        raise MFCException(f'Unknown type "{dep["type"]}".')
+
     flags = compiler_cfg["flags"]
 
     replace_list = [
@@ -234,9 +242,9 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
         ("${INSTALL_PATH}",      install_path),
         ("${INSTALL_PATH}",      install_path),
         ("${MAKE_OPTIONS}",      f'-j {mfc_state.args["jobs"]}'),
-        ("${COMPILER_FLAGS}",    f'CFLAGS="{flags["c"]}" CPPFLAGS="{flags["c++"]}" FFLAGS="{flags["fortran"]}"'),
-        ("${REGULAR_COMPILERS}", f'CC="{regulars["c"]}"  CXX="{regulars["c++"]}"   FC="{regulars["fortran"]}"'),
-        ("${MPI_COMPILERS}",     f'CC="{mpis["c"]}"      CXX="{mpis["c++"]}"       FC="{mpis["fortran"]}"')
+        ("${COMPILER_FLAGS}",    f'CFLAGS="{flags.get("c", "")}" CPPFLAGS="{flags.get("c++", "")}" FFLAGS="{flags.get("fortran", "")}"'),
+        ("${REGULAR_COMPILERS}", f'CC="{regulars.get ("c", "")}" CXX="{regulars.get  ("c++", "")}" FC="{regulars.get ("fortran", "")}"'),
+        ("${MPI_COMPILERS}",     f'CC="{mpis.get     ("c", "")}" CXX="{mpis.get      ("c++", "")}" FC="{mpis.get     ("fortran", "")}"')
     ]
 
     for e in replace_list: string = string.replace(*e)
@@ -249,7 +257,7 @@ def mfc_string_replace(mfc_state: MFCGlobalState, obj: dict, dependency_name: st
     return string
 
 
-def mfc_get_dependency_names(obj: dict, name: str, recursive=False, visited: list=None):
+def mfc_get_dependency_names(obj: dict, name: str, restrict_cc: str = None, recursive=False, visited: list = None):
     result: list = []
 
     if visited == None:
@@ -258,13 +266,13 @@ def mfc_get_dependency_names(obj: dict, name: str, recursive=False, visited: lis
     if name not in visited:
         visited.append(name)
 
-        desc = mfc_get_target(obj, name)
+        desc = mfc_get_target(obj, name, restrict_cc=restrict_cc)
 
         for dependency_name in desc.get("depends", []):
             result.append(dependency_name)
 
             if recursive:
-                result  += mfc_get_dependency_names(obj, dependency_name, recursive, visited)
+                result  += mfc_get_dependency_names(obj, dependency_name, recursive=recursive, visited=visited)
                 visited += result
 
     return list(set(result))
@@ -272,12 +280,12 @@ def mfc_get_dependency_names(obj: dict, name: str, recursive=False, visited: lis
 
 def mfc_is_target_build_satisfied(mfc_state: MFCGlobalState, name: str):
     # Check if it hasn't been built before
-    if len(mfc_peek_target(mfc_state.lock, name)) == 0:
+    if len(mfc_peek_target(mfc_state.lock, name, mfc_state.args["compiler_configuration"])) == 0:
         return False
 
     # Retrive CONF & LOCK descriptors
     conf_desc = mfc_get_target(mfc_state.conf, name)
-    lock_desc = mfc_get_target(mfc_state.lock, name)
+    lock_desc = mfc_get_target(mfc_state.lock, name, mfc_state.args["compiler_configuration"])
 
     # Check if it needs updating (LOCK & CONFIG descriptions don't match)
     if conf_desc["type"] != lock_desc["type"] or \
@@ -290,38 +298,40 @@ def mfc_is_target_build_satisfied(mfc_state: MFCGlobalState, name: str):
         if not mfc_is_target_build_satisfied(mfc_state, dependency_name):
             return False
 
-    # Check for "rebuild" flag
-    if mfc_state.args["rebuild"]:
+    # Check for "scratch" flag
+    if mfc_state.args["scratch"]:
         return False
 
     return True
 
 
 def mfc_build_target__clean_previous(mfc_state: MFCGlobalState, name: str):
-    if not mfc_unique_target_exists(mfc_state.lock, name):
+    if not mfc_unique_target_exists(mfc_state.lock, name, mfc_state.args["compiler_configuration"]):
         return
     
     conf_desc = mfc_get_target(mfc_state.conf, name)
-    lock_desc = mfc_get_target(mfc_state.lock, name)
+    lock_desc = mfc_get_target(mfc_state.lock, name, mfc_state.args["compiler_configuration"])
     
     if ((    conf_desc["type"] != lock_desc["type"]
          and lock_desc["type"] in ["clone", "download"]
-        ) or (mfc_state.args["rebuild"])):
-        delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
+        ) or (mfc_state.args["scratch"])):
+        delete_directory_recursive_safe(f'{mfc_state.root_path}/{MFC_USE_SUBDIR}/{lock_desc["compiler_configuration"]}/src/{name}')
 
 
 def mfc_build_target__fetch(mfc_state: MFCGlobalState, name: str, logfile):
     conf = mfc_get_target(mfc_state.conf, name)
     
+    base_path = f'{mfc_state.root_path}/{MFC_USE_SUBDIR}/{mfc_state.args["compiler_configuration"]}'
+
     if conf["type"] in ["clone", "download"]:
-        source_path = f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}"
+        source_path = f'{base_path}/src/{name}'
 
         if conf["type"] == "clone":
-            lock_matches = mfc_peek_target(mfc_state.lock, name)
+            lock_matches = mfc_peek_target(mfc_state.lock, name, mfc_state.args["compiler_configuration"])
             
             if ((   len(lock_matches)    == 1
-                and conf["clone"]["git"] != mfc_get_target(mfc_state.lock, name)["clone"]["git"])
-                or (mfc_state.args["rebuild"])):
+                and conf["clone"]["git"] != mfc_get_target(mfc_state.lock, name)["clone"]["git"], mfc_state.args["compiler_configuration"])
+                or (mfc_state.args["scratch"])):
                 clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
 
                 delete_directory_recursive_safe(source_path)
@@ -339,21 +349,21 @@ def mfc_build_target__fetch(mfc_state: MFCGlobalState, name: str, logfile):
         elif conf["type"] == "download":
             clear_print(f'|--> Package {name}: Removing previously downloaded version...', end='\r')
 
-            delete_directory_recursive_safe(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
+            delete_directory_recursive_safe(f'{base_path}/src/{name}')
 
             download_link = conf[conf["type"]]["link"].replace("${version}", conf[conf["type"]]["version"])
             filename = download_link.split("/")[-1]
 
             clear_print(f'|--> Package {name}: Downloading source...', end='\r')
 
-            urllib.request.urlretrieve(download_link, f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}")
+            urllib.request.urlretrieve(download_link, f'{base_path}/src/{filename}')
 
             clear_print(f'|--> Package {name}: Uncompressing archive...', end='\r')
 
-            uncompress_archive_to(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}",
-                                  f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{name}")
+            uncompress_archive_to(f'{base_path}/src/{filename}',
+                                  f'{base_path}/src/{name}')
 
-            os.remove(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/src/{filename}")
+            os.remove(f'{base_path}/src/{filename}')
     elif conf["type"] == "source":
         pass
     else:
@@ -384,12 +394,14 @@ def mfc_build_target__update_lock(mfc_state: MFCGlobalState, name: str):
 
     clear_print(f'|--> Package {name}: Updating lock file...', end='\r')
 
-    if len(mfc_peek_target(mfc_state.lock, name)) == 0:
-        mfc_state.lock["targets"].append(conf)
+    new_entry = dict(conf, **{"compiler_configuration": mfc_state.args["compiler_configuration"]})
+
+    if len(mfc_peek_target(mfc_state.lock, name, mfc_state.args["compiler_configuration"])) == 0:
+        mfc_state.lock["targets"].append(new_entry)
     else:
         for index, dep in enumerate(mfc_state.lock["targets"]):
             if dep["name"] == name:
-                mfc_state.lock["targets"][index] = conf
+                mfc_state.lock["targets"][index] = new_entry
 
     mfc_dump_lock_file(mfc_state)
 
@@ -406,7 +418,7 @@ def mfc_build_target(mfc_state: MFCGlobalState, name: str):
 
     clear_print(f'|--> Package {name}: Preparing build...', end='\r')
 
-    with open(f"{mfc_state.root_path}/{MFC_USE_SUBDIR}/log/{name}.log", "w") as logfile:
+    with open(f'{mfc_state.root_path}/{MFC_USE_SUBDIR}/{mfc_state.args["compiler_configuration"]}/log/{name}.log', "w") as logfile:
         mfc_build_target__clean_previous(mfc_state, name)          # Clean any old build artifacts
         mfc_build_target__fetch         (mfc_state, name, logfile) # Fetch Source Code
         mfc_build_target__build         (mfc_state, name, logfile) # Build
@@ -439,10 +451,12 @@ def mfc_environment_checks(mfc_state: MFCGlobalState):
     clear_print(f"|--> Build environment: Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
 
 
-def mfc_setup_directories():
+def mfc_setup_directories(conf: dict):
     create_directory_safe(MFC_USE_SUBDIR)
-    for e in ["src", "build", "log"]:
-        create_directory_safe(f"{MFC_USE_SUBDIR}/{e}")
+
+    for d in ["src", "build", "log"]:
+        for cc in [ cc["name"] for cc in conf["compilers"]["configurations"] ]:
+            create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}")
 
 
 def mfc_main():
@@ -452,9 +466,9 @@ def mfc_main():
 
         colorama.init()
 
-        mfc_setup_directories()
-
         conf = mfc_read_conf_file()
+        mfc_setup_directories(conf)
+
         lock = mfc_read_lock_file()
         args = mfc_parse_arguments(conf)
         root_path = os.path.dirname(os.path.realpath(__file__))
