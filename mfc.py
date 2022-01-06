@@ -311,10 +311,10 @@ class MFC:
 
         for e in replace_list:
             string = string.replace(*e)
-
+        
         # Combine different assignments to flag variables (CFLAGS, FFLAGS, ...)
         for FLAG_NAME in [ "CFLAGS", "CPPFLAGS", "FFLAGS" ]:
-            FLAG_PATTERN = f' {FLAG_NAME}=".+?"'
+            FLAG_PATTERN = f' {FLAG_NAME}=".*?"'
 
             matches = re.findall(FLAG_PATTERN, string)
 
@@ -325,10 +325,8 @@ class MFC:
                 matches[i] = re.sub(f'^ {FLAG_NAME}="', ' ', matches[i])
                 matches[i] = re.sub(r'"$', ' ', matches[i])
 
-            new_flag_str = f' {FLAG_NAME}="{" ".join(matches)}"'
-
             string = re.sub(FLAG_PATTERN, ' ', string, len(matches) - 1)
-            string = re.sub(FLAG_PATTERN, new_flag_str, string)                
+            string = re.sub(FLAG_PATTERN, f' {FLAG_NAME}="{" ".join(matches)}"', string)                
         
         # Fetch 
         if recursive:
