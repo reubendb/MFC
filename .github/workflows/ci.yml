@@ -27,6 +27,9 @@ jobs:
         run: |
           chmod +x ./mfc.py
           ./mfc.py -t MFC -cc ci -j $(nproc)
+      
+      - name: Run MFC Tests
+        run: ./tests/checks.sh
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
@@ -34,9 +37,3 @@ jobs:
         with:
           name: mfc-py-logs
           path: .mfc/**/log/
-
-      - name: Build MFC
-        run: make -j $(nproc)
-      
-      - name: Run MFC Tests
-        run: make test
