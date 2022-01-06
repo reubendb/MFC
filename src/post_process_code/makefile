@@ -1,5 +1,3 @@
-include ../../misc/Makefile.in
-
 # Find all source files, create a list of corresponding object files
 SRCS=$(wildcard *.f90)
 OBJS=$(patsubst %.f90,%.o,$(SRCS))
