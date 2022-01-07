@@ -60,14 +60,14 @@ def file_dump_yaml(filepath: str, data):
 
 
 # TODO: Better solution
-def uncompress_archive_to(archive_filepath, destination):
+def uncompress_archive_to(archive_filepath: str, destination: str):
     archive = tarfile.open(archive_filepath, "r")
     archive.extractall("/".join(destination.rstrip("/").split("/")[:-1]))
     archive.close()
 
-    filename_wo_ext = archive_filepath.replace(".tar.gz", "")
+    src = "/".join(destination.rstrip("/").split("/")[:-1])+"/"+archive_filepath.split("/")[-1].replace(".tar.gz", "")
 
-    os.rename(filename_wo_ext, destination)
+    os.rename(src, destination)
 
 
 def delete_file_safe(filepath: str):
@@ -113,9 +113,12 @@ class MFCConf:
     def __init__(self):
         self.data = file_load_yaml(MFC_CONF_FILEPATH)
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str, default=None):
         if key not in self.data:
-            raise MFCException(f'MFCConf: Key "{key}" doesn\'t exist.')
+            if default==None:
+                raise MFCException(f'MFCConf: Key "{key}" doesn\'t exist.')
+            else:
+                return default
 
         return self.data[key]
 
@@ -168,9 +171,12 @@ class MFCLock:
 
         self.data = file_load_yaml(MFC_LOCK_FILEPATH)
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str, default=None):
         if key not in self.data:
-            raise MFCException(f'MFCLock: Key "{key}" doesn\'t exist.')
+            if default==None:
+                raise MFCException(f'MFCLock: Key "{key}" doesn\'t exist.')
+            else:
+                return default
 
         return self.data[key]
 
@@ -211,41 +217,56 @@ class MFCArgs:
     def __init__(self, conf: MFCConf):
         parser = argparse.ArgumentParser(description="Wecome to the MFC master script.", )
 
-        general   = parser.add_argument_group(title="General")
-        compiling = parser.add_argument_group(title="Compiling")
+        parser.add_argument("-build", "--build", action="store_true", help="Build.")
+        parser.add_argument("-test",  "--test",  action="store_true", help="Test.")
+        parser.add_argument("-clean", "--clean", action="store_true", help="Clean.")
 
         compiler_target_names = [e["name"] for e in conf["targets"]]
-        compiling.add_argument("-t", "--targets", nargs="+", type=str,
+        parser.add_argument("-t", "--targets", nargs="+", type=str,
                             choices=compiler_target_names, default="",
                             help="The space-separated targets you wish to have built.")
 
         compiler_configuration_names = [e["name"] for e in conf["compilers"]["configurations"]]
-        compiling.add_argument("-cc", "--compiler-configuration", type=str,
+        parser.add_argument("-cc", "--compiler-configuration", type=str,
                             choices=compiler_configuration_names, default=compiler_configuration_names[1])
 
-        compiling.add_argument("-j", "--jobs", metavar="N", type=int,
+        parser.add_argument("-j", "--jobs", metavar="N", type=int,
                             help="Allows for N concurrent jobs.", default=1)
 
-        compiling.add_argument("-c", "--clean", action="store_true",
-                            help="Cleans all binaries and build artifacts.")
-
-        compiling.add_argument("-s", "--scratch", action="store_true",
+        parser.add_argument("-s", "--scratch", action="store_true",
                             help="Build all targets from scratch.")
 
         self.data = vars(parser.parse_args())
+        print(self.data)
+        print()
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str, default=None):
         if key not in self.data:
-            raise MFCException(f'MFCArgs: Key "{key}" doesn\'t exist.')
+            if default==None:
+                raise MFCException(f'MFCArgs: Key "{key}" doesn\'t exist.')
+            else:
+                return default
 
         return self.data[key]
 
 
 class MFC:
+    def get_source_path(self, name: str):
+        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/src/{name}'
+
+    def get_build_path(self, name: str):
+        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/build/{name}'
+
+    def get_log_filepath(self, name: str):
+        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/log/{name}.log'
+
+    def get_temp_path(self, name: str):
+        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/temp/{name}'
+
     def setup_directories(self):
         create_directory_safe(MFC_USE_SUBDIR)
 
-        for d in ["src", "build", "log"]:
+        for d in ["src", "build", "log", "temp"]:
             for cc in [ cc["name"] for cc in self.conf["compilers"]["configurations"] ]:
                 create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}")
 
@@ -287,8 +308,8 @@ class MFC:
                 f'Failed to locate the compiler configuration "{self.args["compiler_configuration"]}".')
 
         if dep["type"] in ["clone", "download"]:
-            install_path = f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{compiler_cfg["name"]}/build'
-            source_path  = f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{compiler_cfg["name"]}/src/{dependency_name}'
+            install_path = self.get_build_path(dependency_name)
+            source_path  = self.get_source_path(dependency_name)
         elif dep["type"] == "source":
             install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
             source_path  = dep["source"]["source"]
@@ -311,7 +332,7 @@ class MFC:
 
         for e in replace_list:
             string = string.replace(*e)
-        
+
         # Combine different assignments to flag variables (CFLAGS, FFLAGS, ...)
         for FLAG_NAME in [ "CFLAGS", "CPPFLAGS", "FFLAGS" ]:
             FLAG_PATTERN = f' {FLAG_NAME}=".*?"'
@@ -327,7 +348,7 @@ class MFC:
 
             string = re.sub(FLAG_PATTERN, ' ', string, len(matches) - 1)
             string = re.sub(FLAG_PATTERN, f' {FLAG_NAME}="{" ".join(matches)}"', string)                
-        
+
         # Fetch 
         if recursive:
             for dep2_info in self.conf["targets"]:
@@ -340,14 +361,13 @@ class MFC:
         # Check if it hasn't been built before
         if not self.lock.does_target_exist(name, self.args["compiler_configuration"]):
             return False
-
+        
         # Retrive CONF & LOCK descriptors
         conf_desc = self.conf.get_target(name)
         lock_desc = self.lock.get_target(name, self.args["compiler_configuration"])
 
         # Check if it needs updating (LOCK & CONFIG descriptions don't match)
         if conf_desc["type"] != lock_desc["type"] or \
-           conf_desc["type"] == "source"          or \
            conf_desc[conf_desc["type"]] != conf_desc[conf_desc["type"]]:
             return False
 
@@ -377,11 +397,7 @@ class MFC:
     def build_target__fetch(self, name: str, logfile):
         conf = self.conf.get_target(name)
         
-        base_path = f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}'
-
         if conf["type"] in ["clone", "download"]:
-            source_path = f'{base_path}/src/{name}'
-
             if conf["type"] == "clone":
                 lock_matches = self.lock.get_target_matches(name, self.args["compiler_configuration"])
                 
@@ -390,36 +406,39 @@ class MFC:
                     or (self.args["scratch"])):
                     clear_print(f'|--> Package {name}: GIT repository changed. Updating...', end='\r')
 
-                    delete_directory_recursive_safe(source_path)
+                    delete_directory_recursive_safe(self.get_source_path(name))
 
-                if not os.path.isdir(source_path):
+                if not os.path.isdir(self.get_source_path(name)):
                     clear_print(f'|--> Package {name}: Cloning repository...', end='\r')
                     
                     execute_shell_command_safe(
-                        f'git clone --recursive "{conf["clone"]["git"]}" "{source_path}" >> "{logfile.name}" 2>&1')
+                        f'git clone --recursive "{conf["clone"]["git"]}" "{self.get_source_path(name)}" >> "{logfile.name}" 2>&1')
 
                 clear_print(f'|--> Package {name}: Checking out {conf["clone"]["hash"]}...', end='\r')
 
                 execute_shell_command_safe(
-                    f'cd "{source_path}" && git checkout "{conf["clone"]["hash"]}" >> "{logfile.name}" 2>&1')
+                    f'cd "{self.get_source_path(name)}" && git checkout "{conf["clone"]["hash"]}" >> "{logfile.name}" 2>&1')
             elif conf["type"] == "download":
                 clear_print(f'|--> Package {name}: Removing previously downloaded version...', end='\r')
 
-                delete_directory_recursive_safe(f'{base_path}/src/{name}')
+                delete_directory_recursive_safe(self.get_source_path(name))
 
-                download_link = conf[conf["type"]]["link"].replace("${version}", conf[conf["type"]]["version"])
+                download_link = conf[conf["type"]]["link"].replace("${VERSION}", conf[conf["type"]]["version"])
                 filename = download_link.split("/")[-1]
 
                 clear_print(f'|--> Package {name}: Downloading source...', end='\r')
 
-                urllib.request.urlretrieve(download_link, f'{base_path}/src/{filename}')
+                create_directory_safe(self.get_temp_path(name))
+                
+                download_path = f'{self.get_temp_path(name)}/{filename}'                
+                urllib.request.urlretrieve(download_link, download_path)
 
                 clear_print(f'|--> Package {name}: Uncompressing archive...', end='\r')
 
-                uncompress_archive_to(f'{base_path}/src/{filename}',
-                                    f'{base_path}/src/{name}')
+                uncompress_archive_to(download_path,
+                                      f'{self.get_source_path(name)}')
 
-                os.remove(f'{base_path}/src/{filename}')
+                os.remove(download_path)
         elif conf["type"] == "source":
             pass
         else:
@@ -471,7 +490,7 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
         clear_print(f'|--> Package {name}: Preparing build...', end='\r')
 
-        with open(f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/log/{name}.log', "w") as logfile:
+        with open(self.get_log_filepath(name), "w") as logfile:
             self.build_target__clean_previous(name)          # Clean any old build artifacts
             self.build_target__fetch         (name, logfile) # Fetch Source Code
             self.build_target__build         (name, logfile) # Build
@@ -481,36 +500,7 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
         return True
 
-    def __init__(self):
-        self.ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
-
-        self.conf = MFCConf()
-        self.setup_directories()
-        self.lock = MFCLock()
-        self.args = MFCArgs(self.conf)
-
-        self.check_environment()
-
-        if self.args["clean"]:
-            delete_directory_recursive_safe(f"./{MFC_USE_SUBDIR}/")
-
-            self.lock["targets"] = []
-
-            self.lock.save()
-
-        for target_name in self.args["targets"]:
-            self.build_target(target_name)
-
-        self.lock.save()
-
-
-def main():
-    try:
-        for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
-            import_module_safe(*module)
-
-        colorama.init()
-
+    def print_header(self):
         print(center_ansi_escaped_text(f"""{colorama.Fore.BLUE}
      ___            ___          ___     
     /__/\          /  /\        /  /\    
@@ -532,6 +522,56 @@ def main():
 | https://github.com/MFlowCode/MFC |
 +----------------------------------+
 """))
+
+    def test_target(self, name: str):
+        if not self.is_build_satisfied(name):
+            raise MFCException(f"Can't test {name} because its build isn't satisfied.")
+        
+        with open(self.get_log_filepath(name), "w") as logfile:
+            for command in self.conf.get_target(name)["test"]:
+                command = self.string_replace(name, f"""\
+cd "${{SOURCE_PATH}}" && \
+bash -c '{command}' >> "{logfile.name}" 2>&1""")
+
+                logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
+
+                execute_shell_command_safe(command)
+
+                clear_print(f'|--> Package {name}: Testing (Logging to {logfile.name})...')
+
+    def clean_target(self, name: str):
+        delete_directory_recursive_safe(self.get_source_path(name))
+        delete_file_safe(self.get_log_filepath(name))
+
+        self.lock["targets"] = list(filter(lambda x: x["name"] != name, self.lock["targets"]))
+        self.lock.save()
+
+    def __init__(self):
+        self.ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
+
+        self.conf = MFCConf()
+        self.setup_directories()
+        self.lock = MFCLock()
+        self.args = MFCArgs(self.conf)
+
+        self.print_header()
+        self.check_environment()
+
+        for target_name in [ x["name"] for x in self.conf["targets"] ]:
+            if target_name in self.args["targets"] or len(self.args["targets"]) == 0:
+                if self.args["build"]: self.build_target(target_name)
+                if self.args["test"]:  self.test_target(target_name)
+                if self.args["clean"]: self.clean_target(target_name)
+
+        self.lock.save()
+
+
+def main():
+    try:
+        for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
+            import_module_safe(*module)
+
+        colorama.init()
 
         mfc = MFC()
     except MFCException as exc:

@@ -26,11 +26,13 @@ targets:
   type: download
   download:
     version: 3.3.10
-    link:    http://www.fftw.org/fftw-${version}.tar.gz
+    link:    http://www.fftw.org/fftw-${VERSION}.tar.gz
   build:
   - ./configure ${CONFIGURE_OPTIONS} ${MPI_COMPILERS} --enable-threads --enable-mpi
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
   - make install
+  test: []
+
 - name: HDF5
   type: clone
   clone:
@@ -40,6 +42,8 @@ targets:
   - ./configure ${CONFIGURE_OPTIONS} ${MPI_COMPILERS} --enable-parallel --enable-deprecated-symbols
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
   - make install prefix="${INSTALL_PATH}"
+  test: []
+
 - name: SILO
   type: clone
   depends:
@@ -55,6 +59,8 @@ targets:
     ${MPI_COMPILERS} ${COMPILER_FLAGS} CFLAGS="-O0" CPPFLAGS="-O0" FFLAGS="-O0"
   - make ${MAKE_OPTIONS} ${MPI_COMPILERS}
   - make install prefix="${INSTALL_PATH}"
+  test: []
+
 - name: MFC_PreProcess
   type: source
   depends: []
@@ -62,6 +68,8 @@ targets:
     source: ${MFC_ROOT_PATH}/src/pre_process_code
   build:
   - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+  test: []
+
 - name: MFC_Simulation
   type: source
   depends:
@@ -72,6 +80,8 @@ targets:
   - >-
     make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
     FFLAGS="-lfftw3 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
+  test: []
+
 - name: MFC_PostProcess
   type: source
   depends:
@@ -84,6 +94,8 @@ targets:
   - >-
     make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
     FFLAGS="-lfftw3 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
+  test: []
+
 - name: MFC
   type: source
   depends:
@@ -93,3 +105,5 @@ targets:
   source:
     source: ${MFC_ROOT_PATH}
   build: []
+  test:
+  - ./tests/checks.sh
