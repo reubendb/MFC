@@ -12,15 +12,15 @@ compilers:
     flags:
       c:       -O3
       c++:     -O3
-      fortran: -O3 -cpp -c -w -Ofast
+      fortran: -O3 -cpp -w -Ofast
   - name: debug
     flags:
       c:       -Og -g
       c++:     -Og -g
-      fortran: -Og -g -cpp -c -w -Ofast
+      fortran: -Og -g -cpp -w -Ofast
   - name: ci
     flags:
-      fortran: -cpp -c -w -Ofast
+      fortran: -cpp -w -Ofast
 targets:
 - name: FFTW3
   type: download
@@ -93,7 +93,7 @@ targets:
   build:
   - >-
     make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
-    FFLAGS="-lfftw3 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
+    FFLAGS="-lfftw3 -lsiloh5 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
   test: []
 
 - name: MFC

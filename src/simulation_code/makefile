@@ -7,7 +7,7 @@ MODS=$(wildcard m*.f90)
 MOD_OBJS=$(patsubst %.f90,%.o,$(MODS))
 
 # Compiler/Linker settings
-EXEC = simulation
+EXEC = ../../.mfc/___current___/build/bin/MFC_Simulation
 PROGRAM = p_main
 PRG_OBJ = $(PROGRAM).o
 
@@ -16,11 +16,11 @@ all : $(PROGRAM)
 
 # Compiler steps for all objects
 $(OBJS) : %.o : %.f90
-	$(FC) $(FFLAGS) -o $@ $<
+	$(FC) $(FFLAGS) -c -o $@ $<
 
 # Linker
 $(PROGRAM) : $(OBJS)
-	$(FC) $(FFLAGS) -o $(EXEC) $(OBJS) 
+	$(FC) $(OBJS) $(FFLAGS) -o $(EXEC)
 
 .PHONY: all clean
 
