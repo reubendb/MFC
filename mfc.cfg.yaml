@@ -1,0 +1,57 @@
+compilers:
+  regular:
+    c:       gcc
+    c++:     g++
+    fortran: gfortran
+  mpi:
+    c:       mpicc
+    c++:     mpicxx
+    fortran: mpif90
+targets:
+  - name: release
+    flags:
+      c:       -O3
+      c++:     -O3
+      fortran: -cpp -c -w -fimplicit-none  -Wall  -Wline-truncation  -Wcharacter-truncation  -Wsurprising  -Waliasing  -Wimplicit-interface  -Wunused-parameter  -fwhole-file  -fcheck=all  -std=f2008  -pedantic  -fbacktrace
+  - name: debug
+    flags:
+      c:       -Og -g
+      c++:     -Og -g
+      fortran: -Og -g -cpp -c -w -Ofast
+  - name: ci
+    flags:
+      fortran: -cpp -c -w -Ofast
+dependencies:
+    - name: FFTW3
+      type: download
+      download:
+        version: 3.3.10
+        link:    http://www.fftw.org/fftw-${version}.tar.gz
+      build:
+        - ./configure ${CONFIGURE_OPTIONS} ${MPI_COMPILERS} --enable-threads --enable-mpi
+        - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+        - make install
+    - name: HDF5
+      type: clone
+      clone:
+        git:  https://github.com/HDFGroup/hdf5
+        hash: 4aa40365623cf35643b262781f92578220c42bbb
+      build:
+        - ./configure ${CONFIGURE_OPTIONS} ${MPI_COMPILERS} --enable-parallel --enable-deprecated-symbols
+        - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${MPI_COMPILERS}
+        - make install prefix="${INSTALL_PATH}"
+    - name: SILO
+      type: clone
+      depends:
+        - HDF5
+      clone:
+        git:  https://github.com/LLNL/Silo
+        hash: 9e3a31fbf661c4d26e9f5272287e5ff41971d117
+      build:
+        - >-
+          ./configure ${CONFIGURE_OPTIONS} --enable-pythonmodule --enable-optimization
+          --disable-hzip --disable-fpzip --disable-silex
+          --with-hdf5="${HDF5:INSTALL_PATH}/include","${HDF5:INSTALL_PATH}/lib"
+          ${MPI_COMPILERS}
+        - make ${MAKE_OPTIONS} ${MPI_COMPILERS}
+        - make install prefix="${INSTALL_PATH}"
