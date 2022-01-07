@@ -71,7 +71,7 @@ MODULE m_start_up
             
             
             ! Relative path to the input file provided by the user
-            CHARACTER(LEN = name_len) :: file_path = './simulation.inp'
+            CHARACTER(LEN = name_len) :: file_path = './MFC_Simulation.inp'
             
 
             LOGICAL :: file_exist !<

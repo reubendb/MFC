@@ -109,6 +109,13 @@ def clear_print(message, end='\n'):
     print(message, end=end)
 
 
+def update_symlink(at: str, to: str):
+    if os.path.islink(at):
+        os.remove(at)
+            
+    os.symlink(to, at)
+
+
 class MFCConf:
     def __init__(self):
         self.data = file_load_yaml(MFC_CONF_FILEPATH)
@@ -217,16 +224,19 @@ class MFCArgs:
     def __init__(self, conf: MFCConf):
         parser = argparse.ArgumentParser(description="Wecome to the MFC master script.", )
 
-        parser.add_argument("-build", "--build", action="store_true", help="Build.")
-        parser.add_argument("-test",  "--test",  action="store_true", help="Test.")
-        parser.add_argument("-clean", "--clean", action="store_true", help="Clean.")
+        compiler_configuration_names = [e["name"] for e in conf["compilers"]["configurations"]]
+
+        parser.add_argument("--build", action="store_true", help="Build the targets defined by '-t' with the configuration defined in '-cc'.")
+        parser.add_argument("--test",  action="store_true", help="Test the targets defined by '-t' with the configuration defined in '-cc'.")
+        parser.add_argument("--clean", action="store_true", help="Clean the targets defined by '-t' with the configuration defined in '-cc'.")
+        parser.add_argument("-sc", "--set-current", type=str, choices=compiler_configuration_names, 
+                            help="Select a compiler configuration to use when running MFC.")
 
         compiler_target_names = [e["name"] for e in conf["targets"]]
         parser.add_argument("-t", "--targets", nargs="+", type=str,
                             choices=compiler_target_names, default="",
                             help="The space-separated targets you wish to have built.")
 
-        compiler_configuration_names = [e["name"] for e in conf["compilers"]["configurations"]]
         parser.add_argument("-cc", "--compiler-configuration", type=str,
                             choices=compiler_configuration_names, default=compiler_configuration_names[1])
 
@@ -237,8 +247,6 @@ class MFCArgs:
                             help="Build all targets from scratch.")
 
         self.data = vars(parser.parse_args())
-        print(self.data)
-        print()
 
     def __getitem__(self, key: str, default=None):
         if key not in self.data:
@@ -251,17 +259,23 @@ class MFCArgs:
 
 
 class MFC:
-    def get_source_path(self, name: str):
-        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/src/{name}'
+    def get_base_path(self, cc: str = None):
+        if cc is None:
+            cc = self.args["compiler_configuration"]
+        
+        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{cc}'
 
-    def get_build_path(self, name: str):
-        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/build/{name}'
+    def get_source_path(self, name: str):
+        return f'{self.get_base_path()}/src/{name}'
+
+    def get_build_path(self):
+        return f'{self.get_base_path()}/build'
 
     def get_log_filepath(self, name: str):
-        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/log/{name}.log'
+        return f'{self.get_base_path()}/log/{name}.log'
 
     def get_temp_path(self, name: str):
-        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{self.args["compiler_configuration"]}/temp/{name}'
+        return f'{self.get_base_path()}/temp/{name}'
 
     def setup_directories(self):
         create_directory_safe(MFC_USE_SUBDIR)
@@ -269,6 +283,9 @@ class MFC:
         for d in ["src", "build", "log", "temp"]:
             for cc in [ cc["name"] for cc in self.conf["compilers"]["configurations"] ]:
                 create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}")
+                if d == "build":
+                    for build_subdir in ["bin", "include", "lib", "share"]:
+                        create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}/{build_subdir}")        
 
     def check_environment(self):
         print("|--> Checking for the presence of required command-line utilities...", end='\r')
@@ -308,7 +325,7 @@ class MFC:
                 f'Failed to locate the compiler configuration "{self.args["compiler_configuration"]}".')
 
         if dep["type"] in ["clone", "download"]:
-            install_path = self.get_build_path(dependency_name)
+            install_path = self.get_build_path()
             source_path  = self.get_source_path(dependency_name)
         elif dep["type"] == "source":
             install_path = "ERR_INSTALL_PATH_IS_UNDEFINED"
@@ -357,7 +374,7 @@ class MFC:
 
         return string
 
-    def is_build_satisfied(self, name: str):
+    def is_build_satisfied(self, name: str, ignoreIfSource: bool = False):
         # Check if it hasn't been built before
         if not self.lock.does_target_exist(name, self.args["compiler_configuration"]):
             return False
@@ -367,13 +384,14 @@ class MFC:
         lock_desc = self.lock.get_target(name, self.args["compiler_configuration"])
 
         # Check if it needs updating (LOCK & CONFIG descriptions don't match)
-        if conf_desc["type"] != lock_desc["type"] or \
+        if conf_desc["type"] != lock_desc["type"]                or \
+           conf_desc["type"] == "source" and not(ignoreIfSource) or \
            conf_desc[conf_desc["type"]] != conf_desc[conf_desc["type"]]:
             return False
 
         # Check if any of its dependencies needs updating
         for dependency_name in self.conf.get_dependency_names(name, recursive=True):
-            if not self.is_build_satisfied(dependency_name):
+            if not self.is_build_satisfied(dependency_name, ignoreIfSource=ignoreIfSource):
                 return False
 
         # Check for "scratch" flag
@@ -524,7 +542,7 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 """))
 
     def test_target(self, name: str):
-        if not self.is_build_satisfied(name):
+        if not self.is_build_satisfied(name, ignoreIfSource=True):
             raise MFCException(f"Can't test {name} because its build isn't satisfied.")
         
         with open(self.get_log_filepath(name), "w") as logfile:
@@ -537,7 +555,9 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
                 execute_shell_command_safe(command)
 
-                clear_print(f'|--> Package {name}: Testing (Logging to {logfile.name})...')
+                clear_print(f'|--> Package {name}: Testing (Logging to {logfile.name})...', end='\r')
+
+        clear_print(f'|--> Package {name}: Tested. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
 
     def clean_target(self, name: str):
         delete_directory_recursive_safe(self.get_source_path(name))
@@ -556,6 +576,13 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
         self.print_header()
         self.check_environment()
+
+        if self.args["set_current"] is not None:
+            update_symlink(f"{MFC_USE_SUBDIR}/___current___", self.get_base_path(self.args["set_current"]))
+
+        # Update symlink to current build
+        if self.args["build"]:
+            update_symlink(f"{MFC_USE_SUBDIR}/___current___", self.get_base_path())
 
         for target_name in [ x["name"] for x in self.conf["targets"] ]:
             if target_name in self.args["targets"] or len(self.args["targets"]) == 0:
