@@ -93,8 +93,8 @@ systems. This method is best suited for development and Continous Integration
 
 To fetch, build, and run MFC and its dependencies on a UNIX-like system, you
 must have installed common utilities such as GNU's Make, Python3, its developement headers and libraries, a C/C++ compiler
-(GCC, Clang, ...), and an MPI Fortran compiler (like [Open MPI](https://www.open-mpi.org/)). Here are some commands for popular
-Operating Systems and package managers, 
+(GCC, NVHPC, ...), but *not Clang*, and an MPI wrapper (like [Open MPI](https://www.open-mpi.org/)). 
+Below are some commands for popular operating systems and package managers.
 
 + [Aptitude](https://wiki.debian.org/Aptitude)
 ```
@@ -112,6 +112,9 @@ To install `open-mpi` for a brew-installed `gcc`, you will need to set the follo
 ```
 HOMEBREW_CC=gcc-11 HOMEBREW_CXX=g++-11 brew install open-mpi
 ```
+where one can change the `-11` portion to match the installed `gcc-?` version. 
+This is required because the MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
+We do *not* support `clang` due to its conflicts with our Silo dependency.
 
 The following commands fetch and build MFC and its required dependencies. The dependencies are built 
 to the `dependencies/build/` directory within your MFC installation. This should have no impact on your
