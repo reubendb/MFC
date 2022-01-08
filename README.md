@@ -113,6 +113,7 @@ To install `open-mpi` for a brew-installed `gcc`, you will need to set the follo
 HOMEBREW_CC=gcc-11; HOMEBREW_CXX=g++-11; brew install open-mpi
 ```
 where one can change the `-11` portion to match the installed `gcc-?` version. 
+You can read more about this [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9).
 This is required because the MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
 We do *not* support `clang` due to its conflicts with our Silo dependency.
 
