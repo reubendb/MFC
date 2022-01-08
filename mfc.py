@@ -234,9 +234,9 @@ class MFCArgs:
 
         compiler_configuration_names = [e["name"] for e in conf["compilers"]["configurations"]]
 
-        parser.add_argument("--build", action="store_true", help="Build the targets defined by '-t' with the configuration defined in '-cc'.")
-        parser.add_argument("--test",  action="store_true", help="Test the targets defined by '-t' with the configuration defined in '-cc'.")
-        parser.add_argument("--clean", action="store_true", help="Clean the targets defined by '-t' with the configuration defined in '-cc'.")
+        parser.add_argument("--build", action="store_true", help="Build targets.")
+        parser.add_argument("--test",  action="store_true", help="Test targets.")
+        parser.add_argument("--clean", action="store_true", help="Clean the targets.")
         parser.add_argument("-sc", "--set-current", type=str, choices=compiler_configuration_names, 
                             help="Select a compiler configuration to use when running MFC.")
 
@@ -593,7 +593,7 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
             update_symlink(f"{MFC_USE_SUBDIR}/___current___", self.get_base_path())
 
         for target_name in [ x["name"] for x in self.conf["targets"] ]:
-            if target_name in self.args["targets"] or len(self.args["targets"]) == 0:
+            if target_name in self.args["targets"]:
                 if self.args["build"]: self.build_target(target_name)
                 if self.args["test"]:  self.test_target(target_name)
                 if self.args["clean"]: self.clean_target(target_name)

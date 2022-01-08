@@ -158,7 +158,7 @@ The `configurations` section within `compilers` consists of a list of "compiler 
   flags:
     c:       -O3
     c++:     -O3
-    fortran: -O3 -cpp -w -Ofast
+    fortran: -O3 -cpp -w
 ```
 
 To use a desired compiler configuration with `mfc.py`, you must specify the `--compiler-configuration` (a.k.a `-cc`) option, along with the name of your configuration. `release` is its default value. For example, to build MFC and its dependencies in `debug` mode, you can run:
