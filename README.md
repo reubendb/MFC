@@ -96,14 +96,17 @@ must have installed common utilities such as GNU's Make, Python3, its developeme
 (GCC, NVHPC, ...), but *not Clang*, and an MPI wrapper (like [Open MPI](https://www.open-mpi.org/)). 
 Below are some commands for popular operating systems and package managers.
 
-+ [Aptitude](https://wiki.debian.org/Aptitude)
+### \*nix
+
+* Via [Aptitude](https://wiki.debian.org/Aptitude)
 ```
 sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev
 ```
 
-+ [Homebrew](https://brew.sh/)
+### MacOS (including x86 and M1/Apple Silicon)
 
-For MacOS you can 
+* Via [Homebrew](https://brew.sh/)
+
 ```
 brew install wget make python make cmake gcc
 ```
@@ -117,11 +120,13 @@ You can read more about this [here](https://stackoverflow.com/questions/27930481
 This is required because MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
 We do *not* support `clang` due to its conflicts with our Silo dependency.
 
-The following commands fetch and build MFC and its required dependencies. The dependencies are built 
-to the `dependencies/build/` directory within your MFC installation. This should have no impact on your
-local installation(s) of these packages.
 
-+ Fetch MFC's source code and enter its root directory
+
+### Fetch and build MFC
+
+The following commands fetch and build MFC and its required dependencies. 
+The dependencies are built to the `dependencies/build/` directory within your MFC installation. 
+This should have no impact on your local installation(s) of these packages.
 
 ```
 git clone https://github.com/MFlowCode/MFC && cd MFC
