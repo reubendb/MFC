@@ -110,7 +110,7 @@ brew install wget make python make cmake gcc
 
 To install `open-mpi` for a brew-installed `gcc`, you will need to set the following environment variables before the brew install:
 ```
-HOMEBREW_CC=gcc-11 HOMEBREW_CXX=g++-11 brew install open-mpi
+HOMEBREW_CC=gcc-11; HOMEBREW_CXX=g++-11; brew install open-mpi
 ```
 where one can change the `-11` portion to match the installed `gcc-?` version. 
 This is required because the MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
