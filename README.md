@@ -103,8 +103,14 @@ sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-de
 
 + [Homebrew](https://brew.sh/)
 
+For MacOS you can 
 ```
-brew install wget make python open-mpi make cmake gcc
+brew install wget make python make cmake gcc
+```
+
+To install `open-mpi` for a brew-installed `gcc`, you will need to set the following environment variables before the brew install:
+```
+HOMEBREW_CC=gcc-11 HOMEBREW_CXX=g++-11 brew install open-mpi
 ```
 
 The following commands fetch and build MFC and its required dependencies. The dependencies are built 
