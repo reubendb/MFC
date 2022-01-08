@@ -18,24 +18,32 @@ class MFCException(Exception):
     pass
 
 
-def execute_shell_command_safe(command: str):
-    if os.system(command) != 0:
+def execute_shell_command_safe(command: str, no_exception: bool = False):
+    status = os.system(command)
+
+    if status != 0 and not(no_exception):
         raise MFCException(f'Failed to execute command "{command}".')
+    
+    return status
 
 
 def import_module_safe(import_name: str, pip_name: str):
     while True:
         try:
+            print()
+            print("Trying to import....")
+            print()
+
             globals()[import_name] = __import__(import_name)
 
             break
-        except ImportError as exc:
+        except ImportError:
             prompt = f"The Python package {pip_name} needs to be installed. Would you like to install it now? (yY/nN): "
 
             if input(prompt).upper().strip() != "Y":
                 raise MFCException(f'You requested not to download the Python package {pip_name}. Aborting...')
 
-            if 0 != execute_shell_command_safe(f'python3 -m pip install --user {pip_name}'):
+            if 0 != execute_shell_command_safe(f'python3 -m pip install --user {pip_name}', no_exception=True):
                 raise MFCException(f'Failed to install Python package {pip_name} automatically. Please install it manually using Pip. Aborting...')
 
 
@@ -234,11 +242,11 @@ class MFCArgs:
 
         compiler_target_names = [e["name"] for e in conf["targets"]]
         parser.add_argument("-t", "--targets", nargs="+", type=str,
-                            choices=compiler_target_names, default="",
+                            choices=compiler_target_names, default=["MFC"],
                             help="The space-separated targets you wish to have built.")
 
         parser.add_argument("-cc", "--compiler-configuration", type=str,
-                            choices=compiler_configuration_names, default=compiler_configuration_names[1])
+                            choices=compiler_configuration_names, default="release")
 
         parser.add_argument("-j", "--jobs", metavar="N", type=int,
                             help="Allows for N concurrent jobs.", default=1)
@@ -594,10 +602,10 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
 
 def main():
+    for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
+        import_module_safe(*module)
+    
     try:
-        for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
-            import_module_safe(*module)
-
         colorama.init()
 
         mfc = MFC()
