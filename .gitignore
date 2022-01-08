@@ -1,8 +1,7 @@
 .mfc/
 tags
 src/*/tags
-doc/Doxygen/*/html
-doc/Doxygen/*icon*
+
 src/*/*.mod
 src/*/*.o
 src/pre_process_code/pre_process
@@ -12,7 +11,9 @@ src/master_scripts/*.pyc
 src/master_scripts/__*
 make_doc.sh
 cases/
+
 .DS_Store
+
 tests/*/D/*
 tests/*/p*
 tests/*/D_*
@@ -23,6 +24,7 @@ tests/*/silo*
 tests/*/restart*
 tests/*/*.out
 tests/*/binary
+
 example_cases/*batch/*/
 example_cases/*/D/*
 example_cases/*/p*
@@ -35,4 +37,17 @@ example_cases/*/silo*
 example_cases/*/restart*
 example_cases/*/*.out
 example_cases/*/binary
+
 dependencies/**/*
+
+doc/MFC-user-guide/MFC_user_guide.bbl
+doc/MFC-user-guide/MFC_user_guide.blg
+doc/MFC-user-guide/MFC_user_guide.aux
+doc/MFC-user-guide/MFC_user_guide.toc
+doc/MFC-user-guide/MFC_user_guide.fls
+doc/MFC-user-guide/MFC_user_guide.synctex.gz
+doc/MFC-user-guide/MFC_user_guide.log
+doc/MFC-user-guide/MFC_user_guide.fdb_latexmk
+
+doc/Doxygen/*/html
+doc/Doxygen/*icon*
