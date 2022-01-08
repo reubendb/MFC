@@ -12,15 +12,15 @@ compilers:
     flags:
       c:       -O3
       c++:     -O3
-      fortran: -O3 -cpp -w -Ofast
+      fortran: -O3 -cpp -w
   - name: debug
     flags:
       c:       -Og -g
       c++:     -Og -g
-      fortran: -Og -g -cpp -w -Ofast
+      fortran: -Og -g -cpp -w
   - name: ci
     flags:
-      fortran: -cpp -w -Ofast
+      fortran: -cpp -w
 targets:
 - name: FFTW3
   type: download
