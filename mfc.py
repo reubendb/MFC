@@ -30,10 +30,6 @@ def execute_shell_command_safe(command: str, no_exception: bool = False):
 def import_module_safe(import_name: str, pip_name: str):
     while True:
         try:
-            print()
-            print("Trying to import....")
-            print()
-
             globals()[import_name] = __import__(import_name)
 
             break
