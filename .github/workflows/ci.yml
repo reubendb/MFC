@@ -21,22 +21,19 @@ jobs:
       - name: Fetch Aptitude Dependencies
         run: |
           sudo apt install -y tar wget make cmake gcc g++ python3 openmpi-* python python-dev python3-dev libopenmpi-dev
+          pip3 install pyyaml colorama
 
-      - name: Get Dependencies (/dependencies/install.sh)
+      - name: Build MFC and its dependencies (mfc.py)
         run: |
-          cd dependencies
-          ./install.sh -j $(nproc)
-          cd ..
+          chmod +x ./mfc.py
+          ./mfc.py --build -t MFC -cc ci -j $(nproc)
+      
+      - name: Run MFC Tests
+        run: ./mfc.py --test -t MFC -cc ci
 
-      - name: Upload /dependencies/logs
+      - name: Upload logs
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: dependency-logs
-          path: dependencies/log/
-
-      - name: Build MFC
-        run: make -j $(nproc)
-      
-      - name: Run MFC Tests
-        run: make test
+          name: mfc-py-logs
+          path: .mfc/**/log/

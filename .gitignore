@@ -1,3 +1,4 @@
+.mfc/
 tags
 src/*/tags
 doc/Doxygen/*/html
@@ -34,6 +35,4 @@ example_cases/*/silo*
 example_cases/*/restart*
 example_cases/*/*.out
 example_cases/*/binary
-dependencies/build/
-dependencies/log/
-dependencies/src/FFTW3
+dependencies/**/*
