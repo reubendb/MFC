@@ -1574,9 +1574,9 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
 
 
     # Checking whether the MFC component selected by the user exists
-    if (comp_name != 'pre_process' ) and \
-       (comp_name != 'simulation'  ) and \
-       (comp_name != 'post_process'):
+    if (comp_name != 'MFC_PreProcess' ) and \
+       (comp_name != 'MFC_Simulation'  ) and \
+       (comp_name != 'MFC_PostProcess'):
         print('\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n')
         exit(0)
@@ -1627,7 +1627,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
     if engine == 'serial':
         print('\n' + comp_name + '>> Serial job in progress ...' + '\n')
         #cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+' ./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
-        cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+ ' '+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
+        cmd_status = Popen(f'mpirun -n {str(pbs_dict["ppn"])} {mfc_dir}/../.mfc/___current___/build/bin/{comp_name}', shell=True, stdout=PIPE)
         output, errors = cmd_status.communicate()
         print('\n' + output)
         print(comp_name + '>> Serial job completed!' + '\n')
@@ -1677,9 +1677,9 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
     
     
     # Checking whether the MFC component selected by the user exists
-    if (comp_name != 'pre_process' ) and \
-       (comp_name != 'simulation'  ) and \
-       (comp_name != 'post_process'):
+    if (comp_name != 'MFC_PreProcess' ) and \
+       (comp_name != 'MFC_Simulation'  ) and \
+       (comp_name != 'MFC_PostProcess'):
         print(( '\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n'))
         exit(0)
@@ -1731,11 +1731,9 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
     # Setting the directory location for the MFC component
     comp_dir = mfc_dir + '/' + comp_name + '_code'
 
-    makefile = 'makefile'
-
     # Compiling the MFC component's code if necessary
-    cmd_status = Popen('make -C ' + comp_dir + ' all', shell=True, stdout=PIPE)
-    output, errors = cmd_status.communicate()
+    #cmd_status = Popen(f'./mfc.py --build {comp_dir} all', shell=True, stdout=PIPE)
+    #output, errors = cmd_status.communicate()
     
     
     # Generating input file to be read in by the MFC component's executable
@@ -1748,7 +1746,8 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
     if engine == 'serial':
         print(( '\n' + comp_name + '>> Serial job in progress ...' + '\n'))
         #cmd_status = Popen('./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
-        cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+ ' '+comp_dir+'/'+comp_name, shell=True )
+        
+        cmd_status = Popen(f'mpirun -n {str(pbs_dict["ppn"])} {mfc_dir}/../.mfc/___current___/build/bin/{comp_name}', shell=True )
         output, errors = cmd_status.communicate()
         #print '\n' + output
         print(( comp_name + '>> Serial job completed!' + '\n'))
@@ -1779,12 +1778,12 @@ def f_create_input_file(comp_name, case_dict): # -------------------------------
     
     # Updating the values in the relevant MFC component dictionary using the
     # values provided by the user in the case dictionary
-    if comp_name == 'pre_process':
+    if comp_name == 'MFC_PreProcess':
         for parameter in case_dict:
             if parameter in pre_process_dict:
                 pre_process_dict[parameter] = case_dict[parameter]
         comp_dict = pre_process_dict
-    elif comp_name == 'simulation':
+    elif comp_name == 'MFC_Simulation':
         for parameter in case_dict:
             if parameter in simulation_dict:
                 simulation_dict[parameter] = case_dict[parameter]

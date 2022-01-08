@@ -6,7 +6,7 @@
 !!              data files into the "0" time-step directory located in the folder
 !!              associated with the rank of the local processor, which is a sub-
 !!              directory of the case folder specified by the user in the input
-!!              file pre_process.inp.
+!!              file MFC_PreProcess.inp.
 MODULE m_data_output
     
     ! Dependencies =============================================================
