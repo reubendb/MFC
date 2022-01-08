@@ -44,7 +44,7 @@ We try to maintain a list of current and past developers in the `AUTHORS` file!
  
   Journal papers:
 * <a href="https://arxiv.org/abs/2112.14172">
-        S. H. Bryngelson, R. O. Fox, T. Colonius, T. (2021) arXiv: 2112.14172.
+        S. H. Bryngelson, R. O. Fox, T. Colonius (2021) arXiv: 2112.14172.
         </a>
 * <a href="https://asa.scitation.org/doi/full/10.1121/10.0000746">
         S. H. Bryngelson and T. Colonius (2020) Journal of the Acoustical Society of America, Vol. 147, pp. 1126-1135
