@@ -48,6 +48,7 @@ jobs:
           USE_GCC_VERSION=11
           brew install wget make python make cmake gcc@$USE_GCC_VERSION
           HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
+          pip3 install pyyaml colorama
 
       - name: Build MFC and its dependencies (mfc.py)
         run: |
