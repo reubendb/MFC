@@ -28,19 +28,26 @@ def execute_shell_command_safe(command: str, no_exception: bool = False):
 
 
 def import_module_safe(import_name: str, pip_name: str):
-    while True:
-        try:
-            globals()[import_name] = __import__(import_name)
+    try:
+        globals()[import_name] = __import__(import_name)
 
-            break
-        except ImportError:
-            prompt = f"The Python package {pip_name} needs to be installed. Would you like to install it now? (yY/nN): "
+        return
 
-            if input(prompt).upper().strip() != "Y":
-                raise MFCException(f'You requested not to download the Python package {pip_name}. Aborting...')
+    except ImportError:
+        pass
+    
+    prompt = f"The Python package {pip_name} needs to be installed. Would you like to install it now? (from ./python_packages/{pip_name}) (yY/nN): "
 
-            if 0 != execute_shell_command_safe(f'python3 -m pip install --user {pip_name}', no_exception=True):
-                raise MFCException(f'Failed to install Python package {pip_name} automatically. Please install it manually using Pip. Aborting...')
+    if input(prompt).upper().strip() != "Y":
+        raise Exception(f'You requested not to download the Python package {pip_name}. Aborting...')
+
+    if 0 != execute_shell_command_safe(f'cd "python_packages/{pip_name}" && python3 setup.py install --user', no_exception=True):
+        raise Exception(f'Failed to automatically install the Python package {pip_name}. Please install it manually using Pip. Aborting...')
+
+    print("\n")
+
+    # Restart mfc.py
+    os.execv(sys.argv[0], sys.argv)
 
 
 def clear_line():
@@ -51,6 +58,7 @@ def file_load_yaml(filepath: str):
     try:
         with open(filepath, "r") as f:
             return yaml.safe_load(f)
+    
     except (IOError, yaml.YAMLError) as exc:
         raise MFCException(f'Failed to load YAML from "{filepath}": {exc}')
 
@@ -59,6 +67,7 @@ def file_dump_yaml(filepath: str, data):
     try:
         with open(filepath, "w") as f:
             yaml.dump(data, f)
+    
     except (IOError, yaml.YAMLError) as exc:
         raise MFCException(f'Failed to dump YAML to "{filepath}": {exc}.')
 
@@ -543,6 +552,7 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 |                                  |
 | https://github.com/MFlowCode/MFC |
 +----------------------------------+
+
 """))
 
     def test_target(self, name: str):
@@ -598,6 +608,8 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
 
 def main():
+    execute_shell_command_safe("git submodule update --init --recursive", no_exception=True)
+
     for module in [("yaml", "pyyaml"), ("colorama", "colorama")]:
         import_module_safe(*module)
     
@@ -605,7 +617,7 @@ def main():
         colorama.init()
 
         mfc = MFC()
-    except MFCException as exc:
+    except (MFCException, Exception) as exc:
         print(f"{colorama.Fore.RED}|--> {str(exc)}{colorama.Style.RESET_ALL}")
         exit(1)
 
