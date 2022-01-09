@@ -109,18 +109,15 @@ sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-de
 
 * Via [Homebrew](https://brew.sh/)
 
+You can modify the assignment on the first line to have the GCC major version you wish to have installed and use.
+
 ```
-brew install wget make python make cmake gcc
+USE_GCC_VERSION=11
+brew install wget make python make cmake gcc@$USE_GCC_VERSION
+HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
 ```
 
-To install `open-mpi` for a brew-installed `gcc`, you will need to set the following environment variables before the brew install:
-```
-HOMEBREW_CC=gcc-11; HOMEBREW_CXX=g++-11; brew install open-mpi
-```
-where one can change the `-11` portion to match the installed `gcc-?` version. 
-You can read more about this [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9).
-This is required because MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
-We do *not* support `clang` due to conflicts with our Silo dependency.
+Further reading `open-mpi` incompatibility with `clang`-based `gcc` on macOS: [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9). We do *not* support `clang` due to conflicts with our Silo dependency.
 
 ### Fetch and build MFC
 
