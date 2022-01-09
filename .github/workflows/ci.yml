@@ -53,7 +53,6 @@ jobs:
       - name: Build MFC and its dependencies (mfc.py)
         run: |
           chmod +x ./mfc.py
-          sudo chown -R $(whoami) /usr/local
           ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
       
       - name: Run MFC Tests

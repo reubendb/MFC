@@ -126,7 +126,7 @@ The dependencies are built to the `dependencies/build/` directory within your MF
 This should have no impact on your local installation(s) of these packages.
 
 ```
-git clone https://github.com/MFlowCode/MFC && cd MFC
+git clone --recursive https://github.com/MFlowCode/MFC && cd MFC
 ```
 
 + Build MFC and its dependencies with `<N>` threads in `release` mode:
