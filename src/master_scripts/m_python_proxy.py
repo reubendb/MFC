@@ -1627,7 +1627,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
     if engine == 'serial':
         print('\n' + comp_name + '>> Serial job in progress ...' + '\n')
         #cmd_status = Popen('mpirun -n '+str(pbs_dict[ 'ppn' ])+' ./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
-        cmd_status = Popen(f'mpirun -n {str(pbs_dict["ppn"])} {mfc_dir}/../.mfc/___current___/build/bin/{comp_name}', shell=True, stdout=PIPE)
+        cmd_status = Popen(f'LD_LIBRARY_PATH="{mfc_dir}/../.mfc/___current___/build/lib" mpirun -n {str(pbs_dict["ppn"])} "{mfc_dir}/../.mfc/___current___/build/bin/{comp_name}"', shell=True )
         output, errors = cmd_status.communicate()
         print('\n' + output)
         print(comp_name + '>> Serial job completed!' + '\n')
@@ -1747,7 +1747,7 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
         print(( '\n' + comp_name + '>> Serial job in progress ...' + '\n'))
         #cmd_status = Popen('./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE)
         
-        cmd_status = Popen(f'mpirun -n {str(pbs_dict["ppn"])} {mfc_dir}/../.mfc/___current___/build/bin/{comp_name}', shell=True )
+        cmd_status = Popen(f'LD_LIBRARY_PATH="{mfc_dir}/../.mfc/___current___/build/lib" mpirun -n {str(pbs_dict["ppn"])} "{mfc_dir}/../.mfc/___current___/build/bin/{comp_name}"', shell=True )
         output, errors = cmd_status.communicate()
         #print '\n' + output
         print(( comp_name + '>> Serial job completed!' + '\n'))
