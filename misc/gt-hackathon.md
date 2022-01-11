@@ -34,6 +34,7 @@
 * Henry
 	* Build, test, verify that new MFC master branch build system works on Summit
 	* Getting new build system working with GPUs
+	* Watch OpenACC YouTube video series, might be an Nvidia (separate) series on YT as well?
 
 * Esteban
 	1. Get Ascent access
