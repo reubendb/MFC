@@ -13,6 +13,11 @@ compilers:
       c:       -O3
       c++:     -O3
       fortran: -O3 -cpp -w
+  - name: release-gpu
+    flags:
+      c:       -O3
+      c++:     -O3
+      fortran: -O3 -cpp -w -acc -Minfo=accel -lnvToolsExt -L$(CUDA:INSTALL_PATH)/lib64
   - name: debug
     flags:
       c:       -Og -g

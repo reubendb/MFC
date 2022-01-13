@@ -2,12 +2,13 @@
 
 import os
 import re
+import io
 import sys
+import copy
 import shutil
 import tarfile
 import argparse
 import urllib.request
-
 
 MFC_USE_SUBDIR    = ".mfc"
 MFC_CONF_FILEPATH = "mfc.conf.yaml"
@@ -346,7 +347,28 @@ class MFC:
         else:
             raise MFCException(f'Unknown type "{dep["type"]}".')
 
-        flags = compiler_cfg["flags"]
+        flags = copy.deepcopy(compiler_cfg["flags"])
+        for lang, lang_flags in flags.items():
+            lang: str ; lang_flags: str
+            if "$(CUDA:INSTALL_PATH)" in lang_flags:
+                matches = list(filter(lambda test_key: test_key in [ "CUDA_HOME", "CUDA_DIR" ], os.environ))
+
+                if len(matches) == 0:
+                    raise MFCException(f'''\
+Failed to find where CUDA was installed for {dependency_name} with {compiler_cfg["name"]}/{lang}.
+Please follow the instructions bellow:
+- Make sure CUDA is installed and properly configured.
+- Open mfc.conf.py.
+- Locate section compilers -> configurations -> {compiler_cfg["name"]} -> {lang}:
+- Replace $(CUDA:INSTALL_PATH) with the root path to your CUDA installation.
+  "include" and "lib" should be folders directly accessible from this folder.
+
+If you think MFC could (or should) be able to find it automatically for you system, you are welcome to file an issue on GitHub or a pull request with your changes to mfc.py at https://github.com/MFlowCode/MFC.
+''')
+
+                cuda_install_path = os.environ[matches[0]]
+
+                lang_flags = lang_flags.replace("$(CUDA:INSTALL_PATH)", cuda_install_path)
 
         replace_list = [
             ("${MFC_ROOT_PATH}",     self.ROOT_PATH),
@@ -425,7 +447,7 @@ class MFC:
             ) or (self.args["scratch"])):
             delete_directory_recursive_safe(f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{lock_desc["compiler_configuration"]}/src/{name}')
 
-    def build_target__fetch(self, name: str, logfile):
+    def build_target__fetch(self, name: str, logfile: io.IOBase):
         conf = self.conf.get_target(name)
         
         if conf["type"] in ["clone", "download"]:
@@ -475,7 +497,7 @@ class MFC:
         else:
             raise MFCException(f'Dependency type "{conf["type"]}" is unsupported.')
 
-    def build_target__build(self, name: str, logfile):
+    def build_target__build(self, name: str, logfile: io.IOBase):
         conf = self.conf.get_target(name)
 
         if conf["type"] not in ["clone", "download", "source"]:
@@ -485,9 +507,10 @@ class MFC:
             command = self.string_replace(name, f"""\
 cd "${{SOURCE_PATH}}" && \
 PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" \
-bash -c '{command}' >> "{logfile.name}" 2>&1""")
+stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
             logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
+            logfile.flush()
 
             clear_print(f'|--> Package {name}: Building (Logging to {logfile.name})...', end='\r')
 
@@ -566,6 +589,7 @@ cd "${{SOURCE_PATH}}" && \
 bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
                 logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
+                logfile.flush()
 
                 execute_shell_command_safe(command)
 

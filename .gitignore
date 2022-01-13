@@ -1,5 +1,6 @@
 .mfc/
 tags
+.mfc/
 src/*/tags
 
 src/*/*.mod
