@@ -20,10 +20,13 @@
 
 * Anand
 	* Implement Order-3 RK Time stepper
+	- Done (RK2, RK3)
 	* Parallel IO (with Nsight Systems), say every 100 time steps or so
+	- Done (Parallel IO takes less than 2 timesteps)
 	* Do some preliminary scaling runs on Summit (starting with weak scaling)
 		* Do a 1D and a 3D case, two alphas/components if possible
 	* Note: Can't merge GPU->master branch without time-steppers and multi-components verified working
+	- Done (Verified timesteppers as well as multi-component)
 
 * Jean
 	* Post to Slack the results of scaling on XSEDE machines?
