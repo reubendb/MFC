@@ -8,9 +8,7 @@ import copy
 import shutil
 import tarfile
 import argparse
-import traceback
 import urllib.request
-
 
 MFC_USE_SUBDIR    = ".mfc"
 MFC_CONF_FILEPATH = "mfc.conf.yaml"
@@ -240,7 +238,7 @@ class MFCArgs:
     def __init__(self, conf: MFCConf):
         parser = argparse.ArgumentParser(description="Wecome to the MFC master script.", )
 
-        compiler_configuration_names = [e["name"] for e in conf["configurations"]]
+        compiler_configuration_names = [e["name"] for e in conf["compilers"]["configurations"]]
 
         parser.add_argument("--build", action="store_true", help="Build targets.")
         parser.add_argument("--test",  action="store_true", help="Test targets.")
@@ -254,7 +252,7 @@ class MFCArgs:
                             help="The space-separated targets you wish to have built.")
 
         parser.add_argument("-cc", "--compiler-configuration", type=str,
-                            choices=compiler_configuration_names, default="release-cpu")
+                            choices=compiler_configuration_names, default="release")
 
         parser.add_argument("-j", "--jobs", metavar="N", type=int,
                             help="Allows for N concurrent jobs.", default=1)
@@ -297,7 +295,7 @@ class MFC:
         create_directory_safe(MFC_USE_SUBDIR)
 
         for d in ["src", "build", "log", "temp"]:
-            for cc in [ cc["name"] for cc in self.conf["configurations"] ]:
+            for cc in [ cc["name"] for cc in self.conf["compilers"]["configurations"] ]:
                 create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}")
                 if d == "build":
                     for build_subdir in ["bin", "include", "lib", "share"]:
@@ -307,7 +305,8 @@ class MFC:
         print("|--> Checking for the presence of required command-line utilities...", end='\r')
 
         required = ["python3", "python3-config", "make", "git"]
-        required += self.conf["compilers"].values()
+        required += self.conf["compilers"]["regular"].values()
+        required += self.conf["compilers"]["mpi"].values()
 
         for index, utility in enumerate(required):
             clear_print(f"|--> {index+1}/{len(required)} Checking for {utility}...", end='\r')
@@ -324,11 +323,13 @@ class MFC:
         clear_print(f"|--> Build environment: Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
 
     def string_replace(self, dependency_name: str, string: str, recursive=True):
-        dep       = self.conf.get_target(dependency_name)
-        compilers = self.conf["compilers"]
+        dep = self.conf.get_target(dependency_name)
+
+        regulars = self.conf["compilers"]["regular"]
+        mpis     = self.conf["compilers"]["mpi"]
 
         compiler_cfg = None
-        for c_cfg in self.conf["configurations"]:
+        for c_cfg in self.conf["compilers"]["configurations"]:
             if c_cfg["name"] == self.args["compiler_configuration"]:
                 compiler_cfg = c_cfg
                 break
@@ -347,9 +348,9 @@ class MFC:
             raise MFCException(f'Unknown type "{dep["type"]}".')
 
         flags = copy.deepcopy(compiler_cfg["flags"])
-        for lang in flags.keys():
-            lang: str
-            if "${CUDA:INSTALL_PATH}" in flags[lang]:
+        for lang, lang_flags in flags.items():
+            lang: str ; lang_flags: str
+            if "$(CUDA:INSTALL_PATH)" in lang_flags:
                 matches = list(filter(lambda test_key: test_key in [ "CUDA_HOME", "CUDA_DIR" ], os.environ))
 
                 if len(matches) == 0:
@@ -367,7 +368,7 @@ If you think MFC could (or should) be able to find it automatically for you syst
 
                 cuda_install_path = os.environ[matches[0]]
 
-                flags[lang] = flags[lang].replace("${CUDA:INSTALL_PATH}", cuda_install_path)
+                lang_flags = lang_flags.replace("$(CUDA:INSTALL_PATH)", cuda_install_path)
 
         replace_list = [
             ("${MFC_ROOT_PATH}",     self.ROOT_PATH),
@@ -377,7 +378,8 @@ If you think MFC could (or should) be able to find it automatically for you syst
             ("${INSTALL_PATH}",      install_path),
             ("${MAKE_OPTIONS}",      f'-j {self.args["jobs"]}'),
             ("${COMPILER_FLAGS}",    f'CFLAGS="{flags.get("c", "")}" CPPFLAGS="{flags.get("c++", "")}" FFLAGS="{flags.get("fortran", "")}"'),
-            ("${COMPILERS}",         f'CC="{compilers.get("c", "")}" CXX="{compilers.get ("c++", "")}" FC="{compilers.get("fortran", "")}"')
+            ("${REGULAR_COMPILERS}", f'CC="{regulars.get ("c", "")}" CXX="{regulars.get  ("c++", "")}" FC="{regulars.get ("fortran", "")}"'),
+            ("${MPI_COMPILERS}",     f'CC="{mpis.get     ("c", "")}" CXX="{mpis.get      ("c++", "")}" FC="{mpis.get     ("fortran", "")}"')
         ]
 
         for e in replace_list:
@@ -639,8 +641,7 @@ def main():
         colorama.init()
 
         mfc = MFC()
-    except MFCException as exc:
-        print(traceback.format_exc())
+    except (MFCException, Exception) as exc:
         print(f"{colorama.Fore.RED}|--> {str(exc)}{colorama.Style.RESET_ALL}")
         exit(1)
 
