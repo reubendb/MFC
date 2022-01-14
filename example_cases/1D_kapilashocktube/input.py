@@ -84,7 +84,7 @@ case_dict =                                                                    \
                     'format'                       : 1,                        \
                     'precision'                    : 2,                        \
                     'prim_vars_wrt'                :'T',                       \
-		    'parallel_io'                  :'F',                       \
+		    'parallel_io'                  :'T',                       \
                     # ==========================================================
                                                                                 
 		    # Patch 1: High pressured water ============================
