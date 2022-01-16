@@ -25,6 +25,7 @@
 	- Done (Parallel IO takes less than 2 timesteps)
 	* Do some preliminary scaling runs on Summit (starting with weak scaling)
 		* Do a 1D and a 3D case, two alphas/components if possible
+	- Done (Scales well in 3D upto 500 GPUs)
 	* Note: Can't merge GPU->master branch without time-steppers and multi-components verified working
 	- Done (Verified timesteppers as well as multi-component)
 
