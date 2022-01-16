@@ -12,9 +12,10 @@ import traceback
 import urllib.request
 
 
-MFC_USE_SUBDIR    = ".mfc"
-MFC_CONF_FILEPATH = "mfc.conf.yaml"
-MFC_LOCK_FILEPATH = f"{MFC_USE_SUBDIR}/mfc.lock.yaml"
+MFC_ROOTDIR       = f"{os.path.dirname(os.path.realpath(__file__))}/.."
+MFC_SUBDIR        = f"{MFC_ROOTDIR}/.mfc"
+MFC_CONF_FILEPATH = f"{MFC_ROOTDIR}/mfc.conf.yaml"
+MFC_LOCK_FILEPATH = f"{MFC_SUBDIR}/mfc.lock.yaml"
 
 
 class MFCException(Exception):
@@ -44,7 +45,7 @@ def import_module_safe(import_name: str, pip_name: str):
     if input(prompt).upper().strip() != "Y":
         raise Exception(f'You requested not to download the Python package {pip_name}. Aborting...')
 
-    if 0 != execute_shell_command_safe(f'cd "python_packages/{pip_name}" && python3 setup.py install --user', no_exception=True):
+    if 0 != execute_shell_command_safe(f'cd "{pip_name}" && python3 setup.py install --user', no_exception=True):
         raise Exception(f'Failed to automatically install the Python package {pip_name}. Please install it manually using Pip. Aborting...')
 
     print("\n")
@@ -279,7 +280,7 @@ class MFC:
         if cc is None:
             cc = self.args["compiler_configuration"]
         
-        return f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{cc}'
+        return f'{MFC_SUBDIR}/{cc}'
 
     def get_source_path(self, name: str):
         return f'{self.get_base_path()}/src/{name}'
@@ -294,14 +295,14 @@ class MFC:
         return f'{self.get_base_path()}/temp/{name}'
 
     def setup_directories(self):
-        create_directory_safe(MFC_USE_SUBDIR)
+        create_directory_safe(MFC_SUBDIR)
 
         for d in ["src", "build", "log", "temp"]:
             for cc in [ cc["name"] for cc in self.conf["configurations"] ]:
-                create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}")
+                create_directory_safe(f"{MFC_SUBDIR}/{cc}/{d}")
                 if d == "build":
                     for build_subdir in ["bin", "include", "lib", "share"]:
-                        create_directory_safe(f"{MFC_USE_SUBDIR}/{cc}/{d}/{build_subdir}")        
+                        create_directory_safe(f"{MFC_SUBDIR}/{cc}/{d}/{build_subdir}")        
 
     def check_environment(self):
         print("|--> Checking for the presence of required command-line utilities...", end='\r')
@@ -370,7 +371,7 @@ If you think MFC could (or should) be able to find it automatically for you syst
                 flags[lang] = flags[lang].replace("${CUDA:INSTALL_PATH}", cuda_install_path)
 
         replace_list = [
-            ("${MFC_ROOT_PATH}",     self.ROOT_PATH),
+            ("${MFC_ROOT_PATH}",     MFC_ROOTDIR),
             ("${CONFIGURE_OPTIONS}", f'--prefix="{install_path}"'),
             ("${SOURCE_PATH}",       source_path),
             ("${INSTALL_PATH}",      install_path),
@@ -443,7 +444,7 @@ If you think MFC could (or should) be able to find it automatically for you syst
         if ((    conf_desc["type"] != lock_desc["type"]
              and lock_desc["type"] in ["clone", "download"]
             ) or (self.args["scratch"])):
-            delete_directory_recursive_safe(f'{self.ROOT_PATH}/{MFC_USE_SUBDIR}/{lock_desc["compiler_configuration"]}/src/{name}')
+            delete_directory_recursive_safe(f'{MFC_SUBDIR}/{lock_desc["compiler_configuration"]}/src/{name}')
 
     def build_target__fetch(self, name: str, logfile: io.IOBase):
         conf = self.conf.get_target(name)
@@ -603,8 +604,6 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
         self.lock.save()
 
     def __init__(self):
-        self.ROOT_PATH = os.path.dirname(os.path.realpath(__file__))
-
         self.conf = MFCConf()
         self.setup_directories()
         self.lock = MFCLock()
@@ -614,11 +613,11 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
         self.check_environment()
 
         if self.args["set_current"] is not None:
-            update_symlink(f"{MFC_USE_SUBDIR}/___current___", self.get_base_path(self.args["set_current"]))
+            update_symlink(f"{MFC_SUBDIR}/___current___", self.get_base_path(self.args["set_current"]))
 
         # Update symlink to current build
         if self.args["build"]:
-            update_symlink(f"{MFC_USE_SUBDIR}/___current___", self.get_base_path())
+            update_symlink(f"{MFC_SUBDIR}/___current___", self.get_base_path())
 
         for target_name in [ x["name"] for x in self.conf["targets"] ]:
             if target_name in self.args["targets"]:
