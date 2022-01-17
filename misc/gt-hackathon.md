@@ -53,17 +53,16 @@
 	4. Start adding the simplest possible chemistry kernel into MFC
 
 
-## Key thrusts (Jan 18-26)
-
-* Scaling (Mauro + Henry + Anand)
-	* If scaling isn't perfect, why and how to improve
+## Key thrusts (Jan 18 + 24-26)
 
 * Optimizing performance (Anand + Henry)
-	* Ensuring the current kernel implementations are "as good as we can reasonably do" (Nsight Compute tests)
-	* MPI halo transfers (CUDA-aware MPI?), can these be faster?
-	* Parallel I/O: How does it impact scaling, should we do asynchronous ACC here?, etc.
+	1. Ensuring the current kernel implementations are "as good as we can reasonably do" (Nsight Compute tests)
+	2. MPI halo transfers (CUDA-aware MPI?), can these be faster?
+		* Conclusion from preliminary analysis: This is unimportant because more physics means less important communication time
+	3. Parallel I/O: How does it impact scaling, should we do asynchronous ACC here?, etc.
+		* Conclusion from preliminary analysis: This is unimportant
 
-* Adding features
+* Adding features/physics
 	* Sub-grid bubbles. Start with classes, then QBMM. (Anand)
 	* Hypoelasticity (Jean)
 	* Phase change (Mauro)
