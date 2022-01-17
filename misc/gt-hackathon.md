@@ -16,24 +16,29 @@
 			* Seems like for (1) the memory problem is the main thing, 
 			* Fix: Not pushing all domain data to each core? (I think)
 			* Can we fix this so we can do bigger scaling runs! (> 768 GPUs)
-	* Merging phase-change with hypoelasticity branches
+		* This was fixed by Anand 
+	* **Merging phase-change with hypoelasticity branches**
+	* Create regression tests under `/tests` 
+	* Merge master -> phase-change
 
 * Anand
 	* Implement Order-3 RK Time stepper
-	- Done (RK2, RK3)
+		- Done (RK2, RK3)
 	* Parallel IO (with Nsight Systems), say every 100 time steps or so
-	- Done (Parallel IO takes less than 2 timesteps)
+		- Done (Parallel IO takes less than 2 timesteps)
 	* Do some preliminary scaling runs on Summit (starting with weak scaling)
 		* Do a 1D and a 3D case, two alphas/components if possible
-	- Done (Scales well in 3D upto 500 GPUs)
+		- Done (Scales well in 3D upto 500 GPUs)
 	* Note: Can't merge GPU->master branch without time-steppers and multi-components verified working
-	- Done (Verified timesteppers as well as multi-component)
+		- Done (Verified timesteppers as well as multi-component)
 
 * Jean
-	* Done (Post to Slack the results of scaling on XSEDE machines)
-	* Compare CPU performance of hypoelastic vs regular cases (around 2x slowdown expected?)
-	* Merge GPU-3D-unmanaged -> Hypoelastic; Hypoelastic -> GPU (merge)
-	* Done (Mention to Jose that he can join and 'submerge' himself into how this works (no key thrusts for him, though))
+	* Post to Slack the results of scaling on XSEDE machines
+		* Done
+	* Mention to Jose that he can join and 'submerge' himself into how this works (no key thrusts for him, though)
+		* Done
+	* Create regression tests under `/tests` for hypoelastic cases
+	* Merge Master -> Hypoelastic
 
 * Henry
 	* Build, test, verify that new MFC master branch build system works on Summit
