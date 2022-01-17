@@ -30,10 +30,10 @@
 	- Done (Verified timesteppers as well as multi-component)
 
 * Jean
-	* Post to Slack the results of scaling on XSEDE machines?
+	* Done (Post to Slack the results of scaling on XSEDE machines)
 	* Compare CPU performance of hypoelastic vs regular cases (around 2x slowdown expected?)
 	* Merge GPU-3D-unmanaged -> Hypoelastic; Hypoelastic -> GPU (merge)
-	* Mention to Jose that he can join and 'submerge' himself into how this works (no key thrusts for him, though)
+	* Done (Mention to Jose that he can join and 'submerge' himself into how this works (no key thrusts for him, though))
 
 * Henry
 	* Build, test, verify that new MFC master branch build system works on Summit
