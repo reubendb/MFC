@@ -57,9 +57,10 @@
 
 * Optimizing performance (Anand + Henry)
 	1. Ensuring the current kernel implementations are "as good as we can reasonably do" (Nsight Compute tests)
-	2. MPI halo transfers (CUDA-aware MPI?), can these be faster?
+		* Another thing to consider: Does assigning more than 1 MPI rank per GPU help speed-up? We found in a previous hackathon that doing this and enabling `gpumps` gave an additional bump in speed-up over the CPU-only case. Can ask Jean/Mauro about this as well. You enable `gpumps` via a `bsub` or `jsrun` command line flag. It should be in the Summit user guide.  
+	3. MPI halo transfers (CUDA-aware MPI?), can these be faster?
 		* Conclusion from preliminary analysis: This is unimportant because more physics means less important communication time
-	3. Parallel I/O: How does it impact scaling, should we do asynchronous ACC here?, etc.
+	4. Parallel I/O: How does it impact scaling, should we do asynchronous ACC here?, etc.
 		* Conclusion from preliminary analysis: This is unimportant
 
 * Adding features/physics
