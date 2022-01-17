@@ -12,7 +12,7 @@ configurations:
   flags:
     c:       -O3
     c++:     -O3
-    fortran: -O3 -cpp -w -acc -Minfo=accel -lnvToolsExt -L${CUDA:INSTALL_PATH}/lib64
+    fortran: -O3 -cpp -w -acc -Minfo=accel -L${CUDA:INSTALL_PATH}/lib64 -lnvToolsExt
 - name: debug-cpu
   flags:
     c:       -Og -g
@@ -57,7 +57,7 @@ targets:
     --disable-hzip --disable-fpzip --disable-silex
     --with-hdf5="${HDF5:INSTALL_PATH}/include","${HDF5:INSTALL_PATH}/lib"
     ${COMPILERS} ${COMPILER_FLAGS} CFLAGS="-O0" CPPFLAGS="-O0" FFLAGS="-O0"
-  - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
+  - make ${MAKE_OPTIONS} ${COMPILERS}
   - make install prefix="${INSTALL_PATH}"
   test: []
 
