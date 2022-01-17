@@ -52,6 +52,17 @@
 	4. Watch OpenACC YouTube video series, might be an Nvidia (separate) series on YT as well?
 	4. Start adding the simplest possible chemistry kernel into MFC
 
+## In-between thrusts
+
+Anand
+* We need regression tests under `/tests` that fully exercise the code piece by piece
+	* Generate these "golden" results for comparison using best known working code. Can probably just come from the MFC-develop master branch. Can double check WENO3 against a much older version of the code just in case.
+	* Cases we should have: WENO1, WENO3, WENO5, mp_weno, mapped_weno, HLL, HLLC, 1 component, 2 comp., 3 comp., kdivu (aka altsoundspeed), 1D, 2D, 3D, CPU parallel (4 mpi ranks), CPU serial, etc.
+	* Be careful if some of these tests like kdivu are not available on GPU yet. Perhaps skip that test in such cases?
+
+Henry
+* Finish GPU build system and merge into master
+
 
 ## Key thrusts (Jan 18 + 24-26)
 
