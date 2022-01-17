@@ -36,31 +36,31 @@ jobs:
           name: Windows-mfc-py-logs
           path: .mfc/**/log/
 
-  MacOS:
-    runs-on: macos-11
-
-    steps:
-      - name: Clone MFC
-        uses: actions/checkout@v2
-
-      - name: Fetch (Brew) Dependencies
-        run: |
-          USE_GCC_VERSION=11
-          brew install wget make python make cmake gcc@$USE_GCC_VERSION
-          HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
-          pip3 install pyyaml colorama
-
-      - name: Build MFC and its dependencies (mfc.py)
-        run: |
-          chmod +x ./mfc.py
-          ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
-      
-      - name: Run MFC Tests
-        run: ./mfc.py --test -t MFC -cc ci
-
-      - name: Upload logs
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: MacOS-mfc-py-logs
-          path: .mfc/**/log/
+#  MacOS:
+#    runs-on: macos-11
+#
+#    steps:
+#      - name: Clone MFC
+#        uses: actions/checkout@v2
+#
+#      - name: Fetch (Brew) Dependencies
+#        run: |
+#          USE_GCC_VERSION=11
+#          brew install wget make python make cmake gcc@$USE_GCC_VERSION
+#          HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
+#          pip3 install pyyaml colorama
+#
+#      - name: Build MFC and its dependencies (mfc.py)
+#        run: |
+#          chmod +x ./mfc.py
+#          ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
+#      
+#      - name: Run MFC Tests
+#        run: ./mfc.py --test -t MFC -cc ci
+#
+#      - name: Upload logs
+#        uses: actions/upload-artifact@v2
+#        if: always()
+#        with:
+#          name: MacOS-mfc-py-logs
+#          path: .mfc/**/log/
