@@ -23,11 +23,11 @@ jobs:
 
       - name: Build MFC and its dependencies (mfc.py)
         run: |
-          chmod +x ./mfc.py
-          ./mfc.py --build -t MFC -cc ci-cpu -j $(nproc)
+          chmod +x ./mfc.sh
+          ./mfc.sh --build -t MFC -cc ci-cpu -j $(nproc)
       
       - name: Run MFC Tests
-        run: ./mfc.py --test -t MFC -cc ci-cpu
+        run: ./mfc.sh --test -t MFC -cc ci-cpu
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
@@ -52,11 +52,11 @@ jobs:
 #
 #      - name: Build MFC and its dependencies (mfc.py)
 #        run: |
-#          chmod +x ./mfc.py
+#          chmod +x ./mfc.sh
 #          ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
 #      
 #      - name: Run MFC Tests
-#        run: ./mfc.py --test -t MFC -cc ci
+#        run: ./mfc.sh --test -t MFC -cc ci
 #
 #      - name: Upload logs
 #        uses: actions/upload-artifact@v2
