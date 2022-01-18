@@ -3,11 +3,11 @@
 import math
 
 #Numerical setup
-Nx      = 299
+Nx      = 399
 dx      = 1./(1.*(Nx+1))
 
-Tend    = 0.03
-Nt      = 400
+Tend    = 0.1
+Nt      = 1000
 mydt    = Tend/(1.*Nt)
 
 # Command to navigate between directories
@@ -42,7 +42,7 @@ case_dict =                                                                     
     {                                                                           \
                     # Logistics ================================================
                     'case_dir'                     : '\'.\'',                   \
-                    'run_time_info'                : 'F',                       \
+                    'run_time_info'                : 'T',                       \
                     'nodes'                        : 1,                         \
                     'ppn'                          : 1,                         \
                     'queue'                        : 'normal',                  \
@@ -59,7 +59,7 @@ case_dict =                                                                     
                     'dt'                           : mydt,                      \
                     't_step_start'                 : 0,                         \
                     't_step_stop'                  : int(Nt),                        \
-                    't_step_save'                  : int(Nt),    \
+                    't_step_save'                  : int(math.ceil(Nt/10.)),    \
 		    # ==========================================================
                                                                                 \
                     # Simulation Algorithm Parameters ==========================
@@ -89,11 +89,11 @@ case_dict =                                                                     
                                                                                \
                     # Formatted Database Files Structure Parameters ============
                     'format'                       : 1,                        \
-                    'precision'                    : 1,                        \
+                    'precision'                    : 2,                        \
                     'prim_vars_wrt'                :'T',                       \
-                    'parallel_io'                  :'F',                       \
-                    # ==========================================================
-
+		    'parallel_io'                  :'T',                       \
+		    # ==========================================================
+                                                                                
 		    # Patch 1 L ================================================
                     'patch_icpp(1)%geometry'       : 1,                     \
                     'patch_icpp(1)%x_centroid'     : 0.25,                   \
@@ -115,11 +115,9 @@ case_dict =                                                                     
                     # ==========================================================
 
                     # Fluids Physical Parameters ===============================
-                    # Surrounding liquid
                     'fluid_pp(1)%gamma'            : 1.E+00/(1.4-1.E+00),  \
                     'fluid_pp(1)%pi_inf'           : 0.0, \
-                    # ==========================================================
-
+	            # ==========================================================
     }
 
 # Executing MFC component
