@@ -109,18 +109,15 @@ sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-de
 
 * Via [Homebrew](https://brew.sh/)
 
+You can modify the assignment on the first line to have the GCC major version you wish to have installed and use.
+
 ```
-brew install wget make python make cmake gcc
+USE_GCC_VERSION=11
+brew install wget make python make cmake gcc@$USE_GCC_VERSION
+HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
 ```
 
-To install `open-mpi` for a brew-installed `gcc`, you will need to set the following environment variables before the brew install:
-```
-HOMEBREW_CC=gcc-11; HOMEBREW_CXX=g++-11; brew install open-mpi
-```
-where one can change the `-11` portion to match the installed `gcc-?` version. 
-You can read more about this [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9).
-This is required because MacOS now ships with the `gcc` commmand mapped to `clang` and `brew` does not like messing with this.
-We do *not* support `clang` due to conflicts with our Silo dependency.
+Further reading `open-mpi` incompatibility with `clang`-based `gcc` on macOS: [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9). We do *not* support `clang` due to conflicts with our Silo dependency.
 
 ### Fetch and build MFC
 
@@ -129,24 +126,26 @@ The dependencies are built to the `dependencies/build/` directory within your MF
 This should have no impact on your local installation(s) of these packages.
 
 ```
-git clone https://github.com/MFlowCode/MFC && cd MFC
+git clone --recursive https://github.com/MFlowCode/MFC
+cd MFC
 ```
 
-+ Build MFC and its dependencies with `<N>` threads in `release` mode:
++ Build MFC and its dependencies with `<N>` threads in `release-cpu` mode:
 
 ```
-./mfc.py --build -j <N>
+chmod +x ./mfc.sh
+./mfc.sh --build -j <N>
 ```
 
 + Run MFC's tests to make sure it was correctly built and your environment is adequate
 
 ```
-./mfc.py --test
+./mfc.sh --test
 ```
 
-## Configuring `mfc.py`
+## Configuring `mfc.sh`
 
-The `mfc.py` script used in the previous section is configured through the file named `mfc.conf.yaml`. 
+The `mfc.sh` script used in the previous section is configured through the file named `mfc.conf.yaml`. 
 
 ### Compilers
 
@@ -154,37 +153,37 @@ In the `compilers` section you can specify which compilers you wish to have used
 
 ```yaml
 compilers:
-  regular:
-    c:       gcc
-    c++:     g++
-    fortran: gfortran
-  mpi:
-    c:       mpicc
-    c++:     mpicxx
-    fortran: mpif90
+  c:       mpicc
+  c++:     mpicxx
+  fortran: mpif90
 ```
 
 ### Compiler Configurations
 
-The `configurations` section within `compilers` consists of a list of "compiler configurations", describing modifications for including but not limited to "release" and "debug" builds. You can freely modify the existing configurations and add your own. Here is the description of "release":
+The `configurations` section consists of a list of "compiler configurations", describing modifications for including but not limited to "release" and "debug" builds for CPUs or GPUs. You can freely modify the existing configurations and add your own. Examples:
 
 ```yaml
-- name: release
+- name: release-cpu
   flags:
     c:       -O3
     c++:     -O3
     fortran: -O3 -cpp -w
+- name: release-gpu
+  flags:
+    c:       -O3
+    c++:     -O3
+    fortran: -O3 -cpp -w -acc -Minfo=accel -lnvToolsExt -L${CUDA:INSTALL_PATH}/lib64
 ```
 
-To use a desired compiler configuration with `mfc.py`, you must specify the `--compiler-configuration` (a.k.a `-cc`) option, along with the name of your configuration. `release` is its default value. For example, to build MFC and its dependencies in `debug` mode, you can run:
+To use a desired compiler configuration with `mfc.sh`, you must specify the `--compiler-configuration` (a.k.a `-cc`) option, along with the name of your configuration. `release-cpu` is its default value. For example, to build MFC and its dependencies in `debug-cpu` mode, you can run:
 
 ```
-./mfc.py --build -cc debug
+./mfc.sh --build -cc debug-cpu
 ```
 
 ### Targets
 
-The largest section of `mfc.conf.yaml` is labeled `targets`, containing a list of targets. A target is defined as an entity on which `mfc.py` can run `--build` or `--test`. `mfc.conf.yaml` contains a target for each dependency and MFC component, and for MFC as a whole. Targets have the following general format:
+The largest section of `mfc.conf.yaml` is labeled `targets`, containing a list of targets. A target is defined as an entity on which `mfc.sh` can run `--build` or `--test`. `mfc.conf.yaml` contains a target for each dependency and MFC component, and for MFC as a whole. Targets have the following general format:
 
 ```yaml
 - name: <target name> # The name of the target
@@ -232,7 +231,7 @@ To build a desired target and its dependencies, you must specify the `--targets`
 For example, to build MFC's simulation component and its dependencies from scratch, you can run:
 
 ```
-./mfc.py --build -t MFC_Simulation --scratch
+./mfc.sh --build -t MFC_Simulation --scratch
 ```
 
 ### Miscellaneous
@@ -241,9 +240,9 @@ For example, to build MFC's simulation component and its dependencies from scrat
 + Use the `--set-current <name>` (a.k.a `-sc <name>`) option to select explicitly which compiler configuration to use when running MFC.
 
 ```
-./mfc.py --build -t MFC_Simulation -cc debug -j 8 --scratch
-./mfc.py --test
-./mfc.py --set-current debug
+./mfc.sh --build -t MFC_Simulation -cc release-cpu -j 8 --scratch
+./mfc.sh --test
+./mfc.sh --set-current debug-cpu
 ```
 
 # Running

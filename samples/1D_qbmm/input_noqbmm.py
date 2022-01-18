@@ -27,7 +27,8 @@ mu_n    = 1.8E-05
 k_n     = 0.02556
 
 #air props
-gamma_gas = gamma_n
+# gamma_gas = gamma_n
+gamma_gas = 1.4
 
 #reference bubble size
 R0ref   = 10.E-06
@@ -37,36 +38,45 @@ pa      = 0.1 * 1.E+06 / 101325.
 #Characteristic velocity
 uu = math.sqrt( p0/rho0 )
 #Cavitation number
-Ca = (p0 - pv)/(rho0*(uu**2.))
+# Ca = (p0 - pv)/(rho0*(uu**2.))
+Ca = 1.
 #Weber number
-We = rho0*(uu**2.)*R0ref/ss
+# We = rho0*(uu**2.)*R0ref/ss
+We = p0*R0ref/ss
 #Inv. bubble Reynolds number
 Re_inv = mul0/(rho0*uu*R0ref)
 
 #IC setup
-vf0     = 0.00004
+vf0     = 1.E-4
+# vf0     = 4.E-5
 n0      = vf0/(math.pi*4.E+00/3.E+00)
 
 cact    = 1475.
 t0      = x0/c0
 
-nbubbles = 1
+nbubbles = 1 
 myr0    = R0ref
 
 cfl     = 0.1
-Nx      = 100
+Nx      = 400
 Ldomain = 20.E-03
 L       = Ldomain/x0
 dx      = L/float(Nx)
 dt      = cfl*dx*c0/cact
 Lpulse  = 0.3*Ldomain
 Tpulse  = Lpulse/cact
-Tfinal  = 0.1*10.*Tpulse*c0/x0
+Tfinal  = 3*0.25*10.*Tpulse*c0/x0
 Nt      = int(Tfinal/dt)
+
+dt = dt * 0.5
+# print('dt: ',dt)
 
 Nfiles = 20.
 Nout = int(math.ceil(Nt/Nfiles))
 Nt = int(Nout*Nfiles)
+
+print(('Web', We))
+print(('Re_inv', Re_inv))
 
 # Command to navigate between directories
 from os import chdir
@@ -95,6 +105,7 @@ comp_name = argv[1].strip()
 
 # Serial or parallel computational engine
 engine = 'serial'
+if (comp_name=='pre_process'): engine = 'serial'
 
 # Configuring case dictionary
 case_dict =                                                                     \
@@ -103,10 +114,11 @@ case_dict =                                                                     
                     'case_dir'                     : '\'.\'',                   \
                     'run_time_info'                : 'F',                       \
                     'nodes'                        : 1,                         \
-                    'ppn'                          : 1,                         \
+                    'ppn'                          : 4,                      \
                     'queue'                        : 'normal',                  \
                     'walltime'                     : '24:00:00',                \
                     'mail_list'                    : '',                        \
+                    'debug'                        : 'F',                       \
                     # ==========================================================
                                                                                 \
                     # Computational Domain Parameters ==========================
@@ -117,9 +129,12 @@ case_dict =                                                                     
                     'm'                            : Nx,                        \
                     'n'                            : 0,                         \
                     'p'                            : 0,                         \
-                    'dt'                           : dt,                      \
+                    'dt'                           : dt,                     \
+                    # 't_tol'                        : 0.1,                     \
                     't_step_start'                 : 0,                         \
                     't_step_stop'                  : Nt,                        \
+                    # 't_step_stop'                  : 4,                        \
+                    # 't_step_save'                  : 8000,   \
                     't_step_save'                  : Nt,   \
 		    # ==========================================================
                                                                                 \
@@ -130,7 +145,7 @@ case_dict =                                                                     
                     'num_fluids'                   : 1,                        \
 		    'adv_alphan'                   : 'T',                      \
 		    'mpp_lim'                      : 'F',                      \
-		    'mixture_err'                  : 'T',                      \
+		    'mixture_err'                  : 'F',                      \
 		    'time_stepper'                 : 3,                        \
                     'weno_vars'                    : 2,                        \
                     'weno_order'                   : 5,                        \
@@ -150,17 +165,22 @@ case_dict =                                                                     
                                                                                \
                     # Formatted Database Files Structure Parameters ============
                     'format'                       : 1,                        \
-                    'precision'                    : 1,                        \
+                    'precision'                    : 2,                        \
                     'prim_vars_wrt'                :'T',                       \
-                    'parallel_io'                  :'F',                       \
-                    # ==========================================================
-
+		    'parallel_io'                  :'T',                       \
+	            'fd_order'                     : 1,                       \
+                    #'schlieren_wrt'                :'T',                      \
+		    'probe_wrt'                    :'T',                   \
+		    'num_probes'                   : 1,                    \
+		    'probe(1)%x'                   : 0.,             \
+		    # ==========================================================
+                                                                                
                     # Patch 1 _ Background =====================================
                     'patch_icpp(1)%geometry'       : 1,                         \
                     'patch_icpp(1)%x_centroid'     : 0.,                        \
                     'patch_icpp(1)%length_x'       : 20.E-03/x0,                \
                     'patch_icpp(1)%vel(1)'         : 0.0,                       \
-                    'patch_icpp(1)%pres'           : patm,                      \
+                    'patch_icpp(1)%pres'           : 1,                      \
                     'patch_icpp(1)%alpha_rho(1)'   : (1.-1.E-12)*1.E+03/rho0, \
                     'patch_icpp(1)%alpha(1)'       : 1.E-12,                    \
                     'patch_icpp(1)%r0'             : 1.,                        \
@@ -171,13 +191,14 @@ case_dict =                                                                     
                     'patch_icpp(2)%geometry'       : 1,                         \
                     'patch_icpp(2)%x_centroid'     : 0.,                        \
                     'patch_icpp(2)%length_x'       : 5.E-03/x0,                 \
+                    # 'patch_icpp(1)%length_x'       : 20.E-03/x0,                \
                     'patch_icpp(2)%alter_patch(1)' : 'T',                       \
                     'patch_icpp(2)%vel(1)'         : 0.0,                       \
-                    'patch_icpp(2)%pres'           : patm,                      \
+                    'patch_icpp(2)%pres'           : 1,                      \
                     'patch_icpp(2)%alpha_rho(1)'   : (1.-vf0)*1.E+03/rho0,   \
                     'patch_icpp(2)%alpha(1)'       : vf0,                       \
                     'patch_icpp(2)%r0'             : 1.,                        \
-                    'patch_icpp(2)%v0'             : 0.0E+00,                   \
+                    'patch_icpp(2)%v0'             : 0.,                   \
                     # ==========================================================
 
                     # Fluids Physical Parameters ===============================
@@ -209,14 +230,24 @@ case_dict =                                                                     
 
                     # Bubbles ==================================================
                     'bubbles'               : 'T',                  \
-                    'bubble_model'          : 2,                  \
-                    'polytropic'            : 'F',                  \
-                    'thermal'               : 3,           \
+                    'bubble_model'          : 2,                    \
+                    'polytropic'            : 'T',                  \
+                    # 'polydisperse'          : 'T',                  \
+                    'polydisperse'          : 'F',                  \
+                    # 'poly_sigma'            : 0.3,                \
+                    'thermal'               : 3,                    \
                     'R0ref'                 : myr0,                 \
-                    'nb'                    : nbubbles,             \
+                    # 'nb'                    : 3,                  \
+                    'nb'                    : 1,                    \
                     'Ca'                    : Ca,                   \
-                    'Web'                   : We,                   \
-                    'Re_inv'                : Re_inv,               \
+                    # 'Web'                   : We,                   \
+                    # 'Re_inv'                : Re_inv,               \
+                    # 'qbmm'               : 'T',                 \
+                    # 'nnode'              : 4,                   \
+                    # 'dist_type'          : 1,                   \
+                    # 'sigR'               : 0.1,                 \
+                    # 'sigV'               : 0.1,                 \
+                    # 'rhoRV'              : 0.0,                 \
                     # ==========================================================
 
                     # Acoustic source ==========================================
@@ -226,7 +257,7 @@ case_dict =                                                                     
                     'Mono(1)%npulse'            : 1, \
                     'Mono(1)%dir'               : 1., \
                     'Mono(1)%pulse'             : 1, \
-                    'Mono(1)%mag'               : pa, \
+                    'Mono(1)%mag'               : 1.*pa, \
                     'Mono(1)%length'            : (1./(300000.))*cact/x0, \
                     # ==========================================================
     }

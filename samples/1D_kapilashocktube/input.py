@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-
-# MFC v3.0 - Cases - Kapila model - Shock tube - 1D
-# Description: Shock tube.
-# Author: Kevin Schmidmayer
-# Date: 02/26/18
-
-
 # Dependencies and Logistics ===================================================
 
 # Command to navigate between directories
@@ -42,7 +35,7 @@ case_dict =                                                                    \
     {                                                                          \
                     # Logistics ================================================
                     'case_dir'                     : '\'.\'',                  \
-                    'run_time_info'                : 'F',                      \
+                    'run_time_info'                : 'T',                      \
                     'nodes'                        : 1,                        \
                     'ppn'                          : 1,                        \
                     'queue'                        : 'normal',                 \
@@ -53,14 +46,14 @@ case_dict =                                                                    \
                     # Computational Domain Parameters ==========================
                     'x_domain%beg'                 : 0.E+00,                   \
                     'x_domain%end'                 : 1.E+00,                   \
-                    'm'                            : 299,                      \
+                    'm'                            : 999,                      \
                     'n'                            : 0,                        \
                     'p'                            : 0,                        \
                     'dt'                           : 4.E-08,                   \
                     't_step_start'                 : 0,                        \
-                    't_step_stop'                  : 500,                     \
-                    't_step_save'                  : 500,                     \
-		    # ==========================================================
+                    't_step_stop'                  : 6025,                     \
+                    't_step_save'                  : 100,                     \
+		            # ==========================================================
                                                                                \
                     # Simulation Algorithm Parameters ==========================
                     'num_patches'                  : 2,                        \
@@ -89,11 +82,11 @@ case_dict =                                                                    \
                                                                                \
                     # Formatted Database Files Structure Parameters ============
                     'format'                       : 1,                        \
-                    'precision'                    : 1,                        \
+                    'precision'                    : 2,                        \
                     'prim_vars_wrt'                :'T',                       \
-                    'parallel_io'                  :'F',                       \
+		    'parallel_io'                  :'T',                       \
                     # ==========================================================
-
+                                                                                
 		    # Patch 1: High pressured water ============================
                     'patch_icpp(1)%geometry'       : 1,                        \
                     'patch_icpp(1)%x_centroid'     : 0.5E+00,                  \
@@ -118,7 +111,7 @@ case_dict =                                                                    \
                     'patch_icpp(2)%alpha(1)'       : 0,                   \
                     'patch_icpp(2)%alpha(2)'       : 1.,                   \
                     # ==========================================================
-
+ 
 		    # Fluids Physical Parameters ===============================
                     'fluid_pp(1)%gamma'            : 1.E+00/(4.4E+00-1.E+00),  \
                     'fluid_pp(1)%pi_inf'           : 4.4E+00*6.E+08/(4.4E+00-1.E+00), \
