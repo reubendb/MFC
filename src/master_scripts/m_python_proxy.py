@@ -1742,14 +1742,16 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
     file_id.write(                                                             \
                                                                                \
         # Script interpreter
-        '#!/bin/sh'                                                     + '\n' \
+        '#!/bin/bash'                                                   + '\n' \
                                                                                \
         # Account to be charged for the job:
         # (PBS)
         # '#PBS -A xxx'                                          + '\n' \
         # (Slurm)
         # '#SBATCH -A xxx'                                       + '\n' \
-        '#SBATCH -A cit129 '                                             + '\n' \
+
+        # (Expanse)
+        '#SBATCH --account=cit129 '                                     + '\n' \
                                                                                 \
         # Name of the queue to which the job should be submitted:
         # (PBS)
@@ -1787,6 +1789,7 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
         # (Slurm)
         '#SBATCH -o ' + comp_name + '.o%j'                              + '\n' \
         '#SBATCH -e ' + comp_name + '.o%j'                              + '\n' \
+        '#SBATCH --export=ALL '                                         + '\n' \
                                                                                \
         # Notify by email when job begins (b), aborts (a), and/or ends (e):
         # (PBS)
@@ -1837,13 +1840,9 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
          't_start=$(date +%s)'                                          + '\n' \
                                                                                \
         # Executing job:
-#        'mpirun '                                                              \
-        'module purge'                                                  + '\n' \
-        'module load cpu'                                               + '\n' \
-        'module load gcc/9.2.0'                                         + '\n' \
-        'module load openmpi/3.1.6'                                     + '\n' \
-        'module load slurm'                                             + '\n' \
-        'srun '                                                                \
+        # (Expanse)
+        'mpirun '                                                              \
+#        'time mpirun '                                                          \
                                        + '-n '   + str(pbs_dict['ppn']) + ' '  \
                                        + mfc_dir + '/' + comp_name             \
                                        + '_code' + '/' + comp_name      + '\n' \

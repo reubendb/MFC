@@ -1079,7 +1079,8 @@ MODULE m_data_output
                                 MPI_DOUBLE_PRECISION,status,ierr)
                 END DO
             ELSE
-                DO i = 1, adv_idx%end
+!                DO i = 1, adv_idx%end
+                DO i = 1, sys_size
                     var_MOK = INT(i, MPI_OFFSET_KIND)
 
                     ! Initial displacement to skip at beginning of file
@@ -1901,7 +1902,7 @@ MODULE m_data_output
                         ! Computing/Sharing necessary state variables
                         CALL s_convert_to_mixture_variables( q_cons_vf, rho, &
                                              gamma, pi_inf, &
-                                             Re, We, j-2,k,l)
+                                             Re, We, j-2,k,l,G,fluid_pp(:)%G)
                         DO s = 1, num_dims
                             vel(s) = q_cons_vf(cont_idx%end+s)%sf(j-2,k,l)/rho
                         END DO
@@ -1926,7 +1927,7 @@ MODULE m_data_output
                                  IF ((s == stress_idx%beg + 1) .OR. &
                                       (s == stress_idx%beg + 3) .OR. &
                                        (s == stress_idx%beg + 4)) THEN
-                                     E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j,0,0)/rho)**2d0) &
+                                     E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j-2,k,l)/rho)**2d0) &
                                                 /(4d0*G)
                                  END IF
                                 END IF
@@ -2016,7 +2017,7 @@ MODULE m_data_output
                             ! Computing/Sharing necessary state variables
                             CALL s_convert_to_mixture_variables( q_cons_vf, rho, &
                                                  gamma, pi_inf, &
-                                                 Re, We, j-2,k-2,l)
+                                                 Re, We, j-2,k-2,l,G,fluid_pp(:)%G)
                             DO s = 1, num_dims
                                 vel(s) = q_cons_vf(cont_idx%end+s)%sf(j-2,k-2,l)/rho
                             END DO
@@ -2030,6 +2031,30 @@ MODULE m_data_output
                                     (rhoref*(1.d0-q_cons_vf(4)%sf(j-2,k-2,l)))  & 
                                     ) ** lit_gamma )                        &
                                     - pi_inf
+                            ELSE IF (hypoelasticity) THEN
+                            ! calculate elastic contribution to Energy
+                            E_e = 0d0
+                            DO s = stress_idx%beg, stress_idx%end
+                                IF (G > 0) THEN
+                                E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j-2,k-2,l)/rho)**2d0) &
+                                            /(4d0*G)
+                                ! Additional terms in 2D and 3D
+                                 IF ((s == stress_idx%beg + 1) .OR. &
+                                      (s == stress_idx%beg + 3) .OR. &
+                                       (s == stress_idx%beg + 4)) THEN
+                                     E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j-2,k-2,l)/rho)**2d0) &
+                                                /(4d0*G)
+                                 END IF
+                                END IF
+                            END DO
+                            
+                            pres = (                                      &
+                               q_cons_vf(E_idx)%sf(j-2,k-2,l)  -            &
+                               0.5d0*(q_cons_vf(mom_idx%beg)%sf(j-2,k-2,l)**2.d0)/rho - &
+                               pi_inf - E_e &
+                               ) / gamma 
+
+
                             ELSE IF (model_eqns == 2 .AND. (bubbles .NEQV. .TRUE.)) THEN
                                 !Stiffened gas pressure from energy
                                 pres = (                                       & 
@@ -2110,7 +2135,7 @@ MODULE m_data_output
                                 ! Computing/Sharing necessary state variables
                                 CALL s_convert_to_mixture_variables( q_cons_vf, rho, &
                                                      gamma, pi_inf, &
-                                                     Re, We, j-2,k-2,l-2)
+                                                     Re, We, j-2,k-2,l-2,G,fluid_pp(:)%G)
                                 DO s = 1, num_dims
                                     vel(s) = q_cons_vf(cont_idx%end+s)%sf(j-2,k-2,l-2)/rho
                                 END DO

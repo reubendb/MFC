@@ -486,7 +486,7 @@ MODULE m_rhs
                                     END DO
                                 END IF
                              
-                                DO l = adv_idx%beg, sys_size
+                                DO l = adv_idx%beg, adv_idx%end
                                         ALLOCATE(qL_cons_ndqp(i,j,k)%vf(l)%sf( &
                                                         ix%beg:ix%end, &
                                                         iy%beg:iy%end, &
@@ -665,7 +665,8 @@ MODULE m_rhs
                             ALLOCATE(dq_prim_dz_qp(i,j,k)%vf(1:sys_size))
                             ALLOCATE(    gm_vel_qp(i,j,k)%vf(1:sys_size))
                          
-                            IF(hypoelasticity .OR. ALL((/i,j,k/) == 0) .AND. ANY(Re_size > 0)) THEN
+!                            IF(hypoelasticity .OR. ALL((/i,j,k/) == 0) .AND. ANY(Re_size > 0)) THEN
+                            IF(ALL((/i,j,k/) == 0) .AND. ANY(Re_size > 0)) THEN
                             
                                 DO l = mom_idx%beg, mom_idx%end
                                     ALLOCATE(dq_prim_dx_qp(i,j,k)%vf(l)%sf( &
@@ -773,7 +774,7 @@ MODULE m_rhs
                             
                             IF(ABS(j) >= ABS(k)) THEN
                                
-                                IF(ANY(Re_size > 0) .OR. hypoelasticity) THEN
+                                IF(ANY(Re_size > 0)) THEN
 
                                     DO l = mom_idx%beg, mom_idx%end
                                         ALLOCATE(dqL_prim_dx_ndqp(i,j,k)%vf(l)%sf( &
@@ -1326,7 +1327,7 @@ MODULE m_rhs
                                                                      iz%beg:iz%end ))
                                     END DO
     
-                                    IF (ANY(Re_size > 0) .OR. We_size > 0 .OR. hypoelasticity) THEN
+                                    IF (ANY(Re_size > 0) .OR. We_size > 0) THEN
                                         DO l = mom_idx%beg, E_idx
                                             ALLOCATE(lo_flux_src_ndqp(i,j,k)%vf(l)%sf( &
                                                                         ix%beg:ix%end, &
@@ -1700,6 +1701,28 @@ MODULE m_rhs
                     END IF
                ! ===============================================================
 
+               ! Reconstructing Elastic Stress Variables ====================
+                    IF(hypoelasticity) THEN
+
+                        iv%beg = stress_idx%beg; iv%end = stress_idx%end
+                        
+                        IF(weno_vars == 1) THEN
+                            CALL s_reconstruct_cell_boundary_values(      &
+                                      q_cons_qp(0,0,0)%vf(iv%beg:iv%end), &
+                                                     qL_cons_ndqp(i,:,:), &
+                                                     qR_cons_ndqp(i,:,:), &
+                                                             dflt_int, i  )
+                        ELSE
+                            CALL s_reconstruct_cell_boundary_values(      &
+                                      q_prim_qp(0,0,0)%vf(iv%beg:iv%end), &
+                                                     qL_prim_ndqp(i,:,:), &
+                                                     qR_prim_ndqp(i,:,:), &
+                                                             dflt_int, i  )
+                        END IF
+
+                    END IF
+               ! ===============================================================
+
                 END IF
 
                 IF((model_eqns == 2 .OR. model_eqns == 3) .AND. (adv_alphan .NEQV. .TRUE.)) THEN
@@ -1890,14 +1913,14 @@ MODULE m_rhs
        
                     CALL s_average_cell_boundary_values(flux_ndqp(i,:,:))
                    
-!                    IF(ANY(Re_size > 0) .OR. We_size > 0 .OR. hypoelasticity) THEN
                     IF(ANY(Re_size > 0) .OR. We_size > 0) THEN
                         iv%beg = mom_idx%beg
                     ELSE
                         iv%beg = adv_idx%beg
                     END IF
-                   
-                    IF(riemann_solver /= 1 .OR. hypoelasticity) iv%end = adv_idx%beg
+
+
+                    IF(riemann_solver /= 1) iv%end = adv_idx%beg
                    
                     CALL s_average_cell_boundary_values(flux_src_ndqp(i,:,:))
                     CALL s_average_cell_boundary_values(flux_gsrc_ndqp(i,:,:))
@@ -2081,7 +2104,7 @@ MODULE m_rhs
                 
                         ix%end = m - ix%beg; iy%end = n - iy%beg; iz%end = p - iz%beg 
 
-                        iv%beg = mom_idx%beg; iv%end = mom_idx%end
+!                        iv%beg = mom_idx%beg; iv%end = mom_idx%end
 
 
                             ! Old method
@@ -2096,38 +2119,10 @@ MODULE m_rhs
 !                                                          dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg), &
 !                                                          dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg) )
 
-                        ! calculating derivatives (4th order central fin diff)
-!                        DO j = ix%beg+2, ix%end-2
-!                            DO k = iy%beg+2, iy%end-2
-!                                DO l = iz%beg+2, iz%end-2
-!                                    dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) = &
-!                                        ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j-2,k,l)         &
-!                                        - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j-1,k,l)   &
-!                                        + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+1,k,l)   &
-!                                        - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+2,k,l) )       &
-!                                        / (12d0*dx(j))
-!                                    IF (n > 0) THEN
-!                                        dq_prim_dy_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) =           &
-!                                            ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k-2,l)         &
-!                                            - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k-1,l)   &
-!                                            + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k+1,l)   &
-!                                            - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k+2,l) )       &
-!                                            / (12d0*(y_cc(k+1) - y_cc(k)))
-!                                        IF (p > 0) THEN
-!                                            dq_prim_dz_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l) = &
-!                                                ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l-2)         &
-!                                                - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l-1)   &
-!                                                + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+1)   &
-!                                                - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+2) )       &
-!                                                / (12d0*(z_cc(l+1) - x_cc(l)))
-!                                        END IF
-!                                    END IF
-!                                END DO
-!                            END DO
-!                        END DO
 
-                        ! Without reusing dq_prim_dx variable:
-                        ! u derivatives
+                        ! Calculating velocity derivatives
+
+                        ! u
                         DO j = 0, m
                             DO k = 0, n
                                 DO l = 0, p
@@ -2137,7 +2132,6 @@ MODULE m_rhs
                                         + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+1,k,l)   &
                                         - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j+2,k,l) )       &
                                         / (12d0*(x_cc(j+1) - x_cc(j)))
-!                                        / (12d0*dx(j))
                                     IF (n > 0) THEN
                                         du_dy(j,k,l) =           &
                                             ( q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k-2,l)         &
@@ -2151,13 +2145,14 @@ MODULE m_rhs
                                                 - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l-1)   &
                                                 + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+1)   &
                                                 - q_prim_qp(0,0,0)%vf(mom_idx%beg)%sf(j,k,l+2) )       &
-                                                / (12d0*(z_cc(l+1) - x_cc(l)))
+                                                / (12d0*(z_cc(l+1) - z_cc(l)))
                                         END IF
                                     END IF
                                 END DO
                             END DO
                         END DO
-                        ! v derivatives
+
+                        ! v
                         IF(n > 0) THEN
                             DO j = 0, m
                                 DO k = 0, n
@@ -2181,13 +2176,14 @@ MODULE m_rhs
                                                     - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l-1)   &
                                                     + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l+1)   &
                                                     - q_prim_qp(0,0,0)%vf(mom_idx%beg+1)%sf(j,k,l+2) )       &
-                                                    / (12d0*(z_cc(l+1) - x_cc(l)))
+                                                    / (12d0*(z_cc(l+1) - z_cc(l)))
                                             END IF
                                         END IF
                                     END DO
                                 END DO
                             END DO
                         END IF
+
                         ! w derivatives
                         IF(p > 0) THEN
                             DO j = 0, m
@@ -2212,13 +2208,14 @@ MODULE m_rhs
                                                     - 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l-1)   &
                                                     + 8d0 * q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l+1)   &
                                                     - q_prim_qp(0,0,0)%vf(mom_idx%end)%sf(j,k,l+2) )       &
-                                                    / (12d0*(z_cc(l+1) - x_cc(l)))
+                                                    / (12d0*(z_cc(l+1) - z_cc(l)))
                                             END IF
                                         END IF
                                     END DO
                                 END DO
                             END DO
                         END IF
+
                             ! Building shear modulus and viscosity mixture variable fields (dimension m*n*p)
                             DO j = 0,m
                                 DO k = 0,n
@@ -2231,8 +2228,7 @@ MODULE m_rhs
                                         IF (G_K < 1000) THEN
                                             G_K_field(j,k,l) = 0
                                         END IF 
-!                                        PRINT*,'G',G_K_field(410,0,0)
-!                                        PRINT*,'alpha1',q_prim_qp(0,0,0)%vf(adv_idx%beg)%sf(410,0,0)
+
                                     END DO
                                 END DO
                             END DO
@@ -2241,39 +2237,16 @@ MODULE m_rhs
 
                             j = stress_idx%beg
 
-!                            rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                            (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                            2.0 * G_K_field(k,0:n,0:p) * (2.0/3.0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) )
-
-!                            rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                            (q_prim_qp(0,0,0)%vf( j )%sf(k,0:n,0:p)*dq_prim_dx_qp(0,0,0)%vf( mom_idx%beg )%sf(k,0:n,0:p) + &
-!                            2d0 * G_K_field(k,0:n,0:p) * (2d0/3d0) * dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0:n,0:p) )
-
-                            ! Testing
-!                            rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                                ((4d0*G_K_field(k,0,0)/3d0) + &
-!                                q_prim_qp(0,0,0)%vf(j)%sf(k,0,0)) * &
-!                                dq_prim_dx_qp(0,0,0)%vf(mom_idx%beg)%sf(k,0,0)
-
-                            ! Testing 2
-!                            CALL s_convert_to_mixture_variables(q_prim_vf, rho_K, gamma_K, &
-!                                                             pi_inf_K, Re_K, We_K, k,0,0, &
-!                                                             G_K, fluid_pp(:)%G)
-
                             ! Best fin diff version:
                             rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
                                 ((4d0*G_K_field(k,0:n,0:p)/3d0) + &
                                 q_prim_qp(0,0,0)%vf(j)%sf(k,0:n,0:p)) * &
                                 du_dx(k,0:n,0:p)
 
-!                            rhs_vf(j)%sf(k,:,:) = rhs_vf(j)%sf(k,:,:) + rho_K_field(k,0:n,0:p) * &
-!                                ((4d0*G_K/3d0) + &
-!                                q_prim_qp(0,0,0)%vf(j)%sf(k,0:n,0:p) ) * &
-!                                du_dx(k,0:n,0:p)
 
 
                         END DO
-                        !DEALLOCATE(var%sf,grad_x%sf,grad_y%sf,grad_z%sf,norm%sf)
+
                     END IF
  
                     ! Applying source terms to the RHS of the internal energy equations
@@ -2337,7 +2310,7 @@ MODULE m_rhs
                     
  
                ! ===============================================================
-               
+
                ! RHS Contribution in y-direction ===============================
                 ELSEIF(i == 2) THEN
 
@@ -2485,7 +2458,7 @@ MODULE m_rhs
                             q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,k,0:p) * du_dy(0:m,k,0:p) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * dv_dy(0:m,k,0:p) - &
                             2d0 * G_K_field(0:m,k,0:p) * (1d0/3d0) * dv_dy(0:m,k,0:p) )
-                              
+
                             j = stress_idx%beg+1
                             rhs_vf(j)%sf(:,k,:) = rhs_vf(j)%sf(:,k,:) + rho_K_field(0:m,k,0:p) * &
                            (q_prim_qp(0,0,0)%vf( j )%sf(0:m,k,0:p) * du_dx(0:m,k,0:p) + &
@@ -2510,6 +2483,7 @@ MODULE m_rhs
                                                         dv_dy(0:m,k,0:p))) )
 
                         END DO
+
                     END IF
 
                     ! Applying source terms to the RHS of the internal energy equations
@@ -2668,7 +2642,7 @@ MODULE m_rhs
 
 
                ! ===============================================================
-               
+
                ! RHS Contribution in z-direction ===============================
                 ELSE
                     ! Compute upwind slope and flux limiter function value if TVD
@@ -2680,12 +2654,12 @@ MODULE m_rhs
                         CALL s_cbc( q_prim_qp(0,0,0)%vf, flux_ndqp(i,0,0)%vf, &
                                     flux_src_ndqp(i,0,0)%vf, i, -1, ix,iy,iz  )
                     END IF
-                    
+
                     IF(bc_z%end <= -5) THEN
                         CALL s_cbc( q_prim_qp(0,0,0)%vf, flux_ndqp(i,0,0)%vf, &
                                     flux_src_ndqp(i,0,0)%vf, i,  1, ix,iy,iz  )
                     END IF
-                    
+ 
                     ! Applying the Riemann fluxes
                     DO j = 1, sys_size
                         IF (grid_geometry == 3) THEN
@@ -2706,7 +2680,6 @@ MODULE m_rhs
                             END DO
                         END IF
                     END DO
-
                     ! Applying source terms to the RHS of the advection equations
                     IF(riemann_solver == 1) THEN
                         DO j = adv_idx%beg, adv_idx%end
@@ -2807,7 +2780,6 @@ MODULE m_rhs
                             END IF
                         END DO
                     END IF
-                    
                     IF (bubbles) THEN
                         CALL s_get_divergence(i,q_prim_vf,divu)
                         CALL s_compute_bubble_source(i,q_prim_vf,q_cons_vf,divu, &
@@ -2840,45 +2812,47 @@ MODULE m_rhs
                         rhs_vf(E_idx)%sf(:,:,:) = rhs_vf(E_idx)%sf(:,:,:) + mono_e_src(:,:,:)
                     END IF
 
+
                     ! Hypoelastic rhs terms
                     IF (hypoelasticity) THEN
                         DO k = 0, p
 
-                            ! We must have p > 0
+                           ! We must have p > 0
                             j = stress_idx%beg
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
                            (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
                             2d0 * G_K_field(0:m,0:n,k) * (1d0/3d0) * dw_dz(0:m,0:n,k) )
-                                    
-                            j = stress_idx%beg+1
+
+                             j = stress_idx%beg+1
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
                            (q_prim_qp(0,0,0)%vf(j+3)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k))
-                                    
+
                             j = stress_idx%beg+2
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
                            (q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dv_dz(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
                             2d0 * G_K_field(0:m,0:n,k) * (1d0/3d0) * dw_dz(0:m,0:n,k) )
-                                   
+
                             j = stress_idx%beg+3
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
-                           (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
+                            (q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j-3)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * du_dx(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j+1)%sf(0:m,0:n,k) * du_dy(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dy(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dv_dy(0:m,0:n,k)+ &
-                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+!!                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
+                            q_prim_qp(0,0,0)%vf(j+2)%sf(0:m,0:n,k) * du_dz(0:m,0:n,k) + &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
                             2d0 * G_K_field(0:m,0:n,k) * (1d0/2d0) * (du_dz(0:m,0:n,k) + &
                                                                       dw_dx(0:m,0:n,k)) )
-                                    
+
                             j = stress_idx%beg+4
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
                            (q_prim_qp(0,0,0)%vf(j-1)%sf(0:m,0:n,k) * dv_dx(0:m,0:n,k) + &
@@ -2892,7 +2866,7 @@ MODULE m_rhs
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
                             2d0 * G_K_field(0:m,0:n,k) * (1d0/2d0) * (dv_dz(0:m,0:n,k) + &
                                                                       dw_dy(0:m,0:n,k)) )
-                                    
+
                             j = stress_idx%end
                             rhs_vf( j )%sf(:,:,k) = rhs_vf( j )%sf(:,:,k) + rho_K_field(0:m,0:n,k) * &
                            (q_prim_qp(0,0,0)%vf(j-2)%sf(0:m,0:n,k) * dw_dx(0:m,0:n,k) + &
@@ -2905,13 +2879,12 @@ MODULE m_rhs
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) - &
                             q_prim_qp(0,0,0)%vf( j )%sf(0:m,0:n,k) * dw_dz(0:m,0:n,k) + &
                             2d0 * G_K_field(0:m,0:n,k) * (dw_dz(0:m,0:n,k) - (1d0/3d0) * &
-                                                         (du_dx(0:m,0:n,k) + &
-                                                          dv_dy(0:m,0:n,k) + &
-                                                          dw_dz(0:m,0:n,k))) )
-                                    
-                                
-                            
+                                                          (du_dx(0:m,0:n,k) + &
+                                                           dv_dy(0:m,0:n,k) + &
+                                                           dw_dz(0:m,0:n,k))) )
+
                         END DO
+
                     END IF
 
                     ! Applying source terms to the RHS of the internal energy equations
@@ -3024,7 +2997,7 @@ MODULE m_rhs
 
                 END IF
                ! ===============================================================
-               
+
             END DO
             ! END: Dimensional Splitting Loop ==================================
            
@@ -3588,10 +3561,10 @@ MODULE m_rhs
             TYPE(mono_parameters), INTENT(IN) :: mymono
             INTEGER, INTENT(IN) :: idir, t_step
             
-            INTEGER :: ndirs,j,k,l
+            INTEGER :: ndirs,j,k,l,term_index
             
-            REAL(KIND(0d0)) :: mytime, sound, n_tait, B_tait
-            REAL(KIND(0d0)) :: s2, myRho, const_sos
+            REAL(KIND(0d0)) :: mytime, sound, n_tait, B_tait, angle, angle_z
+            REAL(KIND(0d0)) :: s2, myRho, const_sos, s1
             
             REAL(KIND(0d0)), DIMENSION(2) :: Re
             REAL(KIND(0d0)), DIMENSION( num_fluids, &
@@ -3611,10 +3584,39 @@ MODULE m_rhs
                     sound = n_tait*(q_prim_vf(E_idx)%sf(j,k,l) + ((n_tait-1d0)/n_tait)*B_tait)/myRho
                     sound = dsqrt(sound)
 
-                    const_sos = dsqrt( n_tait )
-                    s2 = f_g(mytime,sound,const_sos,mymono) * f_delta(j,k,l,mymono%loc,mymono%length,mymono)
-                   
-                    mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
+!                    const_sos = dsqrt( n_tait )
+!                    s2 = f_g(mytime,sound,const_sos,mymono) * f_delta(j,k,l,mymono%loc,mymono%length,mymono)
+
+                    const_sos = n_tait*(1.01D5 + ((n_tait-1d0)/n_tait)*B_tait)/myRho
+                    const_sos = dsqrt(const_sos)
+                    term_index = 2
+
+                    angle = 0.d0
+                    angle_z = 0.d0
+                    s2 = f_g(mytime,sound,const_sos,mymono,term_index) * &
+                            f_delta(j,k,l,mymono%loc,mymono%length,mymono,angle,angle_z)
+                    IF (mymono%pulse == 5) THEN
+                        IF (angle > 0 .AND. angle < PI/2 .OR. &
+                            angle_z > 0 .AND. angle_z < PI/2) THEN
+                                s2 = -s2
+                        END IF
+                    END IF
+
+                    IF (mymono%support == 5) THEN
+                        term_index = 1
+                        s1 = f_g(mytime,sound,const_sos,mymono,term_index) * &
+                                f_delta(j,k,l,mymono%loc,mymono%length,mymono,angle,angle_z)
+                        IF (mymono%pulse == 5) THEN
+                            IF ((angle > 0 .AND. angle < PI/2) .OR. &
+                                (angle_z > 0 .AND. angle_z < PI/2)) THEN
+                                    s1 = -s1
+                            END IF
+                        END IF
+                    ELSE
+!                        mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/sound
+                        mono_mass_src(j,k,l)    = mono_mass_src(j,k,l) + s2/const_sos
+                    END IF
+
                     IF (n ==0) THEN
                         
                         ! 1D
@@ -3633,19 +3635,39 @@ MODULE m_rhs
                             ! 2d
                             !mono_mom_src(1,j,k,l) = s2
                             !mono_mom_src(2,j,k,l) = s2
-                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
-                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
+                            IF (mymono%support == 5) THEN
+                                mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( angle )
+                                mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( angle )
+                            ELSE
+                                mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
+                                mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
+                            END IF
                         END IF
                     ELSE    
                         ! 3D
                         IF (mymono%dir .NE. dflt_real) THEN
-                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
-                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
+                            IF (mymono%support == 5) THEN
+                                mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( angle )
+                                mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( angle )
+                            ELSE
+                                mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
+                                mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
+                            END IF
+!                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( mymono%dir )
+!                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( mymono%dir )
+!                            mono_mom_src(1,j,k,l) = mono_mom_src(1,j,k,l) + s2*cos( angle )
+!                            mono_mom_src(2,j,k,l) = mono_mom_src(2,j,k,l) + s2*sin( angle_z )
                         END IF
                     END IF
 
                     IF (model_eqns .NE. 4) THEN
-                        mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s2*sound/(n_tait - 1.d0)
+                        IF (mymono%support == 5) THEN
+                            !mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s1*sound**2.d0/(n_tait - 1.d0)
+                            mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s1*const_sos**2.d0/(n_tait - 1.d0)
+                        ELSE
+                            !mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s2*sound/(n_tait - 1.d0)
+                            mono_E_src(j,k,l)   = mono_E_src(j,k,l) + s2*const_sos/(n_tait - 1.d0)
+                        END IF
                     END IF
                 END DO; END DO; END DO
             END IF
@@ -3658,21 +3680,30 @@ MODULE m_rhs
         !! @param sos Sound speed
         !! @param mysos Alternative speed of sound for testing
         !! @param mymono Monopole parameterrs
-        FUNCTION f_g(mytime,sos,mysos,mymono)
+        FUNCTION f_g(mytime,sos,mysos,mymono,term_index)
 
+            INTEGER :: term_index
             REAL(KIND(0d0)), INTENT(IN) :: mytime, sos, mysos
             TYPE(mono_parameters), INTENT(IN) :: mymono
             REAL(KIND(0d0)) :: period, t0, sigt, pa, freq
-            REAL(KIND(0d0)) :: f_g
+            REAL(KIND(0d0)) :: f_g, f_g_spherical
 
-            IF (mymono%pulse == 1) THEN
+
+!            IF (mymono%pulse == 1) THEN
+            IF (mymono%pulse == 1 .OR. mymono%pulse == 5) THEN
                 ! Sine wave
                 period = mymono%length/sos
+!                period = 1.d0/mymono%frequency
 
-                IF (mytime .le. mymono%npulse*period) THEN
-                    f_g = mymono%mag*sin((mytime)*2.d0*pi/period)
+!                IF (mytime .le. mymono%npulse*period) THEN
+                IF (term_index == 1) THEN
+                    f_g = mymono%mag*sin((mytime)*2.d0*pi/period)/mysos &
+                        + mymono%mag/mymono%foc_length*(1.d0/(2.d0*pi/period)*cos((mytime)*2.d0*pi/period) &
+                        -1.d0/(2.d0*pi/period))
                 ELSE
-                    f_g = 0d0
+                    f_g = mymono%mag*sin((mytime)*2.d0*pi/period)
+!                ELSE
+!                    f_g = 0d0
                 END IF
             ELSE IF (mymono%pulse == 2) THEN
                 ! Gaussian pulse
@@ -3716,7 +3747,7 @@ MODULE m_rhs
         !! @param mono_loc Nominal source term location
         !! @param mono_leng Length of source term in space
         !! @param mymono Monopole parameters
-        FUNCTION f_delta(j,k,l,mono_loc,mono_leng,mymono)
+        FUNCTION f_delta(j,k,l,mono_loc,mono_leng,mymono,angle,angle_z)
             
             REAL(KIND(0d0)), DIMENSION(3), INTENT(IN) :: mono_loc
             TYPE(mono_parameters), INTENT(IN) :: mymono
@@ -3728,6 +3759,8 @@ MODULE m_rhs
             REAL(KIND(0d0)) :: hxnew,hynew
             REAL(KIND(0d0)) :: sig
             REAL(KIND(0d0)) :: f_delta
+            REAL(KIND(0d0)) :: angle
+            REAL(KIND(0d0)) :: angle_z
 
             IF (n==0) THEN
                 sig = dx(j)
@@ -3793,13 +3826,20 @@ MODULE m_rhs
                     hy = y_cc(k) - mono_loc(2)
                     
                     ! Rotate actual point by incresing angle with increasing y
-                    hxnew = cos(-atan(hy/(2*mymono%foc_length-hx)))*hx + &
-                                sin(-atan(hy/(2*mymono%foc_length-hx)))*hy
-                    hynew = hy*dsqrt((mymono%aperture/2.d0)**2.d0 + &
-                                      mymono%foc_length**2.d0)/(mymono%foc_length)
-                    IF ( abs(hynew) < mymono%aperture/2.d0 ) THEN
-                        f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
-                            dexp( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
+!                    hxnew = cos(-atan(hy/(2*mymono%foc_length-hx)))*hx + &
+!                                sin(-atan(hy/(2*mymono%foc_length-hx)))*hy
+!                    hynew = hy*dsqrt((mymono%aperture/2.d0)**2.d0 + &
+!                                      mymono%foc_length**2.d0)/(mymono%foc_length)
+!                    IF ( abs(hynew) < mymono%aperture/2.d0 ) THEN
+!                        f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
+!                            dexp( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
+
+                    ! Simpler Shunxiang version:
+                    hxnew = mymono%foc_length - dsqrt(hy**2.d0+(mymono%foc_length-hx)**2.d0)
+                    IF ( (abs(hy) < mymono%aperture/2.d0) .AND. (hx < mymono%foc_length)) THEN
+                       f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
+                            dexp( -0.5d0*(hxnew/(sig/2.d0))**2.d0 )
+                       angle = -atan(hy/(mymono%foc_length-hx))
                     ELSE
                         f_delta = 0d0
                     END IF
@@ -3820,6 +3860,36 @@ MODULE m_rhs
                          abs(hz) < mymono%length/2. ) THEN
                         f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
                             dexp( -0.5d0 * (hxnew/(sig/2.d0))**2.d0 )
+                    ELSE
+                        f_delta = 0d0
+                    END IF
+
+                ELSE IF (mymono%support == 5) THEN
+                    ! Support along 'transducer'
+                    hx = x_cc(j) - mono_loc(1) 
+                    hy = y_cc(k) - mono_loc(2)
+                    hz = z_cc(l) - mono_loc(3)
+
+                    ! 3D transducer
+!                    hxnew = mymono%foc_length - dsqrt(hy**2.d0+(mymono%foc_length-hx)**2.d0) &
+!                                              - dsqrt(hz**2.d0+(mymono%foc_length-hx)**2.d0)
+!                    hxnew = mymono%foc_length - dsqrt((hy**2.d0 + hz**2.d0) + (mymono%foc_length - &
+!                                                dsqrt((hx**2.d0 + hz**2.d0)))**2.d0)
+                    hxnew = mymono%foc_length - dsqrt(hy**2.d0 + hz**2.d0 + (mymono%foc_length-hx)**2.d0)
+                    IF ( (dsqrt(hy**2.d0+hz**2.d0) < mymono%aperture/2.d0) .AND. &
+!                             (abs(hz) < mymono%aperture/2.d0) .AND. &
+                                 (hx < mymono%foc_length)) THEN
+
+                       f_delta = 1.d0/(dsqrt(2.d0*pi)*sig/2.d0) * &
+                            dexp( -0.5d0*(hxnew/(sig/2.d0))**2.d0 )
+
+!WRONG
+!!                        f_delta = (1.d0/c0) * sin(2.d0*pi*freq*hxnew) + &
+!!                                (1.d0/r0) * (1.d0/(2.d0*pi*freq))*cos(2.d0*pi*freq*hxnew) - &
+!!                                (1.d0/(2.d0*pi*freq))
+
+                       angle = -atan(hy/(mymono%foc_length-hx))
+                       angle_z = -atan(hz/(mymono%foc_length-hx))
                     ELSE
                         f_delta = 0d0
                     END IF
@@ -6561,6 +6631,12 @@ MODULE m_rhs
                                 DEALLOCATE(q_prim_qp(i,j,k)%vf(l)%sf)
                             END DO
 
+                            IF (hypoelasticity) THEN
+                                DO l = stress_idx%beg, stress_idx%end
+                                    DEALLOCATE(q_prim_qp(i,j,k)%vf(l)%sf)
+                                END DO
+                            END IF
+
                             IF (model_eqns == 3) THEN
                                 DO l = internalEnergies_idx%beg, internalEnergies_idx%end
                                     DEALLOCATE(q_prim_qp(i,j,k)%vf(l)%sf)
@@ -6667,6 +6743,17 @@ MODULE m_rhs
                                     DEALLOCATE(qL_cons_ndqp(i,j,k)%vf(l)%sf)
                                     DEALLOCATE(qR_cons_ndqp(i,j,k)%vf(l)%sf)
                                 END DO
+
+                                IF (hypoelasticity) THEN
+                                    DO l = stress_idx%beg, stress_idx%end
+                                        DEALLOCATE(qL_prim_ndqp(i,j,k)%vf(l)%sf)
+                                        DEALLOCATE(qR_prim_ndqp(i,j,k)%vf(l)%sf)
+                                    END DO
+!                                    DO l = mom_idx%beg,mom_idx%end
+!                                        DEALLOCATE(qL_prim_ndqp(i,j,k)%vf(l)%sf)
+!                                        DEALLOCATE(qR_prim_ndqp(i,j,k)%vf(l)%sf)
+!                                    END DO
+                                END IF
                                
                             END IF
                         

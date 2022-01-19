@@ -923,6 +923,13 @@ MODULE m_time_steppers
             DO i = mom_idx%beg, E_idx
                 DEALLOCATE(q_prim_vf(i)%sf)
             END DO
+
+            IF (hypoelasticity) THEN
+                DO i = stress_idx%beg, stress_idx%end
+                    DEALLOCATE(q_prim_vf(i)%sf)
+                END DO
+            END IF
+
             IF (model_eqns == 3) THEN
                 DO i = internalEnergies_idx%beg, internalEnergies_idx%end
                     DEALLOCATE(q_prim_vf(i)%sf)

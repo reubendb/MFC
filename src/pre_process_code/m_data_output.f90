@@ -355,7 +355,8 @@ MODULE m_data_output
                             MPI_DOUBLE_PRECISION,status,ierr)
                 END DO
             ELSE
-                DO i = 1, adv_idx%end
+!                DO i = 1, adv_idx%end
+                DO i = 1, sys_size
                 var_MOK = INT(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file
