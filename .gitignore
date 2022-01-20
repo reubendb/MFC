@@ -1,6 +1,7 @@
 .mfc/
 tags
 .mfc/
+venv/
 src/*/tags
 
 src/*/*.mod
