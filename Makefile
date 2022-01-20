@@ -36,6 +36,9 @@ endif
 test:
 	./tests/checks.sh
 
+test_hypo:
+	./tests_hypoelastic/checks.sh
+
 .PHONY: clean
 clean:
 	@$(MAKE) -C src/pre_process_code -f makefile clean
