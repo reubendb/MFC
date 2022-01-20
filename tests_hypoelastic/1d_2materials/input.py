@@ -108,7 +108,7 @@ case_dict =                                                                     
                     'patch_icpp(1)%x_centroid'     : 0.35,                     \
                     'patch_icpp(1)%length_x'       : 0.7,                      \
                     'patch_icpp(1)%vel(1)'         : 0.0,                      \
-                    'patch_icpp(1)%pres'           : 1.5E+09,                    \
+                    'patch_icpp(1)%pres'           : 1E+09,                    \
                     'patch_icpp(1)%alpha_rho(1)'   : 1000,                     \
                     'patch_icpp(1)%alpha_rho(2)'   : 0.,                        \
                     'patch_icpp(1)%alpha(1)'       : 1,                       \
