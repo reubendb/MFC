@@ -4,6 +4,8 @@ tags
 venv/
 src/*/tags
 
+__pycache__
+
 src/*/*.mod
 src/*/*.o
 src/pre_process_code/pre_process
