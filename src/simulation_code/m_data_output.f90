@@ -782,7 +782,7 @@ MODULE m_data_output
             pi_inf = fluid_pp(1)%pi_inf
 
             IF (precision==1) THEN
-                FMT="(2F30.7)"
+                FMT="(2F30.3)"
             ELSE
                 FMT="(2F40.14)"
             END IF
