@@ -32,7 +32,7 @@ for mytest in "${mytests[@]}"; do
 
         mytest="Test $i of $ntest: $mytest"
         #Print if not
-        if [ -s diff.txt ]; then
+        if [ -s diff.out ]; then
             echo $mytest: Test failed! Output files are different.
             ((++nfail))
         elif [ ! -f "D/$check_file" ]; then

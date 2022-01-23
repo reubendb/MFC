@@ -16,7 +16,8 @@ hd_flags =
 endif
 
 # Compiler flags
-f90_flags = $(FFLAGS) $(hd_flags)
+#f90_flags = $(FFLAGS) $(hd_flags)
+f90_flags = -O3 $(FFLAGS) $(hd_flags)
 
 #################### Post-process Silo Flags #####################
 # Linker flags
@@ -35,4 +36,5 @@ hd_post_flags =
 endif
 
 # Compiler flags
-f90_post_flags = $(f90_flags) $(hd_post_flags)
+#f90_post_flags = $(f90_flags) $(hd_post_flags)
+f90_post_flags = -O $(FFLAGS) $(hd_flags) $(hd_post_flags)

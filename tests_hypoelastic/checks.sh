@@ -1,6 +1,8 @@
 #!/bin/bash
 
-### Note: Designed to be run from MFC root directory
+### Notes: 
+### - Designed to be run from MFC root directory with 'make test_hypo'
+### - The 1D tests and 2d_5wave test golden files have been validated with analytical solutions
 
 rm -rf ./tests_hypoelastic/*/D ./tests_hypoelastic/*/*.inp ./tests_hypoelastic/*/p_all ./tests_hypoelastic/*/*.out
 
