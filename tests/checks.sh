@@ -1,10 +1,4 @@
-#!/bin/bash
-
-# Color ANSI Escape Sequences
-FG_RED='\033[0;31m'
-FG_GREEN='\033[0;32m'
-FG_ORANGE='\033[0;33m'
-FG_NONE='\033[0m'
+#!/usr/bin/env bash
 
 ### Note: Designed to be run from MFC root directory, not tests/
 
@@ -23,29 +17,28 @@ echo -----------------------------------------------
 cd tests
 for mytest in "${mytests[@]}"; do
     cd $mytest
-        
         #Run test case
-        /usr/bin/env python3 ./input.py pre_process > pre_process.out
-        /usr/bin/env python3 ./input.py  simulation > simulation.out
-        
+        /usr/bin/env python3 ./input.py MFC_PreProcess > MFC_PreProcess.out
+        /usr/bin/env python3 ./input.py MFC_Simulation > MFC_Simulation.out
+
         cd check
             check_file=$(echo *)
         cd ..
-        
+
         #Check that the files are the same
         rm -f diff.out
         diff check/$check_file D/$check_file > diff.out
 
         mytest="Test $i of $ntest: $mytest"
         #Print if not
-        if [ -s diff.txt ]; then
-            echo -e $mytest": "$FG_RED"Test failed! Output files are different."$FG_NONE
+        if [ -s diff.out ]; then
+            echo -e $mytest": Test failed! Output files are different."
             ((++nfail))
         elif [ ! -f "D/$check_file" ]; then
-            echo -e $mytest": "$FG_RED"Test failed! Output file was not found."$FG_NONE
+            echo -e $mytest": Test failed! Output file was not found."
             ((++nfail))
         else
-            echo -e $mytest": "$FG_GREEN"Test passed!"$FG_NONE
+            echo -e $mytest": Test passed!"
             ((++npass))
         fi
 
@@ -55,8 +48,8 @@ for mytest in "${mytests[@]}"; do
 done
 
 echo -----------------------------------------------
-echo -e ---- $FG_RED$nfail Tests failed$FG_NONE
-echo -e ---- $FG_GREEN$npass Tests passed$FG_NONE
+echo -e ---- $nfail Tests failed
+echo -e ---- $npass Tests passed
 
 # Proper Exit Code
 #      0 - Success

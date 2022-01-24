@@ -1,15 +1,12 @@
 !>
 !! @file m_data_output.f90
 !! @brief Contains module m_data_output
-!! @author S. Bryngelson, K. Schimdmayer, V. Coralic, J. Meng, K. Maeda, T. Colonius
-!! @version 1.0
-!! @date JUNE 06 2019
 
 !> @brief This module takes care of writing the grid and initial condition
 !!              data files into the "0" time-step directory located in the folder
 !!              associated with the rank of the local processor, which is a sub-
 !!              directory of the case folder specified by the user in the input
-!!              file pre_process.inp.
+!!              file MFC_PreProcess.inp.
 MODULE m_data_output
     
     ! Dependencies =============================================================
@@ -141,7 +138,7 @@ MODULE m_data_output
             pi_inf = fluid_pp(1)%pi_inf
 
             IF (precision==1) THEN
-                FMT="(2F30.7)"
+                FMT="(2F30.3)"
             ELSE
                 FMT="(2F40.14)"
             END IF

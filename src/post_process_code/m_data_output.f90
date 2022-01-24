@@ -1,9 +1,6 @@
 !>
 !! @file m_data_output.f90
 !! @brief Contains module m_data_output
-!! @author S. Bryngelson, K. Schimdmayer, V. Coralic, J. Meng, K. Maeda, T. Colonius
-!! @version 1.0
-!! @date JUNE 06 2019
 
 !> @brief This module enables the restructuring of the raw simulation data
 !!              file(s) into formatted database file(s). The formats that may be
@@ -699,7 +696,7 @@ MODULE m_data_output
                     err = DBSET2DSTRLEN(LEN(meshnames(1)))
                     err = DBMKOPTLIST(2, optlist)
                     err = DBADDIOPT( optlist, DBOPT_EXTENTS_SIZE,     &
-                                              SIZE(spatial_extents,1) )
+                                              (/ SIZE(spatial_extents,1) /) )
                     err = DBADDDOPT(optlist, DBOPT_EXTENTS, spatial_extents)
                     err = DBPUTMMESH( dbroot, 'rectilinear_grid', 16,   &
                                                num_procs, meshnames,    &
@@ -779,13 +776,13 @@ MODULE m_data_output
                     IF (coarsen_silo) THEN
                         err = DBPUTQM( dbfile, 'rectilinear_grid', 16,          &
                                                'x', 1, 'y', 1, 'z', 1,          &
-                                               coarse_x_cb, coarse_y_cb, DB_F77NULL, dims, 2, &
+                                               coarse_x_cb, coarse_y_cb, (/ real(DB_F77NULL,8) /), dims, 2, &
                                                precision, DB_COLLINEAR,         &
                                                optlist, ierr                    )
                     ELSE
                         err = DBPUTQM( dbfile, 'rectilinear_grid', 16,          &
                                                'x', 1, 'y', 1, 'z', 1,          &
-                                               x_cb, y_cb, DB_F77NULL, dims, 2, &
+                                               x_cb, y_cb,(/ real(DB_F77NULL,8) /), dims, 2, &
                                                precision, DB_COLLINEAR,         &
                                                optlist, ierr                    )
                     END IF
@@ -961,7 +958,7 @@ MODULE m_data_output
                         
                         err = DBSET2DSTRLEN(LEN(varnames(1)))
                         err = DBMKOPTLIST(2, optlist)
-                        err = DBADDIOPT(optlist, DBOPT_EXTENTS_SIZE, 2)
+                        err = DBADDIOPT(optlist, DBOPT_EXTENTS_SIZE, (/2/))
                         err = DBADDDOPT(optlist, DBOPT_EXTENTS, data_extents)
                         err = DBPUTMVAR( dbroot, TRIM(varname),                &
                                                  LEN_TRIM(varname), num_procs, &

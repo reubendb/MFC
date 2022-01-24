@@ -1,9 +1,6 @@
 !>
 !! @file m_start_up.f90
 !! @brief  Contains module m_start_up
-!! @author S. Bryngelson, K. Schimdmayer, V. Coralic, J. Meng, K. Maeda, T. Colonius
-!! @version 1.0
-!! @date JUNE 06 2019
 
 !> @brief This module contains the subroutines that read in and check the
 !!              consistency of the user provided inputs.
@@ -27,7 +24,7 @@ MODULE m_start_up
     CONTAINS
         
 
-        !>  Reads the configuration file post_process.inp, in order
+        !>  Reads the configuration file MFC_PostProcess.inp, in order
         !!      to populate parameters in module m_global_parameters.f90
         !!      with the user provided inputs
         SUBROUTINE s_read_input_file() ! ---------------------------------------
@@ -61,8 +58,8 @@ MODULE m_start_up
                                    hypoelasticity
 
             
-            ! Inquiring the status of the post_process.inp file
-            file_loc = 'post_process.inp'
+            ! Inquiring the status of the MFC_PostProcess.inp file
+            file_loc = 'MFC_PostProcess.inp'
             INQUIRE(FILE = TRIM(file_loc), EXIST = file_check)
             
             
@@ -78,7 +75,7 @@ MODULE m_start_up
                 n_glb = n
                 p_glb = p
             ELSE
-                PRINT '(A)', 'File post_process.inp is missing. Exiting ...'
+                PRINT '(A)', 'File MFC_PostProcess.inp is missing. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             

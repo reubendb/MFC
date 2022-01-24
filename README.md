@@ -2,8 +2,11 @@
 
 [![DOI](https://zenodo.org/badge/doi/10.1016/j.cpc.2020.107396.svg)](http://dx.doi.org/10.1016/j.cpc.2020.107396)
 [![YourActionName Actions Status](https://github.com/ComputationalFlowPhysics/MFC-develop/workflows/CI/badge.svg)](https://github.com/ComputationalFlowPhysics/MFC-develop/actions)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![GitHub latest commit](https://badgen.net/github/last-commit/MFlowCode/MFC-develop)](https://github.com/MFlowCode/MFC-develop/commit/)
 
-Welcome to the MFC! 
+
+Welcome to MFC! 
 The MFC is a fully-documented parallel simulation software for multi-component, multi-phase, and bubbly flows.
 
 # Authors
@@ -12,6 +15,7 @@ This is the documentation for the MFC (Multicomponent Flow Code).
 The MFC is a simulation software for multi-component, multi-phase, and bubbly flows. 
 MFC was first developed by the Colonius research group at Caltech.
 Now it is developed and maintained by the groups of Professors <a href="https://colonius.caltech.edu/">Tim Colonius</a>, <a href="https://comp-physics.group">Spencer Bryngelson</a>, and <a href="https://vivo.brown.edu/display/mrodri97">Mauro Rodriguez</a>.
+We try to maintain a list of current and past developers in the `AUTHORS` file!
 
 # Documentation
  
@@ -30,7 +34,7 @@ Now it is developed and maintained by the groups of Professors <a href="https://
  
   The paper that describes the MFC's capabilities:
 * <a href="https://doi.org/10.1016/j.cpc.2020.107396">
-        S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2020) Computer Physics Communications 4655, 107396
+        S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2021) Computer Physics Communications 4655, 107396
         </a>
   
 ## Related publications
@@ -38,7 +42,10 @@ Now it is developed and maintained by the groups of Professors <a href="https://
   Several publications have used the MFC in various stages of its 
   development. A partial list is included here.
  
-  Refereed journal publications:
+  Journal papers:
+* <a href="https://arxiv.org/abs/2112.14172">
+        S. H. Bryngelson, R. O. Fox, T. Colonius (2021) arXiv: 2112.14172.
+        </a>
 * <a href="https://asa.scitation.org/doi/full/10.1121/10.0000746">
         S. H. Bryngelson and T. Colonius (2020) Journal of the Acoustical Society of America, Vol. 147, pp. 1126-1135
         </a>
@@ -67,7 +74,6 @@ Now it is developed and maintained by the groups of Professors <a href="https://
         V. Coralic and T. Colonius (2014) Journal of Computational Physics, Vol. 274, pp. 95-121 
         </a>
  
- 
 Ph.D. Disserations:
 * <a href="https://thesis.library.caltech.edu/11395/">
         J.-C. Veilleux (2019) Ph.D. thesis, California Institute of Technology 
@@ -82,87 +88,161 @@ Ph.D. Disserations:
         V. Coralic (2014) Ph.D. thesis, California Institute of Technology
         </a>
 
+## Installing MFC
 
+To get MFC running as fast as possible without having to configure the dependencies yourself, you can follow the following steps on most UNIX-like
+systems. 
+This method is best suited for development and Continous Integration (CI) workflows.
 
-# Simple Installation
+To fetch, build, and run MFC and its dependencies on a UNIX-like system, you must have installed common utilities such as GNU's Make, Python3, its developement headers and libraries, a C/C++ compiler
+(GCC, NVHPC, etc., but *not Clang*), and an MPI wrapper (like Open MPI). 
+Below are some commands for popular operating systems and package managers.
 
-To get MFC running as fast as possible without having to configure the
-dependencies yourself, you can follow the following steps on most UNIX-like
-systems. This method is best suited for development and Continous Integration
-(CI) workflows.
+### \*nix
 
-To fetch, build, and run MFC and its dependencies on a UNIX-like system, you
-must have installed common utilities (Tar, Wget, GNU Make, ...), Python2,
-Python3, Python's developement headers and libraries, a C/C++ compiler
-((GCC and G++) or Clang), an MPI Fortran compiler
-(like [Open MPI](https://www.open-mpi.org/)). Here are some commands for popular
-Operating Systems and package managers, 
-
-Package Manager                                            | Suggested Command 
----                                                        | ---
-[Aptitude](https://wiki.debian.org/Aptitude) (Debian-like) | `sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev`
-[Homebrew](https://brew.sh/) (macOS)                       | `brew install wget make python open-mpi make cmake gcc`
-
-The following commands fetch and build the required dependencies to to the
-`dependencies/` folder within your MFC installation. This should have no impact on your
-local installations of these packages.
-
+* Via [Aptitude](https://wiki.debian.org/Aptitude)
 ```
-cd dependencies
-sh ./install.sh -j <num_threads>
-cd ..
+sudo apt install tar wget make cmake gcc g++ python3 openmpi-*  python python-dev python3-dev libopenmpi-dev
 ```
 
-You can now run `make -j <num_threads>` on MFC to build it, and check your
-installation by running tests with `make tests`.
+### MacOS (including x86 and M1/Apple Silicon)
+
+* Via [Homebrew](https://brew.sh/)
+
+You can modify the assignment on the first line to have the GCC major version you wish to have installed and use.
 
 ```
-make -j <num_threads>
-make tests
+USE_GCC_VERSION=11
+brew install wget make python make cmake gcc@$USE_GCC_VERSION
+HOMEBREW_CC=gcc-$USE_GCC_VERSION; HOMEBREW_CXX=g++-$USE_GCC_VERSION; brew install open-mpi
 ```
 
-# Advanced Installation
+Further reading `open-mpi` incompatibility with `clang`-based `gcc` on macOS: [here](https://stackoverflow.com/questions/27930481/how-to-build-openmpi-with-homebrew-and-gcc-4-9). We do *not* support `clang` due to conflicts with our Silo dependency.
 
-MFC is split into 3 components with (mostly) layered dependencies. The following
-table can be used to resolve the minimal amount of packages you are required to
-install and configure depending on your specific use case.
+### Fetch and build MFC
 
-Codes             | Description                             | Required Packages
------------------ | --------------------------------------- | ---
-Pre process Code  | "The pre-processor generates initial conditions and spatial grids from the physical patches specified in the Python input file andexports them as binary files to be read by the simulator." [1] | <ul><li>UNIX Utilities</li><li>GNU Make</li><li>C/C++ Compiler</li><li>Fortran MPI Compiler</li><li>[Python](https://www.python.org/)</li>
-Simulation Code   | "The simulator, given the initial-condition files generated bythe pre-processor, solves the corresponding governing flowequations with the specified boundary conditions using ourinterface-capturingnumericalmethod." [1] | <ul><li>[FFTW](https://www.fftw.org/)</li></ul>
-Post process Code | "The post-processor reads simulation data and exports HDF5/Silo databases that include variables and derived variables, asspecifiedintheinputfile." [1] | <ul><li>[HDF5](https://www.hdfgroup.org/solutions/hdf5/)</li><li>[Silo](https://wci.llnl.gov/simulation/computer-codes/silo)*</li></ul>
-
-<sub>[1] <a href="https://doi.org/10.1016/j.cpc.2020.107396">
-        S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2020) Computer Physics Communications 4655, 107396
-</a></sub>
-
-<sup>*Please note that <a href="https://wci.llnl.gov/simulation/computer-codes/silo">Silo</a> depends on <a href="https://www.hdfgroup.org/solutions/hdf5/">HDF5</a>.
-
-Once you have decided on which dependencies you want to install, you can:
-
-- Build them from source
-- Obtain them through your package manager
-- Modify and run the [install.sh](dependencies/install.sh) script above
-
-You can now modify the [Makefile.user](Makefile.user) file at the root of MFC's 
-source tree to specify the paths to those packages' binaries and header files, 
-as well as to supply additional command line arguments.
-
-Variable           | Description
------------------- | ---
-`FC`               | Binary to execute to compile and preprocess Fortran files.
-`FFLAGS`           | Command-line arguments to supply to your Fortran compiler of choice.
-`fftw_lib_dir`     | Path to the parent folder containing [FFTW](https://www.fftw.org/)'s binaries (/lib).
-`fftw_include_dir` | Path to the parent folder containing [FFTW](https://www.fftw.org/)'s header files (/include).
-`silo_lib_dir`     | Path to the parent folder containing [Silo](https://wci.llnl.gov/simulation/computer-codes/silo)'s binaries (/lib).
-`silo_include_dir` | Path to the parent folder containing [Silo](https://wci.llnl.gov/simulation/computer-codes/silo)'s header files (/include).
-
-You can now run `make -j <num_threads>` on MFC to build it, and check your installation by running tests with `make tests`.
+The following commands fetch and build MFC and its required dependencies. 
+The dependencies are built to the `dependencies/build/` directory within your MFC installation. 
+This should have no impact on your local installation(s) of these packages.
 
 ```
-make -j <num_threads>
-make tests
+git clone --recursive https://github.com/MFlowCode/MFC
+cd MFC
+```
+
++ Build MFC and its dependencies with `<N>` threads in `release-cpu` mode:
+
+```
+chmod +x ./mfc.sh
+./mfc.sh --build -j <N>
+```
+
++ Run MFC's tests to make sure it was correctly built and your environment is adequate
+
+```
+./mfc.sh --test
+```
+
+## Configuring `mfc.sh`
+
+The `mfc.sh` script used in the previous section is configured through the file named `mfc.conf.yaml`. 
+
+### Compilers
+
+In the `compilers` section you can specify which compilers you wish to have used. Entries representing the name to an executable locatable through your system's `$PATH` or an absolute path to an executable are valid. The default configuration is:
+
+```yaml
+compilers:
+  c:       mpicc
+  c++:     mpicxx
+  fortran: mpif90
+```
+
+### Compiler Configurations
+
+The `configurations` section consists of a list of "compiler configurations", describing modifications for including but not limited to "release" and "debug" builds for CPUs or GPUs. You can freely modify the existing configurations and add your own. Examples:
+
+```yaml
+- name: release-cpu
+  flags:
+    c:       -O3
+    c++:     -O3
+    fortran: -O3 -cpp -w
+- name: release-gpu
+  flags:
+    c:       -O3
+    c++:     -O3
+    fortran: -O3 -cpp -w -acc -Minfo=accel -lnvToolsExt -L${CUDA:INSTALL_PATH}/lib64
+```
+
+To use a desired compiler configuration with `mfc.sh`, you must specify the `--compiler-configuration` (a.k.a `-cc`) option, along with the name of your configuration. `release-cpu` is its default value. For example, to build MFC and its dependencies in `debug-cpu` mode, you can run:
+
+```
+./mfc.sh --build -cc debug-cpu
+```
+
+### Targets
+
+The largest section of `mfc.conf.yaml` is labeled `targets`, containing a list of targets. A target is defined as an entity on which `mfc.sh` can run `--build` or `--test`. `mfc.conf.yaml` contains a target for each dependency and MFC component, and for MFC as a whole. Targets have the following general format:
+
+```yaml
+- name: <target name> # The name of the target
+  type: <target type> # The type of target (defined bellow) 
+  <type>:             # The structure associated with the target's type (defined bellow)
+     ...
+  depends: # A list of the names of the targets this target depends on
+  - ...
+  build:   # A list of commands that build the target
+  - ...
+  test:    # A list of commands that run the target's tests
+  - ...
+```
+
+The target's `type` refers to which method is used for fetching its source code, and associated metadata to check for updates. Here is a description of its possible values and associated structures:
+
++ Download
+
+```yaml
+type: download
+download:
+  version: <version>
+  link:    <archive download link>
+```
+
++ Clone
+
+```yaml
+type: clone
+clone:
+  git:  <git repository link>
+  hash: <commit hash>
+```
+
++ Source
+
+```yaml
+type: source
+source:
+  source: <absolute path to the directory where to run commands>
+```
+
+To build a desired target and its dependencies, you must specify the `--targets` (a.k.a `-t`) option, along with the name of your targets separated by spaces. `MFC` is its default value. To build a target and its dependencies from scratch, add the `--scratch` option.
+
+For example, to build MFC's simulation component and its dependencies from scratch, you can run:
+
+```
+./mfc.sh --build -t MFC_Simulation --scratch
+```
+
+### Miscellaneous
+
++ Use the `--jobs <N>` (a.k.a `-j <N>`) option to build with a certain number of threads.
++ Use the `--set-current <name>` (a.k.a `-sc <name>`) option to select explicitly which compiler configuration to use when running MFC.
+
+```
+./mfc.sh --build -t MFC_Simulation -cc release-cpu -j 8 --scratch
+./mfc.sh --test
+./mfc.sh --set-current debug-cpu
 ```
 
 # Running
@@ -177,14 +257,14 @@ can also be found in [example_cases/3d_sphbubcollapse/](example_cases/3D_sphbubc
 MFC can be executed as  
 
 ```
-./input.py pre_process
+./input.py MFC_PreProcess
 ```
 
 which will generate the restart and grid files that will be read 
 by the simulation code. Then  
 
 ```
-./input.py simulation
+./input.py MFC_Simulation
 ```
 
 will execute the flow solver. The last (optional) step
@@ -192,12 +272,12 @@ is to post treat the data files and output HDF5 databases
 for the flow variables via  
 
 ```
-./input.py post_process
+./input.py MFC_PostProcess
 ```
 
 # License
  
-Copyright 2021.
+Copyright 2022.
 MFC is under the MIT license (see [LICENSE](LICENSE) file for full text).
 
 # Acknowledgements

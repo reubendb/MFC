@@ -1,9 +1,6 @@
 !>
 !! @file m_start_up.f90
 !! @brief Contains module m_start_up
-!! @author S. Bryngelson, K. Schimdmayer, V. Coralic, J. Meng, K. Maeda, T. Colonius
-!! @version 1.0
-!! @date JUNE 06 2019
 
 !> @brief This module contains subroutines that read, and check consistency
 !!              of, the user provided inputs and data.
@@ -75,7 +72,7 @@ MODULE m_start_up
         
         
         
-        !>  Reads the configuration file pre_process.inp, in order to
+        !>  Reads the configuration file MFC_PreProcess.inp, in order to
         !!      populate the parameters in module m_global_parameters.f90
         !!      with the user provided inputs        
         SUBROUTINE s_read_input_file() ! ---------------------------------------
@@ -107,8 +104,8 @@ MODULE m_start_up
                                    nnode, sigR, sigV, dist_type, rhoRV, R0_type
  
 
-            ! Inquiring the status of the pre_process.inp file
-            file_loc = 'pre_process.inp'
+            ! Inquiring the status of the MFC_PreProcess.inp file
+            file_loc = 'MFC_PreProcess.inp'
             INQUIRE(FILE = TRIM(file_loc), EXIST = file_check)
             
             
@@ -124,7 +121,7 @@ MODULE m_start_up
                 n_glb = n
                 p_glb = p
             ELSE
-                PRINT '(A)', 'File pre_process.inp is missing. Exiting ...'
+                PRINT '(A)', 'File MFC_PreProcess.inp is missing. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             

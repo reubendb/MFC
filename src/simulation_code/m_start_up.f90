@@ -1,9 +1,6 @@
 !>
 !! @file m_start_up.f90
 !! @brief Contains module m_start_up
-!! @author S. Bryngelson, K. Schimdmayer, V. Coralic, J. Meng, K. Maeda, T. Colonius
-!! @version 1.0
-!! @date JUNE 06 2019
 
 !> @brief The purpose of the module is primarily to read in the files that
 !!              contain the inputs, the initial condition data and the grid data
@@ -74,7 +71,7 @@ MODULE m_start_up
             
             
             ! Relative path to the input file provided by the user
-            CHARACTER(LEN = name_len) :: file_path = './simulation.inp'
+            CHARACTER(LEN = name_len) :: file_path = './MFC_Simulation.inp'
             
 
             LOGICAL :: file_exist !<
