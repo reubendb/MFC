@@ -457,6 +457,15 @@ MODULE m_initial_condition
                     + (1d0 - eta)   *orig_prim_vf(i)
             END DO
 
+            ! Elastic Shear Stress
+            IF (hypoelasticity) THEN
+                DO i = 1, (stress_idx%end - stress_idx%beg) + 1
+                    q_prim_vf(i+stress_idx%beg - 1)%sf(j,k,l) = &
+                        (eta * patch_icpp(patch_id)%tau_e(i) &
+                         + (1d0-eta)*orig_prim_vf(i+stress_idx%beg -1))
+                END DO
+            END IF
+
             IF (mpp_lim .AND. bubbles) THEN
                 !adjust volume fractions, according to modeled gas void fraction
                 alf_sum%sf = 0d0

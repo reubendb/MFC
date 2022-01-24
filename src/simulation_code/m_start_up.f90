@@ -235,9 +235,10 @@ MODULE m_start_up
             ELSEIF( bubbles .AND. weno_vars /= 2 ) THEN
                 PRINT '(A)', 'Bubble modeling requires weno_vars = 2'
                 CALL s_mpi_abort()
-            ELSEIF( bubbles .AND. riemann_solver /= 2 ) THEN
-                PRINT '(A)', 'Bubble modeling requires riemann_solver = 2'
-                CALL s_mpi_abort()
+        ! TESTING Bubbles with riemann_solver == 1
+!            ELSEIF( bubbles .AND. riemann_solver /= 2 ) THEN
+!                PRINT '(A)', 'Bubble modeling requires riemann_solver = 2'
+!                CALL s_mpi_abort()
             ELSEIF( bubbles .AND. commute_err ) THEN
                 PRINT '(A)', 'Bubble modeling is not compatible with commute_err'
                 CALL s_mpi_abort()
@@ -1106,7 +1107,8 @@ MODULE m_start_up
                                     MPI_DOUBLE_PRECISION,status,ierr)
                     END DO
                 ELSE
-                    DO i = 1, adv_idx%end
+!                    DO i = 1, adv_idx%end
+                    DO i = 1, sys_size
                         var_MOK = INT(i, MPI_OFFSET_KIND)
 
                         ! Initial displacement to skip at beginning of file

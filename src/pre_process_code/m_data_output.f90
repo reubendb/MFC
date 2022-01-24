@@ -180,6 +180,9 @@ MODULE m_data_output
                                             (rhoref*(1.d0-q_cons_vf(4)%sf(j,0,0)))  & 
                                             ) ** lit_gamma )                        &
                                             - pi_inf
+                                    ! For cases with initial tau_e nonzero, will need to add elastic contribution here:
+!                                   ELSE IF (hypoelasticity) THEN
+!                                       not yet implemented                                        
                                     ELSE IF ((model_eqns==2 .OR. model_eqns==3) .AND. (bubbles .NEQV. .TRUE.)) THEN
                                         !Stiffened gas pressure from energy
                                         WRITE(2,FMT) x_cb(j), &
@@ -333,7 +336,8 @@ MODULE m_data_output
                             MPI_DOUBLE_PRECISION,status,ierr)
                 END DO
             ELSE
-                DO i = 1, adv_idx%end
+!                DO i = 1, adv_idx%end
+                DO i = 1, sys_size
                 var_MOK = INT(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file

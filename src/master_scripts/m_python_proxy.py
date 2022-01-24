@@ -1292,6 +1292,8 @@ simulation_dict =                                                              \
                     'Mono(1)%npulse'                : None,                     \
                     'Mono(1)%pulse'                 : None,                     \
                     'Mono(1)%support'               : None,                     \
+                    'Mono(1)%foc_length'            : None,                     \
+                    'Mono(1)%aperture'              : None,                     \
                     'Mono(2)%loc(1)'                : None,                     \
                     'Mono(2)%loc(2)'                : None,                     \
                     'Mono(2)%loc(3)'                : None,                     \
@@ -1301,6 +1303,8 @@ simulation_dict =                                                              \
                     'Mono(2)%npulse'                : None,                     \
                     'Mono(2)%pulse'                 : None,                     \
                     'Mono(2)%support'               : None,                     \
+                    'Mono(2)%foc_length'            : None,                     \
+                    'Mono(2)%aperture'              : None,                     \
                     'Mono(3)%loc(1)'                : None,                     \
                     'Mono(3)%loc(2)'                : None,                     \
                     'Mono(3)%loc(3)'                : None,                     \
@@ -1310,6 +1314,8 @@ simulation_dict =                                                              \
                     'Mono(3)%npulse'                : None,                     \
                     'Mono(3)%pulse'                 : None,                     \
                     'Mono(3)%support'               : None,                     \
+                    'Mono(3)%foc_length'            : None,                     \
+                    'Mono(3)%aperture'              : None,                     \
                     'Mono(4)%loc(1)'                : None,                     \
                     'Mono(4)%loc(2)'                : None,                     \
                     'Mono(4)%loc(3)'                : None,                     \
@@ -1319,6 +1325,7 @@ simulation_dict =                                                              \
                     'Mono(4)%npulse'                : None,                     \
                     'Mono(4)%pulse'                 : None,                     \
                     'Mono(4)%support'               : None,                     \
+<<<<<<< HEAD
                     'Mono(1)%delay'                 : None,                     \
                     'Mono(2)%delay'                 : None,                     \
                     'Mono(3)%delay'                 : None,                     \
@@ -1331,6 +1338,10 @@ simulation_dict =                                                              \
                     'Mono(2)%foc_length'            : None,                     \
                     'Mono(3)%foc_length'            : None,                     \
                     'Mono(4)%foc_length'            : None,                     \
+=======
+                    'Mono(4)%foc_length'            : None,                     \
+                    'Mono(4)%aperture'              : None,                     \
+>>>>>>> hypoelastic
                     'integral_wrt'                  : None,                     \
                     'num_integrals'                 : None,                     \
                     'integral(1)%xmin'              : None,                     \
@@ -2113,14 +2124,17 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
     file_id.write(                                                             \
                                                                                \
         # Script interpreter
-        '#!/bin/sh'                                                     + '\n' \
+        '#!/bin/bash'                                                   + '\n' \
                                                                                \
         # Account to be charged for the job:
         # (PBS)
         # '#PBS -A xxx'                                          + '\n' \
         # (Slurm)
         # '#SBATCH -A xxx'                                       + '\n' \
-                                                                               \
+
+        # (Expanse)
+        '#SBATCH --account=cit129 '                                     + '\n' \
+                                                                                \
         # Name of the queue to which the job should be submitted:
         # (PBS)
         # '#PBS -q ' + str(pbs_dict['queue'])                             + '\n' \
@@ -2158,15 +2172,16 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
         # (Slurm)
         '#SBATCH -o ' + comp_name + '.o%j'                              + '\n' \
         '#SBATCH -e ' + comp_name + '.o%j'                              + '\n' \
+        '#SBATCH --export=ALL '                                         + '\n' \
                                                                                \
         # Notify by email when job begins (b), aborts (a), and/or ends (e):
         # (PBS)
         # '#PBS -m bae'                                                   + '\n' \
         # '#PBS -M ' + str(pbs_dict['mail_list'])                         + '\n' \
         # (Slurm)
-        '#SBATCH --mail-type=all'                                       + '\n' \
-        '#SBATCH --mail-user=' + str(pbs_dict['mail_list'])             + '\n' \
-                                                                               \
+#        '#SBATCH --mail-type=all'                                       + '\n' \
+#        '#SBATCH --mail-user=' + str(pbs_dict['mail_list'])             + '\n' \
+#                                                                               \
         #'sleep 30s'                                                     + '\n' \
         # Total number of processor(s) allocated for job execution
         # (PBS)
@@ -2208,7 +2223,10 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
          't_start=$(date +%s)'                                          + '\n' \
                                                                                \
         # Executing job:
-        'mpirun '                                                               \
+        # (Expanse)
+        'mpirun '                                                              \
+#        'time mpirun '                                                          \
+                                       + '-n '   + str(pbs_dict['ppn']) + ' '  \
                                        + mfc_dir + '/' + comp_name             \
                                        + '_code' + '/' + comp_name      + '\n' \
         # Stopping the timer for the job

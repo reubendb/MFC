@@ -93,8 +93,8 @@ MODULE m_derived_types
         REAL(KIND(0d0)), DIMENSION(3) :: loc !< Physical location of acoustic source
         REAL(KIND(0d0)) :: mag !< Magnitude
         REAL(KIND(0d0)) :: length !< Length of line source
-        REAL(KIND(0d0)) :: foc_length !< Focal length 
-        REAL(KIND(0d0)) :: aperture !< Length of aperture
+        REAL(KIND(0d0)) :: foc_length !< tranducer focal length for support = 5
+        REAL(KIND(0d0)) :: aperture !< transducer aperture length for support = 5
         REAL(KIND(0d0)) :: npulse !< Number of cycles of pulse
         REAL(KIND(0d0)) :: dir !< Direction of pulse
         REAL(KIND(0d0)) :: delay !< Time-delay of pulse start
