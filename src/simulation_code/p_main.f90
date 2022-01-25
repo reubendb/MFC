@@ -76,16 +76,36 @@ PROGRAM p_main
 
     USE m_phasechange          !< Phase change relaxation algorithms
 
+!#IFDEF _OPENACC
+!USE openacc
+!#ENDIF
+
     ! ==========================================================================
     
     IMPLICIT NONE
 
     INTEGER :: t_step !< Iterator for the time-stepping loop
+    INTEGER :: dev, devNum, local_rank, local_comm
+!#IFDEF _OPENACC
+!INTEGER(acc_device_kind) :: devtype
+!#ENDIF
+   
+    call system_clock(COUNT=cpu_start, COUNT_RATE=cpu_rate)
 
-    CALL system_clock(COUNT=cpu_start, COUNT_RATE=cpu_rate)
-    
     ! Initializing MPI execution environment
-    CALL s_mpi_initialize()
+    
+    call s_mpi_initialize()
+   
+    ! TODO ANAND HERE ARE THE BINDINGS FOR XSEDE
+!#IFDEF _OPENACC
+!call MPI_comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, &
+!         MPI_INFO_NULL, local_comm, ierr)
+!call MPI_comm_rank(local_comm, local_rank, ierr)
+!devtype = acc_get_device_type()
+!devNum = acc_get_num_devices(devtype)
+!dev = mod(local_rank,devNum)
+!call acc_set_device_num(dev, devtype)
+!#ENDIF
 
     ! The rank 0 processor assigns default values to the user inputs prior to
     ! reading them in from the input file. Next, the user inputs are read and
