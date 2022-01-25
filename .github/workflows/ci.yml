@@ -35,7 +35,7 @@ jobs:
         with:
           name: Ubuntu-logs
           path: |
-            .mfc/**/log/
+            .mfc/**/*.log
             tests/**/*.dat
             tests/**/*.out
             tests/**/*.inp
