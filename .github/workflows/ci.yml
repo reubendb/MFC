@@ -3,6 +3,15 @@ name: CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.f90'
+      - '**.fpp'
+      - '**.sh'
+      - '**.py'
+      - '**.yaml'
+      - '**.yml'
+      - 'Makefile'
+      
   pull_request:
     branches: [ master ]
 
