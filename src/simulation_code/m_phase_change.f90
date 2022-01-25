@@ -48,6 +48,7 @@ MODULE m_phase_change
     USE m_mpi_proxy            !< Message passing interface (MPI) module proxy
     USE m_variables_conversion !< State variables type conversion procedures
 
+    USE ieee_arithmetic
     ! ==========================================================================
 
     IMPLICIT NONE
@@ -191,7 +192,7 @@ MODULE m_phase_change
                        Tsat = f_Tsat(p_k(1))
                        !PRINT *,'prelax =',p_k(1),'Trelax = ',T_k(1),', Tsat = ',Tsat
 
-                       IF ( ISNAN(p_k(1)) .OR. p_k(1) < 0.d0 ) THEN 
+                       IF ( ieee_is_nan(p_k(1)) .OR. p_k(1) < 0.d0 ) THEN 
                            PRINT *, 'code crashed' 
                            CALL s_mpi_abort()
                        END IF
@@ -957,7 +958,7 @@ MODULE m_phase_change
                   CALL s_compute_fdfTsat(fB,dfdp,pressure,TstarB)
                   !PRINT *, 'fB :: ',fB,', TstarB :: ',TstarB,', p :: ',pressure
                   !PRINT *,'fB :: ',fB,', TstarB :: ',TstarB
-                  IF( ISNAN(fB) ) THEN
+                  IF( ieee_is_nan(fB) ) THEN
                         fB = fA
                         TstarB = TstarA
                         factor = factor-10.d0
@@ -1100,7 +1101,7 @@ MODULE m_phase_change
                   pstarA = pstarB
                   pstarB = pstarA*factor
                   CALL s_compute_ptg_fdf(fB,dfdp,pstarB,Tstar,rho0,E0)
-                  IF( ISNAN(fB) ) THEN
+                  IF( ieee_is_nan(fB) ) THEN
                         fB = fA
                         pstarB = pstarA
                         factor = factor*0.95d0
@@ -1239,7 +1240,7 @@ MODULE m_phase_change
                   pstarA = pstarB
                   pstarB = pstarA*factor
                   CALL s_compute_pk_fdf(fB,dfdp,pstarB,rho_K_s,gamma_min,pres_inf,pres_K_init,q_cons_vf,j,k,l)
-                  IF( ISNAN(fB) ) THEN
+                  IF( ieee_is_nan(fB) ) THEN
                         fB = fA
                         pstarB = pstarA
                         factor = factor*0.5d0
@@ -1379,7 +1380,7 @@ MODULE m_phase_change
                   pstarA = pstarB
                   pstarB = pstarA*factor
                   CALL s_compute_ptk_fdf(fB,dfdp,pstarB,Tstar,rhoe,gamma_min,pres_inf,q_cons_vf,j,k,l)
-                  IF( ISNAN(fB) ) THEN
+                  IF( ieee_is_nan(fB) ) THEN
                         fB = fA
                         pstarB = pstarA
                         factor = factor*0.5d0

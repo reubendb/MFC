@@ -47,19 +47,20 @@ PROGRAM p_main
 
     USE m_phase_change         !< Phase change relaxation algorithms
 
-!#IFDEF _OPENACC
-!USE openacc
-!#ENDIF
+#ifdef _OPENACC
+    USE openacc
+#endif
 
     ! ==========================================================================
     
     IMPLICIT NONE
 
     INTEGER :: t_step !< Iterator for the time-stepping loop
+    INTEGER :: ierr
     INTEGER :: dev, devNum, local_rank, local_comm
-!#IFDEF _OPENACC
-!INTEGER(acc_device_kind) :: devtype
-!#ENDIF
+#ifdef _OPENACC
+    INTEGER(acc_device_kind) :: devtype
+#endif
    
     call system_clock(COUNT=cpu_start, COUNT_RATE=cpu_rate)
 
@@ -68,15 +69,15 @@ PROGRAM p_main
     call s_mpi_initialize()
    
     ! TODO ANAND HERE ARE THE BINDINGS FOR XSEDE
-!#IFDEF _OPENACC
-!call MPI_comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, &
-!         MPI_INFO_NULL, local_comm, ierr)
-!call MPI_comm_rank(local_comm, local_rank, ierr)
-!devtype = acc_get_device_type()
-!devNum = acc_get_num_devices(devtype)
-!dev = mod(local_rank,devNum)
-!call acc_set_device_num(dev, devtype)
-!#ENDIF
+#ifdef _OPENACC
+    call MPI_comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, &
+             MPI_INFO_NULL, local_comm, ierr)
+    call MPI_comm_rank(local_comm, local_rank, ierr)
+    devtype = acc_get_device_type()
+    devNum = acc_get_num_devices(devtype)
+    dev = mod(local_rank,devNum)
+    call acc_set_device_num(dev, devtype)
+#endif
 
     ! The rank 0 processor assigns default values to the user inputs prior to
     ! reading them in from the input file. Next, the user inputs are read and
