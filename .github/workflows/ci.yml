@@ -33,10 +33,10 @@ jobs:
       - name: Build MFC and its dependencies (mfc.py)
         run: |
           chmod +x ./mfc.sh
-          ./mfc.sh --build -t MFC -cc ci-cpu -j $(nproc)
+          ./mfc.sh -j $(nproc)
       
       - name: Run MFC Tests
-        run: ./mfc.sh --test -t MFC -cc ci-cpu
+        run: ./mfc.sh --test
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
