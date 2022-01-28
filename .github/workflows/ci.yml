@@ -10,8 +10,8 @@ on:
       - '**.py'
       - '**.yaml'
       - '**.yml'
-      - '**Makefile'
-      - '**makefile'
+      - 'Makefile'
+      - 'makefile'
 
   pull_request:
     branches: [ master ]
