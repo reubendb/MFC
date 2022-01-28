@@ -10,8 +10,9 @@ on:
       - '**.py'
       - '**.yaml'
       - '**.yml'
-      - 'Makefile'
-      
+      - '**Makefile'
+      - '**makefile'
+
   pull_request:
     branches: [ master ]
 
@@ -34,7 +35,7 @@ jobs:
         run: |
           chmod +x ./mfc.sh
           ./mfc.sh -j $(nproc)
-      
+
       - name: Run MFC Tests
         run: ./mfc.sh --test
 
@@ -48,7 +49,7 @@ jobs:
             tests/**/*.dat
             tests/**/*.out
             tests/**/*.inp
-  
+
 #  MacOS:
 #    runs-on: macos-11
 #
@@ -67,7 +68,7 @@ jobs:
 #        run: |
 #          chmod +x ./mfc.sh
 #          ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
-#      
+#
 #      - name: Run MFC Tests
 #        run: ./mfc.sh --test -t MFC -cc ci
 #
