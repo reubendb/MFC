@@ -1,8 +1,9 @@
 .mfc/
 tags
 .mfc/
-venv/
 src/*/tags
+
+__pycache__
 
 src/*/*.mod
 src/*/*.o
@@ -10,6 +11,7 @@ src/pre_process_code/pre_process
 src/simulation_code/simulation
 src/post_process_code/post_process
 src/master_scripts/*.pyc
+src/*/.build
 src/master_scripts/__*
 make_doc.sh
 cases/
