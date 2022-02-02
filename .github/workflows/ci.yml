@@ -3,6 +3,16 @@ name: CI
 on:
   push:
     branches: [ master ]
+    paths:
+      - '**.f90'
+      - '**.fpp'
+      - '**.sh'
+      - '**.py'
+      - '**.yaml'
+      - '**.yml'
+      - 'Makefile'
+      - 'makefile'
+
   pull_request:
     branches: [ master ]
 
@@ -18,23 +28,27 @@ jobs:
 
       - name: Fetch (Aptitude) Dependencies
         run: |
-          sudo apt install -y tar wget make cmake gcc g++ python3 openmpi-* python python-dev python3-dev libopenmpi-dev
-          pip3 install pyyaml colorama
+          sudo apt install -y tar wget make cmake gcc g++ python3 openmpi-* python python-dev python3-dev python3-venv libopenmpi-dev
+          pip3 install pyyaml colorama fypp
 
       - name: Build MFC and its dependencies (mfc.py)
         run: |
           chmod +x ./mfc.sh
-          ./mfc.sh --build -t MFC -cc ci-cpu -j $(nproc)
-      
+          ./mfc.sh -j $(nproc)
+
       - name: Run MFC Tests
-        run: ./mfc.sh --test -t MFC -cc ci-cpu
+        run: ./mfc.sh --test
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
         if: always()
         with:
-          name: Windows-mfc-py-logs
-          path: .mfc/**/log/
+          name: Ubuntu-logs
+          path: |
+            .mfc/**/*.log
+            tests/**/*.dat
+            tests/**/*.out
+            tests/**/*.inp
 
 #  MacOS:
 #    runs-on: macos-11
@@ -54,7 +68,7 @@ jobs:
 #        run: |
 #          chmod +x ./mfc.sh
 #          ./mfc.py --build -t MFC -cc ci -j $(sysctl -n hw.logicalcpu)
-#      
+#
 #      - name: Run MFC Tests
 #        run: ./mfc.sh --test -t MFC -cc ci
 #
@@ -62,5 +76,5 @@ jobs:
 #        uses: actions/upload-artifact@v2
 #        if: always()
 #        with:
-#          name: MacOS-mfc-py-logs
+#          name: MacOS-logs
 #          path: .mfc/**/log/
