@@ -45,7 +45,7 @@ jobs:
         with:
           name: Ubuntu-logs
           path: |
-            .mfc/**/*.log
+            build/**/*.log
             tests/**/*.dat
             tests/**/*.out
             tests/**/*.inp
@@ -77,4 +77,4 @@ jobs:
 #        if: always()
 #        with:
 #          name: MacOS-logs
-#          path: .mfc/**/log/
+#          path: build/**/log/
