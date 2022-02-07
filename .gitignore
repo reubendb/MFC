@@ -1,6 +1,5 @@
-.mfc/
+build/
 tags
-.mfc/
 src/*/tags
 
 __pycache__
