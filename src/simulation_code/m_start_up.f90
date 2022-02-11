@@ -67,14 +67,12 @@ MODULE m_start_up
         !>  The purpose of this procedure is to first verify that an
         !!      input file has been made available by the user. Provided
         !!      that this is so, the input file is then read in.
-        SUBROUTINE s_read_input_file() ! ---------------------------------------
-            
-            
-            ! Relative path to the input file provided by the user
-            CHARACTER(LEN = name_len) :: file_path = './MFC_Simulation.inp'
-            
+    subroutine s_read_input_file() ! ---------------------------------------
 
-            LOGICAL :: file_exist !<
+        ! Relative path to the input file provided by the user
+        character(LEN=name_len) :: file_path = './simulation.inp'
+
+        logical :: file_exist !<
             !! Logical used to check the existence of the input file
             
             ! Namelist of the global parameters which may be specified by user
