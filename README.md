@@ -28,14 +28,14 @@ Now it is developed and maintained by the groups of Professors <a href="https://
  
 ### Primary Paper
  
-  The paper that describes the MFC's capabilities:
+  The paper that describes MFC's capabilities:
 * <a href="https://doi.org/10.1016/j.cpc.2020.107396">
         S. H. Bryngelson, K. Schmidmayer, V. Coralic, K. Maeda, J. Meng, T. Colonius (2021) Computer Physics Communications 4655, 107396
         </a>
   
 ### Related publications
  
-  Several publications have used the MFC in various stages of its 
+  Several publications have used MFC in various stages of its 
   development. A partial list is included here.
  
   Journal papers:
@@ -153,13 +153,10 @@ The `mfc.sh` script used in the previous section is configured through the file 
 
 # Running
 
-The MFC can be run by changing into
-a case directory and executing the appropriate Python input file.
-Example Python input files can be found in the 
-`example_cases` directories, and they are called `input.py`.
-Their contents, and a guide to filling them out, are documented
-in the user manual. A commented, tutorial script
-can also be found in [example_cases/3d_sphbubcollapse/](example_cases/3D_sphbubcollapse/)
+MFC can be run by changing into a case directory and executing the appropriate Python input file.
+Example Python input files can be found in the `example_cases` directories, and they are called `input.py`.
+Their contents, and a guide to filling them out, are documented in the user manual. 
+A commented, tutorial script can also be found in [example_cases/3d_sphbubcollapse/](example_cases/3D_sphbubcollapse/)
 MFC can be executed as  
 
 ```console
@@ -197,6 +194,6 @@ MFC is under the MIT license (see [LICENSE](LICENSE) file for full text).
 # Acknowledgements
  
 <p align="justify">
-The development of the MFC  was supported in part by multiple current and past grants from the US Office of Naval Research (ONR), the US National Institute of Health (NIH), and the US National Science Foundation (NSF).
+The development of MFC was supported in part by multiple current and past grants from the US Office of Naval Research (ONR), the US National Institute of Health (NIH), and the US National Science Foundation (NSF).
 MFC computations utilize the Extreme Science and Engineering Discovery Environment (XSEDE), under allocations TG-CTS120005 (PI Colonius) and TG-PHY210084 (PI Bryngelson) and ORNL Summit under allocation CFD154 (PI Bryngelson).
  </p>
