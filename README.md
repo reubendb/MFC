@@ -19,7 +19,6 @@ MFC is an exascale-ready fully-documented parallel simulation code for multi-com
 ## Authors
 
 <p align="justify">
-This is the documentation for the MFC (Multicomponent Flow Code).
 MFC was first developed by the Colonius research group at Caltech.
 Now it is developed and maintained by the groups of Professors <a href="https://colonius.caltech.edu/">Tim Colonius</a>, <a href="https://comp-physics.group">Spencer Bryngelson</a>, and <a href="https://vivo.brown.edu/display/mrodri97">Mauro Rodriguez</a>.
  We try to maintain a list of current and past developers in the <a href="AUTHORS">AUTHORS</a> file!
