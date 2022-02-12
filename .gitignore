@@ -17,17 +17,8 @@ cases/
 
 .DS_Store
 
-tests/*/D/*
-tests/*/p*
-tests/*/D_*
-tests/*/*.inp
-tests/*/*.inf
-tests/*/*.inp
-tests/*/*.dat
-tests/*/silo*
-tests/*/restart*
-tests/*/*.out
-tests/*/binary
+tests/*/
+tests/*.log
 
 samples/*batch/*/
 samples/*/D/*
