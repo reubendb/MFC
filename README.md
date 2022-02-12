@@ -10,7 +10,7 @@ The MFC is a fully-documented parallel simulation software for multi-component, 
 
 <p align="center">
  <a href="#authors">Authors</a> | 
- <a href="">Publications</a> | 
+ <a href="#publications">Publications</a> | 
  <a href="#installing-mfc">Installing MFC</a> | 
  <a href="https://github.com/MFlowCode/MFC/raw/master/doc/MFC_user_guide.pdf">User's Guide</a> | 
  <a href="https://mflowcode.github.io/">Documentation</a>
