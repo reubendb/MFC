@@ -11,13 +11,13 @@ class MFCArgs(objecttree.ObjectTree):
 
         compiler_configuration_names = [e.name for e in user.configurations]
 
-        grp_func = parser.add_argument_group(title="Action")
-        grp_func = grp_func.add_mutually_exclusive_group()
+        action = parser.add_argument_group(title="Action")
+        grp = action.add_mutually_exclusive_group(required=True)
 
-        grp_func.add_argument("--build", action="store_true", help="Build targets.")
-        grp_func.add_argument("--test",  action="store_true", help="Test targets.")
-        grp_func.add_argument("--clean", action="store_true", help="Clean MFC targets.")
-        grp_func.add_argument("--set-current", type=str.lower, choices=compiler_configuration_names,
+        grp.add_argument("--build", action="store_true", help="Build targets.")
+        grp.add_argument("--test",  action="store_true", help="Test targets.")
+        grp.add_argument("--clean", action="store_true", help="Clean MFC targets.")
+        grp.add_argument("--set-current", type=str.lower, choices=compiler_configuration_names,
                             help="Select a compiler configuration to use when running MFC.")
 
         compiler_target_names = [e.name for e in conf.targets]

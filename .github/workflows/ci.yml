@@ -34,7 +34,7 @@ jobs:
       - name: Build MFC and its dependencies (mfc.py)
         run: |
           chmod +x ./mfc.sh
-          ./mfc.sh -j $(nproc)
+          ./mfc.sh --build -j $(nproc)
 
       - name: Run MFC Tests
         run: ./mfc.sh --test
