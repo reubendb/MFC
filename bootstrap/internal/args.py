@@ -1,4 +1,5 @@
 import argparse
+from internal.common import MFCException
 
 import internal.user       as user
 import internal.conf       as conf
@@ -36,4 +37,5 @@ class MFCArgs(objecttree.ObjectTree):
         super().__init__(vars(parser.parse_args()))
 
         if not self.tree_get("build") and not self.tree_get("test") and not self.tree_get("clean"):
-            self.tree_set("build", True)
+            parser.print_help()
+            exit(-1)
