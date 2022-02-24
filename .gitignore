@@ -17,8 +17,9 @@ cases/
 
 .DS_Store
 
-tests/*/
-tests/*.log
+tests/**/*.log
+tests/*/**
+!**/golden.txt
 
 samples/*batch/*/
 samples/*/D/*
