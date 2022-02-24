@@ -11,7 +11,9 @@ MFC is an exascale-ready fully-documented parallel simulation code for multi-com
 <p align="center">
  <a href="#authors">Authors</a> | 
  <a href="#publications">Publications</a> | 
- <a href="#installing-mfc">Installing MFC</a> | 
+ <a href="#installing-mfc">Installing</a> | 
+ <a href="#running">Running</a> | 
+ <a href="#testing">Testing</a> | 
  <a href="https://github.com/MFlowCode/MFC/raw/master/doc/MFC_user_guide.pdf">User's Guide</a> | 
  <a href="https://mflowcode.github.io/">Documentation</a>
 </p>
@@ -151,7 +153,7 @@ More information about `mfc.sh` can be found in its help page (`./mfc.sh -h`).
 
 The `mfc.sh` script used in the previous section is configured through the file named `mfc.user.yaml`.
 
-# Running
+# Running MFC
 
 MFC can be run by changing into a case directory and executing the appropriate Python input file.
 Example Python input files can be found in the `example_cases` directories, and they are called `input.py`.
@@ -177,6 +179,12 @@ for the flow variables via
 ```console
 ./input.py post_process
 ```
+ 
+# Testing MFC
+ 
+To run MFC's test suite, simply run `./mfc.sh --test`. It will generate and run test cases, to compare their output to that of previous runs from versions of MFC considered to be accurate. *golden files*, stored in the `tests/` directory contain this data, by aggregating `.dat` files generated when running MFC. A test is considered passing within a very small margin of error, to maintain a high level of stability and accuracy across versions of MFC.
+ 
+Adding a new test case is as simple as modifying [bootstrap/internal/test.py](bootstrap/internal/test.py), and selecting which parameters you want to vary from the base case. Then run `./mfc.sh --test -g|--generate` to generate new golden files. Please make sure that these files are generated with accurate data.
 
 # Development
 
