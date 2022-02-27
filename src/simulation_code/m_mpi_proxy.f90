@@ -44,33 +44,35 @@ MODULE m_mpi_proxy
         
         !> The subroutine intializes the MPI execution environment
         !!      and queries both the number of processors which will be
-        !!      available for the job and the local processor rank.
-    subroutine s_mpi_initialize() ! ----------------------------------------
+        !!      available for the job and the local processor rank.        
+        SUBROUTINE s_mpi_initialize() ! ----------------------------------------
 
-        ! Initializing the MPI environment
-        call MPI_INIT(ierr)
-
-        ! Checking whether the MPI environment has been properly intialized
-        if (ierr /= MPI_SUCCESS) then
-            print '(A)', 'Unable to initialize MPI environment. Exiting ...'
-            call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
-        end if
-
-        ! Querying the number of processors available for the job
-        call MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
-
-        ! Querying the rank of the local processor
-        call MPI_COMM_RANK(MPI_COMM_WORLD, proc_rank, ierr)
-
-    end subroutine s_mpi_initialize ! --------------------------------------
-
-    !> The subroutine terminates the MPI execution environment.
-    subroutine s_mpi_abort() ! ---------------------------------------------
-
-        ! Terminating the MPI environment
-        call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
-
-    end subroutine s_mpi_abort ! -------------------------------------------
+            ! Initializing the MPI environment
+            CALL MPI_INIT(ierr)
+            
+            
+            ! Checking whether the MPI environment has been properly intialized
+            IF(ierr /= MPI_SUCCESS) THEN
+                PRINT '(A)', 'Unable to initialize MPI environment. Exiting ...'
+                CALL MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
+            END IF
+            
+            
+            ! Querying the number of processors available for the job
+            CALL MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
+            
+            
+            ! Querying the rank of the local processor
+            CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc_rank, ierr)
+            
+        END SUBROUTINE s_mpi_initialize ! --------------------------------------
+        
+        
+        
+        
+        
+        !> The subroutine terminates the MPI execution environment.
+        SUBROUTINE s_mpi_abort() ! ---------------------------------------------
 
             ! Terminating the MPI environment
             CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)

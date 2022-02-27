@@ -30,77 +30,93 @@ MODULE m_mpi_proxy
         !>  The subroutine intializes the MPI environment and queries
         !!      both the number of processors that will be available for
         !!      the job as well as the local processor rank.
-    subroutine s_mpi_initialize() ! ----------------------------
+        SUBROUTINE s_mpi_initialize() ! ----------------------------
+            
+            
+            ! Establishing the MPI environment
+            CALL MPI_INIT(ierr)
+            
+            
+            ! Checking whether the MPI environment has been properly intialized
+            IF(ierr /= MPI_SUCCESS) THEN
+                PRINT '(A)', 'Unable to initialize MPI environment. Exiting ...'
+                CALL MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
+            END IF
+            
+            
+            ! Querying number of processors available for the job
+            CALL MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
+            
+            
+            ! Identifying the rank of the local processor
+            CALL MPI_COMM_RANK(MPI_COMM_WORLD, proc_rank ,ierr)
+            
+            
+        END SUBROUTINE s_mpi_initialize ! --------------------------
+        
+        
+        
+        
+        !> The subroutine terminates the MPI execution environment.
+        SUBROUTINE s_mpi_abort() ! ---------------------------------------------
+            
+            ! Terminating the MPI environment
+            CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)
+            
+        END SUBROUTINE s_mpi_abort ! -------------------------------------------
+        
+        
+        
+        !! @param q_cons_vf Conservative variables 
+        SUBROUTINE s_initialize_mpi_data(q_cons_vf) ! --------------------------
 
-        ! Establishing the MPI environment
-        call MPI_INIT(ierr)
+            TYPE(scalar_field), &
+            DIMENSION(sys_size), &
+            INTENT(IN) :: q_cons_vf
 
-        ! Checking whether the MPI environment has been properly intialized
-        if (ierr /= MPI_SUCCESS) then
-            print '(A)', 'Unable to initialize MPI environment. Exiting ...'
-            call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
-        end if
+            INTEGER, DIMENSION(num_dims) :: sizes_glb, sizes_loc
+            INTEGER :: ierr
 
-        ! Querying number of processors available for the job
-        call MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
+            ! Generic loop iterator
+            INTEGER :: i
 
-        ! Identifying the rank of the local processor
-        call MPI_COMM_RANK(MPI_COMM_WORLD, proc_rank, ierr)
+            DO i = 1, sys_size
+                MPI_IO_DATA%var(i)%sf => q_cons_vf(i)%sf
+            END DO
 
-    end subroutine s_mpi_initialize ! --------------------------
+            ! Define global(g) and local(l) sizes for flow variables
+            sizes_glb(1) = m_glb+1; sizes_loc(1) = m+1
+            IF (n > 0) THEN
+                sizes_glb(2) = n_glb+1; sizes_loc(2) = n+1
+                IF (p > 0) THEN
+                    sizes_glb(3) = p_glb+1; sizes_loc(3) = p+1
+                END IF
+            END IF
 
-    !> The subroutine terminates the MPI execution environment.
-    subroutine s_mpi_abort() ! ---------------------------------------------
+            ! Define the view for each variable
+            DO i = 1, sys_size
+                CALL MPI_TYPE_CREATE_SUBARRAY(num_dims,sizes_glb,sizes_loc,start_idx,&
+                    MPI_ORDER_FORTRAN,MPI_DOUBLE_PRECISION,MPI_IO_DATA%view(i),ierr)
+                CALL MPI_TYPE_COMMIT(MPI_IO_DATA%view(i),ierr)
+            END DO
 
-        ! Terminating the MPI environment
-        call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
+        END SUBROUTINE s_initialize_mpi_data ! ---------------------------------
 
-    end subroutine s_mpi_abort ! -------------------------------------------
 
-        !! @param q_cons_vf Conservative variables
-    subroutine s_initialize_mpi_data(q_cons_vf) ! --------------------------
 
-        type(scalar_field), &
-            dimension(sys_size), &
-            intent(IN) :: q_cons_vf
 
-        integer, dimension(num_dims) :: sizes_glb, sizes_loc
-        integer :: ierr
 
-        ! Generic loop iterator
-        integer :: i
+        !> Halts all processes until all have reached barrier.
+        SUBROUTINE s_mpi_barrier() ! -------------------------------------------
 
-        do i = 1, sys_size
-            MPI_IO_DATA%var(i)%sf => q_cons_vf(i)%sf
-        end do
+            ! Calling MPI_BARRIER
+            CALL MPI_BARRIER(MPI_COMM_WORLD, ierr)
 
-        ! Define global(g) and local(l) sizes for flow variables
-        sizes_glb(1) = m_glb + 1; sizes_loc(1) = m + 1
-        if (n > 0) then
-            sizes_glb(2) = n_glb + 1; sizes_loc(2) = n + 1
-            if (p > 0) then
-                sizes_glb(3) = p_glb + 1; sizes_loc(3) = p + 1
-            end if
-        end if
+        END SUBROUTINE s_mpi_barrier ! -----------------------------------------
 
-        ! Define the view for each variable
-        do i = 1, sys_size
-            call MPI_TYPE_CREATE_SUBARRAY(num_dims, sizes_glb, sizes_loc, start_idx, &
-                                          MPI_ORDER_FORTRAN, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), ierr)
-            call MPI_TYPE_COMMIT(MPI_IO_DATA%view(i), ierr)
-        end do
 
-    end subroutine s_initialize_mpi_data ! ---------------------------------
 
-    !> Halts all processes until all have reached barrier.
-    subroutine s_mpi_barrier() ! -------------------------------------------
-
-        ! Calling MPI_BARRIER
-        call MPI_BARRIER(MPI_COMM_WORLD, ierr)
-
-    end subroutine s_mpi_barrier ! -----------------------------------------
-
-    !> Since only processor with rank 0 is in charge of reading
+        !> Since only processor with rank 0 is in charge of reading
         !!       and checking the consistency of the user provided inputs,
         !!       these are not available to the remaining processors. This
         !!       subroutine is then in charge of broadcasting the required
@@ -660,108 +676,46 @@ MODULE m_mpi_proxy
                                 
                                 num_procs_x = i
                                 num_procs_y = num_procs/i
-                                fct_min = abs((m + 1)/tmp_num_procs_x &
-                                              - (n + 1)/tmp_num_procs_y)
-                                ierr = 0
-
-                            end if
-
-                        end if
-
-                    end do
-
-                else
-
-                    ! Initial values of the processor factorization optimization
-                    num_procs_x = 1
-                    num_procs_y = 1
-                    num_procs_z = num_procs
-                    ierr = -1
-
-                    ! Computing minimization variable for these initial values
-                    tmp_num_procs_x = num_procs_x
-                    tmp_num_procs_y = num_procs_y
-                    tmp_num_procs_z = num_procs_z
-                    fct_min = 10d0*abs((m + 1)/tmp_num_procs_x &
-                                       - (n + 1)/tmp_num_procs_y) &
-                              + 10d0*abs((n + 1)/tmp_num_procs_y &
-                                         - (p + 1)/tmp_num_procs_z)
-
-                    ! Searching for optimal computational domain distribution
-                    do i = 1, num_procs
-
-                        if (mod(num_procs, i) == 0 &
-                            .and. &
-                            (m + 1)/i >= num_stcls_min*weno_order) then
-
-                            do j = 1, (num_procs/i)
-
-                                if (mod(num_procs/i, j) == 0 &
-                                    .and. &
-                                    (n + 1)/j >= num_stcls_min*weno_order) then
-
-                                    tmp_num_procs_x = i
-                                    tmp_num_procs_y = j
-                                    tmp_num_procs_z = num_procs/(i*j)
-
-                                    if (fct_min >= abs((m + 1)/tmp_num_procs_x &
-                                                       - (n + 1)/tmp_num_procs_y) &
-                                        + abs((n + 1)/tmp_num_procs_y &
-                                              - (p + 1)/tmp_num_procs_z) &
-                                        .and. &
-                                        (p + 1)/tmp_num_procs_z &
-                                        >= &
-                                        num_stcls_min*weno_order) &
-                                        then
-
-                                        num_procs_x = i
-                                        num_procs_y = j
-                                        num_procs_z = num_procs/(i*j)
-                                        fct_min = abs((m + 1)/tmp_num_procs_x &
-                                                      - (n + 1)/tmp_num_procs_y) &
-                                                  + abs((n + 1)/tmp_num_procs_y &
-                                                        - (p + 1)/tmp_num_procs_z)
-                                        ierr = 0
-
-                                    end if
-
-                                end if
-
-                            end do
-
-                        end if
-
-                    end do
-
-                end if
-
-                ! Checking whether the decomposition of the computational
-                ! domain was successful
-                if (proc_rank == 0 .and. ierr == -1) then
-                    print '(A)', 'Unable to decompose computational '// &
-                        'domain for selected number of '// &
-                        'processors. Exiting ...'
-                    call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
-                end if
-
-                ! Creating a new communicator using Cartesian topology
-                call MPI_CART_CREATE(MPI_COMM_WORLD, 3, (/num_procs_x, &
-                                                          num_procs_y, num_procs_z/), &
-                                     (/.true., .true., .true./), &
-                                     .false., MPI_COMM_CART, ierr)
-
-                ! Finding corresponding Cartesian coordinates of the local
-                ! processor rank in newly declared cartesian communicator
-                call MPI_CART_COORDS(MPI_COMM_CART, proc_rank, 3, &
-                                     proc_coords, ierr)
-
-                ! END: Generating 3D Cartesian Processor Topology ==================
-
-                ! Sub-domain Global Parameters in z-direction ======================
-
-                ! Number of remaining cells after majority is distributed
-                rem_cells = mod(p + 1, num_procs_z)
-
+                                fct_min     = ABS((m+1)/tmp_num_procs_x &
+                                                 -(n+1)/tmp_num_procs_y)
+                                ierr        = 0
+                                
+                            END IF
+                            
+                        END IF
+                        
+                    END DO
+                    
+                    ! Checking whether the decomposition of the computational
+                    ! domain was successful
+                    IF(proc_rank == 0 .AND. ierr == -1) THEN
+                        PRINT '(A)', 'Unable to decompose computational ' // &
+                                     'domain for selected number of ' // &
+                                     'processors. Exiting ...'
+                        CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)
+                    END IF
+                    
+                    ! Creating a new communicator using Cartesian topology
+                    CALL MPI_CART_CREATE( MPI_COMM_WORLD, 2, (/ num_procs_x, &
+                                          num_procs_y /), (/ .TRUE.,         &
+                                          .TRUE. /), .FALSE., MPI_COMM_CART, &
+                                          ierr                               )
+                    
+                    ! Finding corresponding Cartesian coordinates of the local
+                    ! processor rank in newly declared cartesian communicator
+                    CALL MPI_CART_COORDS( MPI_COMM_CART, proc_rank, 2, &
+                                          proc_coords, ierr            )
+                    
+                END IF
+                
+            ! END: Generating 2D Cartesian Processor Topology ==================
+                
+                
+            ! Sub-domain Global Parameters in y-direction ======================
+                
+                ! Number of remaining cells after majority has been distributed
+                rem_cells = MOD(n+1, num_procs_y)
+                
                 ! Preliminary uniform cell-width spacing
                 IF(old_grid .NEQV. .TRUE.) THEN
                     dy = (y_domain%end - y_domain%beg) / REAL(n+1, KIND(0d0))
@@ -779,84 +733,40 @@ MODULE m_mpi_proxy
                 END DO
                 
                 ! Beginning and end sub-domain boundary locations
-                if (parallel_io .neqv. .true.) then
-                    if (old_grid .neqv. .true.) then
-                        if (proc_coords(3) < rem_cells) then
-                            z_domain%beg = z_domain%beg + dz*real((p + 1)* &
-                                                                  proc_coords(3))
-                            z_domain%end = z_domain%end - dz*real((p + 1)* &
-                                                                  (num_procs_z - proc_coords(3) - 1) &
-                                                                  - (num_procs_z - rem_cells))
-                        else
-                            z_domain%beg = z_domain%beg + dz*real((p + 1)* &
-                                                                  proc_coords(3) + rem_cells)
-                            z_domain%end = z_domain%end - dz*real((p + 1)* &
-                                                                  (num_procs_z - proc_coords(3) - 1))
-                        end if
-                    end if
-                else
-                    if (proc_coords(3) < rem_cells) then
-                        start_idx(3) = (p + 1)*proc_coords(3)
-                    else
-                        start_idx(3) = (p + 1)*proc_coords(3) + rem_cells
-                    end if
-                end if
-
-                ! ==================================================================
-
-                ! Generating 2D Cartesian Processor Topology =======================
-
-            else
-
-                ! Initial values of the processor factorization optimization
-                num_procs_x = 1
-                num_procs_y = num_procs
-                ierr = -1
-
-                ! Computing minimization variable for these initial values
-                tmp_num_procs_x = num_procs_x
-                tmp_num_procs_y = num_procs_y
-                fct_min = 10d0*abs((m + 1)/tmp_num_procs_x &
-                                   - (n + 1)/tmp_num_procs_y)
-
-                ! Searching for optimal computational domain distribution
-                do i = 1, num_procs
-
-                    if (mod(num_procs, i) == 0 &
-                        .and. &
-                        (m + 1)/i >= num_stcls_min*weno_order) then
-
-                        tmp_num_procs_x = i
-                        tmp_num_procs_y = num_procs/i
-
-                        if (fct_min >= abs((m + 1)/tmp_num_procs_x &
-                                           - (n + 1)/tmp_num_procs_y) &
-                            .and. &
-                            (n + 1)/tmp_num_procs_y &
-                            >= &
-                            num_stcls_min*weno_order) then
-
-                            num_procs_x = i
-                            num_procs_y = num_procs/i
-                            fct_min = abs((m + 1)/tmp_num_procs_x &
-                                          - (n + 1)/tmp_num_procs_y)
-                            ierr = 0
-
-                        end if
-
-                    end if
-
-                end do
-
-                ! Checking whether the decomposition of the computational
-                ! domain was successful
-                if (proc_rank == 0 .and. ierr == -1) then
-                    print '(A)', 'Unable to decompose computational '// &
-                        'domain for selected number of '// &
-                        'processors. Exiting ...'
-                    call MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
-                end if
-
+                IF (parallel_io .NEQV. .TRUE.) THEN
+                            IF(old_grid .NEQV. .TRUE.) THEN
+                                IF(proc_coords(2) < rem_cells) THEN
+                                    y_domain%beg = y_domain%beg + dy*REAL( (n+1) * &
+                                                   proc_coords(2) )
+                                    y_domain%end = y_domain%end - dy*REAL( (n+1) * &
+                                                   (num_procs_y - proc_coords(2) - 1) &
+                                                 - (num_procs_y - rem_cells) )
+                                ELSE
+                                    y_domain%beg = y_domain%beg + dy*REAL( (n+1) * &
+                                                   proc_coords(2) + rem_cells )
+                                    y_domain%end = y_domain%end - dy*REAL( (n+1) * &
+                                                   (num_procs_y - proc_coords(2) - 1) )
+                                END IF
+                            END IF
+                ELSE
+                    IF (proc_coords(2) < rem_cells) THEN
+                        start_idx(2) = (n+1) * proc_coords(2)
+                    ELSE
+                        start_idx(2) = (n+1) * proc_coords(2) + rem_cells
+                    END IF
+                END IF
+                
+            ! ==================================================================
+                
+                
+            ! Generating 1D Cartesian Processor Topology =======================
+                
+            ELSE
+                
+                ! Number of processors in the coordinate direction is equal to
+                ! the total number of processors available
+                num_procs_x = num_procs
+                
                 ! Creating a new communicator using Cartesian topology
                 CALL MPI_CART_CREATE( MPI_COMM_WORLD, 1, (/ num_procs_x /), &
                                       (/ .TRUE. /), .FALSE., MPI_COMM_CART, &
