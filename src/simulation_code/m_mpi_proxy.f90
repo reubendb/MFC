@@ -75,7 +75,7 @@ MODULE m_mpi_proxy
         SUBROUTINE s_mpi_abort() ! ---------------------------------------------
 
             ! Terminating the MPI environment
-            CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)
+            CALL MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
             
         END SUBROUTINE s_mpi_abort ! -------------------------------------------
         

@@ -1573,7 +1573,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
     if (engine != 'parallel') and (engine != 'serial'):
         print('\n' + comp_name + '>> Unsupported engine configuration. ' \
                                  'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking whether the MFC component selected by the user exists
@@ -1582,7 +1582,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
        (comp_name != 'post_process'):
         print('\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking the consistency of the case dictionary with respect to the MFC
@@ -1594,7 +1594,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
            (         (parameter in pbs_dict) == False):
                print('\n' + comp_name + '>> Unsupported parameter choice ' \
                           + parameter + '. Exiting ...' + '\n')
-               exit(0)
+               exit(1)
 
 
     # Updating the values in the PBS dictionary using the values provided by the
@@ -1697,7 +1697,7 @@ def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # -----
     # Checking the validity of the configuration of the engine
     if (engine != 'parallel') and (engine != 'serial'):
         print('\n' + comp_name + '>> Unsupported engine configuration. Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking whether the MFC component selected by the user exists
@@ -1706,7 +1706,7 @@ def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # -----
        (comp_name != 'post_process'):
         print( '\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking the consistency of the case dictionary with respect to the MFC
@@ -1718,7 +1718,7 @@ def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # -----
             (  parameter not in  pbs_dict ):
                print( '\n' + comp_name + '>> Unsupported parameter choice ' \
                           + parameter + '. Exiting ...' + '\n')
-               exit(0)
+               exit(1)
 
 
     # Updating the values in the PBS dictionary using the values provided by the
@@ -1737,7 +1737,7 @@ def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # -----
 #                                       + 'incompatible with value(s) of '   \
 #                                       + 'parameter(s) in PBS dictionary. ' \
 #                                       + 'Exiting ...' + '\n'
-#                exit(0)
+#                exit(1)
 #    else:
 #        for parameter in pbs_dict:
 #            if pbs_dict[parameter] is None:
@@ -1745,7 +1745,7 @@ def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # -----
 #                                       + 'incompatible with value(s) of '    \
 #                                       + 'parameter(s) in PBS dictionary. '  \
 #                                       + 'Exiting ...' + '\n'
-#                exit(0)
+#                exit(1)
 
 
     # Outputting the component's start-up message
