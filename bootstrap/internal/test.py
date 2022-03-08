@@ -3,15 +3,16 @@
 import os
 import re
 import copy
-import hashlib
 import colorama
+import binascii
 import subprocess
 import dataclasses
 
-from pathlib import Path
+from pathlib     import Path
+from collections import ChainMap
+from datetime    import datetime
 
-import internal.common      as common
-import internal.treeprint   as treeprint
+import internal.common as common
 
 
 @dataclasses.dataclass
@@ -117,6 +118,16 @@ BASE_CASE = Case({
     }
 })
 
+class TestCaseConfiguration:
+    parameters: dict = {}
+    traceback:  str  = ""
+
+    def __init__(self, parameters: list, traceback: list) -> None:
+        self.parameters = {}
+        for e in parameters:
+            self.parameters.update(e)
+        self.traceback  = ' -> '.join(traceback)
+
 class MFCTest:
     def __init__(self, bootstrap):
         self.bootstrap = bootstrap
@@ -126,19 +137,19 @@ class MFCTest:
         self.args = self.bootstrap.args
 
     def get_test_params(self):
-        all_run_params = []
+        tests = []
 
-        for dimInfo in [ (["x"],           {'m': 299},                  {"geometry": 1}),
-                         (["x", "y"],      {'m': 49, 'n': 39},          {"geometry": 3}),
-                         (["x", "y", "z"], {'m': 39, 'n': 29, 'p': 19}, {"geometry": 9}) ]:
+        traceback  = []
+        parameters = []
+
+        for dimInfo in [ (["x"],           {'m': 299, 'n': 0,  'p': 0},  {"geometry": 1}),
+                         (["x", "y"],      {'m': 49,  'n': 39, 'p': 0},  {"geometry": 3}),
+                         (["x", "y", "z"], {'m': 24,  'n': 24, 'p': 24}, {"geometry": 9}) ]:
             dimParams = {**dimInfo[1]}
 
             for dimCmp in dimInfo[0]:
                 dimParams[f"{dimCmp}_domain%beg"] = 0.E+00
                 dimParams[f"{dimCmp}_domain%end"] = 1.E+00
-
-                dimParams[f"bc_{dimCmp}%beg"] = -3
-                dimParams[f"bc_{dimCmp}%end"] = -3
 
             for patchID in [1,2]:
                 dimParams[f"patch_icpp({patchID})%geometry"] = dimInfo[2].get("geometry")
@@ -147,7 +158,7 @@ class MFCTest:
                     dimParams[f"patch_icpp({1})%x_centroid"] = 0.25
                     dimParams[f"patch_icpp({2})%x_centroid"] = 0.75
                     dimParams[f"patch_icpp({patchID})%length_x"] = 0.5
-                    dimParams[f"patch_icpp({patchID})%vel(1)"] = 0.0
+                    dimParams[f"patch_icpp({patchID})%vel(1)"]   = 0.0
                 
                 if "y" in dimInfo[0]:
                     dimParams[f"patch_icpp({patchID})%y_centroid"] = 0.5
@@ -159,25 +170,96 @@ class MFCTest:
                     dimParams[f"patch_icpp({patchID})%length_z"]   = 1
                     dimParams[f"patch_icpp({patchID})%vel(3)"]     = 0.0
 
+            traceback.append (f"{len(dimInfo[0])}D (m={dimInfo[1].get('m')},n={dimInfo[1].get('n')},p={dimInfo[1].get('p')})")
+            parameters.append(dimParams)
+
+            for bc in [-4, -3, -2, -1]:
+                params = {}
+                for dimCmp in dimInfo[0]:
+                    params = {**params, **{f'bc_{dimCmp}%beg': bc, f'bc_{dimCmp}%end': bc}}
+
+                trace = f"bc={bc}"
+                tests.append(TestCaseConfiguration(parameters + [params], traceback + [trace]))
+
+                if bc == -1:
+                    parameters.append(params)
+                    traceback.append(trace)
+            
             for weno_order in [3, 5]:
+                traceback.append (f"weno_order={weno_order}")
+                parameters.append({'weno_order': weno_order})
                 for mapped_weno, mp_weno in [('F', 'F'), ('T', 'F'), ('F', 'T')]:
-                    if not (mp_weno == 'T' and weno_order != 5):
-                        all_run_params.append({**dimParams, **{'weno_order': weno_order, 'mapped_weno': mapped_weno, 'mp_weno': mp_weno}})
+                    traceback.append (f"(mapped_weno={mapped_weno},mp_weno={mp_weno})")
+                    parameters.append({'mapped_weno': mapped_weno, 'mp_weno': mp_weno})
+                    if not (mp_weno == 'T' and weno_order != 5): 
+                        tests.append(TestCaseConfiguration(parameters, traceback))
+                    traceback.pop()
+                    parameters.pop()
+                traceback.pop()
+                parameters.pop()
 
-            for riemann_solver in [1, 2]:
-                # FIXME: alt_soundspeed not supported for a single fluid
-                #all_run_params.append({**dimParams, **{'weno_order': weno_order, 'riemann_solver': riemann_solver, 'alt_soundspeed': 'T'}})
-                all_run_params.append({**dimParams, **{'weno_order': weno_order, 'riemann_solver': riemann_solver, 'mixture_err':    'T'}})
-                # FIXME: mpp_lim not supported for a single fluid
-                #all_run_params.append({**dimParams, **{'weno_order': weno_order, 'riemann_solver': riemann_solver, 'mpp_lim':        'T'}})
-                all_run_params.append({**dimParams, **{'weno_order': weno_order, 'riemann_solver': riemann_solver, 'avg_state':      1}})
-                all_run_params.append({**dimParams, **{'weno_order': weno_order, 'riemann_solver': riemann_solver, 'wave_speeds':    2}})
+            for num_fluids in [1, 2]:
+                traceback.append(f"num_fluids={num_fluids}")
+                parameters.append({"num_fluids": num_fluids})
 
-                # TODO: num_comp
+                if num_fluids == 2:
+                    parameters.append({'fluid_pp(2)%gamma': 3.5, 'fluid_pp(2)%pi_inf': 0.0,'patch_icpp(1)%alpha_rho(1)': 0.81, 'patch_icpp(1)%alpha(1)': 0.9, 'patch_icpp(1)%alpha_rho(2)': 0.08, 'patch_icpp(1)%alpha(2)': 0.1, 'patch_icpp(2)%alpha_rho(1)': 0.18, 'patch_icpp(2)%alpha(1)': 0.2, 'patch_icpp(2)%alpha_rho(2)': 0.64, 'patch_icpp(2)%alpha(2)': 0.8})
 
-            all_run_params.append({**dimParams, **{'ppn': 2}})
-        
-        return all_run_params
+                for riemann_solver in [1, 2]:
+                    traceback.append(f"riemann_solver={riemann_solver}")
+                    parameters.append({'riemann_solver': riemann_solver})
+
+                    tests.append(TestCaseConfiguration(parameters + [{'mixture_err': 'T'}], traceback + ['mixture_err=T']))
+                    tests.append(TestCaseConfiguration(parameters + [{'avg_state':   '1'}], traceback + ['avg_state=1']))
+                    tests.append(TestCaseConfiguration(parameters + [{'wave_speeds': '2'}], traceback + ['wave_speeds=2']))
+
+                    if num_fluids == 2:
+                        if riemann_solver == 2:
+                            tests.append(TestCaseConfiguration(parameters + [{'alt_soundspeed': 'T'}], traceback + ['alt_soundspeed=T']))
+
+                        tests.append(TestCaseConfiguration(parameters + [{'avg_state':     1}], traceback + ['avg_state=1']))
+                        tests.append(TestCaseConfiguration(parameters + [{'wave_speeds':   2}], traceback + ['wave_speeds=2']))
+                        tests.append(TestCaseConfiguration(parameters + [{'mpp_lim':     'T'}], traceback + ['mpp_lim=T']))
+
+                    traceback.pop()
+                    parameters.pop()
+                
+                if num_fluids == 2:
+                    parameters.pop()
+
+                traceback.pop()
+                parameters.pop()
+            
+            if len(dimInfo[0]) == 3:
+                tests.append(TestCaseConfiguration(parameters + [{'ppn': 2, 'm': 29, 'n': 29, 'p': 49}], traceback + [f'ppn=2,m=29,n=29,p=49']))
+            else:
+                tests.append(TestCaseConfiguration(parameters + [{'ppn': 2}], traceback + [f'ppn=2']))
+
+            for i in range(2):
+                traceback.pop()
+                parameters.pop()
+
+        return tests
+
+    def filter_tests(self, tests: list):
+        if len(self.args["only"]) > 0:
+            for i, test in enumerate(tests[:]):
+                doKeep = False
+                for o in self.args["only"]:
+                    if str(o).isnumeric():
+                        testID = i+1
+                        if testID == int(o):
+                            doKeep = True
+                            break
+                    
+                    testHash = self.get_case_dir_name(test.parameters)
+                    if str(o) == testHash:
+                        doKeep = True
+                        break
+                    
+                if not doKeep:
+                    tests.remove(test)
+        return tests
 
     def test(self):
         self.tree.print(f"Testing mfc")
@@ -192,17 +274,27 @@ class MFCTest:
                 self.tree.print(f"{target} needs (re)building...")
                 self.bootstrap.build_target(f"{target}")
         
-        all_test_params = self.get_test_params()
-        for i, run_params in enumerate(all_test_params):
-            self.tree.print_progress(f"Running test #{i+1} - {self.get_case_dir_name(run_params)}", i+1, len(all_test_params))
-            self.handle_case(i, run_params)
+        tests = self.filter_tests(self.get_test_params())
+        
+        for i, test in enumerate(tests):
+            test: TestCaseConfiguration
+            parameters = test.parameters
+
+            testID = i+1
+            if len(self.args["only"]):
+                testID = self.args["only"][i]
+
+            common.clear_line()
+            self.tree.print(f"#{testID}: {test.traceback}")
+            self.tree.print_progress(f"Running test #{testID} - {self.get_case_dir_name(parameters)}", i+1, len(tests))
+            self.handle_case(testID, test)
 
         common.clear_line()
         self.tree.print(f"Tested. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
         self.tree.unindent()
 
     def get_case_dir_name(self, mods: dict):
-        return hashlib.sha1("".join([f"{x[0]}{x[1]}" for x in mods.items()]).encode()).hexdigest()[:20]
+        return hex(binascii.crc32(str(mods.items()).encode()))[2:]
 
     def get_case_dir(self, mods: dict):
         return f"{common.MFC_TESTDIR}/{self.get_case_dir_name(mods)}"
@@ -242,6 +334,9 @@ f_execute_mfc_component('simulation',  case_dict, '..', 'serial')
         common.file_write(f"{case_dir}/input.py", content)
 
     def golden_file_compare_match(self, truth: str, candidate: str):
+        if truth.count('\n') != candidate.count('\n'):
+            return (False, "Line count didn't match.")
+
         for candidate_line in candidate.splitlines():
             if candidate_line == "":
                 continue
@@ -279,8 +374,8 @@ f_execute_mfc_component('simulation',  case_dict, '..', 'serial')
     def get_test_summary(self, mods: dict):
         return "".join([f"{str(x[0]).split('_')[0][:4]}-{str(x[1])[:4]}_" for x in mods.items()])[:-1]
 
-    def handle_case(self, testID, parameters: dict):
-        self.create_case_dir(parameters)
+    def handle_case(self, testID, test: TestCaseConfiguration):
+        self.create_case_dir(test.parameters)
         
         def on_test_errror(msg: str = "", term_out: str = ""):
             common.clear_line()
@@ -290,12 +385,14 @@ f_execute_mfc_component('simulation',  case_dict, '..', 'serial')
             
             common.file_write(f"{common.MFC_TESTDIR}/failed_test.txt", f"""\
 (1/3) Test #{testID}:
-  - Summary:  {self.get_test_summary(parameters)}
-  - Location: {self.get_case_dir(parameters)}
+  - Test ID:  {testID}
+  - Summary:  {test.traceback}
+  - Location: {self.get_case_dir(test.parameters)}
   - Error:    {msg}
+  - When:     {datetime.now().strftime('%d/%m/%Y %H:%M:%S')} (dd/mm/yyyy) - (hh:mm:ss)
 
 (2/3) Test case:
-{self.get_case_from_mods(parameters).create_case_dict_str()}
+{self.get_case_from_mods(test.parameters).create_case_dict_str()}
 
 (3/3) Terminal output:
 {term_out}
@@ -304,18 +401,18 @@ f_execute_mfc_component('simulation',  case_dict, '..', 'serial')
             self.tree.print(f"Please read {common.MFC_TESTDIR}/failed_test.txt for more information.")
             raise common.MFCException("Testing failed (view above).")
 
-        cmd = subprocess.run(f"cd '{self.get_case_dir(parameters)}' && python3 input.py",
+        cmd = subprocess.run(f"cd '{self.get_case_dir(test.parameters)}' && python3 input.py",
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              universal_newlines=True, shell=True)        
-        common.file_write(f"{self.get_case_dir(parameters)}/out.txt", cmd.stdout)
+        common.file_write(f"{self.get_case_dir(test.parameters)}/out.txt", cmd.stdout)
         
         if cmd.returncode != 0:
             on_test_errror("MFC Execution Failed.", cmd.stdout)
 
-        pack = self.pack_case_output(parameters)
-        common.file_write(f"{self.get_case_dir(parameters)}/pack.txt", pack)
+        pack = self.pack_case_output(test.parameters)
+        common.file_write(f"{self.get_case_dir(test.parameters)}/pack.txt", pack)
 
-        golden_filepath = f"{self.get_case_dir(parameters)}/golden.txt"
+        golden_filepath = f"{self.get_case_dir(test.parameters)}/golden.txt"
 
         if self.args["generate"]:
             common.delete_file(golden_filepath)
