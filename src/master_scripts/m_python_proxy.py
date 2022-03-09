@@ -13,6 +13,7 @@
 
 # Command used to query the path of the current working directory
 from os import getcwd
+import os
 
 # Command used to query the name of the current working directory
 from os.path import basename
@@ -1568,12 +1569,11 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
     # Enabling access to the MFC component and PBS dictionaries
     global pre_process_dict, simulation_dict, post_process_dict, pbs_dict
 
-
     # Checking the validity of the configuration of the engine
     if (engine != 'parallel') and (engine != 'serial'):
         print('\n' + comp_name + '>> Unsupported engine configuration. ' \
                                  'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking whether the MFC component selected by the user exists
@@ -1582,7 +1582,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
        (comp_name != 'post_process'):
         print('\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking the consistency of the case dictionary with respect to the MFC
@@ -1594,7 +1594,7 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
            (         (parameter in pbs_dict) == False):
                print('\n' + comp_name + '>> Unsupported parameter choice ' \
                           + parameter + '. Exiting ...' + '\n')
-               exit(0)
+               exit(1)
 
 
     # Updating the values in the PBS dictionary using the values provided by the
@@ -1619,6 +1619,9 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
     cmd_status = Popen('make -C ' + comp_dir + ' all', shell=True, stdout=PIPE, universal_newlines=True)
     output, errors = cmd_status.communicate()
 
+    if (cmd_status.returncode != 0):
+        exit(cmd_status.returncode)
+
 
     # Generating input file to be read in by the MFC component's executable
     f_create_input_file(comp_name, case_dict)
@@ -1634,9 +1637,17 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
         cmd_status = Popen(f'LD_LIBRARY_PATH="$LD_LIBRARY_PATH:{pathlib.Path(__file__).parent.resolve()}/../../build/common/build/lib" mpirun -n {str(pbs_dict["ppn"])} "{mfc_dir}/../build/___current___/build/bin/{comp_name}"', shell=True, universal_newlines=True)
         output, errors = cmd_status.communicate()
         print('\n' + output)
+
+        if (cmd_status.returncode != 0):
+            exit(cmd_status.returncode)
+
         print(comp_name + '>> Serial job completed!' + '\n')
         cmd_status = Popen('rm -f '+ comp_name +'.inp', shell=True, stdout=PIPE, universal_newlines=True)
         output, errors = cmd_status.communicate()
+
+        if (cmd_status.returncode != 0):
+            exit(cmd_status.returncode)
+        
     #else if engine == 'interactive':
     #    print '\n' + comp_name + '>> Interactive job in progress ...' + '\n'
     #    cmd_status = Popen('./'+comp_dir+'/'+comp_name, shell=True, stdout=PIPE, universal_newlines=True)
@@ -1653,10 +1664,14 @@ def f_execute_mfc_component_SHB(comp_name, case_dict, mfc_dir, engine, sub_name)
         cmd_status = Popen('sbatch ' + comp_name + '.sh', shell=True, stdout=PIPE, universal_newlines=True)
         output, errors = cmd_status.communicate()
         print('\n' + output)
+
+        if (cmd_status.returncode != 0):
+            exit(cmd_status.returncode)
+
         print(comp_name + '>> Parallel job submitted to queue!' + '\n')
 # END: def f_execute_mfc_component ---------------------------------------------
 
-def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
+def f_execute_mfc_component(comp_name: str, case_dict, mfc_dir, engine): # ----------
     # Description: The following function receives the name of the MFC component
     #              the user wishes to execute, the case dictionary, the location
     #              of the MFC folder and lastly, the configuration of the engine
@@ -1673,11 +1688,16 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
     # Enabling access to the MFC component and PBS dictionaries
     global pre_process_dict, simulation_dict, post_process_dict, pbs_dict
 
+    mfc_dir=os.path.abspath(mfc_dir)
+    
+    if "pre"  in comp_name.lower(): comp_name = "pre_process"
+    if "sim"  in comp_name.lower(): comp_name = "simulation"
+    if "post" in comp_name.lower(): comp_name = "post_process"
 
     # Checking the validity of the configuration of the engine
     if (engine != 'parallel') and (engine != 'serial'):
         print('\n' + comp_name + '>> Unsupported engine configuration. Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking whether the MFC component selected by the user exists
@@ -1686,7 +1706,7 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
        (comp_name != 'post_process'):
         print( '\n' + 'Unsupported choice of MFC component to execute. ' \
                    + 'Exiting ...' + '\n')
-        exit(0)
+        exit(1)
 
 
     # Checking the consistency of the case dictionary with respect to the MFC
@@ -1698,7 +1718,7 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
             (  parameter not in  pbs_dict ):
                print( '\n' + comp_name + '>> Unsupported parameter choice ' \
                           + parameter + '. Exiting ...' + '\n')
-               exit(0)
+               exit(1)
 
 
     # Updating the values in the PBS dictionary using the values provided by the
@@ -1717,7 +1737,7 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
 #                                       + 'incompatible with value(s) of '   \
 #                                       + 'parameter(s) in PBS dictionary. ' \
 #                                       + 'Exiting ...' + '\n'
-#                exit(0)
+#                exit(1)
 #    else:
 #        for parameter in pbs_dict:
 #            if pbs_dict[parameter] is None:
@@ -1725,7 +1745,7 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
 #                                       + 'incompatible with value(s) of '    \
 #                                       + 'parameter(s) in PBS dictionary. '  \
 #                                       + 'Exiting ...' + '\n'
-#                exit(0)
+#                exit(1)
 
 
     # Outputting the component's start-up message
@@ -1753,7 +1773,10 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
 
         cmd_status = Popen(f'LD_LIBRARY_PATH="$LD_LIBRARY_PATH:{pathlib.Path(__file__).parent.resolve()}/../../build/common/build/lib" mpirun -n {str(pbs_dict["ppn"])} "{mfc_dir}/../build/___current___/build/bin/{comp_name}"', shell=True, universal_newlines=True)
         output, errors = cmd_status.communicate()
+        if (cmd_status.returncode != 0):
+            exit(cmd_status.returncode)
         #print '\n' + output
+
         print( comp_name + '>> Serial job completed!' + '\n')
         #cmd_status = Popen('rm -f '+ comp_name +'.inp', shell=True, stdout=PIPE, universal_newlines=True)
         #output, errors = cmd_status.communicate()
@@ -1765,6 +1788,10 @@ def f_execute_mfc_component(comp_name, case_dict, mfc_dir, engine): # ----------
         cmd_status = Popen('sbatch ' + comp_name + '.sh', shell=True, stdout=PIPE, universal_newlines=True)
         output, errors = cmd_status.communicate()
         print( '\n' + output)
+        
+        if (cmd_status.returncode != 0):
+            exit(cmd_status.returncode)
+
         print( comp_name + '>> Parallel job submitted to queue!' + '\n')
 # END: def f_execute_mfc_component ---------------------------------------------
 
@@ -2029,6 +2056,9 @@ def f_create_batch_file_SHB(comp_name, case_dict, mfc_dir,sub_name): # ---------
     cmd_status = Popen('chmod +x ' + comp_name + '.sh', shell=True, stdout=PIPE, universal_newlines=True)
     output, errors = cmd_status.communicate()
 
+    if (cmd_status.returncode != 0):
+        exit(cmd_status.returncode)
+
 
 def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
     # Description: The following function generates a batch file given the name
@@ -2039,7 +2069,6 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
 
     # Enabling access to the PBS dictionary
     global pbs_dict
-
 
     # Setting the location of the batch file
     file_loc = comp_name + '.sh'
@@ -2176,6 +2205,10 @@ def f_create_batch_file(comp_name, case_dict, mfc_dir): # ----------------------
     # Giving the batch file the permission to be executed
     cmd_status = Popen('chmod +x ' + comp_name + '.sh', shell=True, stdout=PIPE, universal_newlines=True)
     output, errors = cmd_status.communicate()
+
+    if (cmd_status.returncode != 0):
+        exit(cmd_status.returncode)
+    
 # END: def f_create_batch_file -------------------------------------------------
 
 

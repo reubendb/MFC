@@ -20,7 +20,6 @@ targets:
       - ./configure ${CONFIGURE_OPTIONS} ${COMPILERS} --enable-threads --enable-mpi
       - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
       - make install
-    test: []
 
   - name: hdf5
     common_configuration: release-cpu
@@ -33,7 +32,6 @@ targets:
       - ./configure ${CONFIGURE_OPTIONS} ${COMPILERS} --enable-parallel --enable-deprecated-symbols
       - make ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
       - make install prefix="${INSTALL_PATH}"
-    test: []
 
   - name: silo
     common_configuration: release-cpu
@@ -52,7 +50,6 @@ targets:
         ${COMPILERS} ${COMPILER_FLAGS} CFLAGS="-O0" CPPFLAGS="-O0" FFLAGS="-O0"
       - make ${MAKE_OPTIONS}
       - make install prefix="${INSTALL_PATH}"
-    test: []
 
   - name: pre_process
     depends: []
@@ -60,13 +57,13 @@ targets:
       method: source
       params:
         source: ${MFC_ROOT_PATH}/src/pre_process_code
+        check:  ${simulation:INSTALL_PATH}/bin/pre_process
     clean:
       - make INSTALL_PATH="${pre_process:INSTALL_PATH}" clean
     build:
       - >-
         make INSTALL_PATH="${pre_process:INSTALL_PATH}"
         ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
-    test: []
 
   - name: simulation
     depends:
@@ -75,6 +72,7 @@ targets:
       method: source
       params:
         source: ${MFC_ROOT_PATH}/src/simulation_code
+        check:  ${simulation:INSTALL_PATH}/bin/simulation
     clean:
       - make INSTALL_PATH="${simulation:INSTALL_PATH}" clean
     build:
@@ -82,7 +80,6 @@ targets:
         make INSTALL_PATH="${simulation:INSTALL_PATH}"
         ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
         FFLAGS="-lfftw3 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
-    test: []
 
   - name: post_process
     depends:
@@ -93,6 +90,7 @@ targets:
       method: source
       params:
         source: ${MFC_ROOT_PATH}/src/post_process_code
+        check:  ${simulation:INSTALL_PATH}/bin/post_process
     clean:
       - make INSTALL_PATH="${post_process:INSTALL_PATH}" clean
     build:
@@ -100,8 +98,7 @@ targets:
         make INSTALL_PATH="${post_process:INSTALL_PATH}"
         ${MAKE_OPTIONS} ${COMPILER_FLAGS} ${COMPILERS}
         FFLAGS="-lfftw3 -lsiloh5 -lm -I${FFTW3:INSTALL_PATH}/include -L${FFTW3:INSTALL_PATH}/lib"
-    test: []
-
+               
   - name: mfc
     depends:
       - pre_process
@@ -112,5 +109,3 @@ targets:
       params: null
     collection: null
     build: []
-    test:
-      - cd "${MFC_ROOT_PATH}" && /usr/bin/env bash "tests/checks.sh"
