@@ -55,6 +55,9 @@ class MFCArgs(objecttree.ObjectTree):
         
         super().__init__(vars(parser.parse_args()))
 
+        # FIXME: fix the udnerlyuing issue
+        self.data["jobs"] = 1
+
         if self.tree_get("command") is None:
             parser.print_help()
             exit(-1)
