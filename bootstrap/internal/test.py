@@ -63,7 +63,7 @@ class Test:
 
 
 Tend = 0.25
-Nt   = 500
+Nt   = 50
 mydt = Tend/(1.*Nt)
 
 BASE_CASE = Case({
@@ -82,7 +82,7 @@ BASE_CASE = Case({
         'dt'                           : mydt,     
         't_step_start'                 : 0,        
         't_step_stop'                  : int(Nt+1),
-        't_step_save'                  : int(Nt),  
+        't_step_save'                  : 10,  
         'num_patches'                  : 2,     
         'model_eqns'                   : 2,     
         'alt_soundspeed'               : 'F',   
@@ -112,6 +112,11 @@ BASE_CASE = Case({
         'patch_icpp(2)%pres'           : 0.1,
         'patch_icpp(2)%alpha_rho(1)'   : 0.125E+00,
         'patch_icpp(2)%alpha(1)'       : 1.,
+
+        'patch_icpp(3)%pres'           : 1.0,
+        'patch_icpp(3)%alpha_rho(1)'   : 1.0,
+        'patch_icpp(3)%alpha(1)'       : 1.,
+
         'fluid_pp(1)%gamma'            : 1.E+00/(1.4-1.E+00),
         'fluid_pp(1)%pi_inf'           : 0.0,
     }
@@ -150,25 +155,57 @@ class MFCTest:
                 dimParams[f"{dimCmp}_domain%beg"] = 0.E+00
                 dimParams[f"{dimCmp}_domain%end"] = 1.E+00
 
-            for patchID in [1,2]:
+            for patchID in range(1, 3+1):
                 dimParams[f"patch_icpp({patchID})%geometry"] = dimInfo[2].get("geometry")
                 
-                if "x" in dimInfo[0]:
-                    dimParams[f"patch_icpp({1})%x_centroid"] = 0.25
-                    dimParams[f"patch_icpp({2})%x_centroid"] = 0.75
-                    dimParams[f"patch_icpp({patchID})%length_x"] = 0.5
-                    dimParams[f"patch_icpp({patchID})%vel(1)"]   = 0.0
-                
-                if "y" in dimInfo[0]:
+                if "z" in dimInfo[0]:
+                    dimParams[f"patch_icpp({1})%z_centroid"] = 0.05
+                    dimParams[f"patch_icpp({1})%length_z"]   = 0.1
+
+                    dimParams[f"patch_icpp({2})%z_centroid"] = 0.45
+                    dimParams[f"patch_icpp({2})%length_z"]   = 0.7
+
+                    dimParams[f"patch_icpp({3})%z_centroid"] = 0.9
+                    dimParams[f"patch_icpp({3})%length_z"]   = 0.2
+
+
                     dimParams[f"patch_icpp({patchID})%y_centroid"] = 0.5
                     dimParams[f"patch_icpp({patchID})%length_y"]   = 1
+                    dimParams[f"patch_icpp({patchID})%x_centroid"] = 0.5
+                    dimParams[f"patch_icpp({patchID})%length_x"]   = 1
+
+                elif "y" in dimInfo[0]:
+                    dimParams[f"patch_icpp({1})%y_centroid"] = 0.05
+                    dimParams[f"patch_icpp({1})%length_y"]   = 0.1
+
+                    dimParams[f"patch_icpp({2})%y_centroid"] = 0.45
+                    dimParams[f"patch_icpp({2})%length_y"]   = 0.7
+
+                    dimParams[f"patch_icpp({3})%y_centroid"] = 0.9
+                    dimParams[f"patch_icpp({3})%length_y"]   = 0.2
+
+
+                    dimParams[f"patch_icpp({patchID})%x_centroid"] = 0.5
+                    dimParams[f"patch_icpp({patchID})%length_x"]   = 1
+                else:
+                    dimParams[f"patch_icpp({1})%x_centroid"] = 0.05
+                    dimParams[f"patch_icpp({1})%length_x"]   = 0.1
+
+                    dimParams[f"patch_icpp({2})%x_centroid"] = 0.45
+                    dimParams[f"patch_icpp({2})%length_x"]   = 0.7
+
+                    dimParams[f"patch_icpp({3})%x_centroid"] = 0.9
+                    dimParams[f"patch_icpp({3})%length_x"]   = 0.2
+               
+                if "x" in dimInfo[0]:
+                    dimParams[f"patch_icpp({patchID})%vel(1)"]     = 0.0
+
+                if "y" in dimInfo[0]:
                     dimParams[f"patch_icpp({patchID})%vel(2)"]     = 0.0
                 
                 if "z" in dimInfo[0]:
-                    dimParams[f"patch_icpp({patchID})%z_centroid"] = 0.5
-                    dimParams[f"patch_icpp({patchID})%length_z"]   = 1
                     dimParams[f"patch_icpp({patchID})%vel(3)"]     = 0.0
-
+            
             traceback.append (f"{len(dimInfo[0])}D (m={dimInfo[1].get('m')},n={dimInfo[1].get('n')},p={dimInfo[1].get('p')})")
             parameters.append(dimParams)
 
@@ -202,7 +239,7 @@ class MFCTest:
                 parameters.append({"num_fluids": num_fluids})
 
                 if num_fluids == 2:
-                    parameters.append({'fluid_pp(2)%gamma': 3.5, 'fluid_pp(2)%pi_inf': 0.0,'patch_icpp(1)%alpha_rho(1)': 0.81, 'patch_icpp(1)%alpha(1)': 0.9, 'patch_icpp(1)%alpha_rho(2)': 0.08, 'patch_icpp(1)%alpha(2)': 0.1, 'patch_icpp(2)%alpha_rho(1)': 0.18, 'patch_icpp(2)%alpha(1)': 0.2, 'patch_icpp(2)%alpha_rho(2)': 0.64, 'patch_icpp(2)%alpha(2)': 0.8})
+                    parameters.append({'fluid_pp(2)%gamma': 3.5, 'fluid_pp(2)%pi_inf': 0.0,'patch_icpp(1)%alpha_rho(1)': 0.81, 'patch_icpp(1)%alpha(1)': 0.9, 'patch_icpp(1)%alpha_rho(2)': 0.08, 'patch_icpp(1)%alpha(2)': 0.1, 'patch_icpp(2)%alpha_rho(1)': 0.18, 'patch_icpp(2)%alpha(1)': 0.2, 'patch_icpp(2)%alpha_rho(2)': 0.64, 'patch_icpp(2)%alpha(2)': 0.8, 'patch_icpp(3)%alpha_rho(1)': 0.81, 'patch_icpp(3)%alpha(1)': 0.9, 'patch_icpp(3)%alpha_rho(2)': 0.08, 'patch_icpp(3)%alpha(2)': 0.1,})
 
                 for riemann_solver in [1, 2]:
                     traceback.append(f"riemann_solver={riemann_solver}")
