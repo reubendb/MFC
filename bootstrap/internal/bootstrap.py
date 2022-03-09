@@ -15,6 +15,7 @@ import internal.lock      as lock
 import internal.common    as common
 import internal.user      as user
 import internal.treeprint as treeprint
+import internal.test      as test
 
 class Bootstrap:
     def get_configuration_base_path(self, cc: str = None):
@@ -45,14 +46,14 @@ class Bootstrap:
         return self.user.get_configuration(self.conf.get_target_configuration_name(name, default))
 
     def setup_directories(self):
-        common.create_directory_safe(common.MFC_SUBDIR)
+        common.create_directory(common.MFC_SUBDIR)
 
         for d in ["src", "build", "log", "temp"]:
             for cc in [ cc.name for cc in self.user.configurations ] + ["common"]:
-                common.create_directory_safe(f"{common.MFC_SUBDIR}/{cc}/{d}")
+                common.create_directory(f"{common.MFC_SUBDIR}/{cc}/{d}")
                 if d == "build":
                     for build_subdir in ["bin", "include", "lib", "share"]:
-                        common.create_directory_safe(f"{common.MFC_SUBDIR}/{cc}/{d}/{build_subdir}")
+                        common.create_directory(f"{common.MFC_SUBDIR}/{cc}/{d}/{build_subdir}")
 
     def check_environment(self):
         self.tree.print("Environment Checks")
@@ -62,7 +63,7 @@ class Bootstrap:
         self.tree.indent()
 
         required = ["python3", "python3-config", "make", "git"]
-        required += [ compiler for compiler in list(vars(self.user.compilers).values()) ]
+        required += [ compiler for compiler in list(vars(self.user.build.compilers).values()) ]
 
         for index, utility in enumerate(required):
             common.clear_line()
@@ -73,14 +74,14 @@ class Bootstrap:
                     f'Failed to find the command line utility "{utility}". Please install it or make it visible.')
 
         common.clear_line()
-        self.tree.print(f"Found {len(required)}/{len(required)}. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
+        self.tree.print(f"Found {len(required)}/{len(required)}. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
         self.tree.unindent()
 
         # Run checks on the user's current compilers
         def compiler_str_replace(s: str):
-            s = s.replace("${C}",       self.user.compilers.c)
-            s = s.replace("${CPP}",     self.user.compilers.cpp)
-            s = s.replace("${FORTRAN}", self.user.compilers.fortran)
+            s = s.replace("${C}",       self.user.build.compilers.c)
+            s = s.replace("${CPP}",     self.user.build.compilers.cpp)
+            s = s.replace("${FORTRAN}", self.user.build.compilers.fortran)
 
             return s
 
@@ -92,7 +93,7 @@ class Bootstrap:
 
             # Check if used
             is_used_cmd = compiler_str_replace(check.is_used)
-            if 0 != common.execute_shell_command_safe(is_used_cmd, no_exception=True):
+            if 0 != common.execute_shell_command(is_used_cmd, no_exception=True):
                 continue
 
             version_fetch_cmd     = compiler_str_replace(check.fetch)
@@ -105,7 +106,7 @@ class Bootstrap:
             version_num_minimum = get_ver_from_str(check.minimum)
 
             if version_num_fetched >= version_num_minimum:
-                self.tree.print(f'{check.name}: v{version_fetch_cmd_out} >= v{check.minimum}. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
+                self.tree.print(f'{check.name}: v{version_fetch_cmd_out} >= v{check.minimum}. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})')
 
         self.tree.unindent()
 
@@ -113,12 +114,12 @@ class Bootstrap:
         if sys.platform == "darwin": # MacOS
             pass
 
-        self.tree.print(f'Passing. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
+        self.tree.print(f'Passing. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})')
         self.tree.unindent()
 
     def string_replace(self, dependency_name: str, string: str, recursive=True):
         dep       = self.conf.get_target(dependency_name)
-        compilers = self.user.compilers
+        compilers = self.user.build.compilers
 
         configuration = self.get_target_configuration(dependency_name, self.args["compiler_configuration"])
 
@@ -187,7 +188,7 @@ If you think MFC could (or should) be able to find it automatically for you syst
 
         return string
 
-    def is_build_satisfied(self, name: str, ignoreIfSource: bool = False):
+    def is_build_satisfied(self, name: str):
         # Check if it hasn't been built before
         compiler_cfg = self.get_target_configuration(name, self.args.tree_get("compiler_configuration"))
 
@@ -198,16 +199,29 @@ If you think MFC could (or should) be able to find it automatically for you syst
         conf_desc = self.conf.get_target(name)
         lock_desc = self.lock.get_target(name, compiler_cfg.name)
 
+        # Check if any source file is newer than the previously built executable
+        if conf_desc.fetch.method == "source":
+            check_filepath = self.string_replace(conf_desc.name, conf_desc.fetch.params.check)
+            if not os.path.isfile(check_filepath):
+                return False
+            
+            last_check_date = os.path.getmtime(check_filepath)
+            for subdir, dirs, files in os.walk(self.string_replace(conf_desc.name, conf_desc.fetch.params.source)):
+                for file in files:
+                    if os.path.getmtime(os.path.join(subdir, file)) > last_check_date:
+                        return False
+            
+            return True
+
         # Check if it needs updating (LOCK & CONFIG descriptions don't match)
         if conf_desc.fetch.method != lock_desc.target.fetch.method    or \
            lock_desc.metadata.bCleaned                                or \
-           conf_desc.fetch.method == "source" and not(ignoreIfSource) or \
            conf_desc.fetch.params != lock_desc.target.fetch.params:
             return False
 
         # Check if any of its dependencies needs updating
         for dependency_name in self.conf.get_dependency_names(name, recursive=True):
-            if not self.is_build_satisfied(dependency_name, ignoreIfSource=ignoreIfSource):
+            if not self.is_build_satisfied(dependency_name):
                 return False
 
         # Check for "scratch" flag
@@ -227,7 +241,7 @@ If you think MFC could (or should) be able to find it automatically for you syst
         if ((    conf_desc.fetch.method != lock_desc.target.fetch.method
              and lock_desc.target.fetch.method in ["clone", "download"]
             ) or (self.args.tree_get("scratch"))):
-            common.delete_directory_recursive_safe(f'{common.MFC_SUBDIR}/{lock_desc.metadata.compiler_configuration}/src/{name}')
+            common.delete_directory_recursive(f'{common.MFC_SUBDIR}/{lock_desc.metadata.compiler_configuration}/src/{name}')
 
     def build_target__fetch(self, name: str, logfile: io.IOBase):
         compiler_cfg = self.get_target_configuration(name, self.args.tree_get("compiler_configuration"))
@@ -242,29 +256,29 @@ If you think MFC could (or should) be able to find it automatically for you syst
                     or (self.args.tree_get("scratch"))):
                     self.tree.print(f'GIT repository changed. Updating...')
 
-                    common.delete_directory_recursive_safe(self.get_source_path(name))
+                    common.delete_directory_recursive(self.get_source_path(name))
 
                 if not os.path.isdir(self.get_source_path(name)):
                     self.tree.print(f'Cloning repository...')
 
-                    common.execute_shell_command_safe(
+                    common.execute_shell_command(
                         f'git clone --recursive "{conf.fetch.params.git}" "{self.get_source_path(name)}" >> "{logfile.name}" 2>&1')
 
                 self.tree.print(f'Checking out {conf.fetch.params.hash}...')
 
-                common.execute_shell_command_safe(
+                common.execute_shell_command(
                     f'cd "{self.get_source_path(name)}" && git checkout "{conf.fetch.params.hash}" >> "{logfile.name}" 2>&1')
             elif conf.fetch.method == "download":
                 self.tree.print(f'Removing previously downloaded version...')
 
-                common.delete_directory_recursive_safe(self.get_source_path(name))
+                common.delete_directory_recursive(self.get_source_path(name))
 
                 download_link = conf.fetch.params.link.replace("${VERSION}", conf.fetch.params.version)
                 filename = download_link.split("/")[-1]
 
                 self.tree.print(f'Downloading source...')
 
-                common.create_directory_safe(self.get_temp_path(name))
+                common.create_directory(self.get_temp_path(name))
 
                 download_path = f'{self.get_temp_path(name)}/{filename}'
                 urllib.request.urlretrieve(download_link, download_path)
@@ -277,12 +291,12 @@ If you think MFC could (or should) be able to find it automatically for you syst
                 os.remove(download_path)
         elif conf.fetch.method == "source":
             if os.path.isdir(self.get_source_path(name)):
-                common.delete_directory_recursive_safe(self.get_source_path(name))
+                common.delete_directory_recursive(self.get_source_path(name))
 
             shutil.copytree(self.string_replace(name, conf.fetch.params.source),
                             self.get_source_path(name))
         elif conf.fetch.method == "collection":
-            common.create_directory_safe(self.get_source_path(name))
+            common.create_directory(self.get_source_path(name))
         else:
             raise common.MFCException(f'Dependency type "{conf.fetch.method}" is unsupported.')
 
@@ -307,7 +321,7 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
                 cmd_exception_text=f"Above is the output of {name}'s build command that failed. (#{cmd_idx+1} in mfc.conf.yaml)"
                 cmd_exception_text=cmd_exception_text+f"You can also view it by running:\n\ncat \"{logfile.name}\"\n"
 
-                common.execute_shell_command_safe(command, exception_text=cmd_exception_text, on_error=cmd_on_error)
+                common.execute_shell_command(command, exception_text=cmd_exception_text, on_error=cmd_on_error)
         elif conf.fetch.method == "collection":
             pass
         else:
@@ -356,7 +370,7 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
         # Check if it needs to be (re)built
         if self.is_build_satisfied(name):
-            self.tree.print(f'Nothing to do ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
+            self.tree.print(f'Nothing to do ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})')
             self.tree.unindent()
             return False
 
@@ -366,7 +380,7 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
 
         self.tree.print(f'Preparing build...')
 
-        common.create_file_safe(self.get_log_filepath(name))
+        common.create_file(self.get_log_filepath(name))
 
         with open(self.get_log_filepath(name), "r+") as logfile:
             self.build_target__clean_previous(name)          # Clean any old build artifacts
@@ -374,13 +388,13 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
             self.build_target__build         (name, logfile) # Build
             self.build_target__update_lock   (name)          # Update LOCK
 
-        self.tree.print(f'Done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})')
+        self.tree.print(f'Done. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})')
         self.tree.unindent()
 
         return True
 
     def print_header(self):
-        print(common.center_ansi_escaped_text(f"""{colorama.Fore.BLUE}
+        print(f"""{colorama.Fore.BLUE}
      ___            ___          ___
     /__/\          /  /\        /  /\\
    |  |::\        /  /:/_      /  /:/
@@ -392,42 +406,17 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
   \  \:\         \  \:\       \  \:\/:/
    \  \:\         \  \:\       \  \::/
     \__\/          \__\/        \__\/
-{colorama.Style.RESET_ALL}"""))
+{colorama.Style.RESET_ALL}\
 
-        print(common.center_ansi_escaped_text("""
-+----------------------------------+
-|    Multi-component Flow Code     |
-|                                  |
-| https://github.com/MFlowCode/MFC |
-+----------------------------------+
-
-"""))
-
-    def test_target(self, name: str):
-        self.tree.print(f"Testing Package {name}")
-        self.tree.indent()
-
-        if not self.is_build_satisfied(name, ignoreIfSource=True):
-            raise common.MFCException(f"Can't test {name} because its build isn't satisfied.")
-
-        with open(self.get_log_filepath(name), "w") as logfile:
-            for cmd_idx,command in enumerate(self.conf.get_target(name).test):
-                self.tree.print(f'|--> Package {name}: Testing [{cmd_idx+1}/{len(self.conf.get_target(name).test)}] (Logging to {logfile.name})...')
-
-                command = self.string_replace(name, f"""\
-cd "${{SOURCE_PATH}}" && \
-bash -c '{command}' >> "{logfile.name}" 2>&1""")
-
-                logfile.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
-                logfile.flush()
-
-                common.execute_shell_command_safe(command)
-
-        self.tree.print(f"Testing done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
-        self.tree.unindent()
+   +----------------------------------+
+   |    Multi-component Flow Code     |
+   |                                  |
+   | https://github.com/MFlowCode/MFC |
+   +----------------------------------+
+""")
 
     def clean_target(self, name: str):
-        if not self.is_build_satisfied(name, ignoreIfSource=True):
+        if not self.is_build_satisfied(name):
             raise common.MFCException(f"Can't clean {name} because its build isn't satisfied.")
 
         self.tree.print(f"Cleaning Package {name}")
@@ -452,16 +441,67 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
                         log_file.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
                         log_file.flush()
 
-                        common.execute_shell_command_safe(command)
+                        common.execute_shell_command(command)
 
             target.metadata.bCleaned = True
 
-        common.delete_file_safe(self.get_log_filepath(name))
+        common.delete_file(self.get_log_filepath(name))
 
         self.lock.flush()
         self.lock.save()
 
-        self.tree.print(f"Cleaning done. ({colorama.Fore.GREEN}Success{colorama.Style.RESET_ALL})")
+        self.tree.print(f"Cleaning done. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
+        self.tree.unindent()
+
+    def create_input_file(component: str, obj: dict):
+        pass
+
+    def run(self):
+        cc:      str = self.args["compiler_configuration"]
+        input:   str = self.args["input"]
+        engine:  str = self.args["engine"]
+        targets: str = self.args["targets"]
+
+        if targets[0] == "mfc":
+            targets = ["pre_process", "simulation", "post_process"]
+
+        self.tree.print(f"Running MFC:")
+        self.tree.indent()
+        self.tree.print(f"Target(s) (-t)  {', '.join(targets)}")
+        self.tree.print(f"Engine    (-e)  {engine}")
+        self.tree.print(f"Config    (-cc) {cc}")
+        self.tree.print(f"Input     (-i)  {input}")
+
+        for target_name in targets:
+            self.tree.print(f"Running {target_name}:")
+            self.tree.indent()
+            
+            if not self.is_build_satisfied(target_name):
+                self.tree.print(f"Target {target_name} needs (re)building...")
+                self.build_target(target_name)
+
+            self.tree.print("TODO: Creating input file...")
+
+            # TODO: mpirun -n
+            if engine == 'serial':
+                build_path: str = self.get_build_path(target_name)
+
+                date: str = f"{colorama.Fore.CYAN}[{common.get_datetime_str()}]{colorama.Style.RESET_ALL}"
+                bin:  str = f'{build_path}/bin/{target_name}'
+
+                command = f'LD_LIBRARY_PATH="{build_path}/lib" mpirun {bin}'
+
+                self.tree.print(f"{date} Running...")
+                #TODO: common.execute_shell_command(command)
+
+                self.tree.print(f"Done. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
+            elif engine == 'parallel':
+                pass
+            else:
+                raise common.MFCException(f"Unsupported engine {engine}.")
+
+            self.tree.unindent()
+
         self.tree.unindent()
 
     def __init__(self):
@@ -472,21 +512,21 @@ bash -c '{command}' >> "{logfile.name}" 2>&1""")
         self.setup_directories()
         self.lock = lock.MFCLock()
         self.args = args.MFCArgs(self.conf, self.user)
+        self.test = test.MFCTest(self)
 
         self.print_header()
         self.check_environment()
 
-        if self.args["set_current"] is not None:
-            common.update_symlink(f"{common.MFC_SUBDIR}/___current___", self.get_configuration_base_path(self.args["set_current"]))
-
         # Update symlink to current build
-        if self.args["build"]:
+        if self.args["command"] == "build":
             common.update_symlink(f"{common.MFC_SUBDIR}/___current___", self.get_configuration_base_path())
+
+        if self.args["command"] == "test": self.test.test()
+        if self.args["command"] == "run":  self.run()
 
         for target_name in [ x.name for x in self.conf.targets ]:
             if target_name in self.args["targets"]:
-                if self.args["build"]: self.build_target(target_name)
-                if self.args["test"]:  self.test_target(target_name)
-                if self.args["clean"]: self.clean_target(target_name)
+                if self.args["command"] == "build": self.build_target(target_name)
+                if self.args["command"] == "clean": self.clean_target(target_name)
 
         self.lock.save()
