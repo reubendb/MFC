@@ -35,10 +35,10 @@ jobs:
       - name: Build MFC and its dependencies
         run: |
           chmod +x ./mfc.sh
-          ./mfc.sh --build -j $(nproc)
+          ./mfc.sh build -j $(nproc)
 
       - name: Run MFC Tests
-        run: ./mfc.sh --test
+        run: ./mfc.sh test
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
