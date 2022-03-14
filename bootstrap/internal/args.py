@@ -49,13 +49,24 @@ class MFCArgs(objecttree.ObjectTree):
         run.add_argument("-e", "--engine", choices=["serial", "parallel"], default="serial",
                            help="Job execution/submission engine choice.")
         run.add_argument("-i", "--input",                               type=str, required=True,                   help="Input file for run.")
-        run.add_argument("-m", "--e-mail",         metavar="MAIL",      type=str, default=user.run.email,          help="(Parrallel) Email     for job submission.")
         run.add_argument("-p", "--partition",      metavar="PARTITION", type=str, default=user.run.partition,      help="(Parrallel) Partition for job submission.")
         run.add_argument("-N", "--nodes",          metavar="NODES",     type=int, default=user.run.nodes,          help="(Parrallel) Number of nodes.")
         run.add_argument("-n", "--tasks-per-node", metavar="TASKS",     type=int, default=user.run.tasks_per_node, help="            Number of tasks per node.")
         run.add_argument("-g", "--gpus-per-node",  metavar="GPUS",      type=int, default=user.run.gpus_per_node,  help="(Parrallel) Number of GPUs  per node.")
-        
+        run.add_argument("-w", "--walltime",       metavar="WALLTIME",  type=str, default=user.run.walltime,       help="(Parrallel) Walltime.")
+
         super().__init__(vars(parser.parse_args()))
+
+        # Add default arguments of other subparsers
+        def append_defaults_to_data(name: str, parser):
+            if self.data["command"] != name:
+                vals, errs = parser.parse_known_args(["-i None"])
+                for key,val in vars(vals).items():
+                    if not self.exists(key):
+                        self.data[key] = val
+
+        for a, b in [("run", run), ("test", test), ("build", build)]:
+            append_defaults_to_data(a, b)
 
         if self.tree_get("command") is None:
             parser.print_help()
