@@ -9,13 +9,15 @@ import subprocess
 import dataclasses
 import urllib.request
 
-import internal.args      as args
-import internal.conf      as conf
-import internal.lock      as lock
-import internal.common    as common
-import internal.user      as user
-import internal.treeprint as treeprint
-import internal.test      as test
+
+import internal.run         as run
+import internal.args        as args
+import internal.conf        as conf
+import internal.lock        as lock
+import internal.user        as user
+import internal.test        as test
+import internal.common      as common
+import internal.treeprint   as treeprint
 
 class Bootstrap:
     def get_configuration_base_path(self, cc: str = None):
@@ -435,8 +437,8 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
                         self.tree.print(f'Cleaning [{cmd_idx+1}/{len(target.target.clean)}] (Logging to {log_file.name})...')
 
                         command = self.string_replace(name, f"""\
-        cd "${{SOURCE_PATH}}" && \
-        stdbuf -oL bash -c '{command}' >> "{log_file.name}" 2>&1""")
+cd "${{SOURCE_PATH}}" && \
+stdbuf -oL bash -c '{command}' >> "{log_file.name}" 2>&1""")
 
                         log_file.write(f'\n--- ./mfc.py ---\n{command}\n--- ./mfc.py ---\n\n')
                         log_file.flush()
@@ -453,57 +455,6 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
         self.tree.print(f"Cleaning done. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
         self.tree.unindent()
 
-    def create_input_file(component: str, obj: dict):
-        pass
-
-    def run(self):
-        cc:      str = self.args["compiler_configuration"]
-        input:   str = self.args["input"]
-        engine:  str = self.args["engine"]
-        targets: str = self.args["targets"]
-
-        if targets[0] == "mfc":
-            targets = ["pre_process", "simulation", "post_process"]
-
-        self.tree.print(f"Running MFC:")
-        self.tree.indent()
-        self.tree.print(f"Target(s) (-t)  {', '.join(targets)}")
-        self.tree.print(f"Engine    (-e)  {engine}")
-        self.tree.print(f"Config    (-cc) {cc}")
-        self.tree.print(f"Input     (-i)  {input}")
-
-        for target_name in targets:
-            self.tree.print(f"Running {target_name}:")
-            self.tree.indent()
-            
-            if not self.is_build_satisfied(target_name):
-                self.tree.print(f"Target {target_name} needs (re)building...")
-                self.build_target(target_name)
-
-            self.tree.print("TODO: Creating input file...")
-
-            # TODO: mpirun -n
-            if engine == 'serial':
-                build_path: str = self.get_build_path(target_name)
-
-                date: str = f"{colorama.Fore.CYAN}[{common.get_datetime_str()}]{colorama.Style.RESET_ALL}"
-                bin:  str = f'{build_path}/bin/{target_name}'
-
-                command = f'LD_LIBRARY_PATH="{build_path}/lib" mpirun {bin}'
-
-                self.tree.print(f"{date} Running...")
-                #TODO: common.execute_shell_command(command)
-
-                self.tree.print(f"Done. ({colorama.Fore.GREEN}SUCCESS{colorama.Style.RESET_ALL})")
-            elif engine == 'parallel':
-                pass
-            else:
-                raise common.MFCException(f"Unsupported engine {engine}.")
-
-            self.tree.unindent()
-
-        self.tree.unindent()
-
     def __init__(self):
         self.tree = treeprint.TreePrinter()
 
@@ -513,6 +464,7 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
         self.lock = lock.MFCLock()
         self.args = args.MFCArgs(self.conf, self.user)
         self.test = test.MFCTest(self)
+        self.run  = run.MFCRun(self)
 
         self.print_header()
         self.check_environment()
@@ -522,7 +474,7 @@ stdbuf -oL bash -c '{command}' >> "{logfile.name}" 2>&1""")
             common.update_symlink(f"{common.MFC_SUBDIR}/___current___", self.get_configuration_base_path())
 
         if self.args["command"] == "test": self.test.test()
-        if self.args["command"] == "run":  self.run()
+        if self.args["command"] == "run":  self.run.run()
 
         for target_name in [ x.name for x in self.conf.targets ]:
             if target_name in self.args["targets"]:
