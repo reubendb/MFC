@@ -213,12 +213,14 @@ If you think MFC could (or should) be able to find it automatically for you syst
                     if os.path.getmtime(os.path.join(subdir, file)) > last_check_date:
                         return False
             
-            return True
-
         # Check if it needs updating (LOCK & CONFIG descriptions don't match)
         if conf_desc.fetch.method != lock_desc.target.fetch.method    or \
            lock_desc.metadata.bCleaned                                or \
            conf_desc.fetch.params != lock_desc.target.fetch.params:
+            return False
+
+        # Check if build commands have changed
+        if conf_desc.build != lock_desc.target.build:
             return False
 
         # Check if any of its dependencies needs updating
