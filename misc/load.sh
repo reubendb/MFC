@@ -17,8 +17,6 @@ on_error() {
     echo -e "We would welcome your contribution:"
     echo -e " - Github: https://github.com/MFlowCode/MFC"
     echo -en "$COLOR_RESET"
-
-    exit 1
 }
 
 ORNL="$GREEN""ORNL$COLOR_RESET"
@@ -94,7 +92,7 @@ elif [ "$u_computer" == "a" ]; then # For Ascent
         echo -e $RED"Error: CPU modules not (yet) supported on Ascent."$COLOR_RESET
         on_error
     elif [ "$u_cg" == "g" ]; then
-        MODULES=("nvhpc/21.9"     "spectrum-mpi"   "cuda/11.2.0"
+        MODULES=("nvhpc/21.11"    "spectrum-mpi"   "cuda/nvhpc"
                  "nsight-compute" "nsight-systems")
     fi
 elif [ "$u_computer" == "r" ]; then # Richardson
