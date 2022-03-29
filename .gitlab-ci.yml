@@ -21,9 +21,9 @@ build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
     - module reset
-    - module load nvhpc/21.9
+    - module load nvhpc/21.11
     - module load spectrum-mpi
-    - module load cuda/11.2.0
+    - module load cuda/nvhpc
     - module load nsight-compute
     - module load nsight-systems
     - ./mfc.sh build -j 8 -cc release-gpu
