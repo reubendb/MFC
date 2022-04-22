@@ -35,8 +35,8 @@ jobs:
       - name: Build & Test MFC (CPU)
         run: |
           chmod +x ./mfc.sh
-          ./mfc.sh build -c release-cpu -j $(nproc)
-          ./mfc.sh test  -c release-cpu
+          ./mfc.sh build -m release-cpu -j $(nproc)
+          ./mfc.sh test  -m release-cpu
 
       - name: Upload logs
         uses: actions/upload-artifact@v2
