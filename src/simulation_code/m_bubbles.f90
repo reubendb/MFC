@@ -73,9 +73,11 @@ MODULE m_bubbles
             
             ndirs = 1; IF (n > 0) ndirs = 2; IF (p > 0) ndirs = 3
 
-            IF (idir == ndirs) THEN
-                bub_adv_src = 0.d0; bub_r_src = 0.d0; bub_v_src = 0.d0
+            
+            bub_adv_src = 0.d0; bub_r_src = 0.d0; bub_v_src = 0.d0
                                     bub_p_src = 0.d0; bub_m_src = 0.d0
+
+            IF (idir == ndirs) THEN
 
                 ! advection source
                 DO j = 0,m; DO k = 0,n; DO l = 0,p
