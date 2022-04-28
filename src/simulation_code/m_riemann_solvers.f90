@@ -193,6 +193,7 @@ MODULE m_riemann_solvers
     TYPE(scalar_field), ALLOCATABLE, DIMENSION(:) :: qL_prim_rs_vf
     TYPE(scalar_field), ALLOCATABLE, DIMENSION(:) :: qR_prim_rs_vf
     TYPE(scalar_field), ALLOCATABLE, DIMENSION(:) :: q_prim_rs_vf
+    TYPE(scalar_field), ALLOCATABLE, DIMENSION(:) :: mom_sp_rs_vf
     !> @}
 
     !> The left and right, WENO-reconstructed, cell-boundary values of the cell-
@@ -2679,14 +2680,14 @@ MODULE m_riemann_solvers
                 END DO
 
                 IF (qbmm) THEN
-                    PbwR3Lbar = mom_sp(4)%sf(j  ,k,l)
-                    PbwR3Rbar = mom_sp(4)%sf(j+1,k,l)
+                    PbwR3Lbar = mom_sp_rs_vf(4)%sf(j  ,k,l)
+                    PbwR3Rbar = mom_sp_rs_vf(4)%sf(j+1,k,l)
 
-                    R3Lbar = mom_sp(1)%sf(j  ,k,l)
-                    R3Rbar = mom_sp(1)%sf(j+1,k,l)
+                    R3Lbar = mom_sp_rs_vf(1)%sf(j  ,k,l)
+                    R3Rbar = mom_sp_rs_vf(1)%sf(j+1,k,l)
 
-                    R3V2Lbar = mom_sp(3)%sf(j  ,k,l)
-                    R3V2Rbar = mom_sp(3)%sf(j+1,k,l)
+                    R3V2Lbar = mom_sp_rs_vf(3)%sf(j  ,k,l)
+                    R3V2Rbar = mom_sp_rs_vf(3)%sf(j+1,k,l)
                 ELSE
                     CALL s_quad(pbw_L*(R0_L**3.d0), PbwR3Lbar)
                     CALL s_quad(pbw_R*(R0_R**3.d0), PbwR3Rbar)
@@ -2720,7 +2721,7 @@ MODULE m_riemann_solvers
                     CALL s_mpi_abort()
                 END IF
 
-                ptil(j,k,l) = 0.5d0*(ptilde_L+ptilde_R)
+               ! ptil(j,k,l) = 0.5d0*(ptilde_L+ptilde_R)
             END IF
 
             IF (tvd_riemann_flux) THEN
@@ -3037,7 +3038,11 @@ MODULE m_riemann_solvers
             ALLOCATE(flux_gsrc_rs_vf(1:sys_size))
             
             ALLOCATE(vel_src_rs_vf(1:num_dims))
-            
+           
+            IF(qbmm) THEN
+               ALLOCATE(mom_sp_rs_vf(1:4))
+            END IF  
+
             ALLOCATE(alpha_rho_L(1:cont_idx%end), vel_L(1:num_dims))
             ALLOCATE(alpha_rho_R(1:cont_idx%end), vel_R(1:num_dims))
 
@@ -3751,7 +3756,7 @@ MODULE m_riemann_solvers
             TYPE(bounds_info), INTENT(IN) :: ix,iy,iz
             
 
-            INTEGER :: i,j,k ! Generic loop iterators
+            INTEGER :: i,j,k,l ! Generic loop iterators
            
             INTEGER :: xbeg,xend,ybeg,yend,zbeg,zend
             INTEGER :: s1beg,s1end,s2beg,s2end,s3beg,s3end
@@ -3898,7 +3903,13 @@ MODULE m_riemann_solvers
             END DO
             ! END: Allocating Intercell Fluxes and Velocity ====================
            
-                        
+                            
+            IF(qbmm) THEN
+               DO i = 1,4
+                  ALLOCATE(mom_sp_rs_vf(i)%sf(is1%beg:is1%end+1, is2%beg:is2%end, is3%beg:is3%end))
+               END DO
+            END IF
+
             ! Reshaping Inputted Data in x-direction ===========================
             IF(norm_dir == 1) THEN
                
@@ -3925,6 +3936,18 @@ MODULE m_riemann_solvers
                                                        iy%beg   : iy%end  , &
                                                        iz%beg   : iz%end    )
                 END DO
+
+                IF(qbmm) THEN
+                  do i = 1,4
+                     do l = is3%beg, is3%end
+                       do k = is2%beg, is2%end
+                         do j = is1%beg, is1%end + 1
+                           mom_sp_rs_vf(i)%sf(j, k, l) = mom_sp(i)%sf(j, k, l)
+                         end do
+                      end do
+                    end do
+                  end do
+                end if      
             ! ==================================================================
 
             
@@ -3960,7 +3983,19 @@ MODULE m_riemann_solvers
                         END DO
                     END DO
                 END DO
-            ! ==================================================================
+
+                IF(qbmm) THEN
+                  do i = 1,4
+                     do l = is3%beg, is3%end
+                       do k = is2%beg, is2%end
+                         do j = is1%beg, is1%end + 1
+                           mom_sp_rs_vf(i)%sf(j, k, l) = mom_sp(i)%sf(k, j, l)
+                         end do
+                      end do
+                    end do
+                  end do
+                end if      
+               ! ==================================================================
             
             
             ! Reshaping Inputted Data in z-direction ===========================
@@ -3996,6 +4031,18 @@ MODULE m_riemann_solvers
                     END DO
                 END DO
                
+                IF(qbmm) THEN
+                  do i = 1,4
+                     do l = is3%beg, is3%end
+                       do k = is2%beg, is2%end
+                         do j = is1%beg, is1%end + 1
+                           mom_sp_rs_vf(i)%sf(j, k, l) = mom_sp(i)%sf(l, k, j)
+                         end do
+                      end do
+                    end do
+                  end do
+                end if 
+
             END IF
             ! ==================================================================
             
@@ -5601,6 +5648,12 @@ MODULE m_riemann_solvers
             DO i = 2, num_dims
                 DEALLOCATE(vel_src_rs_vf(dir_idx(i))%sf)
             END DO
+
+            IF(qbmm) THEN
+               DO i = 1, 4    
+                DEALLOCATE(mom_sp_rs_vf(i)%sf)
+               END DO
+            END IF   
             ! ==================================================================
             
             
@@ -5631,6 +5684,10 @@ MODULE m_riemann_solvers
             
             DEALLOCATE(alpha_L, alpha_R)
             
+            IF(qbmm) THEN
+               DEALLOCATE(mom_sp_rs_vf)
+            END IF
+
             IF(We_size > 0) THEN
                 
                 DEALLOCATE(kappaL_rs_vf, kappaR_rs_vf)
