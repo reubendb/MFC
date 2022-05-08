@@ -1,27 +1,45 @@
 #!/usr/bin/env bash
 
+
+# Script Constants
+MFC_DIR="./build"
+MFC_GET_PIP_PATH="$MFC_DIR/get-pip.py"
+PYTHON_VENV_DIR="$MFC_DIR/.venv"
+
+PYTHON_BIN="python3"
+PYTHON_PIP_BIN="$PYTHON_BIN -m pip"
+PYTHON_MIN_MAJOR=3
+PYTHON_MIN_MINOR=6
+
 # Check whether this script was called from MFC's root directory.
-if [ ! -f ./bootstrap/mfc.py ]; then
+if [ ! -f ./bootstrap/delegate.py ]; then
     echo "[mfc.sh] Error: You must call this script from within MFC's root folder."
     exit 1
 fi
 
+# Make bootstrap files executable
+chmod +x ./bootstrap/delegate.py
+
 # Check whether python3 is in the $PATH / is accessible.
-which python3 > /dev/null 2>&1
+which $PYTHON_BIN > /dev/null 2>&1
 if (($?)); then
-    echo "[mfc.sh] Error: Couldn't find Python3. Please ensure it is discoverable."
+    echo "[mfc.sh] Error: Couldn't find Python. Please ensure it is discoverable."
     exit 1
 fi
 
 # Check if Python is at least minimally functionnal.
-python3 -c 'print("")' > /dev/null
+$PYTHON_BIN -c 'print("")' > /dev/null 2>&1
 if (($?)); then
-    echo "[mfc.sh] Error: Python3 is present but can't execute a simple program. Please ensure that python3 is working."
+    echo "[mfc.sh] Error: Python is present but can't execute a simple program. Please ensure that python3 is working."
     exit 1
 fi
 
-MFC_DIR="./.mfc"
-MFC_GET_PIP_PATH="$MFC_DIR/get-pip.py"
+# CHeck Python's version for compatibility with bootstrap/*.py scripts
+$PYTHON_BIN -c "import sys; exit(int(not (sys.version_info[0]==$PYTHON_MIN_MAJOR and sys.version_info[1] >= $PYTHON_MIN_MINOR)))"
+if (($?)); then
+    echo "[mfc.sh] Error: $($PYTHON_BIN --version) is incompatible. Python v$PYTHON_MIN_MAJOR.$PYTHON_MIN_MINOR or higher is required."
+    exit 1
+fi
 
 # (Re)-Install Pip via get-pip to make sure it is properly configured and working.
 # Note: Some supercomputers require(d) this workaround to install and import python packages.
@@ -32,59 +50,68 @@ if [ ! -f "$MFC_GET_PIP_PATH" ]; then
         exit 1
     fi
 
-    wget -O "$MFC_GET_PIP_PATH" https://bootstrap.pypa.io/get-pip.py
+    wget -O "$MFC_GET_PIP_PATH" https://bootstrap.pypa.io/pip/3.6/get-pip.py
     if (($?)); then
         echo "[mfc.sh] Error: Couldn't download get-pip.py using wget to '$MFC_GET_PIP_PATH'."
         exit 1
     fi
 
-    python3 "$MFC_GET_PIP_PATH" --user
+    $PYTHON_BIN "$MFC_GET_PIP_PATH" --user
     if (($?)); then
         echo "[mfc.sh] Error: Coudln't install pip with get-pip.py ($MFC_GET_PIP_PATH)."
         exit 1
     fi
 fi
 
-# Optional: Use a Python virtual environment (venv)
-#
-#python3 -m venv ./venv
-#if (($?)); then
-#    echo "[mfc.sh] Error: Failed to create a Python virtual environment."
-#    exit 1
-#fi
-#
-#source ./venv/bin/activate
-#if (($?)); then
-#    echo "[mfc.sh] Error: Faild to activate the Python virtual environment."
-#    exit 1
-#fi
+# Create a Python virtualenv if it hasn't already been created
+bVenvIsNew=0
+if [ ! -d "$PYTHON_VENV_DIR" ]; then
+    bVenvIsNew=1
 
-# Install PyYAML if it isn't installed
-python3 -m pip show -q pyyaml
-if (($?)); then
-    python3 -m pip install pyyaml
+    $PYTHON_BIN -m venv "$PYTHON_VENV_DIR"
     if (($?)); then
-        echo "[mfc.sh] Error: Failed to install PyYAML through Python3's pip."
+        echo "[mfc.sh] Error: Failed to create a Python virtual environment."
         exit 1
     fi
 fi
 
-# Install Colorama if it isn't installed
-python3 -m pip show -q colorama
-if (($?)); then
-    python3 -m pip install colorama
+# Activate the Python venv
+source "$PYTHON_VENV_DIR"/bin/activate
+
+# Upgrade Pip
+if [ "$bVenvIsNew" == "1" ]; then
+    $PYTHON_PIP_BIN install --upgrade pip > /dev/null
     if (($?)); then
-        echo "[mfc.sh] Error: Failed to install Colorama through Python3's pip."
+        echo "[mfc.sh] Error: Failed to update Pip."
         exit 1
     fi
 fi
+
+# Fetch required Python modules.
+# Some modules which are now in Python's standard library
+#                    are imported as backports to support Python v3.6.
+declare -a REQUIRED_PYTHON_MODULES=("argparse,argparse" "dataclasses,dataclasses" "typing,typing" "yaml,pyyaml" "rich,rich" "fypp,fypp")
+
+for module in "${REQUIRED_PYTHON_MODULES[@]}"; do
+    import_name=$(echo $module | tr ',' '\n' | head -n 1)
+    install_name=$(echo $module | tr ',' '\n' | tail -n 1)
+
+    $PYTHON_BIN -c "import $import_name" > /dev/null 2>&1
+    if (($?)); then
+        $PYTHON_PIP_BIN install $install_name
+        if (($?)); then
+            echo "[mfc.sh] Error: Failed to install $import_name/$install_name through Python3's pip."
+            exit 1
+        fi
+    fi
+done
 
 # Run the mfc.py bootstrap script
-cd bootstrap
-python3 ./mfc.py $@
+$PYTHON_BIN ./bootstrap/delegate.py "$@"
 code=$?
 
-cd ..
+# Deactivate the Python virtualenv in case the user "source"'d this script
+deactivate
 
+# Exit with ./bootstrap/delegate.py's exit code
 exit $code
-

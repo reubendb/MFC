@@ -1,0 +1,3568 @@
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/HDF5" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c './configure --prefix="/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build" CC="mpicc" CXX="mpicxx" FC="mpif90" --enable-parallel --enable-deprecated-symbols' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/HDF5.log" 2>&1
+--- ./mfc.py ---
+
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/HDF5" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c 'make -j 8 CFLAGS="-O3" CPPFLAGS="-O3" FFLAGS="-O3 -cpp -w" CC="mpicc" CXX="mpicxx" FC="mpif90"' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/HDF5.log" 2>&1
+--- ./mfc.py ---
+
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/HDF5" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c 'make install prefix="/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build"' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/HDF5.log" 2>&1
+--- ./mfc.py ---
+
+ig x86_64-unknown-linux-gnu... no
+checking for config x86_64-unknown-linux-gnu... no
+checking for config unknown-linux-gnu... no
+checking for config unknown-linux-gnu... no
+checking for config x86_64-linux-gnu... no
+checking for config x86_64-linux-gnu... no
+checking for config x86_64-unknown... no
+checking for config linux-gnu... found
+expr: syntax error
+checking for config ./config/site-specific/host-login006.oscar.ccv.brown.edu... no
+checking for config ./config/site-specific/host-oscar.ccv.brown.edu... no
+checking for config ./config/site-specific/host-ccv.brown.edu... no
+checking for config ./config/site-specific/host-brown.edu... no
+checking for config ./config/site-specific/host-edu... no
+checking build mode... debug
+checking for gcc... mpicc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether mpicc accepts -g... yes
+checking for mpicc option to accept ISO C89... none needed
+checking whether mpicc understands -c and -o together... yes
+checking for style of include used by make... GNU
+checking dependency style of mpicc... tcc
+checking if unsupported combinations of configure options are allowed... no
+checking how to run the C preprocessor... mpicc -E
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for off_t... yes
+checking for size_t... yes
+checking for ssize_t... yes
+checking for ptrdiff_t... yes
+checking whether byte ordering is bigendian... no
+checking size of char... 1
+checking size of short... 2
+checking size of int... 4
+checking size of unsigned... 4
+checking size of long... 8
+checking size of long long... 8
+checking size of __int64... 0
+checking size of float... 4
+checking size of double... 8
+checking size of long double... 16
+checking size of __float128... 16
+checking size of _Quad... 0
+checking quadmath.h usability... yes
+checking quadmath.h presence... yes
+checking for quadmath.h... yes
+checking maximum decimal precision for C... 33
+checking if Fortran interface enabled... no
+checking whether we are using the GNU C++ compiler... yes
+checking whether mpicxx accepts -g... yes
+checking dependency style of mpicxx... tcc
+checking how to run the C++ preprocessor... mpicxx -E
+checking if c++ interface enabled... no
+checking if the high-level library is enabled... yes
+checking for ar... ar
+checking whether make sets $(MAKE)... (cached) yes
+checking for tr... /usr/bin/tr
+checking if srcdir= and time commands work together... yes
+checking if Java JNI interface enabled... no
+checking if building tests is disabled... checking if building tools is disabled... checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by mpicc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 96000000
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from mpicc object... ok
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if mpicc supports -fno-rtti -fno-exceptions... no
+checking for mpicc option to produce PIC... -fPIC -DPIC
+checking if mpicc PIC flag -fPIC -DPIC works... yes
+checking if mpicc static flag -static works... no
+checking if mpicc supports -c -o file.o... yes
+checking if mpicc supports -c -o file.o... (cached) yes
+checking whether the mpicc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... nvc-Error-Unknown switch: -print-search-dirs
+GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for shl_load... no
+checking for shl_load in -ldld... no
+checking for dlopen... yes
+checking whether a program can dlopen itself... yes
+checking whether a statically linked program can dlopen itself... yes
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking if we should install only statically linked executables... no
+checking if -Wl,-rpath should be used to link shared libs in nondefault directories... yes
+checking for ceil in -lm... yes
+checking for dlopen in -ldl... yes
+checking for ANSI C header files... (cached) yes
+checking whether time.h and sys/time.h may both be included... yes
+checking sys/resource.h usability... yes
+checking sys/resource.h presence... yes
+checking for sys/resource.h... yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for unistd.h... (cached) yes
+checking sys/ioctl.h usability... yes
+checking sys/ioctl.h presence... yes
+checking for sys/ioctl.h... yes
+checking for sys/stat.h... (cached) yes
+checking sys/socket.h usability... yes
+checking sys/socket.h presence... yes
+checking for sys/socket.h... yes
+checking for sys/types.h... (cached) yes
+checking sys/file.h usability... yes
+checking sys/file.h presence... yes
+checking for sys/file.h... yes
+checking stddef.h usability... yes
+checking stddef.h presence... yes
+checking for stddef.h... yes
+checking setjmp.h usability... yes
+checking setjmp.h presence... yes
+checking for setjmp.h... yes
+checking features.h usability... yes
+checking features.h presence... yes
+checking for features.h... yes
+checking dirent.h usability... yes
+checking dirent.h presence... yes
+checking for dirent.h... yes
+checking for stdint.h... (cached) yes
+checking stdbool.h usability... yes
+checking stdbool.h presence... yes
+checking for stdbool.h... yes
+checking mach/mach_time.h usability... no
+checking mach/mach_time.h presence... no
+checking for mach/mach_time.h... no
+checking io.h usability... no
+checking io.h presence... no
+checking for io.h... no
+checking winsock2.h usability... no
+checking winsock2.h presence... no
+checking for winsock2.h... no
+checking sys/timeb.h usability... yes
+checking sys/timeb.h presence... yes
+checking for sys/timeb.h... yes
+checking if libtool needs -no-undefined flag to build shared libraries... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+checking size of int8_t... 1
+checking size of uint8_t... 1
+checking size of int_least8_t... 1
+checking size of uint_least8_t... 1
+checking size of int_fast8_t... 1
+checking size of uint_fast8_t... 1
+checking size of int16_t... 2
+checking size of uint16_t... 2
+checking size of int_least16_t... 2
+checking size of uint_least16_t... 2
+checking size of int_fast16_t... 8
+checking size of uint_fast16_t... 8
+checking size of int32_t... 4
+checking size of uint32_t... 4
+checking size of int_least32_t... 4
+checking size of uint_least32_t... 4
+checking size of int_fast32_t... 8
+checking size of uint_fast32_t... 8
+checking size of int64_t... 8
+checking size of uint64_t... 8
+checking size of int_least64_t... 8
+checking size of uint_least64_t... 8
+checking size of int_fast64_t... 8
+checking size of uint_fast64_t... 8
+checking size of size_t... 8
+checking size of ssize_t... 8
+checking size of ptrdiff_t... 8
+checking size of off_t... 8
+checking size of bool... 1
+checking size of time_t... 8
+checking if dev_t is scalar... yes
+checking for dmalloc library... suppressed
+checking zlib.h usability... yes
+checking zlib.h presence... yes
+checking for zlib.h... yes
+checking for compress2 in -lz... yes
+checking for compress2... yes
+checking for szlib... suppressed
+checking for thread safe support... no
+checking whether CLOCK_MONOTONIC is declared... yes
+checking for tm_gmtoff in struct tm... yes
+checking for global timezone variable... yes
+checking for st_blocks in struct stat... no
+checking for _getvideoconfig... no
+checking for gettextinfo... no
+checking for GetConsoleScreenBufferInfo... no
+checking for getpwuid... yes
+checking for _scrsize... no
+checking for ioctl... yes
+checking for struct videoconfig... no
+checking for struct text_info... no
+checking for TIOCGWINSZ... yes
+checking for TIOCGETD... yes
+checking for library containing clock_gettime... none required
+checking for alarm... yes
+checking for clock_gettime... yes
+checking for difftime... yes
+checking for fcntl... yes
+checking for flock... yes
+checking for fork... yes
+checking for frexpf... yes
+checking for frexpl... yes
+checking for gethostname... yes
+checking for getrusage... yes
+checking for gettimeofday... yes
+checking for lstat... yes
+checking for rand_r... yes
+checking for random... yes
+checking for setsysinfo... no
+checking for signal... yes
+checking for longjmp... yes
+checking for setjmp... yes
+checking for siglongjmp... yes
+checking for sigsetjmp... no
+checking for sigprocmask... yes
+checking for snprintf... yes
+checking for srandom... yes
+checking for strdup... yes
+checking for symlink... yes
+checking for system... yes
+checking for strtoll... yes
+checking for strtoull... yes
+checking for tmpfile... yes
+checking for asprintf... yes
+checking for vasprintf... yes
+checking for vsnprintf... yes
+checking for waitpid... yes
+checking for roundf... yes
+checking for lroundf... yes
+checking for llroundf... yes
+checking for round... yes
+checking for lround... yes
+checking for llround... yes
+checking for an ANSI C-conforming const... yes
+checking if the compiler understands  __inline__... yes
+checking if the compiler understands __inline... yes
+checking if the compiler understands inline... yes
+checking for __attribute__ extension... yes
+checking for __func__ extension... yes
+checking for __FUNCTION__ extension... yes
+checking for C99 designated initialization support... yes
+checking how to print long long... %ld and %lu
+checking enable debugging symbols... yes
+checking enable asserts... yes
+checking enable developer warnings... no
+checking profiling... no
+checking optimization level... debug
+checking for internal debug output... AC,B2,CX,D,F,HL,I,O,S,ST,T,Z
+checking whether function stack tracking is enabled... no
+checking for API tracing... yes
+checking whether a memory checking tool will be used... no
+checking whether internal memory allocation sanity checking is used... yes
+checking for parallel support files... provided by compiler
+checking whether a simple MPI-IO C program can be linked... yes
+checking prefix for running on one processor... 
+checking prefix for running in parallel... mpiexec -n $${NPROCS:=6}
+checking for instrumented library... yes
+checking for MPE... suppressed
+checking for MPI_Mprobe and MPI_Imrecv functions... yes
+checking for MPI_Get_elements_x and MPI_Type_size_x functions... yes
+checking if the map API (H5M) is enabled... no
+checking whether O_DIRECT is declared... yes
+checking for posix_memalign... yes
+checking if the direct I/O virtual file driver (VFD) is enabled... no
+checking if the Read-Only S3 virtual file driver (VFD) is enabled... no
+checking for libhdfs... suppressed
+checking for custom examples path definition... ${prefix}/share/hdf5_examples
+checking for custom plugin default path definition... /usr/local/hdf5/lib/plugin
+checking whether exception handling functions is checked during data conversions... yes
+checking whether data accuracy is guaranteed during data conversions... yes
+checking if the machine has window style path name... no
+checking if using special algorithm to convert long double to (unsigned) long values... no
+checking if using special algorithm to convert (unsigned) long to long double values... no
+checking if correctly converting long double to (unsigned) long long values... yes
+checking if correctly converting (unsigned) long long to long double values... yes
+checking if the system is IBM ppc64le and cannot correctly convert some long double values... no
+checking additional programs should be built... no
+checking if deprecated public symbols are available... yes
+checking which version of public symbols to use by default... v112
+checking whether to perform strict file format checks... yes
+checking for pread... yes
+checking for pwrite... yes
+checking whether to use pread/pwrite instead of read/write in certain VFDs... yes
+checking whether to have library information embedded in the executables... yes
+checking if alignment restrictions are strictly enforced... no
+configure: creating ./config.lt
+config.lt: creating libtool
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating src/libhdf5.settings
+config.status: creating Makefile
+config.status: creating src/Makefile
+config.status: creating test/Makefile
+config.status: creating test/H5srcdir_str.h
+config.status: creating test/testabort_fail.sh
+config.status: creating test/testcheck_version.sh
+config.status: creating test/testerror.sh
+config.status: creating test/testexternal_env.sh
+config.status: creating test/testflushrefresh.sh
+config.status: creating test/testlibinfo.sh
+config.status: creating test/testlinks_env.sh
+config.status: creating test/testswmr.sh
+config.status: creating test/testvds_env.sh
+config.status: creating test/testvdsswmr.sh
+config.status: creating test/test_filter_plugin.sh
+config.status: creating test/test_usecases.sh
+config.status: creating test/test_vol_plugin.sh
+config.status: creating testpar/Makefile
+config.status: creating testpar/testpflush.sh
+config.status: creating tools/Makefile
+config.status: creating tools/lib/Makefile
+config.status: creating tools/libtest/Makefile
+config.status: creating tools/src/Makefile
+config.status: creating tools/src/h5dump/Makefile
+config.status: creating tools/src/h5import/Makefile
+config.status: creating tools/src/h5diff/Makefile
+config.status: creating tools/src/h5jam/Makefile
+config.status: creating tools/src/h5repack/Makefile
+config.status: creating tools/src/h5ls/Makefile
+config.status: creating tools/src/h5copy/Makefile
+config.status: creating tools/src/misc/Makefile
+config.status: creating tools/src/h5stat/Makefile
+config.status: creating tools/test/Makefile
+config.status: creating tools/test/h5dump/Makefile
+config.status: creating tools/test/h5dump/h5dump_plugin.sh
+config.status: creating tools/test/h5dump/testh5dump.sh
+config.status: creating tools/test/h5dump/testh5dumppbits.sh
+config.status: creating tools/test/h5dump/testh5dumpvds.sh
+config.status: creating tools/test/h5dump/testh5dumpxml.sh
+config.status: creating tools/test/h5ls/Makefile
+config.status: creating tools/test/h5ls/h5ls_plugin.sh
+config.status: creating tools/test/h5ls/testh5ls.sh
+config.status: creating tools/test/h5ls/testh5lsvds.sh
+config.status: creating tools/test/h5import/Makefile
+config.status: creating tools/test/h5import/h5importtestutil.sh
+config.status: creating tools/test/h5diff/Makefile
+config.status: creating tools/test/h5diff/h5diff_plugin.sh
+config.status: creating tools/test/h5diff/testh5diff.sh
+config.status: creating tools/test/h5diff/testph5diff.sh
+config.status: creating tools/src/h5format_convert/Makefile
+config.status: creating tools/test/h5format_convert/Makefile
+config.status: creating tools/test/h5format_convert/testh5fc.sh
+config.status: creating tools/test/h5jam/Makefile
+config.status: creating tools/test/h5jam/testh5jam.sh
+config.status: creating tools/test/h5repack/Makefile
+config.status: creating tools/test/h5repack/h5repack.sh
+config.status: creating tools/test/h5repack/h5repack_plugin.sh
+config.status: creating tools/test/h5copy/Makefile
+config.status: creating tools/test/h5copy/testh5copy.sh
+config.status: creating tools/test/misc/Makefile
+config.status: creating tools/test/misc/testh5clear.sh
+config.status: creating tools/test/misc/testh5mkgrp.sh
+config.status: creating tools/test/misc/testh5repart.sh
+config.status: creating tools/test/misc/vds/Makefile
+config.status: creating tools/test/h5stat/Makefile
+config.status: creating tools/test/h5stat/testh5stat.sh
+config.status: creating tools/test/perform/Makefile
+config.status: creating examples/Makefile
+config.status: creating examples/run-c-ex.sh
+config.status: creating examples/testh5cc.sh
+config.status: creating bin/h5cc
+config.status: creating bin/Makefile
+config.status: creating c++/Makefile
+config.status: creating c++/src/Makefile
+config.status: creating c++/src/h5c++
+config.status: creating c++/test/Makefile
+config.status: creating c++/test/H5srcdir_str.h
+config.status: creating c++/examples/Makefile
+config.status: creating c++/examples/run-c++-ex.sh
+config.status: creating c++/examples/testh5c++.sh
+config.status: creating fortran/Makefile
+config.status: creating fortran/src/h5fc
+config.status: creating fortran/src/Makefile
+config.status: creating fortran/src/H5fort_type_defines.h
+config.status: creating fortran/test/Makefile
+config.status: creating fortran/testpar/Makefile
+config.status: creating fortran/examples/Makefile
+config.status: creating fortran/examples/run-fortran-ex.sh
+config.status: creating fortran/examples/testh5fc.sh
+config.status: creating java/Makefile
+config.status: creating java/src/Makefile
+config.status: creating java/src/jni/Makefile
+config.status: creating java/test/Makefile
+config.status: creating java/test/junit.sh
+config.status: creating java/examples/Makefile
+config.status: creating java/examples/intro/Makefile
+config.status: creating java/examples/intro/JavaIntroExample.sh
+config.status: creating java/examples/datasets/Makefile
+config.status: creating java/examples/datasets/JavaDatasetExample.sh
+config.status: creating java/examples/datatypes/Makefile
+config.status: creating java/examples/datatypes/JavaDatatypeExample.sh
+config.status: creating java/examples/groups/Makefile
+config.status: creating java/examples/groups/JavaGroupExample.sh
+config.status: creating hl/Makefile
+config.status: creating hl/src/Makefile
+config.status: creating hl/test/Makefile
+config.status: creating hl/test/H5srcdir_str.h
+config.status: creating hl/tools/Makefile
+config.status: creating hl/tools/gif2h5/Makefile
+config.status: creating hl/tools/gif2h5/h52giftest.sh
+config.status: creating hl/tools/h5watch/Makefile
+config.status: creating hl/tools/h5watch/testh5watch.sh
+config.status: creating hl/examples/Makefile
+config.status: creating hl/examples/run-hlc-ex.sh
+config.status: creating hl/c++/Makefile
+config.status: creating hl/c++/src/Makefile
+config.status: creating hl/c++/test/Makefile
+config.status: creating hl/c++/examples/Makefile
+config.status: creating hl/c++/examples/run-hlc++-ex.sh
+config.status: creating hl/fortran/Makefile
+config.status: creating hl/fortran/src/Makefile
+config.status: creating hl/fortran/test/Makefile
+config.status: creating hl/fortran/examples/Makefile
+config.status: creating hl/fortran/examples/run-hlfortran-ex.sh
+config.status: creating src/H5config.h
+config.status: executing pubconf commands
+creating src/H5pubconf.h
+Post process src/libhdf5.settings
+config.status: executing depfiles commands
+config.status: executing libtool commands
+config.status: executing .classes commands
+	    SUMMARY OF THE HDF5 CONFIGURATION
+	    =================================
+
+General Information:
+-------------------
+                   HDF5 Version: 1.12.0
+                  Configured on: Sun May  8 12:03:04 EDT 2022
+                  Configured by: mrodri97@login006.oscar.ccv.brown.edu
+                    Host system: x86_64-unknown-linux-gnu
+              Uname information: Linux login006.oscar.ccv.brown.edu 3.10.0-1062.el7.x86_64 #1 SMP Thu Jul 18 20:25:13 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+                       Byte sex: little-endian
+             Installation point: /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build
+
+Compiling Options:
+------------------
+                     Build Mode: debug
+              Debugging Symbols: yes
+                        Asserts: yes
+                      Profiling: no
+             Optimization Level: debug
+
+Linking Options:
+----------------
+                      Libraries: static, shared
+  Statically Linked Executables: 
+                        LDFLAGS: 
+                     H5_LDFLAGS: 
+                     AM_LDFLAGS: 
+                Extra libraries: -lz -ldl -lm 
+                       Archiver: ar
+                       AR_FLAGS: cr
+                         Ranlib: ranlib
+
+Languages:
+----------
+                              C: yes
+                     C Compiler: /gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin/mpicc
+                       CPPFLAGS: 
+                    H5_CPPFLAGS: -D_GNU_SOURCE -D_POSIX_C_SOURCE=200809L   -UNDEBUG -DH5AC_DEBUG -DH5B2_DEBUG -DH5CX_DEBUG -DH5D_DEBUG -DH5F_DEBUG -DH5HL_DEBUG -DH5I_DEBUG -DH5O_DEBUG -DH5S_DEBUG -DH5ST_DEBUG -DH5T_DEBUG -DH5Z_DEBUG -DH5_DEBUG_API
+                    AM_CPPFLAGS: 
+                        C Flags: 
+                     H5 C Flags:     
+                     AM C Flags: 
+               Shared C Library: yes
+               Static C Library: yes
+
+
+                        Fortran: no
+
+                            C++: no
+
+                           Java: no
+
+
+Features:
+---------
+                   Parallel HDF5: yes
+Parallel Filtered Dataset Writes: yes
+              Large Parallel I/O: yes
+              High-level library: yes
+                Build HDF5 Tests: yes
+                Build HDF5 Tools: yes
+                    Threadsafety: no
+             Default API mapping: v112
+  With deprecated public symbols: yes
+          I/O filters (external): deflate(zlib)
+                             MPE: 
+                   Map (H5M) API: no
+                      Direct VFD: no
+              (Read-Only) S3 VFD: no
+            (Read-Only) HDFS VFD: no
+                         dmalloc: no
+  Packages w/ extra debug output: AC,B2,CX,D,F,HL,I,O,S,ST,T,Z
+                     API tracing: yes
+            Using memory checker: no
+ Memory allocation sanity checks: yes
+          Function stack tracing: no
+       Strict file format checks: yes
+    Optimization instrumentation: yes
+Making all in src
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+make  all-am
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+  CC       H5checksum.lo
+  CC       H5make_libsettings.o
+  CC       H5.lo
+  CC       H5timer.lo
+  CC       H5trace.lo
+  CC       H5dbg.lo
+  CC       H5system.lo
+  CC       H5A.lo
+  CC       H5Abtree2.lo
+  CC       H5Adense.lo
+  CC       H5Adeprec.lo
+  CC       H5Aint.lo
+  CC       H5Atest.lo
+  CC       H5AC.lo
+  CC       H5ACdbg.lo
+  CC       H5ACproxy_entry.lo
+  CC       H5B.lo
+  CC       H5Bcache.lo
+  CC       H5Bdbg.lo
+  CC       H5B2.lo
+  CC       H5B2cache.lo
+  CC       H5B2dbg.lo
+  CC       H5B2hdr.lo
+  CC       H5B2int.lo
+  CC       H5B2internal.lo
+  CC       H5B2leaf.lo
+  CC       H5B2stat.lo
+  CC       H5B2test.lo
+  CC       H5C.lo
+  CC       H5Cdbg.lo
+  CC       H5Cepoch.lo
+"H5C.c", line 1148: warning: statement is unreachable
+  			break;
+  			^
+
+  CC       H5Cimage.lo
+"H5C.c", line 2831: warning: statement is unreachable
+                   break;
+                   ^
+
+"H5C.c", line 3456: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5C.c", line 4207: warning: statement is unreachable
+                      break;
+                      ^
+
+"H5C.c", line 4218: warning: statement is unreachable
+                      break;
+                      ^
+
+"H5C.c", line 4938: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5C.c", line 4958: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5C.c", line 4987: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5C.c", line 4998: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5C.c", line 8130: warning: statement is unreachable
+                  break;
+                  ^
+
+  CC       H5Clog.lo
+  CC       H5Clog_json.lo
+  CC       H5Clog_trace.lo
+  CC       H5Cprefetched.lo
+  CC       H5Cquery.lo
+"H5Cprefetched.c", line 284: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5Ctag.lo
+  CC       H5Ctest.lo
+  CC       H5CS.lo
+  CC       H5CX.lo
+  CC       H5D.lo
+  CC       H5Dbtree.lo
+  CC       H5Dbtree2.lo
+  CC       H5Dchunk.lo
+  CC       H5Dcompact.lo
+"H5Dchunk.c", line 1878: warning: argument of type "const H5S_t *" is incompatible with parameter of type "H5S_t *"
+              if(H5S_combine_hyperslab(fm->file_space, H5S_SELECT_AND, coords, NULL, fm->chunk_dim, NULL, &tmp_fchunk) < 0)
+                                       ^
+
+"H5Dchunk.c", line 4487: warning: a value of type "const H5O_storage_chunk_t *" cannot be assigned to an entity of type "H5O_storage_chunk_t *"
+      idx_info.storage = sc;
+                       ^
+
+"H5Dchunk.c", line 6115: warning: argument of type "const H5T_t *" is incompatible with parameter of type "H5T_t *"
+              if(H5O_copy_expand_ref(udata->file_src, udata->tid_src, udata->dt_src, buf, nbytes, udata->idx_info_dst->f, bkg, udata->cpy_info) < 0)
+                                                                      ^
+
+  CC       H5Dcontig.lo
+  CC       H5Ddbg.lo
+  CC       H5Ddeprec.lo
+  CC       H5Dearray.lo
+  CC       H5Defl.lo
+  CC       H5Dfarray.lo
+  CC       H5Dfill.lo
+  CC       H5Dint.lo
+  CC       H5Dio.lo
+"H5Dint.c", line 2253: warning: return value type does not match the function type
+      FUNC_LEAVE_NOAPI(dataset ? &(dataset->path) : NULL)
+      ^
+
+"H5Dio.c", line 1156: warning: enumerated type mixed with another type
+                  for (cause = 1, idx = 0;
+                             ^
+
+  CC       H5Dlayout.lo
+  CC       H5Dnone.lo
+  CC       H5Doh.lo
+  CC       H5Dscatgath.lo
+  CC       H5Dselect.lo
+  CC       H5Dsingle.lo
+  CC       H5Dtest.lo
+  CC       H5Dvirtual.lo
+  CC       H5E.lo
+  CC       H5Edeprec.lo
+  CC       H5Eint.lo
+  CC       H5EA.lo
+  CC       H5EAcache.lo
+  CC       H5EAdbg.lo
+  CC       H5EAdblkpage.lo
+  CC       H5EAdblock.lo
+  CC       H5EAhdr.lo
+  CC       H5EAiblock.lo
+  CC       H5EAint.lo
+  CC       H5EAsblock.lo
+  CC       H5EAstat.lo
+  CC       H5EAtest.lo
+  CC       H5F.lo
+  CC       H5Faccum.lo
+  CC       H5Fcwfs.lo
+  CC       H5Fdbg.lo
+  CC       H5Fdeprec.lo
+  CC       H5Fefc.lo
+  CC       H5Ffake.lo
+  CC       H5Fint.lo
+  CC       H5Fio.lo
+  CC       H5Fmount.lo
+"H5Fint.c", line 1671: warning: statement is unreachable
+          if(H5P_get(a_plist, H5F_ACS_PAGE_BUFFER_MIN_META_PERC_NAME, &page_buf_min_meta_perc) < 0)
+          ^
+
+"H5Fint.c", line 3412: warning: variable "oloc" was set but never used
+              H5O_loc_t *oloc;            /* object location */
+                         ^
+
+  CC       H5Fquery.lo
+  CC       H5Fsfile.lo
+  CC       H5Fspace.lo
+  CC       H5Fsuper.lo
+  CC       H5Fsuper_cache.lo
+  CC       H5Ftest.lo
+  CC       H5FA.lo
+  CC       H5FAcache.lo
+  CC       H5FAdbg.lo
+  CC       H5FAdblock.lo
+  CC       H5FAdblkpage.lo
+  CC       H5FAhdr.lo
+  CC       H5FAint.lo
+  CC       H5FAstat.lo
+  CC       H5FAtest.lo
+  CC       H5FD.lo
+  CC       H5FDcore.lo
+  CC       H5FDfamily.lo
+"H5FDfamily.c", line 1158: warning: variable "plist" was set but never used
+      H5P_genplist_t      *plist;      /* Property list pointer */
+                           ^
+
+"H5FDfamily.c", line 1227: warning: variable "plist" was set but never used
+      H5P_genplist_t *plist;      /* Property list pointer */
+                      ^
+
+  CC       H5FDhdfs.lo
+  CC       H5FDint.lo
+  CC       H5FDlog.lo
+  CC       H5FDmulti.lo
+  CC       H5FDsec2.lo
+  CC       H5FDspace.lo
+  CC       H5FDstdio.lo
+  CC       H5FDtest.lo
+  CC       H5FL.lo
+  CC       H5FO.lo
+  CC       H5FS.lo
+  CC       H5FScache.lo
+  CC       H5FSdbg.lo
+  CC       H5FSint.lo
+  CC       H5FSsection.lo
+  CC       H5FSstat.lo
+  CC       H5FStest.lo
+  CC       H5G.lo
+  CC       H5Gbtree2.lo
+  CC       H5Gcache.lo
+  CC       H5Gcompact.lo
+  CC       H5Gdense.lo
+  CC       H5Gdeprec.lo
+  CC       H5Gent.lo
+  CC       H5Gint.lo
+  CC       H5Glink.lo
+  CC       H5Gloc.lo
+"H5Gint.c", line 587: warning: return value type does not match the function type
+      FUNC_LEAVE_NOAPI(grp ? &(grp->path) : NULL)
+      ^
+
+  CC       H5Gname.lo
+  CC       H5Gnode.lo
+  CC       H5Gobj.lo
+  CC       H5Goh.lo
+  CC       H5Groot.lo
+  CC       H5Gstab.lo
+  CC       H5Gtest.lo
+  CC       H5Gtraverse.lo
+  CC       H5HF.lo
+  CC       H5HFbtree2.lo
+  CC       H5HFcache.lo
+  CC       H5HFdbg.lo
+"H5HFcache.c", line 772: warning: a value of type "const H5F_t *" cannot be assigned to an entity of type "H5F_t *"
+      hdr->f = f;
+             ^
+
+"H5HFcache.c", line 1362: warning: a value of type "const H5F_t *" cannot be assigned to an entity of type "H5F_t *"
+      hdr->f = f;
+             ^
+
+"H5HFcache.c", line 1520: warning: statement is unreachable
+              break;
+              ^
+
+"H5HFcache.c", line 2537: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5HFdblock.lo
+  CC       H5HFdtable.lo
+  CC       H5HFhdr.lo
+  CC       H5HFhuge.lo
+  CC       H5HFiblock.lo
+  CC       H5HFiter.lo
+  CC       H5HFman.lo
+  CC       H5HFsection.lo
+  CC       H5HFspace.lo
+  CC       H5HFstat.lo
+  CC       H5HFtest.lo
+  CC       H5HFtiny.lo
+  CC       H5HG.lo
+  CC       H5HGcache.lo
+  CC       H5HGdbg.lo
+  CC       H5HGquery.lo
+  CC       H5HL.lo
+  CC       H5HLcache.lo
+  CC       H5HLdbg.lo
+  CC       H5HLint.lo
+  CC       H5HLprfx.lo
+  CC       H5HLdblk.lo
+"H5HLcache.c", line 923: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5HP.lo
+  CC       H5I.lo
+  CC       H5Itest.lo
+  CC       H5L.lo
+  CC       H5Ldeprec.lo
+"H5I.c", line 2140: warning: variable "iter_status" was set but never used
+          herr_t iter_status;             /* Iteration status */
+                 ^
+
+"H5I.c", line 2316: warning: argument of type "const void *" is incompatible with parameter of type "void *"
+      obj_ptr = H5I__unwrap(item->obj_ptr, type);
+                            ^
+
+"H5I.c", line 2358: warning: variable "iter_status" was set but never used
+          herr_t iter_status;       /* Iteration status */
+                 ^
+
+"H5L.c", line 2887: warning: variable "lc_plist" was set but never used
+      H5P_genplist_t* lc_plist;           /* Link creation property list */
+                      ^
+
+  CC       H5Lexternal.lo
+  CC       H5M.lo
+  CC       H5MF.lo
+  CC       H5MFaggr.lo
+"H5MF.c", line 1000: warning: statement is unreachable
+              break;
+              ^
+
+"H5MF.c", line 2218: warning: variable "fs_eoa" was set but never used
+      haddr_t fs_eoa[H5FD_MEM_NTYPES];        /* EAO for each free-space manager */
+              ^
+
+"H5MF.c", line 3397: warning: pointless comparison of unsigned integer with zero
+      HDassert(fsm_type >= H5F_MEM_PAGE_DEFAULT);
+      ^
+
+  CC       H5MFdbg.lo
+  CC       H5MFsection.lo
+  CC       H5MM.lo
+  CC       H5MP.lo
+  CC       H5MPtest.lo
+  CC       H5O.lo
+  CC       H5Odeprec.lo
+  CC       H5Oainfo.lo
+  CC       H5Oalloc.lo
+"H5O.c", line 1258: warning: statement is unreachable
+          break;
+          ^
+
+  CC       H5Oattr.lo
+  CC       H5Oattribute.lo
+  CC       H5Obogus.lo
+  CC       H5Obtreek.lo
+  CC       H5Ocache.lo
+  CC       H5Ocache_image.lo
+  CC       H5Ochunk.lo
+  CC       H5Ocont.lo
+  CC       H5Ocopy.lo
+  CC       H5Ocopy_ref.lo
+  CC       H5Odbg.lo
+  CC       H5Odrvinfo.lo
+"H5Ocopy_ref.c", line 494: warning: statement is unreachable
+          break;
+          ^
+
+  CC       H5Odtype.lo
+  CC       H5Oefl.lo
+  CC       H5Ofill.lo
+  CC       H5Oflush.lo
+  CC       H5Ofsinfo.lo
+  CC       H5Oginfo.lo
+  CC       H5Oint.lo
+"H5Oflush.c", line 501: warning: statement is unreachable
+          break;
+          ^
+
+  CC       H5Olayout.lo
+  CC       H5Olinfo.lo
+"H5Olayout.c", line 302: warning: statement is unreachable
+                              break;
+                              ^
+
+"H5Olayout.c", line 634: warning: statement is unreachable
+                          break;
+                          ^
+
+  CC       H5Olink.lo
+  CC       H5Omessage.lo
+  CC       H5Omtime.lo
+  CC       H5Oname.lo
+  CC       H5Onull.lo
+  CC       H5Opline.lo
+  CC       H5Orefcount.lo
+  CC       H5Osdspace.lo
+  CC       H5Oshared.lo
+  CC       H5Oshmesg.lo
+  CC       H5Ostab.lo
+  CC       H5Otest.lo
+  CC       H5Ounknown.lo
+  CC       H5P.lo
+  CC       H5Pacpl.lo
+  CC       H5Pdapl.lo
+  CC       H5Pdcpl.lo
+  CC       H5Pdeprec.lo
+  CC       H5Pdxpl.lo
+  CC       H5Pencdec.lo
+  CC       H5Pfapl.lo
+  CC       H5Pfcpl.lo
+"H5Pfapl.c", line 4494: warning: variable "plist" was set but never used
+      H5P_genplist_t *plist;          /* property list pointer */
+                      ^
+
+  CC       H5Pfmpl.lo
+  CC       H5Pgcpl.lo
+  CC       H5Pint.lo
+  CC       H5Plapl.lo
+  CC       H5Plcpl.lo
+"H5Pint.c", line 5482: warning: pointless comparison of unsigned integer with zero
+      HDassert(type >= H5P_TYPE_USER && type <= H5P_TYPE_REFERENCE_ACCESS);
+      ^
+
+  CC       H5Pmapl.lo
+  CC       H5Pmcpl.lo
+  CC       H5Pocpl.lo
+  CC       H5Pocpypl.lo
+"H5Pocpl.c", line 740: warning: variable "filter_avail" was set but never used
+      htri_t          filter_avail;           /* Filter availability */
+                      ^
+
+  CC       H5Pstrcpl.lo
+  CC       H5Ptest.lo
+  CC       H5PB.lo
+  CC       H5PL.lo
+  CC       H5PLint.lo
+  CC       H5PLpath.lo
+  CC       H5PLplugin_cache.lo
+  CC       H5R.lo
+  CC       H5Rdeprec.lo
+  CC       H5Rint.lo
+  CC       H5UC.lo
+  CC       H5RS.lo
+  CC       H5S.lo
+  CC       H5Sall.lo
+  CC       H5Sdbg.lo
+  CC       H5Sdeprec.lo
+  CC       H5Shyper.lo
+  CC       H5Snone.lo
+"H5Shyper.c", line 3708: warning: statement is unreachable
+              break;
+              ^
+
+"H5Shyper.c", line 4078: warning: statement is unreachable
+                      break;
+                      ^
+
+"H5Shyper.c", line 4181: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Shyper.c", line 4368: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Shyper.c", line 4401: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Shyper.c", line 4434: warning: statement is unreachable
+                      break;
+                      ^
+
+  CC       H5Spoint.lo
+  CC       H5Sselect.lo
+"H5Spoint.c", line 1156: warning: statement is unreachable
+              break;
+              ^
+
+"H5Spoint.c", line 1340: warning: statement is unreachable
+              break;
+              ^
+
+"H5Spoint.c", line 1455: warning: statement is unreachable
+              break;
+              ^
+
+"H5Spoint.c", line 1480: warning: statement is unreachable
+                      break;
+                      ^
+
+  CC       H5Stest.lo
+  CC       H5SL.lo
+"H5SL.c", line 1002: warning: pointless comparison of unsigned integer with zero
+      HDassert(type >= H5SL_TYPE_INT && type <= H5SL_TYPE_GENERIC);
+      ^
+
+"H5SL.c", line 1222: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1226: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1230: warning: statement is unreachable
+              H5SL_REMOVE(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1234: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1238: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1242: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1246: warning: statement is unreachable
+              H5SL_REMOVE(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1250: warning: statement is unreachable
+              H5SL_REMOVE(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1254: warning: statement is unreachable
+              H5SL_REMOVE(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1416: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1420: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1424: warning: statement is unreachable
+              H5SL_SEARCH(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1428: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1432: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1436: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1440: warning: statement is unreachable
+              H5SL_SEARCH(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1444: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1448: warning: statement is unreachable
+              H5SL_SEARCH(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1512: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1516: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1520: warning: statement is unreachable
+              H5SL_SEARCH(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1524: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1528: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1532: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1536: warning: statement is unreachable
+              H5SL_SEARCH(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1540: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1544: warning: statement is unreachable
+              H5SL_SEARCH(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1621: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1625: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1629: warning: statement is unreachable
+              H5SL_SEARCH(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1633: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1637: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1641: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1645: warning: statement is unreachable
+              H5SL_SEARCH(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1649: warning: statement is unreachable
+              H5SL_SEARCH(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1653: warning: statement is unreachable
+              H5SL_SEARCH(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1717: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1721: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1725: warning: statement is unreachable
+              H5SL_FIND(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1729: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1733: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1737: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1741: warning: statement is unreachable
+              H5SL_FIND(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1745: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1749: warning: statement is unreachable
+              H5SL_FIND(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1810: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1814: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1818: warning: statement is unreachable
+              H5SL_FIND(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1822: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1826: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1830: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1834: warning: statement is unreachable
+              H5SL_FIND(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1838: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1842: warning: statement is unreachable
+              H5SL_FIND(GENERIC, slist, x, const void, key, -)
+              ^
+
+"H5SL.c", line 1916: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const int, key, -)
+              ^
+
+"H5SL.c", line 1920: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const haddr_t, key, -)
+              ^
+
+"H5SL.c", line 1924: warning: statement is unreachable
+              H5SL_FIND(STRING, slist, x, char *, key, hashval)
+              ^
+
+"H5SL.c", line 1928: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hsize_t, key, -)
+              ^
+
+"H5SL.c", line 1932: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const unsigned, key, -)
+              ^
+
+"H5SL.c", line 1936: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const size_t, key, -)
+              ^
+
+"H5SL.c", line 1940: warning: statement is unreachable
+              H5SL_FIND(OBJ, slist, x, const H5_obj_t, key, -)
+              ^
+
+"H5SL.c", line 1944: warning: statement is unreachable
+              H5SL_FIND(SCALAR, slist, x, const hid_t, key, -)
+              ^
+
+"H5SL.c", line 1948: warning: statement is unreachable
+              H5SL_FIND(GENERIC, slist, x, const void, key, -)
+              ^
+
+  CC       H5SM.lo
+  CC       H5SMbtree2.lo
+  CC       H5SMcache.lo
+  CC       H5SMmessage.lo
+  CC       H5SMtest.lo
+  CC       H5ST.lo
+  CC       H5T.lo
+  CC       H5Tarray.lo
+"H5T.c", line 2115: warning: statement is unreachable
+              break;
+              ^
+
+"H5T.c", line 4589: warning: pointless comparison of unsigned integer with zero
+              HDassert(dt1->shared->u.vlen.loc>=H5T_LOC_BADLOC && dt1->shared->u.vlen.loc<H5T_LOC_MAXLOC);
+              ^
+
+"H5T.c", line 4590: warning: pointless comparison of unsigned integer with zero
+              HDassert(dt2->shared->u.vlen.loc>=H5T_LOC_BADLOC && dt2->shared->u.vlen.loc<H5T_LOC_MAXLOC);
+              ^
+
+"H5T.c", line 5375: warning: a value of type "const H5G_name_t *" cannot be assigned to an entity of type "H5G_name_t *"
+              ret_value = &(dt->path);
+                        ^
+
+"H5T.c", line 5624: warning: pointless comparison of unsigned integer with zero
+      HDassert(loc>=H5T_LOC_BADLOC && loc<H5T_LOC_MAXLOC);
+      ^
+
+"H5T.c", line 5833: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5Tbit.lo
+  CC       H5Tcommit.lo
+  CC       H5Tcompound.lo
+  CC       H5Tconv.lo
+  CC       H5Tcset.lo
+  CC       H5Tdbg.lo
+  CC       H5Tdeprec.lo
+"H5Tdbg.c", line 166: warning: statement is unreachable
+              break;
+              ^
+
+"H5Tdbg.c", line 247: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Tdbg.c", line 281: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Tdbg.c", line 287: warning: statement is unreachable
+                          break;
+                          ^
+
+"H5Tdbg.c", line 311: warning: statement is unreachable
+                          break;
+                          ^
+
+"H5Tdbg.c", line 381: warning: statement is unreachable
+                  break;
+                  ^
+
+  CC       H5Tenum.lo
+  CC       H5Tfields.lo
+  CC       H5Tfixed.lo
+  CC       H5Tfloat.lo
+  CC       H5detect.o
+  CC       H5Tnative.lo
+  CC       H5Toffset.lo
+  CC       H5Toh.lo
+  CC       H5Topaque.lo
+  CC       H5Torder.lo
+  CC       H5Tref.lo
+  CC       H5Tpad.lo
+  CC       H5Tprecis.lo
+"H5Tref.c", line 139: warning: pointless comparison of unsigned integer with zero
+      HDassert(loc >= H5T_LOC_BADLOC && loc < H5T_LOC_MAXLOC);
+      ^
+
+  CC       H5Tstrpad.lo
+  CC       H5Tvisit.lo
+  CC       H5Tvlen.lo
+  CC       H5TS.lo
+"H5Tvisit.c", line 141: warning: statement is unreachable
+              break;
+              ^
+
+"H5Tvlen.c", line 265: warning: pointless comparison of unsigned integer with zero
+      HDassert(loc >= H5T_LOC_BADLOC && loc < H5T_LOC_MAXLOC);
+      ^
+
+"H5Tvlen.c", line 1153: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5VL.lo
+  CC       H5VLcallback.lo
+  CC       H5VLint.lo
+  CC       H5VLnative.lo
+"H5VLcallback.c", line 5943: warning: pointless comparison of unsigned integer with zero
+      HDassert(lvl >= H5VL_GET_CONN_LVL_CURR && lvl <= H5VL_GET_CONN_LVL_TERM);
+      ^
+
+  CC       H5VLnative_attr.lo
+  CC       H5VLnative_blob.lo
+  CC       H5VLnative_dataset.lo
+  CC       H5VLnative_datatype.lo
+  CC       H5VLnative_file.lo
+"H5VLnative_file.c", line 147: warning: variable "new_plist" was set but never used
+                  H5P_genplist_t *new_plist;              /* New property list */
+                                  ^
+
+"H5VLnative_file.c", line 409: warning: statement is unreachable
+                  break;
+                  ^
+
+  CC       H5VLnative_group.lo
+  CC       H5VLnative_link.lo
+  CC       H5VLnative_introspect.lo
+  CC       H5VLnative_object.lo
+  CC       H5VLnative_token.lo
+  CC       H5VLpassthru.lo
+  CC       H5VM.lo
+  CC       H5WB.lo
+  CC       H5Z.lo
+  CC       H5Zdeflate.lo
+  CC       H5Zfletcher32.lo
+  CC       H5Znbit.lo
+  CC       H5Zshuffle.lo
+  CC       H5Zscaleoffset.lo
+"H5Znbit.c", line 284: warning: statement is unreachable
+              break;
+              ^
+
+"H5Znbit.c", line 384: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Znbit.c", line 631: warning: statement is unreachable
+              break;
+              ^
+
+"H5Znbit.c", line 773: warning: statement is unreachable
+                  break;
+                  ^
+
+"H5Znbit.c", line 870: warning: statement is unreachable
+              break;
+              ^
+
+"H5Znbit.c", line 941: warning: statement is unreachable
+              break;
+              ^
+
+  CC       H5Zszip.lo
+  CC       H5Ztrans.lo
+  CC       H5mpi.lo
+  CC       H5ACmpio.lo
+"H5ACmpio.c", line 534: warning: statement is unreachable
+  	    break;
+  	    ^
+
+"H5ACmpio.c", line 2150: warning: statement is unreachable
+  		    break;
+  		    ^
+
+"H5ACmpio.c", line 2168: warning: statement is unreachable
+  		    break;
+  		    ^
+
+"H5ACmpio.c", line 2174: warning: statement is unreachable
+  	    break;
+  	    ^
+
+  CC       H5Cmpio.lo
+  CC       H5Dmpio.lo
+  CC       H5Fmpi.lo
+  CC       H5FDmpi.lo
+  CC       H5FDmpio.lo
+  CC       H5Smpio.lo
+  CCLD     H5make_libsettings
+  CCLD     H5detect
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH`echo  |                  \
+	sed -e 's/-L/:/g' -e 's/ //g'`"                               \
+ ./H5make_libsettings  H5lib_settings.c  ||                               \
+    (test $HDF5_Make_Ignore && echo "*** Error ignored") ||          \
+    (rm -f H5lib_settings.c ; exit 1)
+  CC       H5lib_settings.lo
+LD_LIBRARY_PATH="$LD_LIBRARY_PATH`echo  |                  \
+	sed -e 's/-L/:/g' -e 's/ //g'`"                               \
+ ./H5detect  H5Tinit.c  ||                               \
+    (test $HDF5_Make_Ignore && echo "*** Error ignored") ||          \
+    (rm -f H5Tinit.c ; exit 1)
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       CC       H5Tinit.lo
+  CCLD     libhdf5.la
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+Making all in test
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+  CC       h5test.lo
+  CC       testframe.lo
+  CC       cache_common.lo
+  CC       external_common.lo
+  CC       filter_plugin3_dsets.lo
+  CC       filter_plugin1_dsets.lo
+  CC       swmr_common.lo
+  CC       filter_plugin2_dsets.lo
+  CC       filter_plugin4_groups.lo
+  CC       null_vol_connector.lo
+  CC       testhdf5.o
+  CC       tarray.o
+  CC       tattr.o
+  CC       tchecksum.o
+  CC       tconfig.o
+  CC       tfile.o
+  CC       tgenprop.o
+  CC       th5o.o
+  CC       th5s.o
+  CC       tcoords.o
+  CC       theap.o
+  CC       tid.o
+  CC       titerate.o
+  CC       tmeta.o
+  CC       tmisc.o
+  CC       trefer.o
+  CC       trefer_deprec.o
+  CC       trefstr.o
+  CC       tselect.o
+  CC       tskiplist.o
+  CC       tsohm.o
+  CC       ttime.o
+  CC       ttst.o
+  CC       tunicode.o
+  CC       tvlstr.o
+  CC       tvltypes.o
+  CC       cache.o
+  CC       cache_api.o
+  CC       cache_image.o
+"cache.c", line 317: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 524: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 730: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 937: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 1192: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 1438: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 1681: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 1926: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 2132: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 2460: warning: statement is unreachable
+          break;
+          ^
+
+"cache.c", line 2778: warning: statement is unreachable
+          break;
+          ^
+
+  CC       genall5.o
+  CC       cache_tagging.o
+"cache_tagging.c", line 2772: warning: variable "dsize" was set but never used
+      hsize_t dsize = 0;
+              ^
+
+  CC       lheap.o
+  CC       ohdr.o
+  CC       stab.o
+  CC       gheap.o
+  CC       evict_on_close.o
+  CC       farray.o
+  CC       earray.o
+  CC       btree2.o
+  CC       fheap.o
+  CC       pool.o
+  CC       accum.o
+  CC       hyperslab.o
+  CC       istore.o
+  CC       bittests.o
+  CC       dt_arith.o
+  CC       page_buffer.o
+"dt_arith.c", line 73: warning: variable "skip_overflow_tests_g" was set but never used
+  static int skip_overflow_tests_g = 0;
+             ^
+
+  CC       dtypes.o
+"dtypes.c", line 7648: warning: variable "filep" was set but never used
+      H5F_t *filep = NULL;       /* Pointer to internal structure of a file */
+             ^
+
+  CC       dsets.o
+"dsets.c", line 9459: warning: variable "ret" was set but never used
+      herr_t      ret;                /* Generic return value */
+                  ^
+
+"dsets.c", line 9859: warning: variable "ret" was set but never used
+      herr_t      ret;                /* Generic return value */
+                  ^
+
+  CC       chunk_info.o
+  CC       cmpd_dset.o
+  CC       filter_fail.o
+  CC       extend.o
+  CC       direct_chunk.o
+"direct_chunk.c", line 127: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+"direct_chunk.c", line 492: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+"direct_chunk.c", line 744: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+"direct_chunk.c", line 946: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+"direct_chunk.c", line 947: warning: variable "n" was set but never used
+      int         i, j, n;
+                        ^
+
+  CC       external.o
+"direct_chunk.c", line 1166: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+"direct_chunk.c", line 1381: warning: variable "status" was set but never used
+      herr_t      status;             /* status from H5 function calls */
+                  ^
+
+"direct_chunk.c", line 1549: warning: variable "status" was set but never used
+      herr_t      status;             /* status from H5 function calls */
+                  ^
+
+"direct_chunk.c", line 1740: warning: variable "status" was set but never used
+      herr_t      status;
+                  ^
+
+  CC       efc.o
+  CC       objcopy.o
+  CC       objcopy_ref.o
+  CC       links.o
+"links.c", line 14812: warning: variable "f" was set but never used
+      H5F_t       *f = NULL;
+                   ^
+
+"links.c", line 15304: warning: variable "f" was set but never used
+      H5F_t       *f = NULL;
+                   ^
+
+  CC       unlink.o
+  CC       twriteorder.o
+"twriteorder.c", line 172: warning: statement is unreachable
+                          break;
+                          ^
+
+"twriteorder.c", line 231: warning: variable "bytes_wrote" was set but never used
+      h5_posix_io_ret_t   bytes_wrote     = -1;   /* # of bytes written   */ 
+                          ^
+
+"twriteorder.c", line 255: warning: variable "bytes_wrote" was set but never used
+      h5_posix_io_ret_t   bytes_wrote     = -1;   /* # of bytes written   */ 
+                          ^
+
+"twriteorder.c", line 302: warning: variable "bytes_read" was set but never used
+      h5_posix_io_ret_t   bytes_read      = -1;   /* # of bytes actually read */
+                          ^
+
+"twriteorder.c", line 362: warning: variable "tmppid" was set but never used
+      pid_t mypid, tmppid;
+                   ^
+
+  CC       big.o
+"big.c", line 390: warning: statement is unreachable
+          break;
+          ^
+
+"big.c", line 395: warning: statement is unreachable
+          break;
+          ^
+
+  CC       mtime.o
+  CC       fillval.o
+"fillval.c", line 2127: warning: variable "ret" was set but never used
+      herr_t    ret;
+                ^
+
+  CC       mount.o
+  CC       flush1.o
+  CC       flush2.o
+  CC       app_ref.o
+  CC       enum.o
+  CC       set_extent.o
+  CC       ttsafe.o
+  CC       ttsafe_dcreate.o
+  CC       ttsafe_error.o
+  CC       ttsafe_cancel.o
+  CC       ttsafe_acreate.o
+  CC       enc_dec_plist.o
+  CC       enc_dec_plist_cross_platform.o
+  CC       getname.o
+"getname.c", line 108: warning: variable "size" was set but never used
+      ssize_t    size;       /* Size returned by H5Iget_name */
+                 ^
+
+  CC       vfd.o
+  CC       ros3.o
+  CC       s3comms.o
+  CC       hdfs.o
+  CC       ntypes.o
+  CC       dangle.o
+"dangle.c", line 340: warning: variable "did" was set but never used
+      hid_t       did;                    /* Dataset ID */
+                  ^
+
+"dangle.c", line 531: warning: variable "gid" was set but never used
+      hid_t gid, gid2;  /* Group IDs */
+            ^
+
+"dangle.c", line 534: warning: variable "aid" was set but never used
+      hid_t aid, aid2;  /* Attribute IDs */
+            ^
+
+"dangle.c", line 535: warning: variable "tid2" was set but never used
+      hid_t tid, tid2;  /* Named datatype IDs */
+                 ^
+
+  CC       dtransform.o
+  CC       reserved.o
+  CC       cross_read.o
+  CC       freespace.o
+  CC       mf.o
+  CC       vds.o
+"mf.c", line 6744: warning: variable "addr2" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                     ^
+
+"mf.c", line 6744: warning: variable "addr4" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                                   ^
+
+"mf.c", line 6744: warning: variable "addr6" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                                                 ^
+
+"mf.c", line 6914: warning: variable "addr2" was set but never used
+      haddr_t addr1, addr2, addr3, addr4;     /* File address for H5FD_MEM_SUPER */
+                     ^
+
+"mf.c", line 6915: warning: variable "addrx" was set but never used
+      haddr_t addrx;
+              ^
+
+"mf.c", line 7099: warning: variable "addr2" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                     ^
+
+"mf.c", line 7099: warning: variable "addr4" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                                   ^
+
+"mf.c", line 7099: warning: variable "addr6" was set but never used
+      haddr_t addr1, addr2, addr3, addr4, addr5, addr6; /* File address for H5FD_MEM_SUPER */
+                                                 ^
+
+"mf.c", line 8894: warning: statement is unreachable
+                  break;
+                  ^
+
+"vds.c", line 323: warning: pointless comparison of unsigned integer with zero
+      HDassert((config >= TEST_API_BASIC) && (config < TEST_API_NTESTS));
+      ^
+
+  CC       file_image.o
+  CC       unregister.o
+  CC       cache_logging.o
+  CC       cork.o
+  CC       swmr.o
+  CC       vol.o
+"swmr.c", line 2375: warning: variable "tmppid" was set but never used
+      pid_t tmppid;           /* Child process ID returned by waitpid */
+            ^
+
+"swmr.c", line 2378: warning: variable "child_exit_val" was set but never used
+      int child_exit_val;         /* Exit status of the child */
+          ^
+
+"swmr.c", line 6118: warning: variable "child_fid" was set but never used
+          hid_t child_fid;    /* File ID */
+                ^
+
+"swmr.c", line 6406: warning: variable "tmppid" was set but never used
+      pid_t tmppid;           /* Child process ID returned by waitpid */
+            ^
+
+"swmr.c", line 6409: warning: variable "child_exit_val" was set but never used
+      int child_exit_val;         /* Exit status of the child */
+          ^
+
+"vol.c", line 330: warning: variable "obj_count" was set but never used
+      ssize_t         obj_count;
+                      ^
+
+"vol.c", line 617: warning: variable "storage_size" was set but never used
+      hsize_t storage_size;
+              ^
+
+"vol.c", line 618: warning: variable "offset" was set but never used
+      haddr_t offset;
+              ^
+
+  CC       error_test.o
+  CC       err_compat.o
+"err_compat.c", line 238: warning: variable "ret" was set but never used
+      herr_t              ret;
+                          ^
+
+  CC       tcheck_version.o
+  CC       testmeta.o
+  CC       accum_swmr_reader.o
+  CC       atomic_writer.o
+  CC       atomic_reader.o
+  CC       external_env.o
+  CC       links_env.o
+  CC       filenotclosed.o
+  CC       del_many_dense_attrs.o
+  CC       flushrefresh.o
+  CC       use_append_chunk.o
+  CC       use_common.o
+"flushrefresh.c", line 260: warning: variable "status" was set but never used
+      hid_t fid,gid,gid2,gid3,sid,tid1,tid2,tid3,did,did2,did3,rid,fapl,status = 0;
+                                                                        ^
+
+"flushrefresh.c", line 585: warning: variable "status" was set but never used
+      herr_t status = 0;
+             ^
+
+"use_append_chunk.c", line 121: warning: variable "tmppid" was set but never used
+      pid_t mypid, tmppid;
+                   ^
+
+"flushrefresh.c", line 980: warning: variable "status" was set but never used
+      hid_t oid,fid,status = 0;
+                    ^
+
+  CC       use_append_mchunks.o
+  CC       use_disable_mdc_flushes.o
+"use_common.c", line 90: warning: statement is unreachable
+          break;
+          ^
+
+"use_append_mchunks.c", line 114: warning: variable "tmppid" was set but never used
+      pid_t mypid, tmppid;
+                   ^
+
+  CC       swmr_generator.o
+  CC       swmr_start_write.o
+  CC       swmr_reader.o
+  CC       swmr_writer.o
+  CC       swmr_remove_reader.o
+  CC       swmr_remove_writer.o
+  CC       swmr_addrem_writer.o
+  CC       swmr_sparse_reader.o
+  CC       swmr_sparse_writer.o
+  CC       swmr_check_compat_vfd.o
+  CC       vds_env.o
+  CC       vds_swmr_gen.o
+  CC       vds_swmr_reader.o
+  CC       vds_swmr_writer.o
+  CC       filter_plugin.o
+  CC       vol_plugin.o
+  CCLD     libh5test.la
+  CCLD     libfilter_plugin1_dsets.la
+  CCLD     libfilter_plugin2_dsets.la
+  CCLD     libfilter_plugin3_dsets.la
+  CCLD     libfilter_plugin4_groups.la
+  CCLD     libnull_vol_connector.la
+  CCLD     testhdf5
+  CCLD     cache_api
+  CCLD     cache_image
+  CCLD     cache_tagging
+  CCLD     lheap
+  CCLD     ohdr
+  CCLD     stab
+  CCLD     gheap
+  CCLD     evict_on_close
+  CCLD     farray
+  CCLD     earray
+  CCLD     btree2
+  CCLD     fheap
+  CCLD     pool
+  CCLD     accum
+  CCLD     hyperslab
+  CCLD     istore
+  CCLD     bittests
+  CCLD     dt_arith
+  CCLD     page_buffer
+  CCLD     dtypes
+  CCLD     dsets
+  CCLD     chunk_info
+  CCLD     cmpd_dset
+  CCLD     filter_fail
+  CCLD     extend
+  CCLD     direct_chunk
+  CCLD     external
+  CCLD     efc
+  CCLD     objcopy_ref
+  CCLD     unlink
+  CCLD     twriteorder
+  CCLD     big
+  CCLD     mtime
+  CCLD     fillval
+  CCLD     mount
+  CCLD     flush1
+  CCLD     flush2
+  CCLD     app_ref
+  CCLD     enum
+  CCLD     set_extent
+  CCLD     ttsafe
+  CCLD     enc_dec_plist
+  CCLD     enc_dec_plist_cross_platform
+  CCLD     getname
+  CCLD     vfd
+  CCLD     ros3
+  CCLD     s3comms
+  CCLD     hdfs
+  CCLD     ntypes
+  CCLD     dangle
+  CCLD     dtransform
+  CCLD     reserved
+  CCLD     cross_read
+  CCLD     freespace
+  CCLD     mf
+  CCLD     file_image
+  CCLD     unregister
+  CCLD     cache_logging
+  CCLD     cork
+  CCLD     swmr
+  CCLD     vol
+  CCLD     error_test
+  CCLD     err_compat
+  CCLD     tcheck_version
+  CCLD     testmeta
+  CCLD     accum_swmr_reader
+  CCLD     atomic_writer
+  CCLD     atomic_reader
+  CCLD     external_env
+  CCLD     links_env
+  CCLD     filenotclosed
+  CCLD     del_many_dense_attrs
+  CCLD     use_append_chunk
+  CCLD     flushrefresh
+  CCLD     use_append_mchunks
+  CCLD     use_disable_mdc_flushes
+  CCLD     swmr_generator
+  CCLD     swmr_start_write
+  CCLD     swmr_reader
+  CCLD     swmr_writer
+  CCLD     swmr_remove_reader
+  CCLD     swmr_remove_writer
+  CCLD     swmr_addrem_writer
+  CCLD     swmr_sparse_reader
+  CCLD     swmr_sparse_writer
+  CCLD     swmr_check_compat_vfd
+  CCLD     vds_env
+  CCLD     vds_swmr_gen
+  CCLD     vds_swmr_reader
+  CCLD     vds_swmr_writer
+  CCLD     filter_plugin
+  CCLD     vol_plugin
+  CCLD     cache
+  CCLD     vds
+  CCLD     objcopy
+  CCLD     links
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+Making all in testpar
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+  CC       t_mpi.o
+  CC       t_bigio.o
+  CC       testphdf5.o
+  CC       t_file.o
+  CC       t_dset.o
+  CC       t_file_image.o
+  CC       t_mdset.o
+  CC       t_ph5basic.o
+"t_mdset.c", line 1968: warning: variable "mrc" was set but never used
+      int mrc; /* mpi error code */
+          ^
+
+"t_dset.c", line 2960: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_write = -1;
+                                                                       ^
+
+"t_dset.c", line 2960: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_write = -1;
+                                                                       ^
+
+"t_dset.c", line 2961: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_read = -1;
+                                                                      ^
+
+"t_dset.c", line 2961: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_read = -1;
+                                                                      ^
+
+"t_dset.c", line 2962: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_expected = -1;
+                                                                          ^
+
+"t_dset.c", line 2962: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_expected = -1;
+                                                                          ^
+
+"t_dset.c", line 2963: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_write = -1;
+                                                         ^
+
+"t_dset.c", line 2963: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_write = -1;
+                                                         ^
+
+"t_dset.c", line 2964: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_read = -1;
+                                                        ^
+
+"t_dset.c", line 2964: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_read = -1;
+                                                        ^
+
+"t_dset.c", line 2965: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_expected = -1;
+                                                            ^
+
+"t_dset.c", line 2965: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_expected = -1;
+                                                            ^
+
+"t_dset.c", line 3220: warning: enumerated type mixed with another type
+              actual_chunk_opt_mode_expected = -1;
+                                             ^
+
+"t_dset.c", line 3220: warning: integer conversion resulted in a change of sign
+              actual_chunk_opt_mode_expected = -1;
+                                               ^
+
+"t_dset.c", line 3221: warning: enumerated type mixed with another type
+              actual_io_mode_expected = -1;
+                                      ^
+
+"t_dset.c", line 3221: warning: integer conversion resulted in a change of sign
+              actual_io_mode_expected = -1;
+                                        ^
+
+  CC       t_coll_chunk.o
+  CC       t_span_tree.o
+  CC       t_chunk_alloc.o
+  CC       t_filter_read.o
+  CC       t_prop.o
+  CC       t_coll_md_read.o
+  CC       t_cache.o
+  CC       t_cache_image.o
+  CC       t_pread.o
+  CC       t_pshutdown.o
+  CC       t_prestart.o
+  CC       t_init_term.o
+"t_pread.c", line 54: warning: variable "test_argv0" was set but never used
+  static char *test_argv0 = NULL;
+               ^
+
+  CC       t_shapesame.o
+  CC       t_filters_parallel.o
+  CC       t_2Gio.o
+  CC       t_pflush1.o
+  CC       t_pflush2.o
+"t_filters_parallel.c", line 202: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 359: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 520: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 684: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 855: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 983: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1138: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1303: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1466: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1632: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1806: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 1989: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 2180: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 2366: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 2555: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 2752: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 2952: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 3169: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 3379: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_2Gio.c", line 3358: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_write = -1;
+                                                                       ^
+
+"t_2Gio.c", line 3358: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_write = -1;
+                                                                       ^
+
+"t_2Gio.c", line 3359: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_read = -1;
+                                                                      ^
+
+"t_2Gio.c", line 3359: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_read = -1;
+                                                                      ^
+
+"t_2Gio.c", line 3360: warning: enumerated type mixed with another type
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_expected = -1;
+                                                                          ^
+
+"t_2Gio.c", line 3360: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_chunk_opt_mode_t   actual_chunk_opt_mode_expected = -1;
+                                                                          ^
+
+"t_2Gio.c", line 3361: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_write = -1;
+                                                         ^
+
+"t_2Gio.c", line 3361: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_write = -1;
+                                                         ^
+
+"t_2Gio.c", line 3362: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_read = -1;
+                                                        ^
+
+"t_2Gio.c", line 3362: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_read = -1;
+                                                        ^
+
+"t_2Gio.c", line 3363: warning: enumerated type mixed with another type
+      H5D_mpio_actual_io_mode_t   actual_io_mode_expected = -1;
+                                                            ^
+
+"t_2Gio.c", line 3363: warning: integer conversion resulted in a change of sign
+      H5D_mpio_actual_io_mode_t   actual_io_mode_expected = -1;
+                                                            ^
+
+"t_filters_parallel.c", line 3522: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_2Gio.c", line 3618: warning: enumerated type mixed with another type
+              actual_chunk_opt_mode_expected = -1;
+                                             ^
+
+"t_2Gio.c", line 3618: warning: integer conversion resulted in a change of sign
+              actual_chunk_opt_mode_expected = -1;
+                                               ^
+
+"t_2Gio.c", line 3619: warning: enumerated type mixed with another type
+              actual_io_mode_expected = -1;
+                                      ^
+
+"t_2Gio.c", line 3619: warning: integer conversion resulted in a change of sign
+              actual_io_mode_expected = -1;
+                                        ^
+
+"t_filters_parallel.c", line 3735: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 3957: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 4166: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 4374: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 4599: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 4822: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5048: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5283: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5509: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5652: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5830: warning: variable "filter_is_avail" was set but never used
+      CHECK_CUR_FILTER_AVAIL();
+      ^
+
+"t_filters_parallel.c", line 5948: warning: variable "mpi_code" was set but never used
+      int    mpi_code;
+             ^
+
+  CCLD     t_mpi
+  CCLD     t_bigio
+  CCLD     t_pread
+  CCLD     t_pshutdown
+  CCLD     t_prestart
+  CCLD     t_init_term
+  CCLD     t_pflush1
+  CCLD     t_pflush2
+  CCLD     testphdf5
+  CCLD     t_cache_image
+  CCLD     t_shapesame
+  CCLD     t_cache
+  CCLD     t_2Gio
+  CCLD     t_filters_parallel
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+Making all in bin
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+Making all in tools
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+Making all in lib
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+  CC       h5tools.lo
+  CC       h5tools_dump.lo
+  CC       h5tools_str.lo
+  CC       h5diff_dset.lo
+  CC       h5diff_array.lo
+  CC       h5tools_utils.lo
+  CC       h5diff_attr.lo
+  CC       h5diff.lo
+"h5diff_dset.c", line 75: warning: enumerated type mixed with another type
+          ret_value = 1;
+                    ^
+
+"h5diff_dset.c", line 80: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5diff_dset.c", line 157: warning: enumerated type mixed with another type
+      H5D_layout_t     stl1 = -1;
+                              ^
+
+"h5diff_dset.c", line 158: warning: enumerated type mixed with another type
+      H5D_layout_t     stl2 = -1;
+                              ^
+
+"h5tools_str.c", line 1092: warning: enumerated type mixed with another type
+                          H5O_type_t obj_type = -1;   /* Object type */
+                                                ^
+
+"h5diff_dset.c", line 556: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5diff_dset.c", line 667: warning: statement is unreachable
+              break;
+              ^
+
+"h5diff_attr.c", line 496: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5diff_array.c", line 459: warning: statement is unreachable
+          break;
+          ^
+
+"h5diff_attr.c", line 591: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5diff.c", line 497: warning: statement is unreachable
+              break;
+              ^
+
+"h5diff.c", line 563: warning: enumerated type mixed with another type
+          H5TOOLS_GOTO_DONE(0);
+          ^
+
+"h5diff_array.c", line 729: warning: enumerated type mixed with another type
+                  H5O_type_t obj1_type = -1;   /* Object type */
+                                         ^
+
+"h5diff_array.c", line 730: warning: enumerated type mixed with another type
+                  H5O_type_t obj2_type = -1;   /* Object type */
+                                         ^
+
+"h5diff.c", line 935: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5tools.c", line 677: warning: enumerated type mixed with another type
+      H5T_class_t tclass = -1;
+                           ^
+
+"h5diff.c", line 1360: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5diff.c", line 1749: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5tools.c", line 1439: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                              if((region_id = H5Ropen_object((const H5R_ref_t *)mem, H5P_DEFAULT, H5P_DEFAULT)) < 0)
+                                                             ^
+
+"h5tools.c", line 1442: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                                  if((region_space = H5Ropen_region((const H5R_ref_t *)mem, H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                                    ^
+
+"h5diff_array.c", line 2215: warning: enumerated type mixed with another type
+      opts->err_stat = opts->err_stat | ret_value;
+                     ^
+
+"h5tools_dump.c", line 2662: warning: enumerated type mixed with another type
+      H5S_class_t space_type = -1;
+                               ^
+
+"h5diff_array.c", line 2542: warning: variable "both_zero" was set but never used
+      hbool_t       both_zero;
+                    ^
+
+"h5tools_dump.c", line 4079: warning: enumerated type mixed with another type
+                  H5O_type_t obj_type = -1;   /* Object type */
+                                        ^
+
+"h5tools_dump.c", line 4094: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                          if (H5Rget_obj_type3((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, &obj_type) >= 0) {
+                                               ^
+
+"h5tools_dump.c", line 4097: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                                      if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                                      ^
+
+"h5tools_dump.c", line 4122: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                          if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                          ^
+
+"h5tools_dump.c", line 4134: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                          if (H5Rget_obj_type3((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, &obj_type) >= 0) {
+                                               ^
+
+"h5tools_dump.c", line 4140: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                                      if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                                      ^
+
+"h5tools_dump.c", line 4171: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                          if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) < 0)
+                                                          ^
+
+"h5tools_dump.c", line 4174: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                              if((new_obj_sid = H5Ropen_region((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                               ^
+
+"h5tools_dump.c", line 4226: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                          if((new_obj_id = H5Ropen_attr((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                        ^
+
+  CC       h5diff_util.lo
+  CC       h5trav.lo
+  CC       h5tools_filters.lo
+  CC       h5tools_ref.lo
+  CC       h5tools_type.lo
+"h5tools_filters.c", line 153: warning: statement is unreachable
+          break;
+          ^
+
+"h5tools_filters.c", line 191: warning: statement is unreachable
+              break;
+              ^
+
+  CC       io_timer.lo
+  CCLD     libh5tools.la
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+Making all in src
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+Making all in h5diff
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+  CC       h5diff_main.o
+  CC       h5diff_common.o
+  CC       ph5diff_main.o
+"ph5diff_main.c", line 308: warning: parameter "status" was set but never used
+  void h5diff_exit(int status)
+                       ^
+
+  CCLD     h5diff
+  CCLD     ph5diff
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+Making all in h5ls
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+  CC       h5ls.o
+"h5ls.c", line 1321: warning: enumerated type mixed with another type
+          H5O_type_t obj_type = -1;   /* Object type */
+                                ^
+
+"h5ls.c", line 1336: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                  if (H5Rget_obj_type3((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, &obj_type) >= 0) {
+                                       ^
+
+"h5ls.c", line 1339: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                              if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                              ^
+
+"h5ls.c", line 1366: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                  if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                  ^
+
+"h5ls.c", line 1380: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                  if (H5Rget_obj_type3((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, &obj_type) >= 0) {
+                                       ^
+
+"h5ls.c", line 1386: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                              if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                              ^
+
+"h5ls.c", line 1419: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                  if((new_obj_id = H5Ropen_object((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) < 0)
+                                                  ^
+
+"h5ls.c", line 1422: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                      if((new_obj_sid = H5Ropen_region((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                       ^
+
+"h5ls.c", line 1474: warning: argument of type "const H5R_ref_t *" is incompatible with parameter of type "H5R_ref_t *"
+                  if((new_obj_id = H5Ropen_attr((const H5R_ref_t *)&ref_buf[i], H5P_DEFAULT, H5P_DEFAULT)) >= 0) {
+                                                ^
+
+  CCLD     h5ls
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+Making all in h5dump
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+  CC       h5dump.o
+  CC       h5dump_xml.o
+  CC       h5dump_ddl.o
+"h5dump.c", line 931: warning: statement is unreachable
+              break;
+              ^
+
+"h5dump.c", line 1354: warning: statement is unreachable
+              break;
+              ^
+
+  CCLD     h5dump
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+Making all in misc
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+  CC       h5debug.o
+  CC       h5repart.o
+  CC       h5mkgrp.o
+  CC       h5clear.o
+  CCLD     h5clear
+  CCLD     h5mkgrp
+  CCLD     h5repart
+  CCLD     h5debug
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+Making all in h5import
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+  CC       h5import.o
+"h5import.c", line 4520: warning: statement is unreachable
+              break;
+              ^
+
+  CCLD     h5import
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+Making all in h5repack
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+  CC       h5repack.lo
+  CC       h5repack_copy.lo
+  CC       h5repack_opttable.lo
+  CC       h5repack_refs.lo
+  CC       h5repack_parse.lo
+  CC       h5repack_main.o
+  CC       h5repack_filters.lo
+  CC       h5repack_verify.lo
+"h5repack_main.c", line 499: warning: enumerated type mixed with another type
+                  options->low_bound = bound;
+                                     ^
+
+"h5repack_main.c", line 508: warning: enumerated type mixed with another type
+                  options->high_bound = bound;
+                                      ^
+
+"h5repack.c", line 372: warning: enumerated type mixed with another type
+      H5T_class_t type_class = -1;
+                               ^
+
+"h5repack.c", line 587: warning: statement is unreachable
+                  break;
+                  ^
+
+"h5repack_refs.c", line 372: warning: statement is unreachable
+                  break;
+                  ^
+
+"h5repack_refs.c", line 445: warning: enumerated type mixed with another type
+      H5T_class_t type_class = -1;
+                               ^
+
+  CCLD     libh5repack.la
+  CCLD     h5repack
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+Making all in h5jam
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+  CC       h5jam.o
+  CC       h5unjam.o
+  CCLD     h5unjam
+  CCLD     h5jam
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+Making all in h5copy
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+  CC       h5copy.o
+  CCLD     h5copy
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+Making all in h5format_convert
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+  CC       h5format_convert.o
+"h5format_convert.c", line 164: warning: statement is unreachable
+  		break;
+  		^
+
+  CCLD     h5format_convert
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+Making all in h5stat
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+  CC       h5stat.o
+"h5stat.c", line 941: warning: statement is unreachable
+                  break;
+                  ^
+
+"h5stat.c", line 947: warning: statement is unreachable
+                  break;
+                  ^
+
+"h5stat.c", line 1983: warning: pointless comparison of unsigned integer with zero
+          HDassert(iter.fs_strategy >= 0 && iter.fs_strategy < H5F_FSPACE_STRATEGY_NTYPES);
+          ^
+
+  CCLD     h5stat
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+Making all in test
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+Making all in h5diff
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+  CC       dynlib_diff.lo
+  CC       h5diffgentest.o
+  CCLD     libdynlibdiff.la
+  CCLD     h5diffgentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+Making all in h5ls
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+  CC       dynlib_ls.lo
+  CCLD     libdynlibls.la
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+Making all in h5dump
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+  CC       dynlib_dump.lo
+  CC       h5dumpgentest.o
+  CC       binread.o
+  CCLD     binread
+  CCLD     libdynlibdump.la
+  CCLD     h5dumpgentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+Making all in misc
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+Making all in vds
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+  CC       UC_1_one_dim_gen.o
+  CC       UC_2_two_dims_gen.o
+  CC       UC_3_gaps_gen.o
+  CC       UC_4_printf_gen.o
+  CC       UC_5_stride_gen.o
+  CCLD     UC_3_gaps_gen
+  CCLD     UC_4_printf_gen
+  CCLD     UC_2_two_dims_gen
+  CCLD     UC_1_one_dim_gen
+  CCLD     UC_5_stride_gen
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+  CC       h5repart_gentest.o
+  CC       h5clear_gentest.o
+  CC       talign.o
+  CC       clear_open_chk.o
+  CC       repart_test.o
+  CCLD     clear_open_chk
+  CCLD     h5repart_gentest
+  CCLD     talign
+  CCLD     repart_test
+  CCLD     h5clear_gentest
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+Making all in h5import
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+  CC       h5importtest.o
+  CCLD     h5importtest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+Making all in h5repack
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+  CC       dynlib_rpk.lo
+  CC       dynlib_vrpk.lo
+  CC       h5repacktst.o
+  CC       testh5repack_detect_szip.o
+  CC       h5repackgentest.o
+  CCLD     testh5repack_detect_szip
+  CCLD     h5repackgentest
+  CCLD     libdynlibadd.la
+  CCLD     libdynlibvers.la
+  CCLD     h5repacktst
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+Making all in h5jam
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+  CC       tellub.o
+  CC       getub.o
+  CC       h5jamgentest.o
+  CCLD     tellub
+  CCLD     getub
+  CCLD     h5jamgentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+Making all in h5copy
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+  CC       h5copygentest.o
+  CCLD     h5copygentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+Making all in h5format_convert
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+  CC       h5fc_gentest.o
+  CC       h5fc_chk_idx.o
+  CCLD     h5fc_chk_idx
+  CCLD     h5fc_gentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+Making all in h5stat
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+  CC       h5stat_gentest.o
+  CCLD     h5stat_gentest
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+Making all in perform
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+  CC       sio_perf.o
+  CC       sio_engine.o
+  CC       pio_perf.o
+  CC       pio_engine.o
+  CC       overhead.o
+  CC       chunk.o
+  CC       chunk_cache.o
+  CC       iopipe.o
+"overhead.c", line 252: warning: statement is unreachable
+              break;
+              ^
+
+"overhead.c", line 307: warning: statement is unreachable
+              break;
+              ^
+
+"sio_engine.c", line 502: warning: statement is unreachable
+          break;
+          ^
+
+"sio_engine.c", line 549: warning: statement is unreachable
+          break;
+          ^
+
+"sio_engine.c", line 849: warning: statement is unreachable
+          break;
+          ^
+
+"sio_engine.c", line 871: warning: statement is unreachable
+          break;
+          ^
+
+"sio_engine.c", line 1122: warning: statement is unreachable
+          break;
+          ^
+
+"sio_engine.c", line 1250: warning: statement is unreachable
+          break;
+          ^
+
+  CC       zip_perf.o
+  CC       perf_meta.o
+  CC       perf.o
+  CCLD     iopipe
+  CCLD     chunk
+  CCLD     chunk_cache
+  CCLD     overhead
+  CCLD     zip_perf
+  CCLD     perf
+  CCLD     h5perf_serial
+  CCLD     perf_meta
+  CCLD     h5perf
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[2]: Nothing to be done for `all-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+Making all in .
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+make[1]: Nothing to be done for `all-am'.
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+Making all in hl
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+Making all in src
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+  CC       H5DO.lo
+  CC       H5DS.lo
+  CC       H5LTparse.lo
+  CC       H5LT.lo
+  CC       H5IM.lo
+  CC       H5LTanalyze.lo
+  CC       H5TB.lo
+  CC       H5PT.lo
+"hl/src/H5LTparse.c", line 1482: warning: statement is unreachable
+      break;
+      ^
+
+"hl/src/H5LTanalyze.l", line 86: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 87: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 88: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 89: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 90: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 91: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 92: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 93: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 95: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 96: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 97: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 98: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 99: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 100: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 101: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 102: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 104: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 105: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 106: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 107: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 108: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 109: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 110: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 111: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 112: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 113: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 114: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 116: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 117: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 118: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 119: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 120: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 121: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 122: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 124: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 125: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 126: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 127: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 128: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 129: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 130: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 131: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 132: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 133: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 134: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 135: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 136: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 138: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 139: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 140: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 141: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 143: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 144: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 145: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 155: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 166: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 175: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 177: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 178: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 179: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 180: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 181: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 182: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"hl/src/H5LTanalyze.l", line 184: warning: statement is unreachable
+  	YY_BREAK
+  	^
+
+"H5LT.c", line 3717: warning: variable "obj_type" was set but never used
+       H5I_type_t obj_type;
+                  ^
+
+  CC       H5LD.lo
+  CCLD     libhdf5_hl.la
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+Making all in test
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+  CC       test_lite.o
+  CC       test_image.o
+  CC       test_file_image.o
+  CC       test_ds.o
+  CC       test_packet_vlen.o
+  CC       test_packet.o
+  CC       test_ld.o
+  CC       test_table.o
+"test_lite.c", line 1882: warning: variable "path_valid" was set but never used
+    htri_t path_valid;
+           ^
+
+"test_packet_vlen.c", line 937: warning: variable "name_size" was set but never used
+      ssize_t name_size;
+              ^
+
+"test_packet.c", line 733: warning: variable "err" was set but never used
+   herr_t         err;        /* Function return status */
+                  ^
+
+  CC       test_dset_append.o
+  CC       test_h5do_compat.o
+  CCLD     test_image
+  CCLD     test_file_image
+  CCLD     test_packet
+  CCLD     test_table
+  CCLD     test_h5do_compat
+  CCLD     test_lite
+  CCLD     test_ld
+  CCLD     test_dset_append
+  CCLD     test_ds
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+Making all in tools
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+Making all in gif2h5
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+  CC       gif2hdf.o
+  CC       gif2mem.o
+  CC       decompress.o
+  CC       gifread.o
+  CC       writehdf.o
+  CC       h52gifgentst.o
+  CC       hdfgifwr.o
+  CC       hdf2gif.o
+  CCLD     h52gifgentst
+  CCLD     gif2h5
+  CCLD     h52gif
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+Making all in h5watch
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+  CC       h5watch.o
+  CC       swmr_check_compat_vfd.o
+  CC       h5watchgentest.o
+  CC       extend_dset-extend_dset.o
+"extend_dset.c", line 84: warning: variable "dtype_size" was set but never used
+      size_t dtype_size;      /* size of the dataset's datatype                   */
+             ^
+
+"extend_dset.c", line 233: warning: variable "dtype_size" was set but never used
+      size_t dtype_size;      /* size of the dataset's datatype                   */
+             ^
+
+  CCLD     swmr_check_compat_vfd
+  CCLD     h5watchgentest
+  CCLD     h5watch
+  CCLD     extend_dset
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[2]: Nothing to be done for `all-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+Making install in src
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libhdf5.la '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+libtool: install: /usr/bin/install -c .libs/libhdf5.so.200.0.0 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.so.200.0.0
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib && { ln -s -f libhdf5.so.200.0.0 libhdf5.so.200 || { rm -f libhdf5.so.200 && ln -s libhdf5.so.200.0.0 libhdf5.so.200; }; })
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib && { ln -s -f libhdf5.so.200.0.0 libhdf5.so || { rm -f libhdf5.so && ln -s libhdf5.so.200.0.0 libhdf5.so; }; })
+libtool: install: /usr/bin/install -c .libs/libhdf5.lai /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.la
+libtool: install: /usr/bin/install -c .libs/libhdf5.a /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.a
+libtool: install: chmod 644 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.a
+libtool: install: ranlib /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.a
+libtool: finish: PATH="/gpfs/runtime/opt/python/3.7.4/bin:/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/bin:/gpfs/runtime/opt/tecplot/2019R1/chorus_2019r1/bin:/gpfs/runtime/opt/matlab/R2019a/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/cuda/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/bin:/gpfs/runtime/opt/cuda/11.1.1/cuda/bin:/gpfs/runtime/opt/opengl/mesa-18.3.3/bin:/gpfs/runtime/opt/hdf5/1.10.0/bin:/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/bin:/gpfs/runtime/opt/basilisk/1.1/bin:/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/bin:/gpfs/runtime/opt/gcc/10.2/bin:/gpfs/runtime/opt/intel/2017.0/bin:/gpfs/runtime/opt/java/8u111/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/lpp/mmfs/bin:/usr/lpp/mmfs/sbin:/opt/ibutils/bin:/gpfs/runtime/bin:/opt/singularity/2.5.2/bin:/users/mrodri97/bin:/sbin" ldconfig -n /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 hdf5.h H5api_adpt.h H5overflow.h H5pubconf.h H5public.h H5version.h H5Apublic.h H5ACpublic.h H5Cpublic.h H5Dpublic.h H5Epubgen.h H5Epublic.h H5ESpublic.h H5Fpublic.h H5FDpublic.h H5FDcore.h H5FDdirect.h H5FDfamily.h H5FDhdfs.h H5FDlog.h H5FDmpi.h H5FDmpio.h H5FDmulti.h H5FDros3.h H5FDsec2.h H5FDstdio.h H5FDwindows.h H5Gpublic.h H5Ipublic.h H5Lpublic.h H5Mpublic.h H5MMpublic.h H5Opublic.h H5Ppublic.h H5PLextern.h H5PLpublic.h H5Rpublic.h H5Spublic.h H5Tpublic.h H5VLconnector.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 H5VLconnector_passthru.h H5VLnative.h H5VLpassthru.h H5VLpublic.h H5Zpublic.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+ /usr/bin/install -c -m 644 libhdf5.settings '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/src'
+Making install in test
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/test'
+Making install in testpar
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/testpar'
+Making install in bin
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+ /usr/bin/install -c h5redeploy '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/bin'
+Making install in tools
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+Making install in lib
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/lib'
+Making install in src
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+Making install in h5diff
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5diff ph5diff '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5diff /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5diff
+libtool: install: /usr/bin/install -c .libs/ph5diff /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/ph5diff
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5diff'
+Making install in h5ls
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5ls '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5ls /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5ls
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5ls'
+Making install in h5dump
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5dump '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5dump /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5dump
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5dump'
+Making install in misc
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5debug h5repart h5mkgrp h5clear '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5debug /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5debug
+libtool: install: /usr/bin/install -c .libs/h5repart /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5repart
+libtool: install: /usr/bin/install -c .libs/h5mkgrp /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5mkgrp
+libtool: install: /usr/bin/install -c .libs/h5clear /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5clear
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/misc'
+Making install in h5import
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5import '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5import /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5import
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5import'
+Making install in h5repack
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5repack '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5repack /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5repack
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5repack'
+Making install in h5jam
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5jam h5unjam '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5jam /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5jam
+libtool: install: /usr/bin/install -c .libs/h5unjam /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5unjam
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5jam'
+Making install in h5copy
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5copy '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5copy /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5copy
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5copy'
+Making install in h5format_convert
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5format_convert '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5format_convert /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5format_convert
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5format_convert'
+Making install in h5stat
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5stat '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5stat /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5stat
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src/h5stat'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/src'
+Making install in test
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+Making install in h5diff
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5diff'
+Making install in h5ls
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5ls'
+Making install in h5dump
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5dump'
+Making install in misc
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+Making install in vds
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+make[5]: Nothing to be done for `install-exec-am'.
+make[5]: Nothing to be done for `install-data-am'.
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc/vds'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+make[5]: Nothing to be done for `install-exec-am'.
+make[5]: Nothing to be done for `install-data-am'.
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/misc'
+Making install in h5import
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5import'
+Making install in h5repack
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5repack'
+Making install in h5jam
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5jam'
+Making install in h5copy
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5copy'
+Making install in h5format_convert
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5format_convert'
+Making install in h5stat
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/h5stat'
+Making install in perform
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5perf_serial h5perf '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5perf_serial /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5perf_serial
+libtool: install: /usr/bin/install -c .libs/h5perf /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5perf
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test/perform'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools/test'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/tools'
+Making install in .
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5'
+Making install in hl
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+Making install in src
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+ /bin/sh ../../libtool   --mode=install /usr/bin/install -c   libhdf5_hl.la '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+libtool: warning: relinking 'libhdf5_hl.la'
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src; /bin/sh "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/libtool"  --silent --tag CC --mode=relink mpicc -O3 -version-info 200:0:0 -o libhdf5_hl.la -rpath /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib H5DO.lo H5DS.lo H5IM.lo H5LT.lo H5LTanalyze.lo H5LTparse.lo H5PT.lo H5TB.lo H5LD.lo ../../src/libhdf5.la -lz -ldl -lm )
+libtool: install: /usr/bin/install -c .libs/libhdf5_hl.so.200.0.0T /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5_hl.so.200.0.0
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib && { ln -s -f libhdf5_hl.so.200.0.0 libhdf5_hl.so.200 || { rm -f libhdf5_hl.so.200 && ln -s libhdf5_hl.so.200.0.0 libhdf5_hl.so.200; }; })
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib && { ln -s -f libhdf5_hl.so.200.0.0 libhdf5_hl.so || { rm -f libhdf5_hl.so && ln -s libhdf5_hl.so.200.0.0 libhdf5_hl.so; }; })
+libtool: install: /usr/bin/install -c .libs/libhdf5_hl.lai /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5_hl.la
+libtool: install: /usr/bin/install -c .libs/libhdf5_hl.a /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5_hl.a
+libtool: install: chmod 644 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5_hl.a
+libtool: install: ranlib /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5_hl.a
+libtool: finish: PATH="/gpfs/runtime/opt/python/3.7.4/bin:/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/bin:/gpfs/runtime/opt/tecplot/2019R1/chorus_2019r1/bin:/gpfs/runtime/opt/matlab/R2019a/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/cuda/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/bin:/gpfs/runtime/opt/cuda/11.1.1/cuda/bin:/gpfs/runtime/opt/opengl/mesa-18.3.3/bin:/gpfs/runtime/opt/hdf5/1.10.0/bin:/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/bin:/gpfs/runtime/opt/basilisk/1.1/bin:/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/bin:/gpfs/runtime/opt/gcc/10.2/bin:/gpfs/runtime/opt/intel/2017.0/bin:/gpfs/runtime/opt/java/8u111/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/lpp/mmfs/bin:/usr/lpp/mmfs/sbin:/opt/ibutils/bin:/gpfs/runtime/bin:/opt/singularity/2.5.2/bin:/users/mrodri97/bin:/sbin" ldconfig -n /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 hdf5_hl.h H5DOpublic.h H5IMpublic.h H5LTpublic.h H5TBpublic.h H5DSpublic.h H5PTpublic.h H5LDpublic.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/src'
+Making install in test
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/test'
+Making install in tools
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+Making install in gif2h5
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c gif2h5 h52gif '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/gif2h5 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/gif2h5
+libtool: install: /usr/bin/install -c .libs/h52gif /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h52gif
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/gif2h5'
+Making install in h5watch
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../../libtool   --mode=install /usr/bin/install -c h5watch '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/h5watch /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/h5watch
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools/h5watch'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/tools'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+for d in examples  hl; do               \
+    (cd $d && make  install-examples) || exit 1;           \
+done
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/examples'
+../bin/mkdirs /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c
++ /usr/bin/install -c ./h5_write.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_read.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_extend_write.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_chunk_read.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_crtgrpd.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_subset.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_cmprss.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_rdwt.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_crtgrpar.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_extend.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_crtatt.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_crtgrp.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_crtdat.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_compound.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_group.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_select.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_attribute.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_mount.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_reference_deprec.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_drivers.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_extlink.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_elink_unix2win.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_ref_extern.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_ref_compat.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_ref2reg_deprec.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_shared_mesg.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./ph5example.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-exc.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-exclim.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-eiger.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-simpleIO.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-percival.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-percival-unlim.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./h5_vds-percival-unlim-maxmin.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c run-c-ex.sh /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/c/.
++ /usr/bin/install -c ./README /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/.
++ /usr/bin/install -c ./run-all-ex.sh /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/.
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/examples'
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'
+for d in examples ; do               \
+    (cd $d && make  install-examples) || exit 1;           \
+done
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/examples'
+../../bin/mkdirs /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c
++ /usr/bin/install -c ./ex_lite1.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_lite2.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_lite3.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ptExampleFL.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_image1.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_image2.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_01.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_02.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_03.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_04.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_05.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_06.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_07.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_08.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_09.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_10.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_11.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_table_12.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./ex_ds1.c /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./image24pixel.txt /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./image8.txt /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./pal_rgb.h /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c run-hlc-ex.sh /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/c/.
++ /usr/bin/install -c ./run-hl-ex.sh /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/share/hdf5_examples/hl/.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl/examples'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/HDF5/hl'

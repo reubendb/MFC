@@ -63,16 +63,14 @@ MODULE m_start_up
     
     CHARACTER(LEN = path_len + 2*name_len), PRIVATE :: t_step_dir !<
     !! Possible location of time-step folder containing preexisting grid and/or
-    !! conservative variables data to be used as starting point for pre-process    
+    !! conservative variables data to be used as starting point for pre-process
 
-    PROCEDURE(s_read_abstract_grid_data_files), POINTER :: s_read_grid_data_files => NULL()
-    PROCEDURE(s_read_abstract_ic_data_files), POINTER :: s_read_ic_data_files => NULL()
-    
-    CONTAINS
-        
-        
-        
-        !>  Reads the configuration file MFC_PreProcess.inp, in order to
+    procedure(s_read_abstract_grid_data_files), pointer :: s_read_grid_data_files => null()
+    procedure(s_read_abstract_ic_data_files), pointer :: s_read_ic_data_files => null()
+
+contains
+
+    !>  Reads the configuration file pre_process.inp, in order to
         !!      populate the parameters in module m_global_parameters.f90
         !!      with the user provided inputs        
         SUBROUTINE s_read_input_file() ! ---------------------------------------
@@ -104,8 +102,8 @@ MODULE m_start_up
                                    nnode, sigR, sigV, dist_type, rhoRV, R0_type
  
 
-            ! Inquiring the status of the MFC_PreProcess.inp file
-            file_loc = 'MFC_PreProcess.inp'
+            ! Inquiring the status of the pre_process.inp file
+            file_loc = 'pre_process.inp'
             INQUIRE(FILE = TRIM(file_loc), EXIST = file_check)
             
             
@@ -121,7 +119,7 @@ MODULE m_start_up
                 n_glb = n
                 p_glb = p
             ELSE
-                PRINT '(A)', 'File MFC_PreProcess.inp is missing. Exiting ...'
+                PRINT '(A)', 'File pre_process.inp is missing. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             

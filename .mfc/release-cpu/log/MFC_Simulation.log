@@ -1,0 +1,10 @@
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../src/simulation_code" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c 'make -j 8 CFLAGS="-O3" CPPFLAGS="-O3"  CC="mpicc" CXX="mpicxx" FC="mpif90" FFLAGS=" -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib "' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/MFC_Simulation.log" 2>&1
+--- ./mfc.py ---
+
+mpif90 -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -c -o m_phase_change.o m_phase_change.f90
+mpif90 -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -c -o m_time_steppers.o m_time_steppers.f90
+mpif90 -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -c -o m_derived_variables.o m_derived_variables.f90
+mpif90 -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -c -o p_main.o p_main.f90
+mpif90 m_start_up.o m_bubbles.o m_fftw.o m_cbc.o m_mpi_proxy.o m_variables_conversion.o m_qbmm.o m_riemann_solvers.o m_phase_change.o m_global_parameters.o m_compile_specific.o m_derived_types.o p_main.o m_rhs.o m_data_output.o m_derived_variables.o m_weno.o m_time_steppers.o -O3 -cpp -w   -lfftw3 -lm -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o ../../.mfc/___current___/build/bin/MFC_Simulation

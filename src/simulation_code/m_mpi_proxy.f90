@@ -54,7 +54,7 @@ MODULE m_mpi_proxy
             ! Checking whether the MPI environment has been properly intialized
             IF(ierr /= MPI_SUCCESS) THEN
                 PRINT '(A)', 'Unable to initialize MPI environment. Exiting ...'
-                CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)
+                CALL MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
             END IF
             
             
@@ -75,7 +75,7 @@ MODULE m_mpi_proxy
         SUBROUTINE s_mpi_abort() ! ---------------------------------------------
 
             ! Terminating the MPI environment
-            CALL MPI_ABORT(MPI_COMM_WORLD, err_code, ierr)
+            CALL MPI_ABORT(MPI_COMM_WORLD, 1, ierr)
             
         END SUBROUTINE s_mpi_abort ! -------------------------------------------
         

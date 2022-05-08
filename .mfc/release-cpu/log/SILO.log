@@ -1,0 +1,2065 @@
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/SILO" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c './configure --prefix="/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build" --enable-pythonmodule --enable-optimization --disable-hzip --disable-fpzip --disable-silex --with-hdf5="/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include","/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib" CC="mpicc" CXX="mpicxx" FC="mpif90"    CFLAGS=" -O3   -O0 " CPPFLAGS=" -O3   -O0 " FFLAGS=" -O3 -cpp -w   -O0 "' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/SILO.log" 2>&1
+--- ./mfc.py ---
+
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/SILO" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c 'make -j 8' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/SILO.log" 2>&1
+--- ./mfc.py ---
+
+
+--- ./mfc.py ---
+cd "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/src/SILO" && PYTHON="python3" PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS $(python3-config --includes) $(python3-config --libs)" stdbuf -oL bash -c 'make install prefix="/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build"' >> "/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/log/SILO.log" 2>&1
+--- ./mfc.py ---
+
+-linux-gnu... no
+checking for config-site x86_64-linux-gnu... no
+checking for config-site x86_64-linux-gnu... no
+checking for config-site x86_64-unknown... no
+checking for config-site linux-gnu... no
+checking for config-site linux-gnu... no
+checking for config-site unknown... no
+checking for config-site x86_64... found
+checking whether the C++ compiler works... yes
+checking for C++ compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C++ compiler... yes
+checking whether mpicxx accepts -g... yes
+checking for style of include used by make... GNU
+checking dependency style of mpicxx... tcc
+checking for gcc... mpicc
+checking whether we are using the GNU C compiler... yes
+checking whether mpicc accepts -g... yes
+checking for mpicc option to accept ISO C89... none needed
+checking whether mpicc understands -c and -o together... yes
+checking dependency style of mpicc... tcc
+checking how to run the C preprocessor... mpicc -E
+checking whether we are using the GNU Fortran compiler... no
+checking whether mpif90 accepts -g... yes
+checking for g77... no
+checking for xlf... no
+checking for f77... no
+checking for frt... no
+checking for pgf77... pgf77
+checking whether we are using the GNU Fortran 77 compiler... no
+checking whether pgf77 accepts -g... yes
+checking how to get verbose linking output from mpif90... -v
+checking for Fortran libraries of mpif90...  -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/openmpi/openmpi-3.1.5/lib -L/gpfs/runtime/opt/python/3.7.4/lib -L/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/lib -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib64 -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib -L/gpfs/runtime/opt/opengl/mesa-18.3.3/lib -L/gpfs/runtime/opt/glew/2.1.0/lib64 -L/gpfs/runtime/opt/hdf5/1.10.0/lib -L/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/lib -L/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/lib -L/gpfs/runtime/opt/intel/2017.0/lib/intel64 -L/gpfs/runtime/opt/intel/2017.0/mkl/lib/intel64 -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib -L/usr/lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -lnvf -lnvomp -ldl -lnvhpcatm -lpthread -lnvcpumath -lnsnvc -lnvc -lrt -lm
+checking for dummy main to link with Fortran libraries... none
+checking for Fortran name-mangling scheme... lower case, underscore, no extra underscore
+checking whether make sets $(MAKE)... (cached) yes
+checking how to print strings... printf
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by mpicc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 96000000
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from mpicc object... ok
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if mpicc supports -fno-rtti -fno-exceptions... no
+checking for mpicc option to produce PIC... -fPIC -DPIC
+checking if mpicc PIC flag -fPIC -DPIC works... yes
+checking if mpicc static flag -static works... no
+checking if mpicc supports -c -o file.o... yes
+checking if mpicc supports -c -o file.o... (cached) yes
+checking whether the mpicc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... nvc-Error-Unknown switch: -print-search-dirs
+GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking how to run the C++ preprocessor... mpicxx -E
+checking for ld used by mpicxx... /usr/bin/ld -m elf_x86_64
+checking if the linker (/usr/bin/ld -m elf_x86_64) is GNU ld... yes
+nvc++-Error-Unknown switch: -print-prog-name=ld
+checking whether the mpicxx linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking for mpicxx option to produce PIC... -fPIC -DPIC
+checking if mpicxx PIC flag -fPIC -DPIC works... yes
+checking if mpicxx static flag -static works... no
+checking if mpicxx supports -c -o file.o... yes
+checking if mpicxx supports -c -o file.o... (cached) yes
+checking whether the mpicxx linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking for pgf77 option to produce PIC... -fpic
+checking if pgf77 PIC flag -fpic works... yes
+checking if pgf77 static flag -Bstatic works... no
+checking if pgf77 supports -c -o file.o... yes
+checking if pgf77 supports -c -o file.o... (cached) yes
+checking whether the pgf77 linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking for mpif90 option to produce PIC... 
+checking if mpif90 static flag  works... yes
+checking if mpif90 supports -c -o file.o... yes
+checking if mpif90 supports -c -o file.o... (cached) yes
+checking whether the mpif90 linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for library containing strerror... none required
+checking for hzip... found
+checking for fpzip... found
+checking for zfp... found
+checking compiler optimization... ./configure: line 24316: AX_CC_MAXOPT: command not found
+enabled
+checking whether C compiler accepts "-D_LARGEFILE_SOURCE"... yes
+checking whether C compiler accepts "-D_LARGEFILE64_SOURCE"... yes
+checking whether C compiler accepts "-D_FILE_OFFSET_BITS=64"... yes
+checking whether C compiler accepts "-Wdeclaration-after-statement"... yes
+checking size of off64_t... 8
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking stdarg.h usability... yes
+checking stdarg.h presence... yes
+checking for stdarg.h... yes
+checking for sys/stat.h... (cached) yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking sys/fcntl.h usability... yes
+checking sys/fcntl.h presence... yes
+checking for sys/fcntl.h... yes
+checking fnmatch.h usability... yes
+checking fnmatch.h presence... yes
+checking for fnmatch.h... yes
+checking ieeefp.h usability... no
+checking ieeefp.h presence... no
+checking for ieeefp.h... no
+checking for sys/types.h... (cached) yes
+checking for unistd.h... (cached) yes
+checking for ANSI C header files... (cached) yes
+checking for fclose function pointer... yes
+checking for fflush function pointer... yes
+checking for fopen function pointer... yes
+checking for fprintf function pointer... yes
+checking for fread function pointer... yes
+checking for fseek function pointer... yes
+checking for setvbuf function pointer... yes
+checking for ftell function pointer... yes
+checking for fwrite function pointer... yes
+checking for memmove... yes
+checking for fnmatch... yes
+checking for isnan... yes
+checking for fpclass... no
+checking for strerror... yes
+checking if setjmp and longjmp work... yes
+checking for cos in -lm... yes
+checking for szlib... suppressed
+checking for hdf5... configure: checking for hdf5 and supporting libraries...
+checking hdf5.h usability... yes
+checking hdf5.h presence... yes
+checking for hdf5.h... yes
+checking for H5open... yes
+checking for a readline compatible library... -lreadline
+checking readline.h usability... no
+checking readline.h presence... no
+checking for readline.h... no
+checking readline/readline.h usability... yes
+checking readline/readline.h presence... yes
+checking for readline/readline.h... yes
+checking whether readline supports history... yes
+checking history.h usability... no
+checking history.h presence... no
+checking for history.h... no
+checking readline/history.h usability... yes
+checking readline/history.h presence... yes
+checking for readline/history.h... yes
+checking whether python3 version is >= 2.1... yes
+checking for python3 version... 3.7
+checking for python3 platform... linux
+checking for python3 script directory... ${prefix}/lib/python3.7/site-packages
+checking for python3 extension module directory... ${exec_prefix}/lib/python3.7/site-packages
+checking for Python include path...  -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl  -lutil -lm 
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating SiloWindows/Makefile
+config.status: creating svn_bin/Makefile
+config.status: creating config/Makefile
+config.status: creating config-site/Makefile
+config.status: creating docs/Makefile
+config.status: creating src/Makefile
+config.status: creating src/score/Makefile
+config.status: creating src/pdb/Makefile
+config.status: creating src/silo/Makefile
+config.status: creating src/silo/silo.h
+config.status: creating src/debug/Makefile
+config.status: creating src/netcdf/Makefile
+config.status: creating src/pdb_drv/Makefile
+config.status: creating src/pdbp_drv/Makefile
+config.status: creating src/hdf5_drv/Makefile
+config.status: creating src/taurus/Makefile
+config.status: creating src/unknown/Makefile
+config.status: creating src/filters/Makefile
+config.status: creating tests/Makefile
+config.status: creating tools/Makefile
+config.status: creating tools/browser/Makefile
+config.status: creating tools/python/Makefile
+config.status: creating tools/silex/Makefile
+config.status: creating tools/silock/Makefile
+config.status: creating tools/json/Makefile
+config.status: creating tools/mapred/Makefile
+config.status: creating src/zfp-0.5.5/Makefile
+config.status: creating src/libsiloh5.settings
+config.status: creating config.h
+config.status: executing tests/atconfig commands
+config.status: executing depfiles commands
+config.status: executing libtool commands
+
+
+SUMMARY OF THE Silo with HDF5 CONFIGURATION
+=================================
+
+Silo Version:           4.11
+Configured on:          Sun May  8 12:07:16 EDT 2022
+Configured by:          mrodri97@login006.oscar.ccv.brown.edu
+Configure command:      ./configure '--prefix=/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build' '--enable-pythonmodule' '--enable-optimization' '--disable-hzip' '--disable-fpzip' '--disable-silex' '--with-hdf5=/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib' 'CC=mpicc' 'CXX=mpicxx' 'FC=mpif90' 'CFLAGS= -O3 -O0 ' 'CPPFLAGS= -O3 -O0 ' 'FFLAGS= -O3 -cpp -w -O0 ' 'PYTHON=python3'
+Host system:            x86_64-unknown-linux-gnu
+Build system:           x86_64-unknown-linux-gnu
+Installation point:     /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build
+Source directory:       @UsingSrcDir@
+Archiver:               ar
+Ranlib:                 ranlib
+
+Configure Summary
+Compiling Options:
+                     C Compiler /gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin/mpicc
+                       CPPFLAGS -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0 
+                         CFLAGS  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement
+                        LDFLAGS -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib 
+                           LIBS -lhdf5  -lm
+Languages:
+                   C++ Compiler /gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin/mpicxx
+                       CXXFLAGS -fPIC
+               Fortran Compiler /gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin/mpif90
+                        FCFLAGS -g
+                         FCLIBS  -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/openmpi/openmpi-3.1.5/lib -L/gpfs/runtime/opt/python/3.7.4/lib -L/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/lib -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib64 -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib -L/gpfs/runtime/opt/opengl/mesa-18.3.3/lib -L/gpfs/runtime/opt/glew/2.1.0/lib64 -L/gpfs/runtime/opt/hdf5/1.10.0/lib -L/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/lib -L/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/lib -L/gpfs/runtime/opt/intel/2017.0/lib/intel64 -L/gpfs/runtime/opt/intel/2017.0/mkl/lib/intel64 -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib -L/usr/lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -lmpi_usempif08 -lmpi_usempi_ignore_tkr -lmpi_mpifh -lmpi -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -lnvf -lnvomp -ldl -lnvhpcatm -lpthread -lnvcpumath -lnsnvc -lnvc -lrt -lm
+Features:
+                        Browser @UsingBrowser@
+                       Readline @UsingReadline@
+                           HDF5 @UsingHDF5@
+                          Silex @UsingSilex@
+                             Qt @UsingQt@
+                Qt moc Compiler 
+                    Qt CXXFLAGS 
+                        Qt LIBS 
+                         Python @UsingPython@
+                Python Compiler python3
+                Python CPPFLAGS  -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl  -lutil -lm 
+make  all-recursive
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+Making all in .
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+Making all in src
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make  all-recursive
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+Making all in score
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+source='memmove.c' object='memmove.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o memmove.lo memmove.c
+source='scctla.c' object='scctla.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o scctla.lo scctla.c
+source='scctl.c' object='scctl.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o scctl.lo scctl.c
+source='schash.c' object='schash.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o schash.lo schash.c
+source='scstr.c' object='scstr.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o scstr.lo scstr.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c memmove.c -MD -MF .deps/memmove.TPlo  -fPIC -DPIC -o .libs/memmove.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scctl.c -MD -MF .deps/scctl.TPlo  -fPIC -DPIC -o .libs/scctl.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scctla.c -MD -MF .deps/scctla.TPlo  -fPIC -DPIC -o .libs/scctla.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c schash.c -MD -MF .deps/schash.TPlo  -fPIC -DPIC -o .libs/schash.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scstr.c -MD -MF .deps/scstr.TPlo  -fPIC -DPIC -o .libs/scstr.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c memmove.c -MD -MF .deps/memmove.TPlo -o memmove.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scstr.c -MD -MF .deps/scstr.TPlo -o scstr.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c schash.c -MD -MF .deps/schash.TPlo -o schash.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scctl.c -MD -MF .deps/scctl.TPlo -o scctl.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c scctla.c -MD -MF .deps/scctla.TPlo -o scctla.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_score.la  memmove.lo scctla.lo scctl.lo schash.lo scstr.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_score.a .libs/memmove.o .libs/scctla.o .libs/scctl.o .libs/schash.o .libs/scstr.o 
+libtool: link: ranlib .libs/libsilo_score.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_score.la" && ln -s "../libsilo_score.la" "libsilo_score.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+Making all in pdb
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+source='detect.c' object='detect.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o detect.o detect.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+mpicc -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -o detect detect.o
+nvc-Info-Switch -Mvect forces -O3
+./detect >> pdform.h
+make  all-am
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+source='pdb.c' object='pdb.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdb.lo pdb.c
+source='pdbdir.c' object='pdbdir.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdbdir.lo pdbdir.c
+source='pdbio.c' object='pdbio.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdbio.lo pdbio.c
+source='pdbmm.c' object='pdbmm.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdbmm.lo pdbmm.c
+source='pdbx.c' object='pdbx.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdbx.lo pdbx.c
+source='pdconv.c' object='pdconv.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdconv.lo pdconv.c
+source='pdlow.c' object='pdlow.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdlow.lo pdlow.c
+source='pdmemb.c' object='pdmemb.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdmemb.lo pdmemb.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdb.c -MD -MF .deps/pdb.TPlo  -fPIC -DPIC -o .libs/pdb.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbx.c -MD -MF .deps/pdbx.TPlo  -fPIC -DPIC -o .libs/pdbx.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbio.c -MD -MF .deps/pdbio.TPlo  -fPIC -DPIC -o .libs/pdbio.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbmm.c -MD -MF .deps/pdbmm.TPlo  -fPIC -DPIC -o .libs/pdbmm.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdmemb.c -MD -MF .deps/pdmemb.TPlo  -fPIC -DPIC -o .libs/pdmemb.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdlow.c -MD -MF .deps/pdlow.TPlo  -fPIC -DPIC -o .libs/pdlow.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdconv.c -MD -MF .deps/pdconv.TPlo  -fPIC -DPIC -o .libs/pdconv.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbdir.c -MD -MF .deps/pdbdir.TPlo  -fPIC -DPIC -o .libs/pdbdir.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"pdb.c", line 1809: warning: #warning directive: MOVE TO PDLOW.C
+  #warning MOVE TO PDLOW.C
+   ^
+
+"pdb.c", line 1815: warning: #warning directive: MOVE TO PDMEMB.C
+  #warning MOVE TO PDMEMB.C
+   ^
+
+"pdb.c", line 1821: warning: #warning directive: MOVE TO PDLOW.C
+  #warning MOVE TO PDLOW.C
+   ^
+
+"pdb.c", line 1870: warning: #warning directive: MOVE TO PDLOW.C
+  #warning MOVE TO PDLOW.C
+   ^
+
+"pdb.c", line 1877: warning: #warning directive: MOVE TO PDLOW.C
+  #warning MOVE TO PDLOW.C
+   ^
+
+"pdb.c", line 1885: warning: #warning directive: MOVE TO PDBDIR.C
+  #warning MOVE TO PDBDIR.C
+   ^
+
+"pdb.c", line 1890: warning: #warning directive: MAYBE INCREASE MAXLINE FOR LEOSPACT
+  #warning MAYBE INCREASE MAXLINE FOR LEOSPACT
+   ^
+
+"pdb.c", line 1965: warning: #warning directive: SHOULD GO IN PDBMM.c
+  #warning SHOULD GO IN PDBMM.c
+   ^
+
+"pdb.c", line 2002: warning: variable "type" was declared but never referenced
+      char *nxt, *ptype, *type;
+                          ^
+
+"pdb.c", line 2005: warning: variable "dp2" was declared but never referenced
+      defstr *dp, *dp2;
+                   ^
+
+"pdb.c", line 2044: warning: variable "r" was declared but never referenced
+      char *p, *r, *t;
+                ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbio.c -MD -MF .deps/pdbio.TPlo -o pdbio.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbx.c -MD -MF .deps/pdbx.TPlo -o pdbx.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbdir.c -MD -MF .deps/pdbdir.TPlo -o pdbdir.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdmemb.c -MD -MF .deps/pdmemb.TPlo -o pdmemb.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdbmm.c -MD -MF .deps/pdbmm.TPlo -o pdbmm.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdconv.c -MD -MF .deps/pdconv.TPlo -o pdconv.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdb.c -MD -MF .deps/pdb.TPlo -o pdb.o >/dev/null 2>&1
+source='pdpath.c' object='pdpath.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdpath.lo pdpath.c
+source='pdrdwr.c' object='pdrdwr.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o pdrdwr.lo pdrdwr.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdlow.c -MD -MF .deps/pdlow.TPlo -o pdlow.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdpath.c -MD -MF .deps/pdpath.TPlo  -fPIC -DPIC -o .libs/pdpath.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdrdwr.c -MD -MF .deps/pdrdwr.TPlo  -fPIC -DPIC -o .libs/pdrdwr.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdpath.c -MD -MF .deps/pdpath.TPlo -o pdpath.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src/score -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c pdrdwr.c -MD -MF .deps/pdrdwr.TPlo -o pdrdwr.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_pdb.la  pdb.lo pdbdir.lo pdbio.lo pdbmm.lo pdbx.lo pdconv.lo pdlow.lo pdmemb.lo pdpath.lo pdrdwr.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_pdb.a .libs/pdb.o .libs/pdbdir.o .libs/pdbio.o .libs/pdbmm.o .libs/pdbx.o .libs/pdconv.o .libs/pdlow.o .libs/pdmemb.o .libs/pdpath.o .libs/pdrdwr.o 
+libtool: link: ranlib .libs/libsilo_pdb.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_pdb.la" && ln -s "../libsilo_pdb.la" "libsilo_pdb.la" )
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+Making all in silo
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+cat ./silo.h ./silo_f.h | ../../config/mkinc > silo.inc
+cat ./silo.h ./silo_f.h | ../../config/mkinc --f90 > silo_f9x.inc
+make  all-am
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+source='alloc.c' object='alloc.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o alloc.lo alloc.c
+source='extface.c' object='extface.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o extface.lo extface.c
+source='silo.c' object='silo.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo.lo silo.c
+source='silo_ns.c' object='silo_ns.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_ns.lo silo_ns.c
+source='utils.c' object='utils.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o utils.lo utils.c
+source='silo_f.c' object='silo_f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_f.lo silo_f.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c alloc.c -MD -MF .deps/alloc.TPlo  -fPIC -DPIC -o .libs/alloc.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c utils.c -MD -MF .deps/utils.TPlo  -fPIC -DPIC -o .libs/utils.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_f.c -MD -MF .deps/silo_f.TPlo  -fPIC -DPIC -o .libs/silo_f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c extface.c -MD -MF .deps/extface.TPlo  -fPIC -DPIC -o .libs/extface.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo.c -MD -MF .deps/silo.TPlo  -fPIC -DPIC -o .libs/silo.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_ns.c -MD -MF .deps/silo_ns.TPlo  -fPIC -DPIC -o .libs/silo_ns.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"silo.c", line 74: warning: #warning directive: SIMPLIFY HEADER INCLUSION LOGIC
+  #warning SIMPLIFY HEADER INCLUSION LOGIC
+   ^
+
+"alloc.c", line 909: warning: #warning directive: CHECK THIS LOGIC. IF ANY DIM>0, IT IS NOT EMPTY
+  #warning CHECK THIS LOGIC. IF ANY DIM>0, IT IS NOT EMPTY
+   ^
+
+"alloc.c", line 1354: warning: #warning directive: CHECK THIS LOGIC
+  #warning CHECK THIS LOGIC
+   ^
+
+"utils.c", line 319: warning: variable "pflt" was declared but never referenced
+      float *pflt;
+             ^
+
+"utils.c", line 320: warning: variable "pdbl" was declared but never referenced
+      double *pdbl;
+              ^
+
+"silo.c", line 229: warning: #warning directive: REDUCE USE OF THIS CONSTRUCT
+  #warning REDUCE USE OF THIS CONSTRUCT
+   ^
+
+"silo.c", line 287: warning: #warning directive: FIX THIS
+  #warning FIX THIS
+   ^
+
+"silo.c", line 1129: warning: #warning directive: WE SHOULD PROBABLY JUST EITHER MAKE THIS CONSISTENT OR PERHAPS COPY ALL CHARS INTO LINK@TARGET format
+  #warning WE SHOULD PROBABLY JUST EITHER MAKE THIS CONSISTENT OR PERHAPS COPY ALL CHARS INTO LINK@TARGET format
+   ^
+
+"silo.c", line 1734: warning: #warning directive: CLEAN UP IS LOST IN ABOVE EARLY RETURNS
+  #warning CLEAN UP IS LOST IN ABOVE EARLY RETURNS
+   ^
+
+"silo_f.c", line 4375: warning: variable "jrv" was declared but never referenced
+      API_BEGIN("dbsetcompress", int, -1) {
+      ^
+
+"silo_f.c", line 4373: warning: variable "optlist" was declared but never referenced
+      DBoptlist     *optlist = NULL;
+                     ^
+
+"silo.c", line 2534: warning: integer conversion resulted in a change of sign
+  DB_SETGET(unsigned long long, DataReadMask2, dataReadMask, DB_MASK_NOT_SET) 
+  ^
+
+"silo_f.c", line 4431: warning: statement is unreachable
+      API_END;
+      ^
+
+"silo.c", line 2534: warning: integer conversion resulted in a change of sign
+  DB_SETGET(unsigned long long, DataReadMask2, dataReadMask, DB_MASK_NOT_SET) 
+  ^
+
+"silo_f.c", line 4418: warning: parameter "cvalue" was set but never used
+  DBGETCOMPRESS_FC (FCD_DB cvalue, int *lcvalue)
+                           ^
+
+"silo.c", line 2535: warning: #warning directive: WHAT ABOUT FORCESINGLE SHOWERRORS
+  #warning WHAT ABOUT FORCESINGLE SHOWERRORS
+   ^
+
+"silo.c", line 2844: warning: #warning directive: FIX GLOBAL LOCK
+  #warning FIX GLOBAL LOCK
+   ^
+
+"silo.c", line 3585: warning: #warning directive: ADD DBSHOWERRORSFILE
+  #warning ADD DBSHOWERRORSFILE
+   ^
+
+"silo.c", line 3600: warning: #warning directive: GET RID OF SUSPEND/RESUME STUFF
+  #warning GET RID OF SUSPEND/RESUME STUFF
+   ^
+
+"silo.c", line 3974: warning: #warning directive: ADD compressionMinSize
+  #warning ADD compressionMinSize
+   ^
+
+"silo.c", line 3976: warning: #warning directive: CORRECT INITIALIZATION OF compressionErrmode
+  #warning CORRECT INITIALIZATION OF compressionErrmode
+   ^
+
+"silo.c", line 3979: warning: a value of type "const char *" cannot be assigned to an entity of type "char *"
+      dbfile->pub.file_scope_globals->compressionParams       = DB_CHAR_PTR_NOT_SET;
+                                                              ^
+
+"silo.c", line 3981: warning: a value of type "const void *" cannot be assigned to an entity of type "void (*)(char *)"
+      dbfile->pub.file_scope_globals->_db_err_func            = DB_VOID_PTR_NOT_SET;
+                                                              ^
+
+"silo.c", line 4416: warning: #warning directive: IS ORDER OF OPS CORRECT HERE
+  #warning IS ORDER OF OPS CORRECT HERE
+   ^
+
+"silo.c", line 4449: warning: variable "id" was declared but never referenced
+      int            id;
+                     ^
+
+"silo.c", line 5839: warning: #warning directive: ONLY IF SRC SIZE SMALLER THAN DST SIZE
+  #warning ONLY IF SRC SIZE SMALLER THAN DST SIZE
+   ^
+
+"silo.c", line 5934: warning: #warning directive: SHOULDNT WE USE FILE LENGTH FUNCTIONS HERE
+  #warning SHOULDNT WE USE FILE LENGTH FUNCTIONS HERE
+   ^
+
+"silo.c", line 5944: warning: #warning directive: DISALLOW SIMLINKS FOR NOW
+  #warning DISALLOW SIMLINKS FOR NOW
+   ^
+
+"silo.c", line 6010: warning: #warning directive: CHECK ARGS HERE. ALLOW FOR NULL dstFile AND dstObjAbsName
+  #warning CHECK ARGS HERE. ALLOW FOR NULL dstFile AND dstObjAbsName
+   ^
+
+"silo.c", line 6011: warning: #warning directive: WHY CHECK dstType HERE
+  #warning WHY CHECK dstType HERE
+   ^
+
+"silo.c", line 6038: warning: #warning directive: USE FILE-BASED FUNCTION WHEN AVAILABLE
+  #warning USE FILE-BASED FUNCTION WHEN AVAILABLE
+   ^
+
+"silo.c", line 6037: warning: variable "srcSize" was declared but never referenced
+          int srcSize, dstSize;
+              ^
+
+"silo.c", line 6037: warning: variable "dstSize" was declared but never referenced
+          int srcSize, dstSize;
+                       ^
+
+"silo.c", line 6072: warning: enumerated type mixed with another type
+              srcType = DB_QUAD_RECT;
+                      ^
+
+"silo.c", line 6074: warning: enumerated type mixed with another type
+              srcType = DB_QUAD_CURV;
+                      ^
+
+"silo.c", line 6253: warning: #warning directive: WHAT ABOUT API MACROS. MAYBE NOT NEEDED SINCE NOT CALLING DOWN INTO DRIVERS
+  #warning WHAT ABOUT API MACROS. MAYBE NOT NEEDED SINCE NOT CALLING DOWN INTO DRIVERS
+   ^
+
+"silo.c", line 6254: warning: #warning directive: WHAT ABOUT -f (force) OPTION
+  #warning WHAT ABOUT -f (force) OPTION
+   ^
+
+"silo.c", line 6273: warning: #warning directive: WARN ABOUT CERTAIN OPTIONS NOT YET SUPPORTED
+  #warning WARN ABOUT CERTAIN OPTIONS NOT YET SUPPORTED
+   ^
+
+"silo.c", line 6359: warning: #warning directive: FIX LEAKS WITH EARLY RETURN HERE
+  #warning FIX LEAKS WITH EARLY RETURN HERE
+   ^
+
+"silo.c", line 6466: warning: argument of type "const char *" is incompatible with parameter of type "void *"
+              free(srcDirBaseName);
+                   ^
+
+"silo.c", line 6390: warning: variable "savcwg" was declared but never referenced
+          char savcwg[1024], srccwg[1024], dstcwg[1024];
+               ^
+
+"silo.c", line 6391: warning: variable "opts2" was declared but never referenced
+          char opts2[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+               ^
+
+"silo.c", line 6392: warning: variable "otherItems" was declared but never referenced
+          char **dirItems, **otherItems;
+                             ^
+
+"silo.c", line 6393: warning: variable "otherItemCount" was declared but never referenced
+          int  dirItemCount, otherItemCount;
+                             ^
+
+"silo.c", line 6484: warning: missing return statement at end of non-void function "DBCp"
+  }
+  ^
+
+"silo.c", line 6256: warning: variable "j" was declared but never referenced
+      int i, j, pass, all_ok;
+             ^
+
+"silo.c", line 6256: warning: variable "pass" was declared but never referenced
+      int i, j, pass, all_ok;
+                ^
+
+"silo.c", line 6256: warning: variable "all_ok" was declared but never referenced
+      int i, j, pass, all_ok;
+                      ^
+
+"silo.c", line 6258: warning: variable "preserve_links" was set but never used
+      int preserve_links = 0;
+          ^
+
+"silo.c", line 6259: warning: variable "deref_links" was set but never used
+      int deref_links = 0;
+          ^
+
+"silo.c", line 6260: warning: variable "never_deref_links" was set but never used
+      int never_deref_links = 0;
+          ^
+
+"silo.c", line 6264: warning: variable "srcs_only" was set but never used
+      int srcs_only = 0;
+          ^
+
+"silo.c", line 6267: warning: variable "recursive_call" was set but never used
+      int recursive_call = 0;
+          ^
+
+"silo.c", line 6644: warning: #warning directive: FIX THIS METHOD
+  #warning FIX THIS METHOD
+   ^
+
+"silo.c", line 6660: warning: missing return statement at end of non-void function "DBGetPartialObject"
+  }
+  ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c extface.c -MD -MF .deps/extface.TPlo -o extface.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c utils.c -MD -MF .deps/utils.TPlo -o utils.o >/dev/null 2>&1
+"silo.c", line 8164: warning: #warning directive: DO WE NEED THIS METHOD
+  #warning DO WE NEED THIS METHOD
+   ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_ns.c -MD -MF .deps/silo_ns.TPlo -o silo_ns.o >/dev/null 2>&1
+"silo.c", line 8939: warning: #warning directive: BETTER PLACE TO NULL THESE
+  #warning BETTER PLACE TO NULL THESE
+   ^
+
+"silo.c", line 9338: warning: #warning directive: BETTER PLACE TO NULL THESE
+  #warning BETTER PLACE TO NULL THESE
+   ^
+
+"silo.c", line 10330: warning: #warning directive: HI AND LO OFFSET NOT VALID IN PRESENCE OF EXPLICIT GHOST LABELS
+  #warning HI AND LO OFFSET NOT VALID IN PRESENCE OF EXPLICIT GHOST LABELS
+   ^
+
+"silo.c", line 13312: warning: #warning directive: TEST THIS LOGIC
+  #warning TEST THIS LOGIC
+   ^
+
+"silo.c", line 13459: warning: variable "nearlyDone" was set but never used
+      int i=0, s=0, n=0, hasColon=0, nearlyDone = 0, completelyDone = 0, slashCharsToSwap[128];
+                                     ^
+
+"silo.c", line 5801: warning: function "db_validate_copy_step" was declared but never referenced
+  db_validate_copy_step(int pass, int recurse,
+  ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c alloc.c -MD -MF .deps/alloc.TPlo -o alloc.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_f.c -MD -MF .deps/silo_f.TPlo -o silo_f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I../../src -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo.c -MD -MF .deps/silo.TPlo -o silo.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_silo.la  alloc.lo extface.lo silo.lo silo_ns.lo utils.lo silo_f.lo   -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_silo.a .libs/alloc.o .libs/extface.o .libs/silo.o .libs/silo_ns.o .libs/utils.o .libs/silo_f.o 
+libtool: link: ranlib .libs/libsilo_silo.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_silo.la" && ln -s "../libsilo_silo.la" "libsilo_silo.la" )
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+Making all in debug
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+source='silo_debug.c' object='silo_debug.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_debug.lo silo_debug.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_debug.c -MD -MF .deps/silo_debug.TPlo  -fPIC -DPIC -o .libs/silo_debug.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_debug.c -MD -MF .deps/silo_debug.TPlo -o silo_debug.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_debug.la  silo_debug.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_debug.a .libs/silo_debug.o 
+libtool: link: ranlib .libs/libsilo_debug.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_debug.la" && ln -s "../libsilo_debug.la" "libsilo_debug.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+Making all in netcdf
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+source='api.c' object='api.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o api.lo api.c
+source='ent.c' object='ent.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o ent.lo ent.c
+source='netcdf.c' object='netcdf.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o netcdf.lo netcdf.c
+source='obj.c' object='obj.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o obj.lo obj.c
+source='silo_netcdf.c' object='silo_netcdf.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_netcdf.lo silo_netcdf.c
+source='table.c' object='table.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo  -I./../score  -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o table.lo table.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c api.c -MD -MF .deps/api.TPlo  -fPIC -DPIC -o .libs/api.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c obj.c -MD -MF .deps/obj.TPlo  -fPIC -DPIC -o .libs/obj.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c netcdf.c -MD -MF .deps/netcdf.TPlo  -fPIC -DPIC -o .libs/netcdf.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c table.c -MD -MF .deps/table.TPlo  -fPIC -DPIC -o .libs/table.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c ent.c -MD -MF .deps/ent.TPlo  -fPIC -DPIC -o .libs/ent.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_netcdf.c -MD -MF .deps/silo_netcdf.TPlo  -fPIC -DPIC -o .libs/silo_netcdf.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c table.c -MD -MF .deps/table.TPlo -o table.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c netcdf.c -MD -MF .deps/netcdf.TPlo -o netcdf.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c obj.c -MD -MF .deps/obj.TPlo -o obj.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c ent.c -MD -MF .deps/ent.TPlo -o ent.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c api.c -MD -MF .deps/api.TPlo -o api.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_netcdf.c -MD -MF .deps/silo_netcdf.TPlo -o silo_netcdf.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_netcdf.la  api.lo ent.lo netcdf.lo obj.lo silo_netcdf.lo table.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_netcdf.a .libs/api.o .libs/ent.o .libs/netcdf.o .libs/obj.o .libs/silo_netcdf.o .libs/table.o 
+libtool: link: ranlib .libs/libsilo_netcdf.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_netcdf.la" && ln -s "../libsilo_netcdf.la" "libsilo_netcdf.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+Making all in pdb_drv
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+source='silo_pdb.c' object='silo_pdb.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_pdb.lo silo_pdb.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_pdb.c -MD -MF .deps/silo_pdb.TPlo  -fPIC -DPIC -o .libs/silo_pdb.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"silo_pdb.c", line 3766: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetDefvars";
+                    ^
+
+"silo_pdb.c", line 3956: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetMultimesh";
+                    ^
+
+"silo_pdb.c", line 4046: warning: variable "nlsname" was declared but never referenced
+     char          tmp[256], *nlsname = 0, zlsname = 0;
+                              ^
+
+"silo_pdb.c", line 4046: warning: variable "zlsname" was declared but never referenced
+     char          tmp[256], *nlsname = 0, zlsname = 0;
+                                           ^
+
+"silo_pdb.c", line 4243: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetMultivar";
+                    ^
+
+"silo_pdb.c", line 4378: warning: variable "s" was declared but never referenced
+     char          *tmpnames=NULL, *s=NULL, *name=NULL, tmp[256];
+                                    ^
+
+"silo_pdb.c", line 4378: warning: variable "name" was declared but never referenced
+     char          *tmpnames=NULL, *s=NULL, *name=NULL, tmp[256];
+                                             ^
+
+"silo_pdb.c", line 4382: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetMultimat";
+                    ^
+
+"silo_pdb.c", line 4500: warning: variable "s" was declared but never referenced
+     char              *tmpnames=NULL, *s=NULL, *name=NULL, tmp[256];
+                                        ^
+
+"silo_pdb.c", line 4500: warning: variable "name" was declared but never referenced
+     char              *tmpnames=NULL, *s=NULL, *name=NULL, tmp[256];
+                                                 ^
+
+"silo_pdb.c", line 4504: warning: variable "me" was declared but never referenced
+     static char       *me = "db_pdb_GetMultimatspecies";
+                        ^
+
+"silo_pdb.c", line 4627: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetPointmesh";
+                  ^
+
+"silo_pdb.c", line 4776: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetPointvar";
+                  ^
+
+"silo_pdb.c", line 4919: warning: variable "me" was declared but never referenced
+      static char *me = "db_pdb_GetQuadmesh";
+                   ^
+
+"silo_pdb.c", line 5084: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetQuadvar";
+                  ^
+
+"silo_pdb.c", line 5264: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetUcdmesh";
+                  ^
+
+"silo_pdb.c", line 5585: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetUcdvar";
+                  ^
+
+"silo_pdb.c", line 5703: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetCsgmesh";
+                  ^
+
+"silo_pdb.c", line 5812: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_GetCsgvar";
+                  ^
+
+"silo_pdb.c", line 5917: warning: variable "me" was declared but never referenced
+      static char *me = "db_pdb_GetFacelist";
+                   ^
+
+"silo_pdb.c", line 5996: warning: variable "me" was declared but never referenced
+      static char         *me = "db_pdb_GetZonelist";
+                           ^
+
+"silo_pdb.c", line 6095: warning: variable "me" was declared but never referenced
+      static char         *me = "db_pdb_GetPHZonelist";
+                           ^
+
+"silo_pdb.c", line 6180: warning: variable "me" was declared but never referenced
+      static char        *me = "db_pdb_GetCSGZonelist";
+                          ^
+
+"silo_pdb.c", line 6633: warning: variable "me" was declared but never referenced
+      static char const *me = "db_pdb_get_obj_dsnames";
+                         ^
+
+"silo_pdb.c", line 6783: warning: type qualifier is meaningless on cast type
+          int const halfn = (int const) sizeof(double)/2;
+                             ^
+
+"silo_pdb.c", line 6781: warning: variable "mix_zone" was declared but never referenced
+          int mix_next, mix_mat, mix_zone;
+                                 ^
+
+"silo_pdb.c", line 6739: warning: variable "origmat" was set but never used
+      DBmaterial *origmat = 0, *mat = 0;
+                  ^
+
+"silo_pdb.c", line 6866: warning: statement is unreachable
+      return db_perror(vname, E_CALLFAIL, me);
+      ^
+
+"silo_pdb.c", line 6830: warning: variable "dbfile" was declared but never referenced
+      DBfile_pdb    *dbfile = (DBfile_pdb *) _dbfile;
+                     ^
+
+"silo_pdb.c", line 6835: warning: variable "db_type" was declared but never referenced
+      int db_type, db_type_size;
+          ^
+
+"silo_pdb.c", line 6835: warning: variable "db_type_size" was declared but never referenced
+      int db_type, db_type_size;
+                   ^
+
+"silo_pdb.c", line 6836: warning: variable "i" was declared but never referenced
+      int i, j, k;
+          ^
+
+"silo_pdb.c", line 6836: warning: variable "j" was declared but never referenced
+      int i, j, k;
+             ^
+
+"silo_pdb.c", line 6836: warning: variable "k" was declared but never referenced
+      int i, j, k;
+                ^
+
+"silo_pdb.c", line 6837: warning: variable "p" was declared but never referenced
+      char *p;
+            ^
+
+"silo_pdb.c", line 7040: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetMrgtree";
+                    ^
+
+"silo_pdb.c", line 7257: warning: variable "me" was declared but never referenced
+      static char *me = "db_pdb_GetGroupelmap";
+                   ^
+
+"silo_pdb.c", line 7368: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_GetMrgvar";
+                    ^
+
+"silo_pdb.c", line 7892: warning: variable "me" was declared but never referenced
+     static char  *me = "db_pdb_PutCurve" ;
+                   ^
+
+"silo_pdb.c", line 7986: warning: variable "cur" was declared but never referenced
+     char          *tmp = NULL, *cur = NULL;
+                                 ^
+
+"silo_pdb.c", line 11297: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_PutUcdvar";
+                    ^
+
+"silo_pdb.c", line 12103: warning: variable "me" was declared but never referenced
+     static char   *me = "db_pdb_PutMrgvar";
+                    ^
+
+"silo_pdb.c", line 12194: warning: variable "me" was declared but never referenced
+     static char *me = "db_pdb_SortObjectsByOffset";
+                  ^
+
+"silo_pdb.c", line 12393: warning: variable "is_empty" was set but never used
+     int            i, is_empty = 1;
+                       ^
+
+"silo_pdb.c", line 156: warning: function "PJ_read_as" was declared but never referenced
+  PJ_read_as (PDBfile *file, char *name, char *type, void *var) {
+  ^
+
+"silo_pdb.c", line 179: warning: function "PJ_read_as_alt" was declared but never referenced
+  PJ_read_as_alt (PDBfile *file, char *name, char *type, void *var, long *ind) {
+  ^
+
+"silo_pdb.c", line 1619: warning: function "PJ_print_group" was declared but never referenced
+  PJ_print_group (PJgroup *group, FILE *fp) {
+  ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../pdb -I./../silo -I./../silo -I./../score -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_pdb.c -MD -MF .deps/silo_pdb.TPlo -o silo_pdb.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_pdb_drv.la  silo_pdb.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_pdb_drv.a .libs/silo_pdb.o 
+libtool: link: ranlib .libs/libsilo_pdb_drv.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_pdb_drv.la" && ln -s "../libsilo_pdb_drv.la" "libsilo_pdb_drv.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+Making all in hdf5_drv
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+source='silo_hdf5.c' object='silo_hdf5.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo   -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_hdf5.lo silo_hdf5.c
+source='H5FDsilo.c' object='H5FDsilo.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo   -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o H5FDsilo.lo H5FDsilo.c
+source='H5Zzfp.c' object='H5Zzfp.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo   -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o H5Zzfp.lo H5Zzfp.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_hdf5.c -MD -MF .deps/silo_hdf5.TPlo  -fPIC -DPIC -o .libs/silo_hdf5.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c H5Zzfp.c -MD -MF .deps/H5Zzfp.TPlo  -fPIC -DPIC -o .libs/H5Zzfp.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c H5FDsilo.c -MD -MF .deps/H5FDsilo.TPlo  -fPIC -DPIC -o .libs/H5FDsilo.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"silo_hdf5.c", line 61: warning: #warning directive: DO WE NEED THIS HEADER FILE
+  #warning DO WE NEED THIS HEADER FILE
+   ^
+
+"./../zfp-0.5.5/include/zfp/types.h", line 5: warning: typedef name has already been declared (with same type)
+  typedef unsigned short ushort;
+                         ^
+
+"./../zfp-0.5.5/include/zfp/types.h", line 6: warning: typedef name has already been declared (with same type)
+  typedef unsigned int uint;
+                       ^
+
+"H5Zzfp.c", line 128: warning: function "H5Z_zfp_final" was declared but never referenced
+  static void H5Z_zfp_final(void)
+              ^
+
+"H5FDsilo.c", line 500: warning: #warning directive: REMOVE ME
+  #warning REMOVE ME
+   ^
+
+"H5FDsilo.c", line 1153: warning: variable "func" was declared but never referenced
+      static const char *func="H5FD_silo_init";
+                         ^
+
+"silo_hdf5_private.h", line 110: warning: #warning directive: REMOVE db_hdf5_CpListedObjects
+  #warning REMOVE db_hdf5_CpListedObjects
+   ^
+
+"H5FDsilo.c", line 1211: warning: variable "ret_value" was set but never used
+      herr_t ret_value = 0;
+             ^
+
+"H5FDsilo.c", line 1316: warning: variable "file" was declared but never referenced
+      H5FD_silo_t	*file = (H5FD_silo_t*)_file;
+                 	 ^
+
+"H5FDsilo.c", line 1317: warning: variable "nseen" was declared but never referenced
+      unsigned		nseen = 0;
+              		^
+
+"H5FDsilo.c", line 1376: warning: variable "file" was declared but never referenced
+      H5FD_silo_t	*file = (H5FD_silo_t*)_file;
+                 	 ^
+
+"H5FDsilo.c", line 1378: warning: variable "ap" was set but never used
+      hsize_t           *ap;
+                         ^
+
+"H5FDsilo.c", line 1447: warning: variable "ret_value" was set but never used
+      H5FD_t *ret_value = 0;
+              ^
+
+"silo_hdf5.c", line 1869: warning: argument of type "char" is incompatible with parameter of type "const char *"
+              DB_OBJ_CASE(DB_CURVE, DBcurve_mt, npts?1:1, yvarname)
+              ^
+
+"silo_hdf5.c", line 1820: warning: variable "me" was declared but never referenced
+      static char         *me = "db_hdf5_get_obj_dsnames";
+                           ^
+
+"H5FDsilo.c", line 1586: warning: variable "ret_value" was set but never used
+      herr_t ret_value = 0;
+             ^
+
+"silo_hdf5.c", line 2173: warning: function "zfp_init_zfp" declared implicitly
+      zfp_init_zfp();
+      ^
+
+"H5FDsilo.c", line 1981: warning: #warning directive: TAKE ADVANTAGE OF TYPE INFO HERE
+  #warning TAKE ADVANTAGE OF TYPE INFO HERE
+   ^
+
+"H5FDsilo.c", line 2005: warning: variable "func" was declared but never referenced
+      static const char  *func="H5FD_silo_get_handle";  /* Function Name for error reporting */
+                          ^
+
+"H5FDsilo.c", line 2049: warning: variable "ret_value" was set but never used
+      herr_t ret_value = 0;
+             ^
+
+"H5FDsilo.c", line 2180: warning: variable "ret_value" was set but never used
+      herr_t ret_value = 0;
+             ^
+
+"H5FDsilo.c", line 2310: warning: statement is unreachable
+      dxpl_id = dxpl_id;
+      ^
+
+"H5FDsilo.c", line 2304: warning: variable "ret_value" was set but never used
+      herr_t ret_value = 0;
+             ^
+
+"H5FDsilo.c", line 223: warning: function "flavors" was declared but never referenced
+  static const char *flavors(H5F_mem_t m)
+                     ^
+
+"silo_hdf5.c", line 2799: warning: #warning directive: GET RID OF CPLISTEDOBJECTS
+  #warning GET RID OF CPLISTEDOBJECTS
+   ^
+
+"silo_hdf5.c", line 3347: warning: #warning directive: WHAT ABOUT NULL RETURN FROM DBGETCOMPRESSION
+  #warning WHAT ABOUT NULL RETURN FROM DBGETCOMPRESSION
+   ^
+
+"silo_hdf5.c", line 3378: warning: #warning directive: FIX MISSING .compressionMinsize member
+  #warning FIX MISSING .compressionMinsize member
+   ^
+
+"silo_hdf5.c", line 3396: warning: #warning directive: QUERY FILE LEVEL COMPRESSION PARAMS HERE
+  #warning QUERY FILE LEVEL COMPRESSION PARAMS HERE
+   ^
+
+"silo_hdf5.c", line 3311: warning: variable "block" was declared but never referenced
+      int level, block, nfilters;
+                 ^
+
+"silo_hdf5.c", line 3312: warning: variable "nbits" was declared but never referenced
+      int nbits, prec;
+          ^
+
+"silo_hdf5.c", line 3312: warning: variable "prec" was declared but never referenced
+      int nbits, prec;
+                 ^
+
+"silo_hdf5.c", line 3313: warning: variable "have_szip" was set but never used
+      int have_gzip, have_szip, have_fpzip, have_hzip, have_zfp, i;
+                     ^
+
+"silo_hdf5.c", line 3313: warning: variable "have_fpzip" was set but never used
+      int have_gzip, have_szip, have_fpzip, have_hzip, have_zfp, i;
+                                ^
+
+"silo_hdf5.c", line 3313: warning: variable "have_hzip" was set but never used
+      int have_gzip, have_szip, have_fpzip, have_hzip, have_zfp, i;
+                                            ^
+
+"silo_hdf5.c", line 3315: warning: variable "filter_config_flags" was declared but never referenced
+      unsigned int filter_config_flags, opt_flag;
+                   ^
+
+"silo_hdf5.c", line 4121: warning: #warning directive: REVISIT THIS CODE BLOCK
+  #warning REVISIT THIS CODE BLOCK
+   ^
+
+"silo_hdf5.c", line 4736: warning: #warning directive: HARD CODED SIZE HERE
+  #warning HARD CODED SIZE HERE
+   ^
+
+"silo_hdf5.c", line 4960: warning: #warning directive: FIX ME...THIS NEEDS TO BE CONDITION ON COMPAT MODE WORKS FOR 1.8.0
+  #warning FIX ME...THIS NEEDS TO BE CONDITION ON COMPAT MODE WORKS FOR 1.8.0
+   ^
+
+"silo_hdf5.c", line 4967: warning: #warning directive: SET FRIENDLY NAMES TO 2 but only at file level
+  #warning SET FRIENDLY NAMES TO 2 but only at file level
+   ^
+
+"silo_hdf5.c", line 5004: warning: #warning directive: REMOVED WINDOWS SPECIFIC CHECK
+  #warning REMOVED WINDOWS SPECIFIC CHECK
+   ^
+
+"silo_hdf5.c", line 5079: warning: statement is unreachable
+              break;
+              ^
+
+"silo_hdf5.c", line 5094: warning: #warning directive: DO WE STILL NEED THIS
+  #warning DO WE STILL NEED THIS
+   ^
+
+"silo_hdf5.c", line 5097: warning: statement is unreachable
+              break;
+              ^
+
+"silo_hdf5.c", line 5158: warning: #warning directive: REMOVED WINDOWS SPECIFIC CHECK
+  #warning REMOVED WINDOWS SPECIFIC CHECK
+   ^
+
+"silo_hdf5.c", line 5352: warning: statement is unreachable
+                      break;
+                      ^
+
+"silo_hdf5.c", line 5433: warning: #warning directive: DO WE STILL NEED THIS
+  #warning DO WE STILL NEED THIS
+   ^
+
+"silo_hdf5.c", line 5403: warning: variable "use_gpfs_hints" was set but never used
+                      hbool_t use_gpfs_hints = TRUE;
+                              ^
+
+"silo_hdf5.c", line 5517: warning: #warning directive: FIX THIS
+  #warning FIX THIS
+   ^
+
+"silo_hdf5.c", line 5971: warning: #warning directive: BACKWARD COMPAT ISSUE FOR HDF5
+  #warning BACKWARD COMPAT ISSUE FOR HDF5
+   ^
+
+"silo_hdf5.c", line 6006: warning: #warning directive: FIX FILE SCOPE GLOBAL INITIALIZATION
+  #warning FIX FILE SCOPE GLOBAL INITIALIZATION
+   ^
+
+"silo_hdf5.c", line 6096: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_Flush";
+                   ^
+
+"silo_hdf5.c", line 6470: warning: #warning directive: WHY THIS SIZE
+  #warning WHY THIS SIZE
+   ^
+
+"silo_hdf5.c", line 6441: warning: variable "obj" was declared but never referenced
+          DBobject    *obj=NULL;
+                       ^
+
+"silo_hdf5.c", line 6596: warning: variable "dstfile" was declared but never referenced
+      DBfile_hdf5 *dstfile = (DBfile_hdf5*)dstFile;
+                   ^
+
+"silo_hdf5.c", line 6597: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_CpDir";
+                   ^
+
+"silo_hdf5.c", line 6639: warning: #warning directive: REMOVE THIS MAYBE
+  #warning REMOVE THIS MAYBE
+   ^
+
+"silo_hdf5.c", line 6646: warning: variable "dstfile" was declared but never referenced
+      DBfile_hdf5 *dstfile = (DBfile_hdf5*)dstFile;
+                   ^
+
+"silo_hdf5.c", line 6647: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_CpListedObjects";
+                   ^
+
+"silo_hdf5.c", line 7376: warning: #warning directive: COMPATABILITY ISSUE
+  #warning COMPATABILITY ISSUE
+   ^
+
+"silo_hdf5.c", line 7710: warning: integer conversion resulted in a change of sign
+      hsize_t     nelmts=-1;
+                         ^
+
+"silo_hdf5.c", line 7749: warning: #warning directive: REMOVED db_perror CALLS
+  #warning REMOVED db_perror CALLS
+   ^
+
+"silo_hdf5.c", line 7744: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_GetVarByteLength";
+                   ^
+
+"silo_hdf5.c", line 8395: warning: #warning directive: WHAT IF EXISTING DATASET WAS COMPRESSED
+  #warning WHAT IF EXISTING DATASET WAS COMPRESSED
+   ^
+
+"silo_hdf5.c", line 8437: warning: #warning directive: COMPARE TO -1 OR TO NEGATIVE
+  #warning COMPARE TO -1 OR TO NEGATIVE
+   ^
+
+"silo_hdf5.c", line 8459: warning: #warning directive: COMPARE TO -1 OR NEGATIVE
+  #warning COMPARE TO -1 OR NEGATIVE
+   ^
+
+"silo_hdf5.c", line 8684: warning: #warning directive: THIS IFDEFD CODE IS IN TRANSITION TO BETTER GENERIC OBJECTS
+  #warning THIS IFDEFD CODE IS IN TRANSITION TO BETTER GENERIC OBJECTS
+   ^
+
+"silo_hdf5.c", line 8781: warning: #warning directive: REVISIT THIS CLEANUP CODE. IS THERE A BETTER SYMBOLIC VALUE THAN -1
+  #warning REVISIT THIS CLEANUP CODE. IS THERE A BETTER SYMBOLIC VALUE THAN -1
+   ^
+
+"silo_hdf5.c", line 8786: warning: #warning directive: USE FREE() MACRO HERE
+  #warning USE FREE() MACRO HERE
+   ^
+
+"silo_hdf5.c", line 8798: warning: #warning directive: USE FREE() MACRO HERE
+  #warning USE FREE() MACRO HERE
+   ^
+
+"silo_hdf5.c", line 9744: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_PutDefvars";
+                   ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c H5Zzfp.c -MD -MF .deps/H5Zzfp.TPlo -o H5Zzfp.o >/dev/null 2>&1
+"silo_hdf5.c", line 11929: warning: variable "i" was declared but never referenced
+  	int i;
+  	    ^
+
+"silo_hdf5.c", line 11930: warning: variable "ntopo" was declared but never referenced
+      int ntopo = 0, zncnt = 0;
+          ^
+
+"silo_hdf5.c", line 11930: warning: variable "zncnt" was set but never used
+      int ntopo = 0, zncnt = 0;
+                     ^
+
+"silo_hdf5.c", line 13434: warning: variable "s" was declared but never referenced
+      char                *s=NULL;
+                           ^
+
+"silo_hdf5.c", line 13708: warning: variable "typestring" was declared but never referenced
+      char                *typestring = NULL;
+                           ^
+
+"silo_hdf5.c", line 14304: warning: #warning directive: REPLACE WITH STRING UTILITIES
+  #warning REPLACE WITH STRING UTILITIES
+   ^
+
+"silo_hdf5.c", line 14342: warning: #warning directive: IS THIS TAKEN CARE OF ELSEWHERE
+  #warning IS THIS TAKEN CARE OF ELSEWHERE
+   ^
+
+"silo_hdf5.c", line 14352: warning: #warning directive: IS THIS TAKEN CARE OF ELSEWHERE
+  #warning IS THIS TAKEN CARE OF ELSEWHERE
+   ^
+
+"silo_hdf5.c", line 15574: warning: variable "me" was declared but never referenced
+      static char         *me = "db_hdf5_InqVarType";
+                           ^
+
+"silo_hdf5.c", line 16169: warning: variable "s" was declared but never referenced
+      char               *s = NULL;
+                          ^
+
+"silo_hdf5.c", line 16625: warning: variable "me" was declared but never referenced
+      static char *me = "db_hdf5_SortObjectsByOffset";
+                   ^
+
+"silo_hdf5.c", line 1760: warning: function "db_hdf5_file" was declared but never referenced
+  db_hdf5_file(DBfile *_dbfile)
+  ^
+
+"silo_hdf5.c", line 1785: warning: function "db_hdf5_cwg" was declared but never referenced
+  db_hdf5_cwg(DBfile *_dbfile)
+  ^
+
+"silo_hdf5.c", line 4525: warning: function "db_hdf5_compckz" was declared but never referenced
+  db_hdf5_compckz(DBfile_hdf5 *dbfile, char *name)
+  ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c H5FDsilo.c -MD -MF .deps/H5FDsilo.TPlo -o H5FDsilo.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -DH5_HAVE_FILTER_ZFP -DH5Z_ZFP_AS_LIB -DAS_SILO_BUILTIN -I./../zfp-0.5.5/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_hdf5.c -MD -MF .deps/silo_hdf5.TPlo -o silo_hdf5.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_hdf5_drv.la  silo_hdf5.lo H5FDsilo.lo H5Zzfp.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_hdf5_drv.a .libs/silo_hdf5.o .libs/H5FDsilo.o .libs/H5Zzfp.o 
+libtool: link: ranlib .libs/libsilo_hdf5_drv.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_hdf5_drv.la" && ln -s "../libsilo_hdf5_drv.la" "libsilo_hdf5_drv.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+Making all in taurus
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+source='silo_taurus.c' object='silo_taurus.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_taurus.lo silo_taurus.c
+source='taurus.c' object='taurus.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o taurus.lo taurus.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c taurus.c -MD -MF .deps/taurus.TPlo  -fPIC -DPIC -o .libs/taurus.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_taurus.c -MD -MF .deps/silo_taurus.TPlo  -fPIC -DPIC -o .libs/silo_taurus.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_taurus.c -MD -MF .deps/silo_taurus.TPlo -o silo_taurus.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c taurus.c -MD -MF .deps/taurus.TPlo -o taurus.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_taurus.la  silo_taurus.lo taurus.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_taurus.a .libs/silo_taurus.o .libs/taurus.o 
+libtool: link: ranlib .libs/libsilo_taurus.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_taurus.la" && ln -s "../libsilo_taurus.la" "libsilo_taurus.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+Making all in zfp-0.5.5
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+source='src/bitstream.c' object='src/bitstream.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/bitstream.lo src/bitstream.c
+source='src/decode1d.c' object='src/decode1d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode1d.lo src/decode1d.c
+source='src/decode1f.c' object='src/decode1f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode1f.lo src/decode1f.c
+source='src/decode1i.c' object='src/decode1i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode1i.lo src/decode1i.c
+source='src/decode1l.c' object='src/decode1l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode1l.lo src/decode1l.c
+source='src/decode2d.c' object='src/decode2d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode2d.lo src/decode2d.c
+source='src/decode2f.c' object='src/decode2f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode2f.lo src/decode2f.c
+source='src/decode2i.c' object='src/decode2i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode2i.lo src/decode2i.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2d.c -MD -MF src/.deps/decode2d.TPlo  -fPIC -DPIC -o src/.libs/decode2d.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1f.c -MD -MF src/.deps/decode1f.TPlo  -fPIC -DPIC -o src/.libs/decode1f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1l.c -MD -MF src/.deps/decode1l.TPlo  -fPIC -DPIC -o src/.libs/decode1l.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1i.c -MD -MF src/.deps/decode1i.TPlo  -fPIC -DPIC -o src/.libs/decode1i.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2i.c -MD -MF src/.deps/decode2i.TPlo  -fPIC -DPIC -o src/.libs/decode2i.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1d.c -MD -MF src/.deps/decode1d.TPlo  -fPIC -DPIC -o src/.libs/decode1d.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2f.c -MD -MF src/.deps/decode2f.TPlo  -fPIC -DPIC -o src/.libs/decode2f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/bitstream.c -MD -MF src/.deps/bitstream.TPlo  -fPIC -DPIC -o src/.libs/bitstream.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/bitstream.c -MD -MF src/.deps/bitstream.TPlo -o src/bitstream.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1i.c -MD -MF src/.deps/decode1i.TPlo -o src/decode1i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1l.c -MD -MF src/.deps/decode1l.TPlo -o src/decode1l.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2i.c -MD -MF src/.deps/decode2i.TPlo -o src/decode2i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1f.c -MD -MF src/.deps/decode1f.TPlo -o src/decode1f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode1d.c -MD -MF src/.deps/decode1d.TPlo -o src/decode1d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2d.c -MD -MF src/.deps/decode2d.TPlo -o src/decode2d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2f.c -MD -MF src/.deps/decode2f.TPlo -o src/decode2f.o >/dev/null 2>&1
+source='src/decode2l.c' object='src/decode2l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode2l.lo src/decode2l.c
+source='src/decode3d.c' object='src/decode3d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode3d.lo src/decode3d.c
+source='src/decode3f.c' object='src/decode3f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode3f.lo src/decode3f.c
+source='src/decode3i.c' object='src/decode3i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode3i.lo src/decode3i.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2l.c -MD -MF src/.deps/decode2l.TPlo  -fPIC -DPIC -o src/.libs/decode2l.o
+source='src/decode3l.c' object='src/decode3l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode3l.lo src/decode3l.c
+source='src/decode4d.c' object='src/decode4d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode4d.lo src/decode4d.c
+source='src/decode4f.c' object='src/decode4f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode4f.lo src/decode4f.c
+source='src/decode4i.c' object='src/decode4i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode4i.lo src/decode4i.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3d.c -MD -MF src/.deps/decode3d.TPlo  -fPIC -DPIC -o src/.libs/decode3d.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3f.c -MD -MF src/.deps/decode3f.TPlo  -fPIC -DPIC -o src/.libs/decode3f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3i.c -MD -MF src/.deps/decode3i.TPlo  -fPIC -DPIC -o src/.libs/decode3i.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4d.c -MD -MF src/.deps/decode4d.TPlo  -fPIC -DPIC -o src/.libs/decode4d.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4f.c -MD -MF src/.deps/decode4f.TPlo  -fPIC -DPIC -o src/.libs/decode4f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3l.c -MD -MF src/.deps/decode3l.TPlo  -fPIC -DPIC -o src/.libs/decode3l.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4i.c -MD -MF src/.deps/decode4i.TPlo  -fPIC -DPIC -o src/.libs/decode4i.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode2l.c -MD -MF src/.deps/decode2l.TPlo -o src/decode2l.o >/dev/null 2>&1
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3i.c -MD -MF src/.deps/decode3i.TPlo -o src/decode3i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3f.c -MD -MF src/.deps/decode3f.TPlo -o src/decode3f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3d.c -MD -MF src/.deps/decode3d.TPlo -o src/decode3d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode3l.c -MD -MF src/.deps/decode3l.TPlo -o src/decode3l.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4i.c -MD -MF src/.deps/decode4i.TPlo -o src/decode4i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4d.c -MD -MF src/.deps/decode4d.TPlo -o src/decode4d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4f.c -MD -MF src/.deps/decode4f.TPlo -o src/decode4f.o >/dev/null 2>&1
+source='src/decode4l.c' object='src/decode4l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/decode4l.lo src/decode4l.c
+source='src/encode1d.c' object='src/encode1d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode1d.lo src/encode1d.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4l.c -MD -MF src/.deps/decode4l.TPlo  -fPIC -DPIC -o src/.libs/decode4l.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='src/encode1f.c' object='src/encode1f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode1f.lo src/encode1f.c
+source='src/encode1i.c' object='src/encode1i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode1i.lo src/encode1i.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1d.c -MD -MF src/.deps/encode1d.TPlo  -fPIC -DPIC -o src/.libs/encode1d.o
+source='src/encode1l.c' object='src/encode1l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode1l.lo src/encode1l.c
+source='src/encode2d.c' object='src/encode2d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode2d.lo src/encode2d.c
+source='src/encode2f.c' object='src/encode2f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode2f.lo src/encode2f.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='src/encode2i.c' object='src/encode2i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode2i.lo src/encode2i.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1f.c -MD -MF src/.deps/encode1f.TPlo  -fPIC -DPIC -o src/.libs/encode1f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1i.c -MD -MF src/.deps/encode1i.TPlo  -fPIC -DPIC -o src/.libs/encode1i.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1l.c -MD -MF src/.deps/encode1l.TPlo  -fPIC -DPIC -o src/.libs/encode1l.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2d.c -MD -MF src/.deps/encode2d.TPlo  -fPIC -DPIC -o src/.libs/encode2d.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/decode4l.c -MD -MF src/.deps/decode4l.TPlo -o src/decode4l.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2f.c -MD -MF src/.deps/encode2f.TPlo  -fPIC -DPIC -o src/.libs/encode2f.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2i.c -MD -MF src/.deps/encode2i.TPlo  -fPIC -DPIC -o src/.libs/encode2i.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1d.c -MD -MF src/.deps/encode1d.TPlo -o src/encode1d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1i.c -MD -MF src/.deps/encode1i.TPlo -o src/encode1i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1l.c -MD -MF src/.deps/encode1l.TPlo -o src/encode1l.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode1f.c -MD -MF src/.deps/encode1f.TPlo -o src/encode1f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2d.c -MD -MF src/.deps/encode2d.TPlo -o src/encode2d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2i.c -MD -MF src/.deps/encode2i.TPlo -o src/encode2i.o >/dev/null 2>&1
+source='src/encode2l.c' object='src/encode2l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode2l.lo src/encode2l.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2f.c -MD -MF src/.deps/encode2f.TPlo -o src/encode2f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2l.c -MD -MF src/.deps/encode2l.TPlo  -fPIC -DPIC -o src/.libs/encode2l.o
+source='src/encode3d.c' object='src/encode3d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode3d.lo src/encode3d.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='src/encode3f.c' object='src/encode3f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode3f.lo src/encode3f.c
+source='src/encode3i.c' object='src/encode3i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode3i.lo src/encode3i.c
+source='src/encode3l.c' object='src/encode3l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode3l.lo src/encode3l.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3d.c -MD -MF src/.deps/encode3d.TPlo  -fPIC -DPIC -o src/.libs/encode3d.o
+source='src/encode4d.c' object='src/encode4d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode4d.lo src/encode4d.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3f.c -MD -MF src/.deps/encode3f.TPlo  -fPIC -DPIC -o src/.libs/encode3f.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3i.c -MD -MF src/.deps/encode3i.TPlo  -fPIC -DPIC -o src/.libs/encode3i.o
+source='src/encode4f.c' object='src/encode4f.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode4f.lo src/encode4f.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode2l.c -MD -MF src/.deps/encode2l.TPlo -o src/encode2l.o >/dev/null 2>&1
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3l.c -MD -MF src/.deps/encode3l.TPlo  -fPIC -DPIC -o src/.libs/encode3l.o
+source='src/encode4i.c' object='src/encode4i.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode4i.lo src/encode4i.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4d.c -MD -MF src/.deps/encode4d.TPlo  -fPIC -DPIC -o src/.libs/encode4d.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4f.c -MD -MF src/.deps/encode4f.TPlo  -fPIC -DPIC -o src/.libs/encode4f.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4i.c -MD -MF src/.deps/encode4i.TPlo  -fPIC -DPIC -o src/.libs/encode4i.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3i.c -MD -MF src/.deps/encode3i.TPlo -o src/encode3i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3d.c -MD -MF src/.deps/encode3d.TPlo -o src/encode3d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3l.c -MD -MF src/.deps/encode3l.TPlo -o src/encode3l.o >/dev/null 2>&1
+source='src/encode4l.c' object='src/encode4l.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/encode4l.lo src/encode4l.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode3f.c -MD -MF src/.deps/encode3f.TPlo -o src/encode3f.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4l.c -MD -MF src/.deps/encode4l.TPlo  -fPIC -DPIC -o src/.libs/encode4l.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4i.c -MD -MF src/.deps/encode4i.TPlo -o src/encode4i.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4d.c -MD -MF src/.deps/encode4d.TPlo -o src/encode4d.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4f.c -MD -MF src/.deps/encode4f.TPlo -o src/encode4f.o >/dev/null 2>&1
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='src/zfp.c' object='src/zfp.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o src/zfp.lo src/zfp.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/zfp.c -MD -MF src/.deps/zfp.TPlo  -fPIC -DPIC -o src/.libs/zfp.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/encode4l.c -MD -MF src/.deps/encode4l.TPlo -o src/encode4l.o >/dev/null 2>&1
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"./include/zfp/types.h", line 5: warning: typedef name has already been declared (with same type)
+  typedef unsigned short ushort;
+                         ^
+
+"./include/zfp/types.h", line 6: warning: typedef name has already been declared (with same type)
+  typedef unsigned int uint;
+                       ^
+
+"src/zfp.c", line 664: warning: integer conversion resulted in a change of sign
+        minexp = (uint)mode + ZFP_MIN_EXP - (2048 + 128 + 1);
+                              ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -DBIT_STREAM_WORD_TYPE=uint8 -I./include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c src/zfp.c -MD -MF src/.deps/zfp.TPlo -o src/zfp.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_zfp.la  src/bitstream.lo src/decode1d.lo src/decode1f.lo src/decode1i.lo src/decode1l.lo src/decode2d.lo src/decode2f.lo src/decode2i.lo src/decode2l.lo src/decode3d.lo src/decode3f.lo src/decode3i.lo src/decode3l.lo src/decode4d.lo src/decode4f.lo src/decode4i.lo src/decode4l.lo src/encode1d.lo src/encode1f.lo src/encode1i.lo src/encode1l.lo src/encode2d.lo src/encode2f.lo src/encode2i.lo src/encode2l.lo src/encode3d.lo src/encode3f.lo src/encode3i.lo src/encode3l.lo src/encode4d.lo src/encode4f.lo src/encode4i.lo src/encode4l.lo src/zfp.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_zfp.a src/.libs/bitstream.o src/.libs/decode1d.o src/.libs/decode1f.o src/.libs/decode1i.o src/.libs/decode1l.o src/.libs/decode2d.o src/.libs/decode2f.o src/.libs/decode2i.o src/.libs/decode2l.o src/.libs/decode3d.o src/.libs/decode3f.o src/.libs/decode3i.o src/.libs/decode3l.o src/.libs/decode4d.o src/.libs/decode4f.o src/.libs/decode4i.o src/.libs/decode4l.o src/.libs/encode1d.o src/.libs/encode1f.o src/.libs/encode1i.o src/.libs/encode1l.o src/.libs/encode2d.o src/.libs/encode2f.o src/.libs/encode2i.o src/.libs/encode2l.o src/.libs/encode3d.o src/.libs/encode3f.o src/.libs/encode3i.o src/.libs/encode3l.o src/.libs/encode4d.o src/.libs/encode4f.o src/.libs/encode4i.o src/.libs/encode4l.o src/.libs/zfp.o 
+libtool: link: ranlib .libs/libsilo_zfp.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_zfp.la" && ln -s "../libsilo_zfp.la" "libsilo_zfp.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+Making all in unknown
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+source='silo_unknown.c' object='silo_unknown.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silo_unknown.lo silo_unknown.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_unknown.c -MD -MF .deps/silo_unknown.TPlo  -fPIC -DPIC -o .libs/silo_unknown.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c silo_unknown.c -MD -MF .deps/silo_unknown.TPlo -o silo_unknown.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_unknown.la  silo_unknown.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_unknown.a .libs/silo_unknown.o 
+libtool: link: ranlib .libs/libsilo_unknown.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_unknown.la" && ln -s "../libsilo_unknown.la" "libsilo_unknown.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+Making all in filters
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+source='f_ale3d.c' object='f_ale3d.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o f_ale3d.lo f_ale3d.c
+source='f_sample.c' object='f_sample.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I../..  -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o f_sample.lo f_sample.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c f_ale3d.c -MD -MF .deps/f_ale3d.TPlo  -fPIC -DPIC -o .libs/f_ale3d.o
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c f_sample.c -MD -MF .deps/f_sample.TPlo  -fPIC -DPIC -o .libs/f_sample.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"f_ale3d.c", line 1313: warning: function "f_ale3d_SetDirID" was declared but never referenced
+  f_ale3d_SetDirID(DBfile *dbfile, int dirid)
+  ^
+
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c f_sample.c -MD -MF .deps/f_sample.TPlo -o f_sample.o >/dev/null 2>&1
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I../.. -I./../silo -I./../silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c f_ale3d.c -MD -MF .deps/f_ale3d.TPlo -o f_ale3d.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsilo_filters.la  f_ale3d.lo f_sample.lo  -lhdf5  -lm
+libtool: link: ar cru .libs/libsilo_filters.a .libs/f_ale3d.o .libs/f_sample.o 
+libtool: link: ranlib .libs/libsilo_filters.a
+libtool: link: ( cd ".libs" && rm -f "libsilo_filters.la" && ln -s "../libsilo_filters.la" "libsilo_filters.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+Making all in .
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+source='siloh5_version.c' object='siloh5_version.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../config/depcomp \
+/bin/sh ../libtool  --tag=CC   --mode=compile mpicc -DHAVE_CONFIG_H -I. -I..   -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o siloh5_version.lo siloh5_version.c
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c siloh5_version.c -MD -MF .deps/siloh5_version.TPlo  -fPIC -DPIC -o .libs/siloh5_version.o
+nvc-Info-Switch -Mvect -Mvect forces -O3
+libtool: compile:  mpicc -DHAVE_CONFIG_H -I. -I.. -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -O3 -O0 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c siloh5_version.c -MD -MF .deps/siloh5_version.TPlo -o siloh5_version.o >/dev/null 2>&1
+/bin/sh ../libtool  --tag=CC   --mode=link mpicc  -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -avoid-version -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o libsiloh5.la -rpath /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib siloh5_version.lo score/libsilo_score.la pdb/libsilo_pdb.la silo/libsilo_silo.la debug/libsilo_debug.la netcdf/libsilo_netcdf.la pdb_drv/libsilo_pdb_drv.la  hdf5_drv/libsilo_hdf5_drv.la taurus/libsilo_taurus.la   zfp-0.5.5/libsilo_zfp.la unknown/libsilo_unknown.la filters/libsilo_filters.la  -lhdf5  -lm
+libtool: link: mpicc -shared  -fPIC -DPIC  .libs/siloh5_version.o  -Wl,--whole-archive score/.libs/libsilo_score.a pdb/.libs/libsilo_pdb.a silo/.libs/libsilo_silo.a debug/.libs/libsilo_debug.a netcdf/.libs/libsilo_netcdf.a pdb_drv/.libs/libsilo_pdb_drv.a hdf5_drv/.libs/libsilo_hdf5_drv.a taurus/.libs/libsilo_taurus.a zfp-0.5.5/.libs/libsilo_zfp.a unknown/.libs/libsilo_unknown.a filters/.libs/libsilo_filters.a -Wl,--no-whole-archive  -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.so -lz -ldl -lm  -O3 -O0   -Wl,-soname -Wl,libsiloh5.so -o .libs/libsiloh5.so
+nvc-Info-Switch -Mvect forces -O3
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_score.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score/.libs/libsilo_score.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_pdb.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb/.libs/libsilo_pdb.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_silo.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo/.libs/libsilo_silo.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_debug.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug/.libs/libsilo_debug.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_netcdf.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf/.libs/libsilo_netcdf.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_pdb_drv.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv/.libs/libsilo_pdb_drv.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_hdf5_drv.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv/.libs/libsilo_hdf5_drv.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_taurus.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus/.libs/libsilo_taurus.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_zfp.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5/.libs/libsilo_zfp.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_unknown.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown/.libs/libsilo_unknown.a")
+libtool: link: (cd .libs/libsiloh5.lax/libsilo_filters.a && ar x "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters/.libs/libsilo_filters.a")
+libtool: link: ar cru .libs/libsiloh5.a  siloh5_version.o  .libs/libsiloh5.lax/libsilo_score.a/memmove.o .libs/libsiloh5.lax/libsilo_score.a/scctl.o .libs/libsiloh5.lax/libsilo_score.a/scctla.o .libs/libsiloh5.lax/libsilo_score.a/schash.o .libs/libsiloh5.lax/libsilo_score.a/scstr.o  .libs/libsiloh5.lax/libsilo_pdb.a/pdb.o .libs/libsiloh5.lax/libsilo_pdb.a/pdbdir.o .libs/libsiloh5.lax/libsilo_pdb.a/pdbio.o .libs/libsiloh5.lax/libsilo_pdb.a/pdbmm.o .libs/libsiloh5.lax/libsilo_pdb.a/pdbx.o .libs/libsiloh5.lax/libsilo_pdb.a/pdconv.o .libs/libsiloh5.lax/libsilo_pdb.a/pdlow.o .libs/libsiloh5.lax/libsilo_pdb.a/pdmemb.o .libs/libsiloh5.lax/libsilo_pdb.a/pdpath.o .libs/libsiloh5.lax/libsilo_pdb.a/pdrdwr.o  .libs/libsiloh5.lax/libsilo_silo.a/alloc.o .libs/libsiloh5.lax/libsilo_silo.a/extface.o .libs/libsiloh5.lax/libsilo_silo.a/silo.o .libs/libsiloh5.lax/libsilo_silo.a/silo_f.o .libs/libsiloh5.lax/libsilo_silo.a/silo_ns.o .libs/libsiloh5.lax/libsilo_silo.a/utils.o  .libs/libsiloh5.lax/libsilo_debug.a/silo_debug.o  .libs/libsiloh5.lax/libsilo_netcdf.a/api.o .libs/libsiloh5.lax/libsilo_netcdf.a/ent.o .libs/libsiloh5.lax/libsilo_netcdf.a/netcdf.o .libs/libsiloh5.lax/libsilo_netcdf.a/obj.o .libs/libsiloh5.lax/libsilo_netcdf.a/silo_netcdf.o .libs/libsiloh5.lax/libsilo_netcdf.a/table.o  .libs/libsiloh5.lax/libsilo_pdb_drv.a/silo_pdb.o  .libs/libsiloh5.lax/libsilo_hdf5_drv.a/H5FDsilo.o .libs/libsiloh5.lax/libsilo_hdf5_drv.a/H5Zzfp.o .libs/libsiloh5.lax/libsilo_hdf5_drv.a/silo_hdf5.o  .libs/libsiloh5.lax/libsilo_taurus.a/silo_taurus.o .libs/libsiloh5.lax/libsilo_taurus.a/taurus.o  .libs/libsiloh5.lax/libsilo_zfp.a/bitstream.o .libs/libsiloh5.lax/libsilo_zfp.a/decode1d.o .libs/libsiloh5.lax/libsilo_zfp.a/decode1f.o .libs/libsiloh5.lax/libsilo_zfp.a/decode1i.o .libs/libsiloh5.lax/libsilo_zfp.a/decode1l.o .libs/libsiloh5.lax/libsilo_zfp.a/decode2d.o .libs/libsiloh5.lax/libsilo_zfp.a/decode2f.o .libs/libsiloh5.lax/libsilo_zfp.a/decode2i.o .libs/libsiloh5.lax/libsilo_zfp.a/decode2l.o .libs/libsiloh5.lax/libsilo_zfp.a/decode3d.o .libs/libsiloh5.lax/libsilo_zfp.a/decode3f.o .libs/libsiloh5.lax/libsilo_zfp.a/decode3i.o .libs/libsiloh5.lax/libsilo_zfp.a/decode3l.o .libs/libsiloh5.lax/libsilo_zfp.a/decode4d.o .libs/libsiloh5.lax/libsilo_zfp.a/decode4f.o .libs/libsiloh5.lax/libsilo_zfp.a/decode4i.o .libs/libsiloh5.lax/libsilo_zfp.a/decode4l.o .libs/libsiloh5.lax/libsilo_zfp.a/encode1d.o .libs/libsiloh5.lax/libsilo_zfp.a/encode1f.o .libs/libsiloh5.lax/libsilo_zfp.a/encode1i.o .libs/libsiloh5.lax/libsilo_zfp.a/encode1l.o .libs/libsiloh5.lax/libsilo_zfp.a/encode2d.o .libs/libsiloh5.lax/libsilo_zfp.a/encode2f.o .libs/libsiloh5.lax/libsilo_zfp.a/encode2i.o .libs/libsiloh5.lax/libsilo_zfp.a/encode2l.o .libs/libsiloh5.lax/libsilo_zfp.a/encode3d.o .libs/libsiloh5.lax/libsilo_zfp.a/encode3f.o .libs/libsiloh5.lax/libsilo_zfp.a/encode3i.o .libs/libsiloh5.lax/libsilo_zfp.a/encode3l.o .libs/libsiloh5.lax/libsilo_zfp.a/encode4d.o .libs/libsiloh5.lax/libsilo_zfp.a/encode4f.o .libs/libsiloh5.lax/libsilo_zfp.a/encode4i.o .libs/libsiloh5.lax/libsilo_zfp.a/encode4l.o .libs/libsiloh5.lax/libsilo_zfp.a/zfp.o  .libs/libsiloh5.lax/libsilo_unknown.a/silo_unknown.o  .libs/libsiloh5.lax/libsilo_filters.a/f_ale3d.o .libs/libsiloh5.lax/libsilo_filters.a/f_sample.o 
+libtool: link: ranlib .libs/libsiloh5.a
+libtool: link: rm -fr .libs/libsiloh5.lax
+libtool: link: ( cd ".libs" && rm -f "libsiloh5.la" && ln -s "../libsiloh5.la" "libsiloh5.la" )
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+Making all in tools
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making all in .
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making all in silock
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+source='silock.c' object='silock.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o silock.o silock.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+/bin/sh ../../libtool  --tag=CXX   --mode=link mpicxx  -fPIC  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o silock silock.o ../../src/libsiloh5.la  -lhdf5  -lm
+libtool: link: mpicxx -fPIC -o .libs/silock silock.o  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib ../../src/.libs/libsiloh5.so /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.so -lz -ldl -lm -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+Making all in browser
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+source='array.c' object='array.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o array.o array.c
+source='bif.c' object='bif.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o bif.o bif.c
+source='browser.c' object='browser.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o browser.o browser.c
+source='cons.c' object='cons.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o cons.o cons.c
+source='file.c' object='file.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o file.o file.c
+source='func.c' object='func.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o func.o func.c
+source='lex.c' object='lex.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o lex.o lex.c
+source='num.c' object='num.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o num.o num.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-nvc-Info-Switch -Mvect -Mvect forces -O3Switch -Mvect -Mvect forces -O3
+
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+"file.c", line 1449: warning: variable "type" was declared but never referenced
+     obj_t type=NIL;
+           ^
+
+"browser.c", line 187: warning: function "pl" was declared but never referenced
+  pl (obj_t self) {
+  ^
+
+source='obj.c' object='obj.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o obj.o obj.c
+source='output.c' object='output.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o output.o output.c
+source='parse.c' object='parse.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o parse.o parse.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='prim.c' object='prim.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o prim.o prim.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='ptr.c' object='ptr.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o ptr.o ptr.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='range.c' object='range.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o range.o range.c
+source='sdo.c' object='sdo.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o sdo.o sdo.c
+source='stc.c' object='stc.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o stc.o stc.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='str.c' object='str.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o str.o str.c
+nvc-Info-Switch -Mvect -Mvect forces -O3
+source='switch.c' object='switch.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o switch.o switch.c
+source='sym.c' object='sym.o' libtool=no \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+mpicc -DHAVE_CONFIG_H -I. -I../..  -I../../src/silo -I../../src/silo -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -DPUBLIC_INIT_FILE=\"/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include/browser_rc\" -I../../src/filters -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -O3   -O0  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -Wdeclaration-after-statement -c -o sym.o sym.c
+"stc.c", line 1754: warning: #warning directive: CHECK BEHAVIOR OF THIS MEMBER
+  #warning CHECK BEHAVIOR OF THIS MEMBER
+   ^
+
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+nvc-Info-Switch -Mvect -Mvect forces -O3
+/bin/sh ../../libtool  --tag=CXX   --mode=link mpicxx  -fPIC  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o browser array.o bif.o browser.o cons.o file.o func.o lex.o num.o obj.o output.o parse.o prim.o ptr.o range.o sdo.o stc.o str.o switch.o sym.o ../../src/libsiloh5.la  -lreadline  -lhdf5  -lm
+libtool: link: mpicxx -fPIC -o .libs/browser array.o bif.o browser.o cons.o file.o func.o lex.o num.o obj.o output.o parse.o prim.o ptr.o range.o sdo.o stc.o str.o switch.o sym.o  -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib ../../src/.libs/libsiloh5.so -lreadline /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.so -lz -ldl -lm -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+Making all in python
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+source='pydbfile.cpp' object='pydbfile.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CXX   --mode=compile mpicxx -DHAVE_CONFIG_H -I. -I../..  -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl  -lutil -lm  -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -fPIC -c -o pydbfile.lo pydbfile.cpp
+source='pydbtoc.cpp' object='pydbtoc.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CXX   --mode=compile mpicxx -DHAVE_CONFIG_H -I. -I../..  -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl  -lutil -lm  -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -fPIC -c -o pydbtoc.lo pydbtoc.cpp
+source='pysilo.cpp' object='pysilo.lo' libtool=yes \
+DEPDIR=.deps depmode=tcc /bin/sh ../../config/depcomp \
+/bin/sh ../../libtool  --tag=CXX   --mode=compile mpicxx -DHAVE_CONFIG_H -I. -I../..  -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl  -lutil -lm  -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include  -O3   -O0   -fPIC -c -o pysilo.lo pysilo.cpp
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pysilo.cpp -MD -MF .deps/pysilo.TPlo  -fPIC -DPIC -o .libs/pysilo.o
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pydbfile.cpp -MD -MF .deps/pydbfile.TPlo  -fPIC -DPIC -o .libs/pydbfile.o
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pydbtoc.cpp -MD -MF .deps/pydbtoc.TPlo  -fPIC -DPIC -o .libs/pydbtoc.o
+nvc++-Info-Switch -Mvect forces -O3
+nvc++-Info-Switch -Mvect forces -O3
+nvc++-Info-Switch -Mvect forces -O3
+"pydbtoc.cpp", line 192: warning: variable "obj" was declared but never referenced
+      DBtocObject *obj = (DBtocObject*)self;
+                   ^
+
+"pydbfile.cpp", line 250: warning: statement is unreachable
+      SiloErrorFunc("An unknown Silo error occurred.");
+      ^
+
+"pydbfile.cpp", line 320: warning: unrecognized character escape sequence
+                  snprintf(msg, sizeof(msg), "Unable to get component \"%s\" for object \%s\"", compname.c_str(), str);
+                                                                                        ^
+
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pydbtoc.cpp -MD -MF .deps/pydbtoc.TPlo -o pydbtoc.o >/dev/null 2>&1
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pydbfile.cpp -MD -MF .deps/pydbfile.TPlo -o pydbfile.o >/dev/null 2>&1
+libtool: compile:  mpicxx -DHAVE_CONFIG_H -I. -I../.. -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -I/gpfs/rt/7.2/opt/python/3.7.4/include/python3.7m -lpython3.7m -lcrypt -lpthread -ldl -lutil -lm -I../../src/silo -I../../src/silo -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -I/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include -O3 -O0 -fPIC -c pysilo.cpp -MD -MF .deps/pysilo.TPlo -o pysilo.o >/dev/null 2>&1
+/bin/sh ../../libtool  --tag=CXX   --mode=link mpicxx  -fPIC -module -avoid-version -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib  -o Silo.la -rpath /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib pydbfile.lo pydbtoc.lo pysilo.lo ../../src/libsiloh5.la  -lhdf5  -lm
+libtool: link: mpicxx  -fPIC -DPIC -shared -nostdlib /usr/lib64/crti.o /gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib/trace_init.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbeginS.o  .libs/pydbfile.o .libs/pydbtoc.o .libs/pysilo.o   -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/.libs -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib ../../src/.libs/libsiloh5.so /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libhdf5.so -lz -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/openmpi/openmpi-3.1.5/lib -L/gpfs/runtime/opt/python/3.7.4/lib -L/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/lib -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib64 -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib -L/gpfs/runtime/opt/opengl/mesa-18.3.3/lib -L/gpfs/runtime/opt/glew/2.1.0/lib64 -L/gpfs/runtime/opt/hdf5/1.10.0/lib -L/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/lib -L/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/lib -L/gpfs/runtime/opt/intel/2017.0/lib/intel64 -L/gpfs/runtime/opt/intel/2017.0/mkl/lib/intel64 -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib -L/usr/lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -lmpi_cxx -lmpi -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -lstdc++ -lnvomp -ldl -lnvhpcatm -lpthread -lnvcpumath -lnvc -lgcc -lc -lgcc_s -lm /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtendS.o /usr/lib64/crtn.o    -Wl,-soname -Wl,Silo.so -o .libs/Silo.so
+libtool: link: ar cru .libs/Silo.a  pydbfile.o pydbtoc.o pysilo.o
+libtool: link: ranlib .libs/Silo.a
+libtool: link: ( cd ".libs" && rm -f "Silo.la" && ln -s "../Silo.la" "Silo.la" )
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making all in tests
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'
+
+NOTICE: Silo test cases are not compiled by default.  To compile and test
+NOTICE: them run "make check" from the silo "tests" directory. Otherwise
+NOTICE: you can compile them individually with "make TESTNAME".  The test
+NOTICE: names are: array, dir, extface, multi_test, partial_io, point, quad,
+NOTICE: simple, ucd, ucdsamp3, testall, obj, onehex, oneprism, onepyramid,
+NOTICE: onetet, subhex, TestReadMask, twohex, multispec, misc, sami, newsami,
+NOTICE: specmix, spec, cpz1plt, group_test, listtypes, alltypes, wave,
+NOTICE: multi_file, polyzl, csg, rocket, mmadjacency, largefile, version,
+NOTICE: namescheme, efcentering, mk_nasf_pdb, ioperf, arbpoly2d, readstuff,
+NOTICE: mat3d_3across, merge_block, test_mat_compression, bcastopen,
+NOTICE: memfile_simple, empty, majorder, realloc_obj_and_opts, compression,
+NOTICE: grab, mk_nasf_h5, testhdf5, arrayf77, arrayf90, curvef77, matf77,
+NOTICE: pointf77, quadf77, ucdf77, testallf77, csgmesh, qmeshmat2df77, but
+NOTICE: "testall" is a good one to start with.
+
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+Making install in .
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO'
+Making install in src
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make  install-recursive
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+Making install in score
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/score'
+Making install in pdb
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make  install-am
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make[5]: Nothing to be done for `install-exec-am'.
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb'
+Making install in silo
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make  install-am
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make[5]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make[5]: Nothing to be done for `install-exec-am'.
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 silo.inc silo_f77.inc silo_f9x.inc pmpio.h silo_exports.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 silo.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+make[5]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/silo'
+Making install in debug
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/debug'
+Making install in netcdf
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/netcdf'
+Making install in pdb_drv
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/pdb_drv'
+Making install in hdf5_drv
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/hdf5_drv'
+Making install in taurus
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/taurus'
+Making install in zfp-0.5.5
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/zfp-0.5.5'
+Making install in unknown
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/unknown'
+Making install in filters
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+make[4]: Nothing to be done for `install-exec-am'.
+make[4]: Nothing to be done for `install-data-am'.
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src/filters'
+Making install in .
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[4]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   libsiloh5.la '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+libtool: install: /usr/bin/install -c .libs/libsiloh5.so /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libsiloh5.so
+libtool: install: /usr/bin/install -c .libs/libsiloh5.lai /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libsiloh5.la
+libtool: install: /usr/bin/install -c .libs/libsiloh5.a /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libsiloh5.a
+libtool: install: chmod 644 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libsiloh5.a
+libtool: install: ranlib /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/libsiloh5.a
+libtool: finish: PATH="/gpfs/runtime/opt/python/3.7.4/bin:/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/bin:/gpfs/runtime/opt/tecplot/2019R1/chorus_2019r1/bin:/gpfs/runtime/opt/matlab/R2019a/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/cuda/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/bin:/gpfs/runtime/opt/cuda/11.1.1/cuda/bin:/gpfs/runtime/opt/opengl/mesa-18.3.3/bin:/gpfs/runtime/opt/hdf5/1.10.0/bin:/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/bin:/gpfs/runtime/opt/basilisk/1.1/bin:/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/bin:/gpfs/runtime/opt/gcc/10.2/bin:/gpfs/runtime/opt/intel/2017.0/bin:/gpfs/runtime/opt/java/8u111/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/lpp/mmfs/bin:/usr/lpp/mmfs/sbin:/opt/ibutils/bin:/gpfs/runtime/bin:/opt/singularity/2.5.2/bin:/users/mrodri97/bin:/sbin" ldconfig -n /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+make[4]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/src'
+Making install in tools
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making install in .
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making install in silock
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../libtool   --mode=install /usr/bin/install -c silock '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/silock /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/silock
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/silock'
+Making install in browser
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+  /bin/sh ../../libtool   --mode=install /usr/bin/install -c browser '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+libtool: install: /usr/bin/install -c .libs/browser /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin/browser
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+ /usr/bin/install -c silodiff silofile '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/bin'
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/browser'
+Making install in python
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+make[3]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+ /bin/sh ../../libtool   --mode=install /usr/bin/install -c   Silo.la '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib'
+libtool: warning: relinking 'Silo.la'
+libtool: install: (cd /gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python; /bin/sh "/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/libtool"  --tag CXX --mode=relink mpicxx -fPIC -module -avoid-version -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -o Silo.la -rpath /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib pydbfile.lo pydbtoc.lo pysilo.lo ../../src/libsiloh5.la -lhdf5 -lm )
+libtool: relink: mpicxx  -fPIC -DPIC -shared -nostdlib /usr/lib64/crti.o /gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib/trace_init.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbeginS.o  .libs/pydbfile.o .libs/pydbtoc.o .libs/pysilo.o   -Wl,-rpath -Wl,/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -L/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib -lsiloh5 -lhdf5 -lz -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/openmpi/openmpi-3.1.5/lib -L/gpfs/runtime/opt/python/3.7.4/lib -L/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/lib -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib64 -L/gpfs/runtime/opt/cuda/11.1.1/cuda/lib -L/gpfs/runtime/opt/opengl/mesa-18.3.3/lib -L/gpfs/runtime/opt/glew/2.1.0/lib64 -L/gpfs/runtime/opt/hdf5/1.10.0/lib -L/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/lib -L/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/lib -L/gpfs/runtime/opt/intel/2017.0/lib/intel64 -L/gpfs/runtime/opt/intel/2017.0/mkl/lib/intel64 -L/gpfs/rt/7.2/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/lib -L/usr/lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -lmpi_cxx -lmpi -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -lstdc++ -lnvomp -ldl -lnvhpcatm -lpthread -lnvcpumath -lnvc -lgcc -lc -lgcc_s -lm /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtendS.o /usr/lib64/crtn.o    -Wl,-soname -Wl,Silo.so -o .libs/Silo.so
+libtool: install: /usr/bin/install -c .libs/Silo.soT /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/Silo.so
+libtool: install: /usr/bin/install -c .libs/Silo.lai /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/Silo.la
+libtool: install: /usr/bin/install -c .libs/Silo.a /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/Silo.a
+libtool: install: chmod 644 /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/Silo.a
+libtool: install: ranlib /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib/Silo.a
+libtool: finish: PATH="/gpfs/runtime/opt/python/3.7.4/bin:/gpfs/runtime/opt/tecplot/2019R1/360ex_2019r1/bin:/gpfs/runtime/opt/tecplot/2019R1/chorus_2019r1/bin:/gpfs/runtime/opt/matlab/R2019a/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/comm_libs/mpi/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/cuda/bin:/gpfs/runtime/opt/nvhpc-sdk/2022/Linux_x86_64/22.1/compilers/bin:/gpfs/runtime/opt/cuda/11.1.1/cuda/bin:/gpfs/runtime/opt/opengl/mesa-18.3.3/bin:/gpfs/runtime/opt/hdf5/1.10.0/bin:/gpfs/runtime/opt/netcdf/4.4.1.1_gcc/bin:/gpfs/runtime/opt/basilisk/1.1/bin:/gpfs/runtime/opt/mpi/openmpi_4.1.1_gcc_10.2_slurm20/bin:/gpfs/runtime/opt/gcc/10.2/bin:/gpfs/runtime/opt/intel/2017.0/bin:/gpfs/runtime/opt/java/8u111/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/lpp/mmfs/bin:/usr/lpp/mmfs/sbin:/opt/ibutils/bin:/gpfs/runtime/bin:/opt/singularity/2.5.2/bin:/users/mrodri97/bin:/sbin" ldconfig -n /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/lib
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools/python'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tools'
+Making install in tests
+make[1]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'
+
+NOTICE: Silo test cases are not compiled by default.  To compile and test
+NOTICE: them run "make check" from the silo "tests" directory. Otherwise
+NOTICE: you can compile them individually with "make TESTNAME".  The test
+NOTICE: names are: array, dir, extface, multi_test, partial_io, point, quad,
+NOTICE: simple, ucd, ucdsamp3, testall, obj, onehex, oneprism, onepyramid,
+NOTICE: onetet, subhex, TestReadMask, twohex, multispec, misc, sami, newsami,
+NOTICE: specmix, spec, cpz1plt, group_test, listtypes, alltypes, wave,
+NOTICE: multi_file, polyzl, csg, rocket, mmadjacency, largefile, version,
+NOTICE: namescheme, efcentering, mk_nasf_pdb, ioperf, arbpoly2d, readstuff,
+NOTICE: mat3d_3across, merge_block, test_mat_compression, bcastopen,
+NOTICE: memfile_simple, empty, majorder, realloc_obj_and_opts, compression,
+NOTICE: grab, mk_nasf_h5, testhdf5, arrayf77, arrayf90, curvef77, matf77,
+NOTICE: pointf77, quadf77, ucdf77, testallf77, csgmesh, qmeshmat2df77, but
+NOTICE: "testall" is a good one to start with.
+
+make[2]: Entering directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'
+make[2]: Nothing to be done for `install-exec-am'.
+ /usr/bin/mkdir -p '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+ /usr/bin/install -c -m 644 ioperf.h '/gpfs/home/mrodri97/MFC-develop/bootstrap/../.mfc/release-cpu/build/include'
+make[2]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'
+make[1]: Leaving directory `/gpfs/home/mrodri97/MFC-develop/.mfc/release-cpu/src/SILO/tests'

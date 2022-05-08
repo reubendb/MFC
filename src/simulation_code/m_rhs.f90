@@ -2478,7 +2478,7 @@ MODULE m_rhs
                         END DO
                     END IF
 
-                    IF (bubbles) THEN
+                    IF (bubbles .AND. (.NOT. qbmm)) THEN
                         CALL s_get_divergence(i,q_prim_vf,divu)
                         CALL s_compute_bubble_source(i,q_prim_vf,q_cons_vf,divu, &
                                 bub_adv_src, bub_r_src, bub_v_src, bub_p_src, bub_m_src)
@@ -2844,7 +2844,8 @@ MODULE m_rhs
                             END IF
                         END DO
                     END IF
-                    IF (bubbles) THEN
+                    
+                    IF (bubbles .AND. (.NOT. qbmm)) THEN
                         CALL s_get_divergence(i,q_prim_vf,divu)
                         CALL s_compute_bubble_source(i,q_prim_vf,q_cons_vf,divu, &
                                 bub_adv_src, bub_r_src, bub_v_src, bub_p_src, bub_m_src)
