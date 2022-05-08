@@ -66,9 +66,8 @@ MODULE m_phase_change
     !> @name Parameters for the phase change part of the code
     !> @{
     REAL(KIND(0d0)), PARAMETER :: pknewton_eps      = 1.d-13    !< p_relaxk \alpha threshold,           set to 1E-15
-    INTEGER,         PARAMETER :: pknewton_iter     = 50        !< p_relaxk \alpha iter,                set to 25
+    INTEGER,         PARAMETER :: newton_iter       = 50        !< p_relaxk \alpha iter,                set to 25
     REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
-    INTEGER,         PARAMETER :: pTsatnewton_iter  = 50        !< Saturation temperature iteration,    set to 25
     REAL(KIND(0d0)), PARAMETER :: pres_crit         = 22.06d6   !< Critical water pressure, higher than this is a critical fluid
     REAL(KIND(0d0)), PARAMETER :: T_crit            = 648.d0    !< Critical water pressure, higher than this is a critical fluid
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
@@ -76,7 +75,6 @@ MODULE m_phase_change
     REAL(KIND(0d0)), PARAMETER :: palpha_eps        = 1.d-12    !< p_relax high \alpha tolerance,       set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgalpha_eps      = 1.d-3     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-8     !< Saturation p-T-mu tolerance,         set to 1.d-10
-    INTEGER,         PARAMETER :: ptgnewton_iter    = 50        !< Saturation p-T-mu iteration,         set to 50
     !> @}
 
     !> @name Gibbs free energy phase change parameters
@@ -996,7 +994,7 @@ MODULE m_phase_change
             delta = delta_old
             CALL s_compute_fdfTsat(fp,dfdp,pressure,Tstar)
             ! Combining bisection and newton-raphson methods
-            DO iter = 0, pTsatnewton_iter
+            DO iter = 0, newton_iter
                 IF ((((Tstar-TstarH)*dfdp-fp)*((Tstar-TstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
@@ -1016,7 +1014,7 @@ MODULE m_phase_change
                 ELSE
                    TstarH = Tstar
                 END IF
-                IF (iter .EQ. pTsatnewton_iter-1) THEN
+                IF (iter .EQ. newton_iter-1) THEN
                     PRINT *, 'Tsat : ',Tstar,', iter : ',iter
                     PRINT *, 'Tsat did not converge, stopping code'
                     CALL s_mpi_abort()
@@ -1143,7 +1141,7 @@ MODULE m_phase_change
             delta = delta_old
             CALL s_compute_ptg_fdf(fp,dfdp,pstar,dTstar,rho0,E0)
             ! Combining bisection and newton-raphson methods
-            DO iter = 0, ptgnewton_iter
+            DO iter = 0, newton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
@@ -1282,7 +1280,7 @@ MODULE m_phase_change
             delta = delta_old
             CALL s_compute_pk_fdf(fp,dfdp,pstar,rho_K_s,gamma_min,pres_inf,pres_K_init,q_cons_vf,j,k,l)
             ! Combining bisection and newton-raphson methods
-            DO iter = 0, pknewton_iter
+            DO iter = 0, newton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
@@ -1423,7 +1421,7 @@ MODULE m_phase_change
             delta = delta_old
             CALL s_compute_ptk_fdf(fp,dfdp,pstar,Tstar,rhoe,gamma_min,pres_inf,q_cons_vf,j,k,l)
             ! Combining bisection and newton-raphson methods
-            DO iter = 0, pknewton_iter
+            DO iter = 0, newton_iter
                 IF ((((pstar-pstarH)*dfdp-fp)*((pstar-pstarL)*dfdp-fp) > 0.d0) & ! Bisect if Newton out of range,
                         .OR. (DABS(2.0*fp) > DABS(delta_old*dfdp))) THEN         ! or not decreasing fast enough.
                    delta_old = delta
