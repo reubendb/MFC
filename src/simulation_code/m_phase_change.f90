@@ -127,7 +127,6 @@ MODULE m_phase_change
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_cons_vf
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: rhs_vf
 
-            !! terms  for K div(u)
             REAL(KIND(0d0))                                   ::  sum_alpha, Tsat
             REAL(KIND(0d0)), DIMENSION(num_fluids)            ::  p_k, T_k, g_k, Z_k
             REAL(KIND(0d0))                                   ::  n_k, pinf_k
@@ -739,7 +738,7 @@ MODULE m_phase_change
                                     /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l)) 
                              END DO
                              IF (Tk(1) .LT. Tsat) relax = .FALSE.
-                             IF (Tk(1) .GT. 700.d0) relax = .FALSE. ! Critical temperature
+                             IF (Tk(1) .GT. T_crit) relax = .FALSE. ! Critical temperature, originally set to 700
                              !PRINT *,'Tk(1) :: ',Tk(1),', Tk(2) ::',Tk(2)
                            ELSE
                              relax = .FALSE.
