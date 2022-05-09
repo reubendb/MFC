@@ -359,10 +359,7 @@ MODULE m_time_steppers
             END DO
            
             CALL s_compute_rhs(q_cons_ts(1)%vf, q_prim_vf, rhs_vf, t_step)
-
-            IF (model_eqns == 3 .AND. relax_model == 1) THEN
-                CALL s_finite_ptg_relaxation(q_cons_ts(1)%vf,rhs_vf)
-            END IF
+            CALL s_relaxation_finite_solver(q_cons_ts(1)%vf,rhs_vf)
 
             IF(run_time_info) THEN
                 CALL s_write_run_time_information(q_prim_vf, t_step)
@@ -381,8 +378,7 @@ MODULE m_time_steppers
             END DO
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
-
-            IF (model_eqns == 3) CALL s_relaxation_solver(q_cons_ts(2)%vf)
+            IF (model_eqns == 3)    CALL s_relaxation_solver(q_cons_ts(2)%vf)
 
             ! ==================================================================
             ! Stage 2 of 3 =====================================================
@@ -396,10 +392,7 @@ MODULE m_time_steppers
             END DO
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step)
-
-            IF (model_eqns == 3 .AND. relax_model == 1) THEN
-                CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
-            END IF
+            CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
 
             DO i = 1, sys_size
                 q_cons_ts(2)%vf(i)%sf(0:m,0:n,0:p) = &
@@ -409,16 +402,13 @@ MODULE m_time_steppers
             END DO
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(2)%vf)
-
-            IF (model_eqns == 3) CALL s_relaxation_solver(q_cons_ts(2)%vf)
+            IF (model_eqns == 3)    CALL s_relaxation_solver(q_cons_ts(2)%vf)
 
             ! ==================================================================
             ! Stage 3 of 3 =====================================================
             ! ==================================================================
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step) 
-            IF (model_eqns == 3 .AND. relax_model == 1) THEN
-                CALL s_finite_ptg_relaxation(q_cons_ts(2)%vf,rhs_vf)
-            END IF
+            CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
 
             DO i = 1, sys_size
                 q_cons_ts(1)%vf(i)%sf(0:m,0:n,0:p) = &
@@ -428,8 +418,7 @@ MODULE m_time_steppers
             END DO
             
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
-
-            IF (model_eqns == 3) CALL s_relaxation_solver(q_cons_ts(1)%vf)
+            IF (model_eqns == 3)    CALL s_relaxation_solver(q_cons_ts(1)%vf)
 
             DO i = 1, cont_idx%end
                 q_prim_vf(i)%sf => NULL()

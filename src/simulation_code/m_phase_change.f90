@@ -55,6 +55,7 @@ MODULE m_phase_change
 
     PRIVATE; PUBLIC :: s_initialize_phasechange_module, &
                        s_relaxation_solver,             & 
+                       s_relaxation_finite_solver,      & 
                        s_finite_ptg_relaxation,         &
                        s_infinite_p_relaxation,         &
                        s_infinite_p_relaxation_k,       &
@@ -66,12 +67,15 @@ MODULE m_phase_change
     ABSTRACT INTERFACE
 
         SUBROUTINE s_abstract_relaxation_solver(q_cons_vf) ! -------
-            IMPORT :: scalar_field, sys_size
-            
+            IMPORT :: scalar_field, sys_size          
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf
-
         END SUBROUTINE
 
+        SUBROUTINE s_abstract_relaxation_finite_solver(q_cons_vf, rhs_vf) ! -------
+            IMPORT :: scalar_field, sys_size
+            TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_cons_vf
+            TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: rhs_vf
+        END SUBROUTINE
 
     END INTERFACE
     !> @name Parameters for the phase change part of the code
@@ -96,6 +100,9 @@ MODULE m_phase_change
 
     PROCEDURE(s_abstract_relaxation_solver), & 
     POINTER :: s_relaxation_solver => NULL()
+
+    PROCEDURE(s_abstract_relaxation_finite_solver), &
+    POINTER :: s_relaxation_finite_solver => NULL()
 
 
     CONTAINS
@@ -136,6 +143,10 @@ MODULE m_phase_change
             ELSEIF (relax_model == 6) THEN
                 s_relaxation_solver => s_infinite_ptg_relaxation_k      
             END IF
+
+            IF (relax_model == 1) THEN
+                s_relaxation_finite_solver => s_finite_ptg_relaxation
+            END IF      
 
         END SUBROUTINE s_initialize_phasechange_module !-------------------------------
 
