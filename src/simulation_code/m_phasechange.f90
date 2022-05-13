@@ -28,8 +28,14 @@
 !! @file m_phasechange.f90
 !! @brief Contains module m_phasechange
 !! @author M. Rodriguez
-!! @version 1.0
-!! @date DEC 3, 2020
+!! @version 1.1
+!! @date November 10, 2021
+
+! TODO 
+! 1. improve iteration method to include the Riemann method of Chiapolino
+! 2. Add Pelanti's finite relaxation approach to the code
+! 3. Add changes to the GPU branch using Spencer's suggestion of git diff of
+! start of branch with latest commit
 
 !> @brief This module is used to compute phase relaxation for pressure,
 !         temperature and chemical interfacial relaxation
@@ -57,13 +63,19 @@ MODULE m_phasechange
                        s_infinite_ptg_relaxation,       &
                        s_infinite_ptg_relaxation_k
 
+    !> @name Abstract interface for creating function pointers
+    !> @{
     ABSTRACT INTERFACE
 
+        !> @name Abstract subroutine for the finite relaxation solver 
+        !> @{
         SUBROUTINE s_abstract_relaxation_solver(q_cons_vf) ! -------
             IMPORT :: scalar_field, sys_size          
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf
         END SUBROUTINE
 
+        !> @name Abstract subroutine for the finite relaxation solver 
+        !> @{
         SUBROUTINE s_abstract_relaxation_finite_solver(q_cons_vf, rhs_vf) ! -------
             IMPORT :: scalar_field, sys_size
             TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN) :: q_cons_vf
@@ -71,6 +83,7 @@ MODULE m_phasechange
         END SUBROUTINE
 
     END INTERFACE
+
     !> @name Parameters for the phase change part of the code
     !> @{
     INTEGER,         PARAMETER :: newton_iter       = 30        !< p_relaxk \alpha iter,                set to 25
@@ -1216,7 +1229,7 @@ MODULE m_phasechange
                 ELSE
                    TstarH = Tstar
                 END IF
-                IF (iter .EQ. newton_iter-1) THEN
+                IF (iter .EQ. newton_iter) THEN
                     PRINT *, 'Tsat : ',Tstar,', iter : ',iter
                     PRINT *, 'Tsat did not converge, stopping code'
                     CALL s_mpi_abort()
