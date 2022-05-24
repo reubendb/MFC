@@ -27,6 +27,8 @@ jobs:
         - os:    ubuntu-latest
           nvhpc: 22.3
           cuda:  11.6
+        - os:    macos-latest
+          gcc:   11
     runs-on: ${{ matrix.os }}
     steps:
       - name: Clone MFC
