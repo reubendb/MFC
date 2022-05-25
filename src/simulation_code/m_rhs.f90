@@ -3259,6 +3259,10 @@ MODULE m_rhs
                     DO k = -1, 1
                         DO j = ix%beg, ix%end
 
+                            CALL s_convert_to_mixture_variables(    q_prim_vf, rho_visc, &
+                                                                gamma_visc, pi_inf_visc, &
+                                                                Re_visc, We_visc, j,k,l  )
+
                             tau_Re(2,2) = grad_z_vf(3)%sf(j,k,l) / y_cc(k) / &
                                           Re_visc(2)
 
