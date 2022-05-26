@@ -80,18 +80,18 @@ class ParallelEngine(Engine):
     def create_batch_file(self, system: queues.QueueSystem, target_name: str, mpibin: mpi_bins.MPIBinary):
         job_name = self.mfc.run.get_job_name(target_name)
 
-        load_modules: str = ""
+        load_modules: str = "module load mpi"
 
-        if common.does_cmd_exist("module"):
-            modules: list = common.loaded_modules()
-            load_modules: str = f"""\
-echo " :) Loading modules... ({common.format_list_to_string(modules)})"
-
-module purge || true
-{chr(10).join([ f"module load {m} || true" for m in modules ])}
-
-echo ""
-"""
+#        if common.does_cmd_exist("module"):
+#            modules: list = common.loaded_modules()
+#            load_modules: str = f"""\
+#echo " :) Loading modules... ({common.format_list_to_string(modules)})"
+#
+#module purge || true
+#{chr(10).join([ f"module load {m} || true" for m in modules ])}
+#
+#echo ""
+#"""
 
         BATCH_CONTENT: str = f"""\
 #!/usr/bin/env bash
