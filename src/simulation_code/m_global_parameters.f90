@@ -30,7 +30,7 @@ MODULE m_global_parameters
     REAL(KIND(0d0)), PARAMETER :: dflt_real     = -1d6  !< Default real value
     INTEGER        , PARAMETER :: dflt_int      = -100  !< Default integer value
     REAL(KIND(0d0)), PARAMETER :: sgm_eps       = 1d-16 !< Segmentation tolerance
-    INTEGER        , PARAMETER :: fourier_rings = 5     !< Fourier filter ring limit
+    INTEGER        , PARAMETER, public :: fourier_rings = 5     !< Fourier filter ring limit
     CHARACTER(LEN = path_len)  :: case_dir              !< Case folder location
     LOGICAL                    :: run_time_info         !< Run-time output flag
     LOGICAL                    :: debug                 !< Debug mode print statements

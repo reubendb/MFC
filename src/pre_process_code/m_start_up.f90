@@ -158,6 +158,7 @@ contains
             case_dir = ADJUSTL(case_dir)
             
             file_loc = TRIM(case_dir) // '/.'
+            PRINT *, "MY FILE :: ",file_loc
            
             CALL my_inquire(file_loc,dir_check)
             
