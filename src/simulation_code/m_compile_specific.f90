@@ -16,11 +16,11 @@ MODULE m_compile_specific
             CHARACTER(LEN=*), INTENT(IN) :: fileloc
             LOGICAL, INTENT(INOUT) :: dircheck
 
-!#ifdef __INTEL_COMPILER
-!    INQUIRE(DIRECTORY=TRIM(fileloc),EXIST=dircheck)   !Intel
-!#else
-!    INQUIRE(FILE=TRIM(fileloc),EXIST=dircheck)        !GCC
-!#endif
+#ifdef __INTEL_COMPILER
+    INQUIRE(DIRECTORY=TRIM(fileloc),EXIST=dircheck)   !Intel
+#else
+    INQUIRE(FILE=TRIM(fileloc),EXIST=dircheck)        !GCC
+#endif
 
         END SUBROUTINE my_inquire
 

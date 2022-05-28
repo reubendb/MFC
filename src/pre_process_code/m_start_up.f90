@@ -122,8 +122,7 @@ contains
                 PRINT '(A)', 'File pre_process.inp is missing. Exiting ...'
                 CALL s_mpi_abort()
             END IF
-            
-            
+         
         END SUBROUTINE s_read_input_file ! -------------------------------------
         
         
@@ -157,9 +156,7 @@ contains
             ! Checking the existence of the case folder
             case_dir = ADJUSTL(case_dir)
             
-            file_loc = TRIM(case_dir) // '/.'
-            PRINT *, "MY FILE :: ",file_loc
-           
+            file_loc = TRIM(case_dir) // '/.'        
             CALL my_inquire(file_loc,dir_check)
             
             ! Startup checks for bubbles and bubble variables
@@ -176,7 +173,7 @@ contains
                 PRINT '(A)', 'nb must be odd ' // &
                              'Exiting ...'
                 CALL s_mpi_abort()      
-            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 4) THEN
+            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 6) THEN
                 PRINT '(A)', 'Unsupported combination of values of ' // &
                              'bubbles and rhoref. '           // &
                              'Exiting ...'

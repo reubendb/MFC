@@ -129,10 +129,9 @@ MODULE m_start_up
                 p_glb = p
 
             ELSE
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read input. Exiting ...'
                 CALL s_mpi_abort()
             END IF
-            
             
         END SUBROUTINE s_read_input_file ! -------------------------------------
         
@@ -158,11 +157,11 @@ MODULE m_start_up
             
             ! Logistics ========================================================
             file_path = TRIM(case_dir) // '/.'
-            
+           
             CALL my_inquire(file_path,file_exist)
 
             IF(file_exist .NEQV. .TRUE.) THEN
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Check input. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             ! ==================================================================
@@ -856,7 +855,7 @@ MODULE m_start_up
             CALL my_inquire(file_path,file_exist)
 
             IF(file_exist .NEQV. .TRUE.) THEN
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 1. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             
@@ -873,7 +872,7 @@ MODULE m_start_up
                         STATUS = 'old'            )
                 READ(2) x_cb(-1:m); CLOSE(2)
             ELSE
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 2. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             
@@ -896,7 +895,7 @@ MODULE m_start_up
                             STATUS = 'old'            )
                     READ(2) y_cb(-1:n); CLOSE(2)
                 ELSE
-                    PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                    PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 3. Exiting ...'
                     CALL s_mpi_abort()
                 END IF
                 
@@ -921,7 +920,7 @@ MODULE m_start_up
                             STATUS = 'old'            )
                     READ(2) z_cb(-1:p); CLOSE(2)
                 ELSE
-                    PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                    PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 4. Exiting ...'
                     CALL s_mpi_abort()
                 END IF
                 
@@ -1010,7 +1009,7 @@ MODULE m_start_up
                 CALL MPI_FILE_READ(ifile,x_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                 CALL MPI_FILE_CLOSE(ifile,ierr)
             ELSE
-                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel. Exiting...'
                 CALL s_mpi_abort()
             END IF
 
@@ -1032,7 +1031,7 @@ MODULE m_start_up
                     CALL MPI_FILE_READ(ifile,y_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                     CALL MPI_FILE_CLOSE(ifile,ierr)
                 ELSE
-                    PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                    PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 2. Exiting...'
                     CALL s_mpi_abort()
                 END IF
         
@@ -1054,7 +1053,7 @@ MODULE m_start_up
                         CALL MPI_FILE_READ(ifile,z_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                         CALL MPI_FILE_CLOSE(ifile,ierr)
                     ELSE
-                        PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                        PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 3. Exiting...'
                         CALL s_mpi_abort()
                     END IF
             
@@ -1123,7 +1122,7 @@ MODULE m_start_up
 
                 CALL MPI_FILE_CLOSE(ifile,ierr)
             ELSE
-                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 5. Exiting...'
                 CALL s_mpi_abort()
             END IF
 

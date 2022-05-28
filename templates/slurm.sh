@@ -53,7 +53,7 @@
 #>       them below.
 #> 
 
-module load mpi
+module load mpi/openmpi_4.1.1_gcc_10.2_slurm20
 module load gcc/10.2
 #>
 #> Note: The MFC prologue sets up the environment required

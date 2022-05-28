@@ -23,7 +23,7 @@ for f_id in range(1, 10+1):
     PRE_PROCESS.append(f'fluid_rho({f_id})')
 
     for attribute in ["gamma", "pi_inf", "mul0", "ss", "pv", "gamma_v", "M_v",
-                      "mu_v", "k_v", "G"]:
+                      "mu_v", "k_v", "G", "qv"]:
         PRE_PROCESS.append(f"fluid_pp({f_id})%{attribute}")
 
 for p_id in range(1, 10+1):
@@ -70,7 +70,7 @@ SIMULATION = ['case_dir', 'run_time_info', 't_step_old', 't_tol', 'debug', 'm',
               'threshold_mf', 'moment_order', 'pref', 'rhoref', 'polydisperse',
               'poly_sigma', 'bubbles', 'bubble_model', 'polytropic', 'thermal',
               'R0ref', 'Ca', 'Web', 'Re_inv', 'nb', 'Monopole', 'num_mono',
-              'qbmm', 'R0_type', 'nnode', 'integral_wrt', 'num_integrals']
+              'qbmm', 'R0_type', 'nnode', 'integral_wrt', 'num_integrals','relax_model']
 
 for cmp in ["x", "y", "z"]:
     SIMULATION.append(f'bc_{cmp}%beg')
@@ -95,7 +95,7 @@ for order_id in range(1,5+1):
 
 for f_id in range(1,10+1):
     for attribute in ["gamma", "pi_inf", "mul0", "ss", "pv", "gamma_v", "M_v",
-                      "mu_v", "k_v", "G"]:
+                      "mu_v", "k_v", "G", "cv", "qv", "qvp"]:
         SIMULATION.append(f"fluid_pp({f_id})%{attribute}")
 
     for re_id in [1, 2]:
@@ -143,7 +143,7 @@ for fl_id in range(1,10+1):
     for append in ["schlieren_alpha", "alpha_rho_wrt", "alpha_wrt", "kappa_wrt"]:
         POST_PROCESS.append(f'{append}({fl_id})')
 
-    for attribute in ["gamma", "pi_inf", "ss", "pv", "gamma_v", "M_v", "mu_v", "k_v", "G", "mul0"]:
+    for attribute in ["gamma", "pi_inf", "ss", "pv", "gamma_v", "M_v", "mu_v", "k_v", "G", "mul0", "qv"]:
         POST_PROCESS.append(f"fluid_pp({fl_id})%{attribute}")
 
 
