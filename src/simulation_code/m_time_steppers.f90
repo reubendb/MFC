@@ -268,7 +268,6 @@ MODULE m_time_steppers
 
 
             IF (grid_geometry == 3) CALL s_apply_fourier_filter(q_cons_ts(1)%vf)
-
             IF (model_eqns == 3) CALL s_infinite_p_relaxation(q_cons_ts(1)%vf)
             
             DO i = 1, cont_idx%end
@@ -387,7 +386,7 @@ MODULE m_time_steppers
             END DO
            
             CALL s_compute_rhs(q_cons_ts(1)%vf, q_prim_vf, rhs_vf, t_step)
-            CALL s_relaxation_finite_solver(q_cons_ts(1)%vf,rhs_vf)
+            !CALL s_relaxation_finite_solver(q_cons_ts(1)%vf,rhs_vf)
 
             IF(run_time_info) THEN
                 CALL s_write_run_time_information(q_prim_vf, t_step)
@@ -419,7 +418,7 @@ MODULE m_time_steppers
             END DO
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step)
-            CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
+            !CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
 
             DO i = 1, sys_size
                 q_cons_ts(2)%vf(i)%sf(0:m,0:n,0:p) = &
@@ -435,7 +434,7 @@ MODULE m_time_steppers
             ! Stage 3 of 3 =====================================================
 
             CALL s_compute_rhs(q_cons_ts(2)%vf, q_prim_vf, rhs_vf, t_step) 
-            CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
+            !CALL s_relaxation_finite_solver(q_cons_ts(2)%vf,rhs_vf)
 
             DO i = 1, sys_size
                 q_cons_ts(1)%vf(i)%sf(0:m,0:n,0:p) = &

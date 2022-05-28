@@ -406,7 +406,6 @@ MODULE m_data_output
             END DO
             end IF
 
-
         END SUBROUTINE s_open_probe_files ! ------------------------------------
 
 

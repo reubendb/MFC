@@ -86,16 +86,16 @@ MODULE m_phasechange
 
     !> @name Parameters for the phase change part of the code
     !> @{
-    INTEGER,         PARAMETER :: newton_iter       = 30        !< p_relaxk \alpha iter,                set to 25
-    REAL(KIND(0d0)), PARAMETER :: pknewton_eps      = 1.d-13    !< p_relaxk \alpha threshold,           set to 1E-15
-    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-12
+    INTEGER,         PARAMETER :: newton_iter       = 50        !< p_relaxk \alpha iter,                set to 25
+    REAL(KIND(0d0)), PARAMETER :: pknewton_eps      = 1.d-15    !< p_relaxk \alpha threshold,           set to 1E-15
+    REAL(KIND(0d0)), PARAMETER :: pTsatnewton_eps   = 1.d-10    !< Saturation temperature tol,          set to 1E-10
     REAL(KIND(0d0)), PARAMETER :: ptgnewton_eps     = 1.d-8     !< Saturation p-T-mu tolerance,         set to 1.d-10
-    REAL(KIND(0d0)), PARAMETER :: pres_crit         = 22.06d6   !< Critical water pressure, higher than this is a critical fluid
-    REAL(KIND(0d0)), PARAMETER :: T_crit            = 648.d0    !< Critical water pressure, higher than this is a critical fluid
+    REAL(KIND(0d0)), PARAMETER :: pres_crit         = 22.06d6   !< Critical water pressure              set to 22.06d6
+    REAL(KIND(0d0)), PARAMETER :: T_crit            = 648.d0    !< Critical water temperature           set to 648
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
-    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 100.d0    !< Saturation temperature threshold,    set to 250
-    REAL(KIND(0d0)), PARAMETER :: palpha_eps        = 1.d-12    !< p_relax high \alpha tolerance,       set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_eps      = 1.d-3     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: palpha_eps        = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_eps      = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     !> @}
 
     !> @name Gibbs free energy phase change parameters
@@ -136,6 +136,7 @@ MODULE m_phasechange
             ! Associating procedural pointer to the subroutine that will be
             ! utilized to calculate the solution of a given Riemann problem
         
+            ! Opening and writing the header of the run-time information file
             IF(relax_model == 0 .OR. relax_model == 1) THEN
                 s_relaxation_solver => s_infinite_p_relaxation
             ELSEIF (relax_model == 2) THEN
@@ -148,11 +149,14 @@ MODULE m_phasechange
                 s_relaxation_solver => s_infinite_pt_relaxation_k
             ELSEIF (relax_model == 6) THEN
                 s_relaxation_solver => s_infinite_ptg_relaxation_k      
+            ELSE
+                PRINT '(A)', 'relaxation solver was not set!'
+                CALL s_mpi_abort()
             END IF
 
-            IF (relax_model == 1) THEN
-                s_relaxation_finite_solver => s_finite_ptg_relaxation
-            END IF      
+            !IF (relax_model == 1) THEN
+            !    s_relaxation_finite_solver => s_finite_ptg_relaxation
+            !END IF      
 
         END SUBROUTINE s_initialize_phasechange_module !-------------------------------
 
@@ -1434,8 +1438,8 @@ MODULE m_phasechange
             INTEGER, INTENT(IN)            :: j,k,l
             !pstarA = 100.d0
             !pstarB = 5.d2
-            pstarA = 1.d0
-            pstarB = 1.d5
+            pstarA = 1.d-15
+            pstarB = 1.d1
             CALL s_compute_pk_fdf(fA,dfdp,pstarA,rho_K_s,gamma_min,pres_inf,pres_K_init,q_cons_vf,j,k,l)
             CALL s_compute_pk_fdf(fB,dfdp,pstarB,rho_K_s,gamma_min,pres_inf,pres_K_init,q_cons_vf,j,k,l)
             factor = 10.d0
