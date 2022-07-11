@@ -122,8 +122,7 @@ contains
                 PRINT '(A)', 'File pre_process.inp is missing. Exiting ...'
                 CALL s_mpi_abort()
             END IF
-            
-            
+         
         END SUBROUTINE s_read_input_file ! -------------------------------------
         
         
@@ -157,8 +156,7 @@ contains
             ! Checking the existence of the case folder
             case_dir = ADJUSTL(case_dir)
             
-            file_loc = TRIM(case_dir) // '/.'
-           
+            file_loc = TRIM(case_dir) // '/.'        
             CALL my_inquire(file_loc,dir_check)
             
             ! Startup checks for bubbles and bubble variables
@@ -175,7 +173,7 @@ contains
                 PRINT '(A)', 'nb must be odd ' // &
                              'Exiting ...'
                 CALL s_mpi_abort()      
-            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 4) THEN
+            ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 6) THEN
                 PRINT '(A)', 'Unsupported combination of values of ' // &
                              'bubbles and rhoref. '           // &
                              'Exiting ...'
@@ -370,38 +368,59 @@ contains
                     CALL s_mpi_abort()
                 END IF
 
-            ELSE ! Cylindrical coordinates
+                ELSE ! Cylindrical coordinates
+                ! checking if it is a restart simulation.
+				! in case restart of a simulation
+				IF( old_grid .AND. old_ic ) THEN
+					! checking of there is any input to the domains
+					IF ( ( x_domain%beg /= dflt_real .OR. x_domain%end /= dflt_real )	&
+													 .OR.								&
+						 ( y_domain%beg /= dflt_real .OR. y_domain%end /= dflt_real )	&
+						 							 .OR.								&
+						 ( y_domain%beg /= dflt_real .OR. y_domain%end /= dflt_real ) ) THEN
+						PRINT '(A)', 'domain are not dflt_real.' // &
+									'Please, correct them'	
+						CALL s_mpi_abort()				
+					ELSE IF ( m == dflt_int .OR. n == dflt_int .OR. p == dflt_int) THEN
+																	
+						PRINT '(A)', 'm, n, and/or p are set to dflt_int.' // &
+									'Please, correct them'													
+						CALL s_mpi_abort()
+					END IF
 
+				! in case it is NOT restart
+				ELSE
+				! I kept this as it was before.
                 ! Constraints on domain boundaries for cylindrical coordinates
-                IF(               n == 0                  &
-                                   .OR.                   &
-                          y_domain%beg /= 0d0             &
-                                   .OR.                   &
-                          y_domain%end == dflt_real       &
-                                   .OR.                   &
-                          y_domain%end < 0d0              &
-                                   .OR.                   &
-                        y_domain%beg >= y_domain%end )  THEN
-                    PRINT '(A)', 'Unsupported choice of the combination of '    // &
-                                 'cyl_coord and n, y_domain%beg, or         '   // &
-                                 'y_domain%end. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF ( (p == 0 .AND. z_domain%beg /= dflt_real) &
-                                        .OR.                      &
-                         (p == 0 .AND. z_domain%end /= dflt_real)) THEN
-                    PRINT '(A)', 'Unsupported choice of the combination of '    // &
-                                 'cyl_coord and p, z_domain%beg, or '           // &
-                                 'z_domain%end. Exiting ...'
-                    CALL s_mpi_abort()
-                ELSEIF( p > 0 .AND. ( z_domain%beg /= 0d0          &
-                                              .OR.                 &
-                                      z_domain%end /= 2d0*pi )) THEN
-                    PRINT '(A)', 'Unsupported choice of the combination of '    // &
-                                 'cyl_coord and p, z_domain%beg, or '           // &
-                                 'z_domain%end. Exiting ...'
-                    CALL s_mpi_abort()
+                    IF(               n == 0                  &
+                                    .OR.                   &
+                            y_domain%beg /= 0d0             &
+                                    .OR.                   &
+                            y_domain%end == dflt_real       &
+                                    .OR.                   &
+                            y_domain%end < 0d0              &
+                                    .OR.                   &
+                            y_domain%beg >= y_domain%end )  THEN
+                        PRINT '(A)', 'Unsupported choice of the combination of '    // &
+                                    'cyl_coord and n, y_domain%beg, or         '   // &
+                                    'y_domain%end. Exiting ...'
+                        CALL s_mpi_abort()
+                    ELSEIF ( (p == 0 .AND. z_domain%beg /= dflt_real) &
+                                            .OR.                      &
+                            (p == 0 .AND. z_domain%end /= dflt_real)) THEN
+                        PRINT '(A)', 'Unsupported choice of the combination of '    // &
+                                    'cyl_coord and p, z_domain%beg, or '           // &
+                                    'z_domain%end. Exiting ...'
+                        CALL s_mpi_abort()
+                    ELSEIF( p > 0 .AND. ( z_domain%beg /= 0d0          &
+                                                .OR.                 &
+                                        z_domain%end /= 2d0*pi )) THEN
+                        PRINT '(A)', 'Unsupported choice of the combination of '    // &
+                                    'cyl_coord and p, z_domain%beg, or '           // &
+                                    'z_domain%end. Exiting ...'
+                        CALL s_mpi_abort()
+                    END IF
                 END IF
-
             END IF
 
             ! Constraints on the grid stretching in the x-direction
