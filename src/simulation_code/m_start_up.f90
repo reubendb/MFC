@@ -70,7 +70,7 @@ MODULE m_start_up
     subroutine s_read_input_file() ! ---------------------------------------
 
         ! Relative path to the input file provided by the user
-        character(LEN=name_len) :: file_path = './simulation.inp'
+        character(LEN=name_len) :: file_path = 'simulation.inp'
 
         logical :: file_exist !<
             !! Logical used to check the existence of the input file
@@ -101,7 +101,8 @@ MODULE m_start_up
                                    polytropic, thermal,                      &
                                    integral, integral_wrt, num_integrals,    &
                                    polydisperse, poly_sigma, qbmm, nnode,    &
-                                   R0_type, DEBUG, t_tol, relax_model
+                                   R0_type, DEBUG, t_tol, relax_model,		 &
+								   palpha_eps, ptgalpha_eps
             
             
             ! Checking that an input file has been provided by the user. If it
@@ -129,10 +130,9 @@ MODULE m_start_up
                 p_glb = p
 
             ELSE
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read input. Exiting ...'
                 CALL s_mpi_abort()
             END IF
-            
             
         END SUBROUTINE s_read_input_file ! -------------------------------------
         
@@ -158,11 +158,11 @@ MODULE m_start_up
             
             ! Logistics ========================================================
             file_path = TRIM(case_dir) // '/.'
-            
+           
             CALL my_inquire(file_path,file_exist)
 
             IF(file_exist .NEQV. .TRUE.) THEN
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Check input. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             ! ==================================================================
@@ -214,6 +214,11 @@ MODULE m_start_up
                 CALL s_mpi_abort()
             ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 6) THEN
                 PRINT '(A)', 'Relaxation model untested with 6-equation model'
+                CALL s_mpi_abort()
+	    ! checking whether both palpha_eps and ptgalpha_eps are both withing the interval (0,1]	
+	    ELSEIF( ( palpha_eps <= 0d0 .OR. palpha_eps > 1d0 ) .OR. ( ptgalpha_eps <= 0d0 .OR. ptgalpha_eps > 1d0 ) ) THEN
+			    PRINT '(A)', 'palpha_eps and ptgalpha_eps must be positive, but' // &
+							 ' lower than 1. Exiting ...'
                 CALL s_mpi_abort()
             ELSEIF( bubbles .AND. bubble_model == 3 .AND. (polytropic .NEQV. .TRUE.)  ) THEN
                 PRINT '(A)', 'RP bubbles require polytropic compression'
@@ -856,7 +861,7 @@ MODULE m_start_up
             CALL my_inquire(file_path,file_exist)
 
             IF(file_exist .NEQV. .TRUE.) THEN
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 1. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             
@@ -873,7 +878,7 @@ MODULE m_start_up
                         STATUS = 'old'            )
                 READ(2) x_cb(-1:m); CLOSE(2)
             ELSE
-                PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 2. Exiting ...'
                 CALL s_mpi_abort()
             END IF
             
@@ -896,7 +901,7 @@ MODULE m_start_up
                             STATUS = 'old'            )
                     READ(2) y_cb(-1:n); CLOSE(2)
                 ELSE
-                    PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                    PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 3. Exiting ...'
                     CALL s_mpi_abort()
                 END IF
                 
@@ -921,7 +926,7 @@ MODULE m_start_up
                             STATUS = 'old'            )
                     READ(2) z_cb(-1:p); CLOSE(2)
                 ELSE
-                    PRINT '(A)', TRIM(file_path) // ' is missing. Exiting ...'
+                    PRINT '(A)', TRIM(file_path) // ' is missing. Read serial 4. Exiting ...'
                     CALL s_mpi_abort()
                 END IF
                 
@@ -1010,7 +1015,7 @@ MODULE m_start_up
                 CALL MPI_FILE_READ(ifile,x_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                 CALL MPI_FILE_CLOSE(ifile,ierr)
             ELSE
-                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel. Exiting...'
                 CALL s_mpi_abort()
             END IF
 
@@ -1032,7 +1037,7 @@ MODULE m_start_up
                     CALL MPI_FILE_READ(ifile,y_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                     CALL MPI_FILE_CLOSE(ifile,ierr)
                 ELSE
-                    PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                    PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 2. Exiting...'
                     CALL s_mpi_abort()
                 END IF
         
@@ -1054,7 +1059,7 @@ MODULE m_start_up
                         CALL MPI_FILE_READ(ifile,z_cb_glb,data_size,MPI_DOUBLE_PRECISION,status,ierr)
                         CALL MPI_FILE_CLOSE(ifile,ierr)
                     ELSE
-                        PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                        PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 3. Exiting...'
                         CALL s_mpi_abort()
                     END IF
             
@@ -1123,7 +1128,7 @@ MODULE m_start_up
 
                 CALL MPI_FILE_CLOSE(ifile,ierr)
             ELSE
-                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Exiting...'
+                PRINT '(A)', 'File ', TRIM(file_loc), ' is missing. Read parallel 5. Exiting...'
                 CALL s_mpi_abort()
             END IF
 

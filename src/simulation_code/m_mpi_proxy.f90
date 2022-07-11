@@ -226,6 +226,10 @@ MODULE m_mpi_proxy
                                            0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST(weno_eps      , 1, MPI_DOUBLE_PRECISION, &
                                            0, MPI_COMM_WORLD, ierr  )
+			CALL MPI_BCAST(palpha_eps    , 1, MPI_DOUBLE_PRECISION, &
+                                           0, MPI_COMM_WORLD, ierr  )
+			CALL MPI_BCAST(ptgalpha_eps  , 1, MPI_DOUBLE_PRECISION, &
+                                           0, MPI_COMM_WORLD, ierr  )										   
             CALL MPI_BCAST(char_decomp   , 1, MPI_LOGICAL         , &
                                            0, MPI_COMM_WORLD, ierr  )
             CALL MPI_BCAST(mapped_weno   , 1, MPI_LOGICAL         , &
