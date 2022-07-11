@@ -61,7 +61,7 @@ MODULE m_global_parameters
     REAL(KIND(0d0)), PARAMETER :: dflt_real     = -1d6  !< Default real value
     INTEGER        , PARAMETER :: dflt_int      = -100  !< Default integer value
     REAL(KIND(0d0)), PARAMETER :: sgm_eps       = 1d-16 !< Segmentation tolerance
-    INTEGER        , PARAMETER :: fourier_rings = 5     !< Fourier filter ring limit
+    INTEGER        , PARAMETER, public :: fourier_rings = 5     !< Fourier filter ring limit
     CHARACTER(LEN = path_len)  :: case_dir              !< Case folder location
     LOGICAL                    :: run_time_info         !< Run-time output flag
     LOGICAL                    :: debug                 !< Debug mode print statements
@@ -129,6 +129,8 @@ MODULE m_global_parameters
     INTEGER         :: weno_order     !< Order of the WENO reconstruction
     INTEGER         :: weno_polyn     !< Degree of the WENO polynomials (polyn)
     REAL(KIND(0d0)) :: weno_eps       !< Binding for the WENO nonlinear weights
+	REAL(KIND(0d0)) :: palpha_eps     !< trigger parameter for the  p  relaxation procedure, phase change model
+	REAL(KIND(0d0)) :: ptgalpha_eps   !< trigger parameter for the pTg relaxation procedure, phase change model
     LOGICAL         :: char_decomp    !< Characteristic decomposition
     LOGICAL         :: mapped_weno    !< WENO with mapping of nonlinear weights
     LOGICAL         :: mp_weno        !< Monotonicity preserving (MP) WENO
@@ -388,6 +390,8 @@ MODULE m_global_parameters
             weno_vars        = dflt_int
             weno_order       = dflt_int
             weno_eps         = dflt_real
+			palpha_eps 	   	 = 1.0d-06
+			ptgalpha_eps     = 1.0d-06
             char_decomp      = .FALSE.
             mapped_weno      = .FALSE.
             mp_weno          = .FALSE.

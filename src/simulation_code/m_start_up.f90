@@ -103,7 +103,10 @@ MODULE m_start_up
             CHARACTER(LEN = name_len) :: file_path = './simulation.inp'
             
 
-            LOGICAL :: file_exist !<
+        ! Relative path to the input file provided by the user
+        character(LEN=name_len) :: file_path = 'simulation.inp'
+
+        logical :: file_exist !<
             !! Logical used to check the existence of the input file
             
             ! Namelist of the global parameters which may be specified by user
@@ -132,7 +135,8 @@ MODULE m_start_up
                                    polytropic, thermal,                      &
                                    integral, integral_wrt, num_integrals,    &
                                    polydisperse, poly_sigma, qbmm, nnode,    &
-                                   R0_type, DEBUG, t_tol, relax_model
+                                   R0_type, DEBUG, t_tol, relax_model,		 &
+								   palpha_eps, ptgalpha_eps
             
             
             ! Checking that an input file has been provided by the user. If it
@@ -244,6 +248,11 @@ MODULE m_start_up
                 CALL s_mpi_abort()
             ELSEIF(model_eqns == 3 .AND. relax_model .LT. 0 .AND. relax_model .GT. 5) THEN
                 PRINT '(A)', 'Relaxation model untested with 6-equation model'
+                CALL s_mpi_abort()
+	    ! checking whether both palpha_eps and ptgalpha_eps are both withing the interval (0,1]	
+	    ELSEIF( ( palpha_eps <= 0d0 .OR. palpha_eps > 1d0 ) .OR. ( ptgalpha_eps <= 0d0 .OR. ptgalpha_eps > 1d0 ) ) THEN
+			    PRINT '(A)', 'palpha_eps and ptgalpha_eps must be positive, but' // &
+							 ' lower than 1. Exiting ...'
                 CALL s_mpi_abort()
             ELSEIF( bubbles .AND. bubble_model == 3 .AND. (polytropic .NEQV. .TRUE.)  ) THEN
                 PRINT '(A)', 'RP bubbles require polytropic compression'

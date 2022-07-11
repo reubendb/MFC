@@ -94,8 +94,6 @@ MODULE m_phasechange
     REAL(KIND(0d0)), PARAMETER :: T_crit            = 648.d0    !< Critical water temperature           set to 648
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
     REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
-    REAL(KIND(0d0)), PARAMETER :: palpha_eps        = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
-    REAL(KIND(0d0)), PARAMETER :: ptgalpha_eps      = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     !> @}
 
     !> @name Gibbs free energy phase change parameters
@@ -624,63 +622,57 @@ MODULE m_phasechange
         !!      mixture-total-energy equation.
         !!  @param q_cons_vf Cell-average conservative variables
         SUBROUTINE s_infinite_pt_relaxation_k(q_cons_vf) ! ----------------
-            TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf 
-            !> @name Relaxed pressure, initial partial pressures, function f(p) and its partial
-            !! derivative df(p), isentropic partial density, sum of volume fractions,
-            !! mixture density, dynamic pressure, surface energy, specific heat ratio
-            !! function, liquid stiffness function (two variations of the last two
-            !! ones), shear and volume Reynolds numbers and the Weber numbers
-            !> @{
-            REAL(KIND(0d0))                                   :: pres_relax, Trelax
-            REAL(KIND(0d0)), DIMENSION(num_fluids)            :: p_k, alpha_k, Tk
-            REAL(KIND(0d0))                                   :: rhoalpha1, rhoalpha2
-            REAL(KIND(0d0))                                   :: rho, rhoe, rhoeq_k
-            REAL(KIND(0d0))                                   :: rho1, rho2
-            REAL(KIND(0d0))                                   :: a1, a2
-            REAL(KIND(0d0))                                   :: dyn_pres
-            REAL(KIND(0d0))                                   :: E_We
-            REAL(KIND(0d0))                                   :: gamma
-            REAL(KIND(0d0))                                   :: pi_inf, p_infk
-            REAL(KIND(0d0))                                   :: pres_sat, Tsat
-            REAL(KIND(0d0))                                   :: A, B, C, D
-            REAL(KIND(0d0)), DIMENSION(2)                     :: Re
-            REAL(KIND(0d0)), DIMENSION(num_fluids,num_fluids) :: We
-            !> @}
-            INTEGER :: i, j, k, l        !< Generic loop iterators
-            LOGICAL :: relax             !< Relaxation procedure determination variable
-            !< Computing the constant saturation properties 
-
-            DO j = 0, m
-                DO k = 0, n
-                    DO l = 0, p
-                        ! P RELAXATION ==================================
-                        relax = .FALSE.
-                        IF (mpp_lim) THEN
-                            CALL s_mixture_volume_fraction_correction(q_cons_vf, j, k, l )
-                        END IF
-                        ! P RELAXATION==============================================
-                        relax = .TRUE.
-                        DO i = 1, num_fluids
-                            IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1d0-palpha_eps)) relax = .FALSE.
-                        END DO
-                        IF (relax) THEN
-                            DO i = 1, num_fluids
-                                 alpha_k(i) = q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
-                                 rhoeq_k = (q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
-                                          -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &
-                                          /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) 
-                                 p_k(i) = (rhoeq_k-fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
-                            END DO
-                            a1 = f_alpha1_prelax(p_k,alpha_k)
-                            ! Cell update of the volume fraction
-                            DO i = 1, num_fluids
-                                !IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_eps) & 
-                                    q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
-                                    q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
-                            END DO
-                        END IF
-                        CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
-                        ! PT RELAXATION ==================================
+            ! Relaxed pressure, initial partial pressures, function f(p) and its partial
+            ! derivative df(p), isentropic partial density, sum of volume fractions,
+            ! mixture density, dynamic pressure, surface energy, specific heat ratio
+            ! function, liquid stiffness function (two variations of the last two
+            ! ones), shear and volume Reynolds numbers and the Weber numbers
+            ! Cell-average conservative variables
+            TYPE(scalar_field), DIMENSION(sys_size), INTENT(INOUT) :: q_cons_vf         
+            REAL(KIND(0d0)), DIMENSION(num_fluids) ::     rho_K_s, pres_K_init
+            REAL(KIND(0d0)), DIMENSION(num_fluids) ::   gamma_min, pres_inf
+            REAL(KIND(0d0))                        ::     rhoe, pstar, Tstar
+            ! Generic loop iterators
+            INTEGER :: i,j,k,l
+            ! Relaxation procedure determination variable
+            LOGICAL :: relax
+            DO i = 1, num_fluids
+                gamma_min(i) = 1d0/fluid_pp(i)%gamma + 1d0
+                pres_inf(i)  = fluid_pp(i)%pi_inf / (1d0+fluid_pp(i)%gamma)
+            END DO
+			DO j = 0, m
+				DO k = 0, n
+					DO l = 0, p
+						! Numerical correction of the volume fractions
+						IF (mpp_lim) THEN
+							CALL s_mixture_volume_fraction_correction(q_cons_vf, j, k, l )
+						END IF
+						! P RELAXATION==============================================
+						relax = .TRUE.
+						DO i = 1, num_fluids
+							IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. (1d0-palpha_eps)) relax = .FALSE.
+						END DO
+						IF (relax) THEN
+											   
+							DO i = 1, num_fluids
+							  ! Calculating the initial pressure
+							  pres_K_init(i) = ((q_cons_vf(i+internalEnergies_idx%beg-1)%sf(j,k,l) & 
+								 -q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l)*fluid_pp(i)%qv) &										  
+								 /q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) &
+								 - fluid_pp(i)%pi_inf)/fluid_pp(i)%gamma
+							  IF (pres_K_init(i) .LE. -(1d0 - 1d-8)*pres_inf(i) + 1d-8) & 
+								  pres_K_init(i) = -(1d0 - 1d-8)*pres_inf(i) + 1d-0
+							END DO
+							CALL s_compute_p_relax_k(rho_K_s,gamma_min,pres_inf,pres_K_init,q_cons_vf,j,k,l)
+							! Cell update of the volume fraction
+							DO i = 1, num_fluids
+								IF (q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) .GT. palpha_eps) & 
+									q_cons_vf(i+adv_idx%beg-1)%sf(j,k,l) = & 
+									q_cons_vf(i+cont_idx%beg-1)%sf(j,k,l) / rho_K_s(i)
+							END DO
+						END IF
+						CALL s_mixture_total_energy_correction(q_cons_vf, j, k, l )
+                        ! PT RELAXATION==============================================
                         rhoe = 0.d0
                         relax = .FALSE.
                         IF (mpp_lim) THEN
