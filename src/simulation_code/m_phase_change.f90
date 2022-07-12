@@ -95,6 +95,8 @@ MODULE m_phase_change
     REAL(KIND(0d0)), PARAMETER :: T_crit            = 648.d0    !< Critical water temperature           set to 648
     REAL(KIND(0d0)), PARAMETER :: TsatHv            = 1000.d0   !< Saturation temperature threshold,    set to 900
     REAL(KIND(0d0)), PARAMETER :: TsatLv            = 250.d0    !< Saturation temperature threshold,    set to 250
+    REAL(KIND(0d0)), PARAMETER :: palpha_eps        = 1.d-6     !< p_relax high \alpha tolerance,       set to 1.d-6
+    REAL(KIND(0d0)), PARAMETER :: ptgalpha_eps      = 1.d-6     !< Saturation p-T-mu alpha tolerance,   set to 1.d-6
     !> @}
 
     !> @name Gibbs free energy phase change parameters
