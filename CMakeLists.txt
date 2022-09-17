@@ -5,6 +5,7 @@ project(MFC LANGUAGES C CXX Fortran)
 
 # === Options
 option(MFC_WITH_MPI            "Build with MPI"       ON)
+option(MFC_WITH_ZFP            "Build with ZFP"      OFF)
 option(MFC_WITH_OPEN_ACC       "Build with OpenACC"  OFF)
 option(MFC_BUILD_PRE_PROCESS   "Build pre_process"   OFF)
 option(MFC_BUILD_SIMULATION    "Build simulation"    OFF)
@@ -150,9 +151,10 @@ endif()
 # a different .f90 file depending on case.fpp's contents. This macro sets the
 # <target>_srcs CMake cache variaible the full list of .f90 files, including the
 # preprocessed Fypp files.
-macro(HANDLE_FYPP target)
+macro(HANDLE_SRCS target)
     file(GLOB ${target}_f90s CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/${target}/*.f90")
     file(GLOB ${target}_fpps CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/${target}/*.fpp")
+    file(GLOB ${target}_cs   CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/${target}/*.c")
 
     # Create src/<target>/autogen folder in which to generate Fypp'd .f90 files.
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/${target}/autogen")
@@ -179,15 +181,17 @@ macro(HANDLE_FYPP target)
         list(APPEND ${target}_srcs "${f90_filepath}")
     endforeach(fpp_filepath)
 
+    list(APPEND ${target}_srcs ${${target}_cs})
+
 endmacro()
 
 
 # === Handle src/ Folder
-# === === Fypp / Sources
-HANDLE_FYPP(common)
-HANDLE_FYPP(pre_process)
-HANDLE_FYPP(simulation)
-HANDLE_FYPP(post_process)
+# === === Fetch Sources
+HANDLE_SRCS(common)
+HANDLE_SRCS(pre_process)
+HANDLE_SRCS(simulation)
+HANDLE_SRCS(post_process)
 
 
 # === === src/pre_process
@@ -203,7 +207,7 @@ if (MFC_BUILD_PRE_PROCESS)
     endif()
 
 
-    target_compile_options(pre_process PRIVATE -DMFC_PRE_PROCESS)
+    target_compile_definitions(pre_process PRIVATE MFC_PRE_PROCESS)
 
 
     install(TARGETS pre_process RUNTIME DESTINATION bin)
@@ -272,6 +276,13 @@ if (MFC_BUILD_SIMULATION)
 
         target_compile_definitions(simulation PRIVATE MFC_MPI)
         target_link_libraries     (simulation PRIVATE MPI::MPI_Fortran)
+
+        if (MFC_WITH_ZFP)
+            find_package(ZFP REQUIRED)
+
+            target_link_libraries(simulation PRIVATE zfp::zfp)
+            target_compile_definitions(simulation PRIVATE MFC_ZFP)
+        endif()
     endif()
 
 
@@ -282,7 +293,7 @@ if (MFC_BUILD_SIMULATION)
     endif()
 
 
-    target_compile_options(simulation PRIVATE -DMFC_SIMULATION)
+    target_compile_definitions(simulation PRIVATE MFC_SIMULATION)
 
 
     install(TARGETS simulation RUNTIME DESTINATION bin)
@@ -307,7 +318,9 @@ if (MFC_BUILD_POST_PROCESS)
     endif()
 
     # -O0 is in response to https://github.com/MFlowCode/MFC-develop/issues/95
-    target_compile_options(post_process PRIVATE -DMFC_POST_PROCESS -O0)
+    target_compile_options(post_process PRIVATE -O0)
+
+    target_compile_definitions(post_process PRIVATE MFC_POST_PROCESS)
 
 
     install(TARGETS post_process RUNTIME DESTINATION bin)

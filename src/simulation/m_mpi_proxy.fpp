@@ -5,8 +5,6 @@
 !! @version 1.0
 !! @date JUNE 06 2019
 
-#:include 'case.fpp'
-
 !> @brief The module serves as a proxy to the parameters and subroutines
 !!          available in the MPI implementation's MPI module. Specifically,
 !!          the purpose of the proxy is to harness basic MPI commands into
@@ -22,6 +20,10 @@ module m_mpi_proxy
     use m_derived_types        !< Definitions of the derived types
 
     use m_global_parameters    !< Definitions of the global parameters
+
+    use m_compress             !< Compression module
+    
+    use iso_c_binding
     ! ==========================================================================
 
     implicit none
@@ -43,10 +45,13 @@ module m_mpi_proxy
 
 !$acc declare create(q_cons_buff_send, q_cons_buff_recv)
 
-    !real :: s_time, e_time
-    !real :: compress_time, mpi_time, decompress_time
-    !integer :: nCalls_time = 0
-
+#:for mpi_dir in range(1, 3+1)
+    type(t_compress_state), private :: compress_${mpi_dir}$_state_send
+    type(t_compress_state), private :: compress_${mpi_dir}$_state_recv
+    byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_send(:)
+    byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_recv(:)
+#:endfor
+    
 contains
 
     !> The subroutine intializes the MPI execution environment
@@ -192,6 +197,45 @@ contains
         end if
 
         allocate (q_cons_buff_recv(0:ubound(q_cons_buff_send, 1)))
+
+#define ZFP_RATE 64.0
+
+        !$acc host_data use_device(q_cons_buff_send, q_cons_buff_recv)
+#if defined(_OPENACC) && defined(__PGI)
+        if (cu_mpi) then
+            !   Compression: Device -> Device
+            ! Decompression: Device -> Device
+            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)    
+            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)
+            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
+            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
+            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
+            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
+        else
+#endif
+            !   Compression: Device -> Host
+            ! Decompression: Host   -> Device
+            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
+            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
+#if defined(_OPENACC) && defined(__PGI)
+        end if
+#endif
+        !$acc end host_data
+
+#:for mpi_dir in range(1, 3+1)
+        if (compress_${mpi_dir}$_state_send%bActive .and. compress_${mpi_dir}$_state_recv%bActive) then
+            print '(A)', 'Compression initialization successful for direction ${mpi_dir}$.'
+        else
+            print '(A)', 'Compression initialization failed for direction ${mpi_dir}$.'
+        end if
+        
+        call c_f_pointer(compress_${mpi_dir}$_state_send%pBytes, fp_${mpi_dir}$_byte_buff_send, (/ compress_${mpi_dir}$_state_send%nBytes /))
+        call c_f_pointer(compress_${mpi_dir}$_state_recv%pBytes, fp_${mpi_dir}$_byte_buff_recv, (/ compress_${mpi_dir}$_state_recv%nBytes /))
+#:endfor
 
 #endif
 
@@ -392,6 +436,9 @@ contains
 
         call MPI_BCAST(qbmm, 1, &
                        MPI_LOGICAL, 0, &
+                       MPI_COMM_WORLD, ierr)
+        call MPI_BCAST(nnode, 1, &
+                       MPI_INTEGER, 0, &
                        MPI_COMM_WORLD, ierr)
 
         !Acoustic monopole
@@ -920,7 +967,7 @@ contains
                     ! Send/receive buffer to/from bc_x%end/bc_x%beg
                     call MPI_SENDRECV( &
                         dx(m - buff_size + 1), buff_size, &
-                        MPI_DOUBLE_PRECISION, bc_x%end, 0, &
+                        MPI_BYTE, bc_x%end, 0, &
                         dx(-buff_size), buff_size, &
                         MPI_DOUBLE_PRECISION, bc_x%beg, 0, &
                         MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
@@ -954,7 +1001,7 @@ contains
                     ! Send/receive buffer to/from bc_x%end/bc_x%end
                     call MPI_SENDRECV( &
                         dx(m - buff_size + 1), buff_size, &
-                        MPI_DOUBLE_PRECISION, bc_x%end, 0, &
+                        MPI_BYTE, bc_x%end, 0, &
                         dx(m + 1), buff_size, &
                         MPI_DOUBLE_PRECISION, bc_x%end, 1, &
                         MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
@@ -1225,12 +1272,18 @@ contains
     subroutine s_mpi_sendrecv_conservative_variables_buffers(q_cons_vf, &
                                                              mpi_dir, &
                                                              pbc_loc)
-
+        
         type(scalar_field), dimension(sys_size), intent(INOUT) :: q_cons_vf
         integer, intent(IN) :: mpi_dir
         integer, intent(IN) :: pbc_loc
-
+        
+        logical :: success
+        integer :: offset
         integer :: i, j, k, l, r !< Generic loop iterators
+
+        print*, ""
+        print*, "s_mpi_sendrecv_conservative_variables_buffers", mpi_dir
+        print*, ""
 
 #ifndef MFC_MPI
 
@@ -1238,15 +1291,10 @@ contains
 
 #else
 
-        !nCalls_time = nCalls_time + 1
-
-        ! MPI Communication in x-direction =================================
+            ! MPI Communication in x-direction =================================
         if (mpi_dir == 1) then
-
             if (pbc_loc == -1) then      ! PBC at the beginning
-
                 if (bc_x%end >= 0) then      ! PBC at the beginning and end
-
                     ! Packing buffer to be sent to bc_x%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do l = 0, p
@@ -1261,51 +1309,33 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_1_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    !$acc update host(q_cons_buff_send)
+                    print*, "send ", q_cons_buff_send
+                    print*, "send ", fp_1_byte_buff_send
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_1_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%end, 0, &
+                        fp_1_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-!$acc end host_data
-!$acc wait
-                    else
-#endif // #if defined(_OPENACC) && defined(__PGI)
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
+                    print*, "recv ", fp_1_byte_buff_recv
 
-                        !call cpu_time(s_time)
+                    offset = f_decompress(compress_1_state_recv)
 
-! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    !$acc update host(q_cons_buff_recv)
+                    print*, "recv ", q_cons_buff_recv
                 else                        ! PBC at the beginning only
-
                     ! Packing buffer to be sent to bc_x%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do l = 0, p
@@ -1320,58 +1350,32 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_1_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    !$acc update host(q_cons_buff_send)
+                    print*, "send ", q_cons_buff_send
+                    print*, "send ", fp_1_byte_buff_send
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_1_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%beg, 1, &
+                        fp_1_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
+                    print*, "recv ", fp_1_byte_buff_recv
 
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_1_state_recv)
+                    !$acc update host(q_cons_buff_recv)
+                    print*, "recv ", q_cons_buff_recv
                 end if
-
-#if defined(_OPENACC) && defined(__PGI)
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
-                end if
-#endif
 
                 ! Unpacking buffer received from bc_x%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
@@ -1386,11 +1390,8 @@ contains
                         end do
                     end do
                 end do
-
             else                        ! PBC at the end
-
                 if (bc_x%beg >= 0) then      ! PBC at the end and beginning
-
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     ! Packing buffer to be sent to bc_x%beg
                     do l = 0, p
@@ -1405,50 +1406,33 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_1_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    !$acc update host(q_cons_buff_send)
+                    print*, "send ", q_cons_buff_send
+                    print*, "send ", fp_1_byte_buff_send
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_1_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%beg, 1, &
+                        fp_1_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
+                    print*, "recv ", fp_1_byte_buff_recv
 
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
+                    offset = f_decompress(compress_1_state_recv)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    !$acc update host(q_cons_buff_recv)
+                    print*, "recv ", q_cons_buff_recv
                 else                        ! PBC at the end only
-
                     ! Packing buffer to be sent to bc_x%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do l = 0, p
@@ -1463,55 +1447,32 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_1_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    !$acc update host(q_cons_buff_send)
+                    print*, "send ", q_cons_buff_send
+                    print*, "send ", fp_1_byte_buff_send
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_1_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%end, 0, &
+                        fp_1_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_x%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
+                    print*, "recv ", fp_1_byte_buff_recv
 
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(n + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_x%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
+                    offset = f_decompress(compress_1_state_recv)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
-                end if
-
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
+                    !$acc update host(q_cons_buff_recv)
+                    print*, "recv ", q_cons_buff_recv
                 end if
 
                 ! Unpacking buffer received from bc_x%end
@@ -1527,17 +1488,12 @@ contains
                         end do
                     end do
                 end do
-
             end if
             ! END: MPI Communication in x-direction ============================
-
             ! MPI Communication in y-direction =================================
         elseif (mpi_dir == 2) then
-
             if (pbc_loc == -1) then      ! PBC at the beginning
-
                 if (bc_y%end >= 0) then      ! PBC at the beginning and end
-
                     ! Packing buffer to be sent to bc_y%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1553,50 +1509,24 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_2_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_2_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%end, 0, &
+                        fp_2_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_2_state_recv)
                 else                        ! PBC at the beginning only
-
                     ! Packing buffer to be sent to bc_y%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1612,59 +1542,25 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_2_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_2_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%beg, 1, &
+                        fp_2_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_2_state_recv)
                 end if
-
-#if defined(_OPENACC) && defined(__PGI)
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
-                end if
-#endif
-
+                
                 ! Unpacking buffer received from bc_y%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                 do i = 1, sys_size
@@ -1679,11 +1575,8 @@ contains
                         end do
                     end do
                 end do
-
             else                        ! PBC at the end
-
                 if (bc_y%beg >= 0) then      ! PBC at the end and beginning
-
                     ! Packing buffer to be sent to bc_y%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1699,50 +1592,24 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_2_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_2_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%beg, 1, &
+                        fp_2_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_2_state_recv)
                 else                        ! PBC at the end only
-
                     ! Packing buffer to be sent to bc_y%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1758,58 +1625,24 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_2_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_2_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%end, 0, &
+                        fp_2_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_y%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(p + 1), &
-                            MPI_DOUBLE_PRECISION, bc_y%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_2_state_recv)
                 end if
-
-#if defined(_OPENACC) && defined(__PGI)
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
-                end if
-#endif
 
                 ! Unpacking buffer received form bc_y%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
@@ -1825,20 +1658,15 @@ contains
                         end do
                     end do
                 end do
-
             end if
             ! END: MPI Communication in y-direction ============================
-
             ! MPI Communication in z-direction =================================
         else
-
             if (pbc_loc == -1) then      ! PBC at the beginning
-
                 if (bc_z%end >= 0) then      ! PBC at the beginning and end
-
                     ! Packing buffer to be sent to bc_z%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
-                    do i = 1, sys_size
+                    do i = 1, sys_size 
                         do l = p - buff_size + 1, p
                             do k = -buff_size, n + buff_size
                                 do j = -buff_size, m + buff_size
@@ -1852,50 +1680,24 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_3_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_3_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%end, 0, &
+                        fp_3_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_3_state_recv)
                 else                        ! PBC at the beginning only
-
                     ! Packing buffer to be sent to bc_z%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1911,65 +1713,31 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_3_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_3_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%beg, 1, &
+                        fp_3_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%beg, 0, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 0, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_3_state_recv)
                 end if
-
-#if defined(_OPENACC) && defined(__PGI)
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
-                end if
-#endif
 
                 ! Unpacking buffer from bc_z%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                 do i = 1, sys_size
                     do l = -buff_size, -1
                         do k = -buff_size, n + buff_size
-                            do j = -buff_size, m + buff_size
+                            do j = -buff_size, m + buff_size                            
                                 r = (i - 1) + sys_size* &
                                     ((j + buff_size) + (m + 2*buff_size + 1)* &
                                      ((k + buff_size) + (n + 2*buff_size + 1)* &
@@ -1979,11 +1747,8 @@ contains
                         end do
                     end do
                 end do
-
             else                        ! PBC at the end
-
                 if (bc_z%beg >= 0) then      ! PBC at the end and beginning
-
                     ! Packing buffer to be sent to bc_z%beg
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -1999,50 +1764,24 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_3_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_3_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%beg, 1, &
+                        fp_3_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%beg, 1, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_3_state_recv)
                 else                        ! PBC at the end only
-
                     ! Packing buffer to be sent to bc_z%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                     do i = 1, sys_size
@@ -2059,65 +1798,31 @@ contains
                         end do
                     end do
 
-                    !call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    call MPI_Barrier(MPI_COMM_WORLD, ierr)
+                    offset = f_compress(compress_3_state_send)
 
-#if defined(_OPENACC) && defined(__PGI)
-                    if (cu_mpi) then
-!$acc host_data use_device( q_cons_buff_recv, q_cons_buff_send )
+                    call cpu_time(s_time)
+                    call MPI_SENDRECV( &
+                        fp_3_byte_buff_send(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%end, 0, &
+                        fp_3_byte_buff_recv(0), &
+                        offset, &
+                        MPI_BYTE, bc_z%end, 1, &
+                        MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr &
+                    )
+                    call cpu_time(e_time)
+                    mpi_time = mpi_time + (e_time - s_time)
 
-                        ! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-
-!$acc end host_data
-!$acc wait
-                    else
-#endif
-                        !call cpu_time(s_time)
-!$acc update host(q_cons_buff_send)
-                        !call cpu_time(e_time)
-                        !compress_time = compress_time + (e_time - s_time)
-
-                        !call cpu_time(s_time)
-! Send/receive buffer to/from bc_x%end/bc_x%beg
-                        call MPI_SENDRECV( &
-                            q_cons_buff_send(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 0, &
-                            q_cons_buff_recv(0), &
-                            buff_size*sys_size*(m + 2*buff_size + 1)*(n + 2*buff_size + 1), &
-                            MPI_DOUBLE_PRECISION, bc_z%end, 1, &
-                            MPI_COMM_WORLD, MPI_STATUS_IGNORE, ierr)
-                        !call cpu_time(e_time)
-                        !mpi_time = mpi_time + (e_time - s_time)
-
-#if defined(_OPENACC) && defined(__PGI)
-                    end if
-#endif
-
+                    offset = f_decompress(compress_3_state_recv)
                 end if
-
-#if defined(_OPENACC) && defined(__PGI)
-                if (cu_mpi .eqv. .false.) then
-                    !call cpu_time(s_time)
-!$acc update device(q_cons_buff_recv)
-                    !call cpu_time(e_time)
-                    !decompress_time = decompress_time + (e_time - s_time)
-                end if
-#endif
 
                 ! Unpacking buffer received from bc_z%end
 !$acc parallel loop collapse(4) gang vector default(present) private(r)
                 do i = 1, sys_size
                     do l = p + 1, p + buff_size
                         do k = -buff_size, n + buff_size
-                            do j = -buff_size, m + buff_size
+                            do j = -buff_size, m + buff_size                            
                                 r = (i - 1) + sys_size* &
                                     ((j + buff_size) + (m + 2*buff_size + 1)* &
                                      ((k + buff_size) + (n + 2*buff_size + 1)* &
@@ -2127,9 +1832,7 @@ contains
                         end do
                     end do
                 end do
-
             end if
-
         end if
         ! END: MPI Communication in z-direction ============================
 
@@ -2148,6 +1851,11 @@ contains
 
         ! Deallocating q_cons_buff_send and q_cons_buff_recv
         deallocate (q_cons_buff_send, q_cons_buff_recv)
+
+#:for mpi_dir in range(1, 3+1)
+        call s_compress_finalize(compress_${mpi_dir}$_state_send)
+        call s_compress_finalize(compress_${mpi_dir}$_state_recv)
+#:endfor
 
 #endif
 

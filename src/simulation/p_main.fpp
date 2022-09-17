@@ -44,8 +44,10 @@ program p_main
 
     use m_qbmm                 !< Quadrature MOM
 
-    use m_derived_variables     !< Procedures used to compute quantites derived
-                                !! from the conservative and primitive variables
+    use m_derived_variables    !< Procedures used to compute quantites derived
+                               !! from the conservative and primitive variables
+
+    use m_compress             !< Compression interface
 
     use m_hypoelastic
 
@@ -55,9 +57,6 @@ program p_main
 
     use nvtx
 
-#ifdef _OPENACC
-    use openacc
-#endif
     ! ==========================================================================
 
     implicit none
@@ -300,6 +299,8 @@ program p_main
         !    print*, " - mpi_sendrecv ", (mpi_time        / nCalls_time), "s"
         !    print*, " - s_decompress ", (decompress_time / nCalls_time), "s"
         !end if
+
+        call s_compress_recap()
 
         ! print*, 'Write data files'
         ! Backing up the grid and conservative variables data
