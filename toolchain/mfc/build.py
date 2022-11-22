@@ -1,10 +1,8 @@
-from .util.printer import cons
+import os, typing, dataclasses
 
-from .util import common as common
-
-import os
-import typing
-import dataclasses
+from .state   import ARG
+from .printer import cons
+from .        import common
 
 
 @dataclasses.dataclass
@@ -17,19 +15,19 @@ class MFCTarget:
 
 
 TARGETS: typing.List[MFCTarget] = [
-    MFCTarget(name='fftw', flags=['-DMFC_BUILD_FFTW=ON'],
+    MFCTarget(name='fftw', flags=['-DMFC_FFTW=ON'],
               isDependency=True, isDefault=False, requires=[]),
-    MFCTarget(name='hdf5', flags=['-DMFC_BUILD_HDF5=ON'],
+    MFCTarget(name='hdf5', flags=['-DMFC_HDF5=ON'],
               isDependency=True, isDefault=False, requires=[]),
-    MFCTarget(name='silo', flags=['-DMFC_BUILD_SILO=ON'],
+    MFCTarget(name='silo', flags=['-DMFC_SILO=ON'],
               isDependency=True, isDefault=False, requires=["hdf5"]),
-    MFCTarget(name='pre_process', flags=['-DMFC_BUILD_PRE_PROCESS=ON'],
+    MFCTarget(name='pre_process', flags=['-DMFC_PRE_PROCESS=ON'],
               isDependency=False, isDefault=True, requires=[]),
-    MFCTarget(name='simulation', flags=['-DMFC_BUILD_SIMULATION=ON'],
+    MFCTarget(name='simulation', flags=['-DMFC_SIMULATION=ON'],
               isDependency=False, isDefault=True, requires=["fftw"]),
-    MFCTarget(name='post_process', flags=['-DMFC_BUILD_POST_PROCESS=ON'],
+    MFCTarget(name='post_process', flags=['-DMFC_POST_PROCESS=ON'],
               isDependency=False, isDefault=True, requires=['fftw', 'silo']),
-    MFCTarget(name="doc", flags=['-DMFC_BUILD_DOC=ON'],
+    MFCTarget(name="documentation", flags=['-DMFC_DOCUMENTATION=ON'],
               isDependency=False, isDefault=False, requires=[])
 ]
 
@@ -61,7 +59,9 @@ def get_build_dirpath(target: MFCTarget) -> str:
 
 # Get the directory that contains the target's CMakeLists.txt
 def get_cmake_dirpath(target: MFCTarget) -> str:
-    return os.sep.join([os.getcwd(), ["", "toolchain/dependencies"][int(target.isDependency)]])
+    subdir = ["", os.sep.join(["toolchain", "dependencies"])][int(target.isDependency)]
+    
+    return os.sep.join([os.getcwd(), subdir])
 
 
 def get_install_dirpath() -> str:
@@ -73,12 +73,11 @@ def is_target_configured(target: MFCTarget) -> bool:
     return os.path.isdir(build_dirpath)
 
 
-def clean_target(mfc, name: str):
-    cons.print(f"Cleaning [bold magenta]{name}[/bold magenta]:")
+def clean_target(name: str):
+    cons.print(f"[bold]Cleaning [magenta]{name}[/magenta]:[/bold]")
     cons.indent()
 
     target = get_target(name)
-    mode   = mfc.user.get_mode(mfc.args["mode"])
 
     build_dirpath = get_build_dirpath(target)
 
@@ -88,9 +87,9 @@ def clean_target(mfc, name: str):
         return
 
     clean = ["cmake", "--build",  build_dirpath, "--target", "clean",
-                      "--config", mode.type]
+                      "--config", "Debug" if ARG("debug") else "Release" ]
 
-    if mfc.args["verbose"]:
+    if ARG("verbose"):
         clean.append("--verbose")
 
     common.system(clean, exception_text=f"Failed to clean the [bold magenta]{name}[/bold magenta] target.")
@@ -98,14 +97,23 @@ def clean_target(mfc, name: str):
     cons.unindent()
 
 
-def build_target(mfc, name: str, history: typing.List[str] = None):
+def clean_targets(targets: typing.List[str]):
+    for target in targets:
+        clean_target(target)
+
+
+def clean():
+    clean_targets(ARG("targets"))
+
+
+def build_target(name: str, history: typing.List[str] = None):
     cons.print(f"[bold]Building [magenta]{name}[/magenta]:[/bold]")
     cons.indent()
 
     if history is None:
         history = []
 
-    if mfc.args["no_build"]:
+    if ARG("no_build"):
         cons.print("--no-build specified, skipping...")
         cons.unindent()
         return
@@ -118,9 +126,8 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
     history.append(name)
 
     target = get_target(name)
-    mode   = mfc.user.get_mode(mfc.args["mode"])
 
-    if target.isDependency and mfc.args[f"no_{target.name}"]:
+    if target.isDependency and ARG(f"no_{target.name}"):
         cons.print(f"--no-{target.name} given, skipping...")
         cons.unindent()
         return
@@ -129,7 +136,7 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
     cmake_dirpath   = get_cmake_dirpath(target)
     install_dirpath = get_install_dirpath()
 
-    flags: list = target.flags.copy() + mode.flags + [
+    flags: list = target.flags.copy() + [
         # Disable CMake warnings intended for developers (us).
         # See: https://cmake.org/cmake/help/latest/manual/cmake.1.html.
         f"-Wno-dev",
@@ -139,10 +146,10 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
         f"-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
         # Set build type (e.g Debug, Release, etc.).
         # See: https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html
-        f"-DCMAKE_BUILD_TYPE={mode.type}",
+        f"-DCMAKE_BUILD_TYPE={'Debug' if ARG('debug') else 'Release'}",
         # Used by FIND_PACKAGE (/FindXXX) to search for packages, with the
         # second heighest level of priority, still letting users manually
-        # specify <PackageName>_ROOT, which has precedent over CMAKE_PREFIX_PATH.
+        # specify <PackageName>_ROOT, which has precedence over CMAKE_PREFIX_PATH.
         # See: https://cmake.org/cmake/help/latest/command/find_package.html.
         f"-DCMAKE_PREFIX_PATH={install_dirpath}",
         # First directory that FIND_LIBRARY searches.
@@ -153,17 +160,20 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
         f"-DCMAKE_INSTALL_PREFIX={install_dirpath}",
     ]
 
-    # Use the faster and more modern Ninja generator if present
-    if common.does_command_exist("ninja"):
-        flags.append("-GNinja")
-
-    if not mfc.args["mpi"]:
-        flags.append("-DMFC_WITH_MPI=OFF")
+    if not target.isDependency:
+        flags.append(f"-DMFC_MPI={    'ON' if ARG('mpi') else 'OFF'}")
+        flags.append(f"-DMFC_OpenACC={'ON' if ARG('gpu') else 'OFF'}")
 
     configure = ["cmake"] + flags + ["-S", cmake_dirpath, "-B", build_dirpath]
-    build     = ["cmake", "--build", build_dirpath,    "--target", name,
-                          "-j",      mfc.args["jobs"], "--config", mode.type]
-    if mfc.args['verbose']:
+
+    if common.does_command_exist("ninja"):
+        configure.append('-GNinja')
+
+    build     = ["cmake", "--build",  build_dirpath,
+                          "--target", name,
+                          "-j",       ARG("jobs"), 
+                          "--config", 'Debug' if ARG('debug') else 'Release']
+    if ARG('verbose'):
         build.append("--verbose")
 
     install   = ["cmake", "--install", build_dirpath]
@@ -171,7 +181,7 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
     # Only configure the first time
     if not is_target_configured(target):
         for dependency_name in target.requires:
-            build_target(mfc, dependency_name, history)
+            build_target(dependency_name, history)
 
         common.create_directory(build_dirpath)
 
@@ -187,7 +197,10 @@ def build_target(mfc, name: str, history: typing.List[str] = None):
     cons.unindent()
 
 
-def build(mfc):
-    for target_name in mfc.args["targets"]:
-        build_target(mfc, target_name)
+def build_targets(targets):
+    for target in targets:
+        build_target(target)
 
+
+def build():
+    build_targets(ARG("targets"))

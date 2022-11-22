@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.18)
 
-project(MFC LANGUAGES C CXX Fortran)
+project(MFC LANGUAGES Fortran)
 
 
 # === Options
-option(MFC_WITH_MPI            "Build with MPI"       ON)
-option(MFC_WITH_OPEN_ACC       "Build with OpenACC"  OFF)
-option(MFC_BUILD_PRE_PROCESS   "Build pre_process"   OFF)
-option(MFC_BUILD_SIMULATION    "Build simulation"    OFF)
-option(MFC_BUILD_POST_PROCESS  "Build post_process"  OFF)
-option(MFC_BUILD_DOC           "Build documentation" OFF)
-option(MFC_BUILD_ALL           "Build everything"    OFF)
+option(MFC_MPI           "Build with MPI"       ON)
+option(MFC_OpenACC       "Build with OpenACC"  OFF)
+option(MFC_PRE_PROCESS   "Build pre_process"   OFF)
+option(MFC_SIMULATION    "Build simulation"    OFF)
+option(MFC_POST_PROCESS  "Build post_process"  OFF)
+option(MFC_DOCUMENTATION "Build documentation" OFF)
+option(MFC_ALL           "Build everything"    OFF)
 
 if (MFC_BUILD_ALL)
-    set(MFC_BUILD_PRE_PROCESS  ON FORCE)
-    set(MFC_BUILD_SIMULATION   ON FORCE)
-    set(MFC_BUILD_POST_PROCESS ON FORCE)
-    set(MFC_BUILD_DOC          ON FORCE)
+    set(MFC_PRE_PROCESS   ON FORCE)
+    set(MFC_SIMULATION    ON FORCE)
+    set(MFC_POST_PROCESS  ON FORCE)
+    set(MFC_DOCUMENTATION ON FORCE)
 endif()
 
 
@@ -30,25 +30,18 @@ include(CheckFortranCompilerFlag)
 # === Check Compiler Support & Tools
 # === === Compiler Support
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-
     if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 5)
         message(FATAL_ERROR "GNU v5.0 or newer is required to build MFC. "
                             "[current: ${CMAKE_Fortran_COMPILER_VERSION}]")
     endif()
-
-elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR
-        (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
-
+elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
     if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS 21.7)
         message(FATAL_ERROR "NVHPC v21.7 or newer is required to build MFC. "
                             "[current: ${CMAKE_Fortran_COMPILER_VERSION}]")
     endif()
-
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "AppleClang")
-
     message(FATAL_ERROR "MFC does not support the Apple Clang compilers. "
                         "Please consult the README for more details.")
-
 endif()
 
 # === === Find Fypp
@@ -68,7 +61,6 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/toolchain/cmake")
 
 # === Compiler Flags
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-
     add_compile_options(
         -w
         $<$<COMPILE_LANGUAGE:Fortran>:-fdefault-real-8>
@@ -89,22 +81,33 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
             -fallow-argument-mismatch
         )
     endif()
+elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
+    add_compile_options(
+        -h nomessage=878 -h nomessage=1391 -h nomessage=1069
+        -h msgs          -h static         -h keepfiles
+    )
 
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-e D -h func_trace)
+    endif()
+
+    if (MFC_OpenACC)
+        # we don't need to do this
+        add_compile_options(-h acc)
+    else()
+        # Cray enables OpenACC offloading by default.
+        # Disable OpenACC directives if MFC_OpenACC is not set.
+        add_compile_options(-h noacc)
+    endif()
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Flang")
-
     add_compile_options(
         $<$<COMPILE_LANGUAGE:Fortran>:-Mfreeform>
         $<$<COMPILE_LANGUAGE:Fortran>:-Mpreprocess>
         $<$<COMPILE_LANGUAGE:Fortran>:-fdefault-real-8>
     )
-
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
-
     add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-free>)
-
-elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR
-        (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
-
+elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
     add_compile_options(
         $<$<COMPILE_LANGUAGE:Fortran>:-r8>
         $<$<COMPILE_LANGUAGE:Fortran>:-Mfreeform>
@@ -112,13 +115,11 @@ elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR
         $<$<COMPILE_LANGUAGE:Fortran>:-cpp>
         -Minfo=accel
     )
-
 endif()
 
 
 # === Release Optimizations
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-
     # === === Processor tuning
     CHECK_FORTRAN_COMPILER_FLAG("-march=native" SUPPORTS_MARCH_NATIVE)
     if (SUPPORTS_MARCH_NATIVE)
@@ -139,7 +140,12 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     else()
         message(STATUS "IPO / LTO not available")
     endif()
+endif()
 
+## === DEBUG
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_definitions(MFC_DEBUG)
 endif()
 
 
@@ -175,7 +181,9 @@ macro(HANDLE_FYPP target)
 
         add_custom_command(
             OUTPUT   "${f90_filepath}"
-            COMMAND  "${FYPP_EXE}" "${fpp_filepath}" "${f90_filepath}"
+            COMMAND  "${FYPP_EXE}" -I "${CMAKE_CURRENT_SOURCE_DIR}/src/common"
+                                  "${fpp_filepath}"
+                                  "${f90_filepath}"
             DEPENDS  "${depends_on}"
             COMMENT  "Preprocessing (Fypp) ${fpp_filename}"
             VERBATIM
@@ -183,7 +191,6 @@ macro(HANDLE_FYPP target)
 
         list(APPEND ${target}_srcs "${f90_filepath}")
     endforeach(fpp_filepath)
-
 endmacro()
 
 
@@ -196,31 +203,45 @@ HANDLE_FYPP(post_process)
 
 
 # === === src/pre_process
-if (MFC_BUILD_PRE_PROCESS)
+if (MFC_PRE_PROCESS)
     add_executable(pre_process "${pre_process_srcs}" "${common_srcs}")
 
-
-    if (MFC_WITH_MPI)
+    if (MFC_MPI)
         find_package(MPI COMPONENTS Fortran REQUIRED)
 
         target_compile_definitions(pre_process PRIVATE MFC_MPI)
         target_link_libraries     (pre_process PRIVATE MPI::MPI_Fortran)
     endif()
 
-
-    target_compile_options(pre_process PRIVATE -DMFC_PRE_PROCESS)
-
+    target_compile_definitions(pre_process PRIVATE MFC_PRE_PROCESS)
 
     install(TARGETS pre_process RUNTIME DESTINATION bin)
 endif()
 
 
 # === === src/simulation
-if (MFC_BUILD_SIMULATION)
+if (MFC_SIMULATION)
     add_executable(simulation "${simulation_srcs}" "${common_srcs}")
 
+    if (MFC_MPI)
+        find_package(MPI COMPONENTS Fortran REQUIRED)
 
-    if (MFC_WITH_OPEN_ACC)
+        target_compile_definitions(simulation PRIVATE MFC_MPI)
+        target_link_libraries     (simulation PRIVATE MPI::MPI_Fortran)
+    endif()
+
+    # === === === FFTW
+    if (MFC_OpenACC AND (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
+        find_package(CUDAToolkit REQUIRED)
+
+        target_link_libraries(simulation PRIVATE CUDA::cudart CUDA::cufft)
+    else()
+        find_package(FFTW REQUIRED)
+
+        target_link_libraries(simulation PRIVATE FFTW::FFTW)
+    endif()
+
+    if (MFC_OpenACC)
         find_package(OpenACC)
 
         # This should be equivalent to if (NOT OpenACC_FC_FOUND)
@@ -230,29 +251,22 @@ if (MFC_BUILD_SIMULATION)
 
         target_link_libraries(simulation PRIVATE OpenACC::OpenACC_Fortran)
 
-
-        if (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
-            find_package(CUDAToolkit REQUIRED)
-
-            target_link_libraries(simulation
-                PRIVATE CUDA::cudart
-                        CUDA::cufft
-            )
-
-
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+            target_compile_options(simulation PRIVATE
+                "-foffload=amdgcn-amdhsa='-march=gfx90a'"
+                "-foffload-options=-lgfortran\ -lm"
+                "-fno-exceptions")
+        elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
             find_package(cuTENSOR)
-
             if (NOT cuTENSOR_FOUND)
                 message(WARNING
                     "Failed to locate the NVIDIA cuTENSOR library. MFC will be "
                     "built without support for it, disallowing the use of "
                     "cu_tensor=T. This can result in degraded performance.")
             else()
-                target_link_libraries(simulation PRIVATE cuTENSOR::cuTENSOR)
-
+                target_link_libraries     (simulation PRIVATE cuTENSOR::cuTENSOR)
                 target_compile_definitions(simulation PRIVATE MFC_cuTENSOR)
             endif()
-
 
             if     (CMAKE_BUILD_TYPE STREQUAL "Release")
                 target_compile_options(simulation
@@ -263,39 +277,22 @@ if (MFC_BUILD_SIMULATION)
                     PRIVATE -gpu=keep,ptxinfo,lineinfo,autocompare,debug
                 )
             endif()
-
         endif()
-    else()
-        find_package(FFTW REQUIRED)
-
-        target_link_libraries(simulation PRIVATE FFTW::FFTW)
     endif()
-
-
-    if (MFC_WITH_MPI)
-        find_package(MPI COMPONENTS Fortran REQUIRED)
-
-        target_compile_definitions(simulation PRIVATE MFC_MPI)
-        target_link_libraries     (simulation PRIVATE MPI::MPI_Fortran)
-    endif()
-
 
     if (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
         find_package(CUDAToolkit REQUIRED)
-        
         target_link_libraries(simulation PRIVATE CUDA::nvToolsExt)
     endif()
 
-
-    target_compile_options(simulation PRIVATE -DMFC_SIMULATION)
-
+    target_compile_definitions(simulation PRIVATE MFC_SIMULATION)
 
     install(TARGETS simulation RUNTIME DESTINATION bin)
 endif()
 
 
 # === === src/post_process
-if (MFC_BUILD_POST_PROCESS)
+if (MFC_POST_PROCESS)
     add_executable(post_process "${post_process_srcs}" "${common_srcs}")
 
     find_package(FFTW REQUIRED)
@@ -304,7 +301,7 @@ if (MFC_BUILD_POST_PROCESS)
 
     target_link_libraries(post_process PRIVATE SILO::SILO HDF5::HDF5 FFTW::FFTW)
 
-    if (MFC_WITH_MPI)
+    if (MFC_MPI)
         find_package(MPI COMPONENTS Fortran REQUIRED)
 
         target_compile_definitions(post_process PRIVATE MFC_MPI)
@@ -312,36 +309,36 @@ if (MFC_BUILD_POST_PROCESS)
     endif()
 
     # -O0 is in response to https://github.com/MFlowCode/MFC-develop/issues/95
-    target_compile_options(post_process PRIVATE -DMFC_POST_PROCESS -O0)
+    target_compile_definitions(post_process PRIVATE MFC_POST_PROCESS)
+    target_compile_options    (post_process PRIVATE -O0)
 
 
     install(TARGETS post_process RUNTIME DESTINATION bin)
 endif()
 
 
-add_custom_target("doc")
+add_custom_target(documentation)
 
 macro(GEN_DOCS target name)
-
     set(DOXYGEN_PROJECT_NAME "${name}")
     set(DOXYGEN_INPUT        "${CMAKE_CURRENT_SOURCE_DIR}/src/${target}/ ${CMAKE_CURRENT_BINARY_DIR}/doxygen/${target}/")
 
-    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/doc/${target}"
+    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/docs/${target}"
          DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/doxygen")
 
-    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen"
+    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/docs/doxygen"
          DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/doxygen/${target}")
 
     configure_file(
-        "${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in"
         "${CMAKE_CURRENT_BINARY_DIR}/doxygen/${target}/Doxyfile"
         @ONLY
     )
 
-    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/doc/res"
+    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/docs/res"
          DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/doxygen")
 
-    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/doc/config.js"
+    file(COPY        "${CMAKE_CURRENT_SOURCE_DIR}/docs/config.js"
          DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/doxygen")
 
     add_custom_command(
@@ -351,7 +348,7 @@ macro(GEN_DOCS target name)
         COMMAND "${DOXYGEN_EXECUTABLE}"
                 "Doxyfile"
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doxygen/${target}"
-        COMMENT "${target}: Generating docs"
+        COMMENT "${target}: Generating documentation"
     )
 
     add_custom_target(
@@ -360,29 +357,27 @@ macro(GEN_DOCS target name)
     )
 
     add_dependencies("${target}_doxygen" doxygen-awesome-css)
-    add_dependencies("doc" "${target}_doxygen")
+    add_dependencies(documentation "${target}_doxygen")
 
     install(
         DIRECTORY   "${CMAKE_CURRENT_BINARY_DIR}/doxygen/${target}/html/"
-        DESTINATION "doc/mfc/${target}"
+        DESTINATION "docs/mfc/${target}"
     )
 
     install(
         DIRECTORY   "${CMAKE_CURRENT_BINARY_DIR}/doxygen/res/"
-        DESTINATION "doc/mfc/res"
+        DESTINATION "docs/mfc/res"
     )
 
     install(
-        FILES       "${CMAKE_CURRENT_SOURCE_DIR}/doc/index.html"
-        DESTINATION "doc/mfc"
+        FILES       "${CMAKE_CURRENT_SOURCE_DIR}/docs/index.html"
+        DESTINATION "docs/mfc"
     )
-
 endmacro()
 
 
 # === Documentation
-if (MFC_BUILD_DOC)
-
+if (MFC_DOCUMENTATION)
     # === === Find Doxygen
     find_package(Doxygen REQUIRED dot REQUIRED)
 
@@ -407,5 +402,5 @@ if (MFC_BUILD_DOC)
 
     # === === Generate Landing Page
     GEN_DOCS(documentation "MFC")
-
 endif()
+

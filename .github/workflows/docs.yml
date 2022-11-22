@@ -1,0 +1,77 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages:    write
+  id-token: write
+
+jobs:
+  docs:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup
+      run:  |
+        sudo apt install cmake ninja-build doxygen graphviz gcc g++ \
+                         python3 python3-dev "openmpi-*" libopenmpi-dev
+        chmod +x mfc.sh
+
+    # We build doxygen from source because of
+    # https://github.com/doxygen/doxygen/issues/9016
+    - name: Build Doxygen
+      run: |
+        git clone https://github.com/doxygen/doxygen.git ../doxygen
+        cmake -S ../doxygen -B ../doxygen/build -G Ninja
+        sudo ninja -C ../doxygen/build install
+
+    - name: Build MFC + Documentation
+      run:  |
+        ./mfc.sh build --mpi -t pre_process simulation documentation -j $(nproc)
+
+    - name: Move to www/
+      run: |
+        mkdir www
+        cp -r build/install/docs/mfc/* www
+
+    - name: Benchmark
+      run:  ./mfc.sh bench -j $(nproc)
+      
+    - name: Workaround (pt. 1)
+      run: |
+        git stash
+        git checkout -b __totally_not_a_workaround__
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Benchmark
+        tool: customSmallerIsBetter
+        auto-push: false
+        gh-pages-branch: master
+        output-file-path: build/bench.json
+        benchmark-data-dir-path: www/bench
+
+    - name: Workaround (pt. 2)
+      run: |
+        git checkout master
+
+    - name: GitHub Pages - Setup
+      uses: actions/configure-pages@v2
+
+    - name: GitHub Pages - Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: www
+
+    - name: GitHub Pages - Deploy
+      uses: actions/deploy-pages@v1

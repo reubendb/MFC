@@ -28,8 +28,10 @@
 #>
 #SBATCH --job-name="{name}"
 #SBATCH --nodes={nodes}
-#SBATCH --ntasks-per-node={cpus_per_node}
+#SBATCH --ntasks-per-node={tasks_per_node}
 #SBATCH --cpus-per-task=1
+#SBATCH --gpus-per-task={1 if gpu else 0}
+#SBATCH --gpu-bind=verbose,closest
 #SBATCH --time={walltime}
 #SBATCH --partition="{partition}"
 #SBATCH --output="{name}.out"
@@ -45,8 +47,7 @@
 #>
 #> #SBATCH --mem=...
 #> #SBATCH --constraint="lustre"
-#> #SBATCH --gpus=v100-16:{gpus_per_node*nodes}
-#>
+#> #SBATCH --gpus=v100-16:{(1 if gpu else 0)*tasks_per_node*nodes}
 
 
 #>
@@ -68,23 +69,30 @@
 #>       on your system - if at all. {MFC::BIN} refers to
 #>       the path the MFC executable.
 #>
-#>srun                                   \
-#>     --nodes={nodes}                   \
-#>     --ntasks-per-node {cpus_per_node} \
-#>     --mpi=pmi2		       \
-#>     "{MFC::BIN}"
-#>
-#> srun --mpi=pmix   \
-#>      "{MFC::BIN}"
-#>
 
 for binpath in {MFC::BINARIES}; do
 
     echo -e ":) Running $binpath:"
 
-    mpirun                        \
-        -np {cpus_per_node*nodes} \
-        "$binpath"
+    if command -v srun; then    
+        #> srun                                    \
+        #>      --nodes={nodes}                    \
+        #>      --ntasks-per-node {tasks_per_node} \
+        #>      --mpi=pmi2		                   \
+        #>      "$binpath"
+        #>
+        #> srun --mpi=pmix   \
+        #>      "$binpath"
+        #>
+
+        srun --nodes={nodes}                    \
+             --ntasks-per-node={tasks_per_node} \
+             --gpus-per-task={1 if gpu else 0}  \
+             --gpu-bind=verbose,closest         \
+             "$binpath"
+    else
+        mpirun "$binpath"
+    fi
 
 done
 
