@@ -20,6 +20,8 @@ module m_mpi_proxy
     use m_derived_types        !< Definitions of the derived types
 
     use m_global_parameters    !< Definitions of the global parameters
+
+    use m_compress             !< Compression interface.
     ! ==========================================================================
 
     implicit none
@@ -41,9 +43,20 @@ module m_mpi_proxy
 
 !$acc declare create(q_cons_buff_send, q_cons_buff_recv)
 
+#ifdef MFC_MPI
+
+    #:for mpi_dir in range(1, 3+1)
+        type(t_compress_state), private :: compress_${mpi_dir}$_state_send
+        type(t_compress_state), private :: compress_${mpi_dir}$_state_recv
+        byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_send(:)
+        byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_recv(:)
+    #:endfor
+
     !real :: s_time, e_time
     !real :: compress_time, mpi_time, decompress_time
     !integer :: nCalls_time = 0
+
+#endif
 
 contains
 
@@ -175,6 +188,45 @@ contains
 
         @:ALLOCATE(q_cons_buff_recv(0:ubound(q_cons_buff_send, 1)))
 
+#define ZFP_RATE 64.0
+
+        !$acc host_data use_device(q_cons_buff_send, q_cons_buff_recv)
+#if defined(_OPENACC) && defined(__PGI)
+        if (cu_mpi) then
+            !   Compression: Device -> Device
+            ! Decompression: Device -> Device
+            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)    
+            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)
+            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
+            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
+            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
+            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
+        else
+#endif
+            !   Compression: Device -> Host
+            ! Decompression: Host   -> Device
+            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
+            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
+            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
+#if defined(_OPENACC) && defined(__PGI)
+        end if
+#endif
+
+        !$acc end host_data
+#:for mpi_dir in range(1, 3+1)
+        if (compress_${mpi_dir}$_state_send%bActive .and. compress_${mpi_dir}$_state_recv%bActive) then
+            print '(A)', 'Compression initialization successful for direction ${mpi_dir}$.'
+        else
+            print '(A)', 'Compression initialization failed for direction ${mpi_dir}$.'
+        end if
+        
+        call c_f_pointer(compress_${mpi_dir}$_state_send%pBytes, fp_${mpi_dir}$_byte_buff_send, (/ compress_${mpi_dir}$_state_send%nBytes /))
+        call c_f_pointer(compress_${mpi_dir}$_state_recv%pBytes, fp_${mpi_dir}$_byte_buff_recv, (/ compress_${mpi_dir}$_state_recv%nBytes /))
+#:endfor
+
 #endif
 
     end subroutine s_initialize_mpi_proxy_module ! -------------------------
@@ -206,7 +258,7 @@ contains
         #:for VAR in [ 'run_time_info','cyl_coord', 'adv_alphan', 'mpp_lim',   &
             & 'mapped_weno', 'mp_weno', 'cu_mpi', 'weno_flat', 'riemann_flat', &
             & 'weno_Re_flux', 'alt_soundspeed', 'null_weights', 'mixture_err', &
-            & 'parallel_io', 'hypoelasticity', 'bubbles', 'polytropic',        &
+            & 'parallel_io', 'hypoelasticity', 'bubbles', 'polytropic', 'zfp', &
             & 'polydisperse', 'qbmm', 'monopole', 'probe_wrt', 'integral_wrt' ]
             call MPI_BCAST(${VAR}$, 1, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
         #:endfor
@@ -1015,7 +1067,7 @@ contains
 !$acc end host_data
 !$acc wait
                     else
-#endif // #if defined(_OPENACC) && defined(__PGI)
+#endif
                         !call cpu_time(s_time)
 !$acc update host(q_cons_buff_send)
                         !call cpu_time(e_time)

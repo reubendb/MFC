@@ -21,13 +21,12 @@ def __print_greeting():
         "",
         f"[bold]{host_line}[/bold]",
         '-' * len(host_line),
-        "",
         f"[bold]--jobs [magenta]{ARG('jobs')}[/magenta][/bold]"
     ] + [
         f"[bold]--{'' if getattr(state.gCFG, field.name) else 'no-'}{field.name}[/bold]" for field in dataclasses.fields(state.gCFG)
     ] + [
         targets_line if ARG("command") != "test" else "",
-        "",
+        '-' * len(host_line),
         "[yellow]$ ./mfc.sh \[build, run, test, clean] --help[/yellow]",
     ]
 

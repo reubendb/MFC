@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.18)
 
-# Note: If C is not included as a language,
-# FIND_LIBRARY_USE_LIB64_PATHS is ignored.
 project(MFC LANGUAGES C Fortran)
 
 
 # === Options
 option(MFC_MPI           "Build with MPI"       ON)
 option(MFC_OpenACC       "Build with OpenACC"  OFF)
+option(MFC_ZFP           "Build with ZFP"      OFF)
 option(MFC_PRE_PROCESS   "Build pre_process"   OFF)
 option(MFC_SIMULATION    "Build simulation"    OFF)
 option(MFC_POST_PROCESS  "Build post_process"  OFF)
@@ -86,7 +85,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER 10)
         add_compile_options(
             $<$<COMPILE_LANGUAGE:Fortran>:-fallow-invalid-boz>
-            -fallow-argument-mismatch
+            $<$<COMPILE_LANGUAGE:Fortran>:-fallow-argument-mismatch>
         )
     endif()
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "Cray")
@@ -117,9 +116,7 @@ elseif ((CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC") OR (CMAKE_Fortran_COMPILER_
 endif()
 
 
-# === Release Optimizations
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    # === === Processor tuning
     CHECK_FORTRAN_COMPILER_FLAG("-march=native" SUPPORTS_MARCH_NATIVE)
     if (SUPPORTS_MARCH_NATIVE)
         add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-march=native>)
@@ -131,7 +128,6 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 
 
-    # === === Enable LTO/IPO if supported
     CHECK_IPO_SUPPORTED(RESULT SUPPORTS_IPO OUTPUT IPO_ERROR)
     if (SUPPORTS_IPO)
         message(STATUS "Enabled IPO / LTO")
@@ -141,14 +137,14 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 endif()
 
-## === DEBUG
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(MFC_DEBUG)
 endif()
 
-## === HANDLE_SOURCES
-# Outputs:
+
+## HANDLE_SOURCES
+#  Outputs:
 #  - <target>_SRCs: List of F90 source filepaths for src/[<target>,common]/ (including .fpp -> .f90)
 macro(HANDLE_SOURCES target)
     set(${target}_DIR "${CMAKE_SOURCE_DIR}/src/${target}")
@@ -157,7 +153,12 @@ macro(HANDLE_SOURCES target)
     # Gather src/[<target>,common]/*.f90
     file(GLOB ${target}_F90s CONFIGURE_DEPENDS "${${target}_DIR}/*.f90")
     file(GLOB    common_F90s CONFIGURE_DEPENDS    "${common_DIR}/*.f90")
-    set(${target}_SRCs ${${target}_F90s} ${common_F90s})
+
+    # Gather src/[<target>,common]/*.c
+    file(GLOB ${target}_Cs CONFIGURE_DEPENDS "${${target}_DIR}/*.c")
+    file(GLOB    common_Cs CONFIGURE_DEPENDS    "${common_DIR}/*.c")
+    
+    set(${target}_SRCs ${${target}_F90s} ${${target}_Cs} ${common_F90s} ${common_Cs})
 
     # src/[<DIR>,common]/FPP.fpp -> src/<DIR>/autogen/F90.f90
     file(GLOB ${target}_FPPs CONFIGURE_DEPENDS "${${target}_DIR}/*.fpp")
@@ -189,12 +190,12 @@ HANDLE_SOURCES(pre_process)
 HANDLE_SOURCES(simulation)
 HANDLE_SOURCES(post_process)
 
-# === === src/pre_process
+
 if (MFC_PRE_PROCESS)
     add_executable(pre_process ${pre_process_SRCs})
 
     if (MFC_MPI)
-        find_package(MPI COMPONENTS Fortran REQUIRED)
+        find_package(MPI COMPONENTS C Fortran REQUIRED)
 
         target_compile_definitions(pre_process PRIVATE MFC_MPI)
         target_link_libraries     (pre_process PRIVATE MPI::MPI_Fortran)
@@ -210,18 +211,23 @@ if (MFC_PRE_PROCESS)
 endif()
 
 
-# === === src/simulation
 if (MFC_SIMULATION)
     add_executable(simulation ${simulation_SRCs})
 
     if (MFC_MPI)
-        find_package(MPI COMPONENTS Fortran REQUIRED)
+        find_package(MPI COMPONENTS C Fortran REQUIRED)
 
         target_compile_definitions(simulation PRIVATE MFC_MPI)
         target_link_libraries     (simulation PRIVATE MPI::MPI_Fortran)
     endif()
 
-    # === === === FFTW
+    if (MFC_ZFP)
+        find_package(ZFP REQUIRED)
+
+        target_compile_definitions(simulation PRIVATE MFC_ZFP)
+        target_link_libraries     (simulation PRIVATE zfp::zfp)
+    endif()
+
     if (MFC_OpenACC AND (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
         find_package(CUDAToolkit REQUIRED)
 
@@ -284,7 +290,6 @@ if (MFC_SIMULATION)
 endif()
 
 
-# === === src/post_process
 if (MFC_POST_PROCESS)
     add_executable(post_process ${post_process_SRCs})
 
@@ -295,7 +300,7 @@ if (MFC_POST_PROCESS)
     target_link_libraries(post_process PRIVATE SILO::SILO HDF5::HDF5 FFTW::FFTW)
 
     if (MFC_MPI)
-        find_package(MPI COMPONENTS Fortran REQUIRED)
+        find_package(MPI COMPONENTS C Fortran REQUIRED)
 
         target_compile_definitions(post_process PRIVATE MFC_MPI)
         target_link_libraries     (post_process PRIVATE MPI::MPI_Fortran)
@@ -373,12 +378,9 @@ macro(GEN_DOCS target name)
 endmacro()
 
 
-# === Documentation
 if (MFC_DOCUMENTATION)
-    # === === Find Doxygen
     find_package(Doxygen REQUIRED dot REQUIRED)
 
-    # === === Fetch CSS Theme
     ExternalProject_Add(doxygen-awesome-css
         PREFIX            doxygen-awesome-css
         GIT_REPOSITORY    "https://github.com/jothepro/doxygen-awesome-css"
@@ -389,15 +391,10 @@ if (MFC_DOCUMENTATION)
     )
 
     set(theme_dirpath "${CMAKE_CURRENT_BINARY_DIR}/doxygen-awesome-css/src/doxygen-awesome-css/")
-
     set(DOXYGEN_HTML_EXTRA_STYLESHEET "\"${theme_dirpath}/doxygen-awesome.css\"")
 
-    # === === Generate Documentation
-    GEN_DOCS(pre_process  "MFC: Pre-Process")
-    GEN_DOCS(simulation   "MFC: Simulation")
-    GEN_DOCS(post_process "MFC: Post-Process")
-
-    # === === Generate Landing Page
+    GEN_DOCS(pre_process   "MFC: Pre-Process")
+    GEN_DOCS(simulation    "MFC: Simulation")
+    GEN_DOCS(post_process  "MFC: Post-Process")
     GEN_DOCS(documentation "MFC")
 endif()
-

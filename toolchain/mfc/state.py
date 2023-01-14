@@ -5,6 +5,7 @@ import typing, dataclasses
 class MFCConfig:
     mpi:   bool = True
     gpu:   bool = False
+    zfp:   bool = False
     debug: bool = False
 
     def from_dict(d: dict):

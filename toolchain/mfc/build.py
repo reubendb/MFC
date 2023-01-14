@@ -168,6 +168,7 @@ def build_target(name: str, history: typing.List[str] = None):
     if not target.isDependency:
         flags.append(f"-DMFC_MPI={    'ON' if ARG('mpi') else 'OFF'}")
         flags.append(f"-DMFC_OpenACC={'ON' if ARG('gpu') else 'OFF'}")
+        flags.append(f"-DMFC_ZFP={    'ON' if ARG('zfp') else 'OFF'}")
 
     configure = ["cmake"] + flags + ["-S", cmake_dirpath, "-B", build_dirpath]
     build     = ["cmake", "--build",  build_dirpath,
