@@ -15,13 +15,12 @@ module m_mpi_proxy
     ! Dependencies =============================================================
 #ifdef MFC_MPI
     use mpi                    !< Message passing interface (MPI) module
+    use m_zfp_mpi              !< ZFP MPI module
 #endif
 
     use m_derived_types        !< Definitions of the derived types
 
     use m_global_parameters    !< Definitions of the global parameters
-
-    use m_compress             !< Compression interface.
     ! ==========================================================================
 
     implicit none
@@ -45,16 +44,7 @@ module m_mpi_proxy
 
 #ifdef MFC_MPI
 
-    #:for mpi_dir in range(1, 3+1)
-        type(t_compress_state), private :: compress_${mpi_dir}$_state_send
-        type(t_compress_state), private :: compress_${mpi_dir}$_state_recv
-        byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_send(:)
-        byte, pointer,          private :: fp_${mpi_dir}$_byte_buff_recv(:)
-    #:endfor
-
-    !real :: s_time, e_time
-    !real :: compress_time, mpi_time, decompress_time
-    !integer :: nCalls_time = 0
+    type(t_zfp_mpi_worker) :: zfp_mpi_worker !< ZFP MPI worker
 
 #endif
 
@@ -167,6 +157,8 @@ contains
 
 #ifdef MFC_MPI
 
+        type(t_zfp_mpi_config) :: zfp_mpi_config
+
         ! Allocating q_cons_buff_send and q_cons_buff_recv. Please note that
         ! for the sake of simplicity, both variables are provided sufficient
         ! storage to hold the largest buffer in the computational domain.
@@ -188,44 +180,16 @@ contains
 
         @:ALLOCATE(q_cons_buff_recv(0:ubound(q_cons_buff_send, 1)))
 
-#define ZFP_RATE 64.0
-
-        !$acc host_data use_device(q_cons_buff_send, q_cons_buff_recv)
-#if defined(_OPENACC) && defined(__PGI)
-        if (cu_mpi) then
-            !   Compression: Device -> Device
-            ! Decompression: Device -> Device
-            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)    
-            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(n + 1)          *(p + 1),           ZFP_RATE, 1, 1)
-            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
-            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 1)
-            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
-            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 1)
-        else
-#endif
-            !   Compression: Device -> Host
-            ! Decompression: Host   -> Device
-            compress_1_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
-            compress_1_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*          (n + 1)*(p + 1),           ZFP_RATE, 1, 0)
-            compress_2_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
-            compress_2_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(p + 1),           ZFP_RATE, 1, 0)
-            compress_3_state_send = f_compress_init(c_loc(q_cons_buff_send), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
-            compress_3_state_recv = f_compress_init(c_loc(q_cons_buff_recv), buff_size*sys_size*(m+2*buff_size+1)*(n+2*buff_size+1), ZFP_RATE, 1, 0)
-#if defined(_OPENACC) && defined(__PGI)
-        end if
-#endif
-
-        !$acc end host_data
-#:for mpi_dir in range(1, 3+1)
-        if (compress_${mpi_dir}$_state_send%bActive .and. compress_${mpi_dir}$_state_recv%bActive) then
-            print '(A)', 'Compression initialization successful for direction ${mpi_dir}$.'
-        else
-            print '(A)', 'Compression initialization failed for direction ${mpi_dir}$.'
-        end if
+        ! Initialize ZFP MPI module
+        zfp_mpi_config%bitfield = 1
         
-        call c_f_pointer(compress_${mpi_dir}$_state_send%pBytes, fp_${mpi_dir}$_byte_buff_send, (/ compress_${mpi_dir}$_state_send%nBytes /))
-        call c_f_pointer(compress_${mpi_dir}$_state_recv%pBytes, fp_${mpi_dir}$_byte_buff_recv, (/ compress_${mpi_dir}$_state_recv%nBytes /))
-#:endfor
+        !$acc host_data use_device(q_cons_buff_send)
+        zfp_mpi_config%pDoubles = c_loc(q_cons_buff_send(0))
+        !$acc end host_data
+
+        zfp_mpi_config%nDoubles = 100
+        zfp_mpi_config%rate     = 16.0d0
+        call s_zfp_mpi_init(zfp_mpi_config, zfp_mpi_worker)
 
 #endif
 
@@ -1024,6 +988,8 @@ contains
         integer :: i, j, k, l, r !< Generic loop iterators
 
 #ifdef MFC_MPI
+
+        call nvtxRangePush("s_mpi_sendrecv_conservative_variables_buffers")
 
         !nCalls_time = nCalls_time + 1
 
@@ -1919,6 +1885,8 @@ contains
 
         end if
         ! END: MPI Communication in z-direction ============================
+
+        call nvtxRangePop()
 
 #endif
 
