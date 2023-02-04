@@ -1,6 +1,8 @@
 module m_create_patches
 
     ! Dependencies =============================================================
+    use m_stl                   ! Subroutine(s) related to STL files
+
     use m_derived_types         ! Definitions of the derived types
 
     use m_global_parameters     ! Global parameters for the code
@@ -1569,5 +1571,98 @@ contains
 
     end subroutine s_sweep_plane ! -----------------------------------------
 
+    function s_stl_transform_matrix(stl) result(out_matrix)
+
+        type(ic_stl_parameters) :: stl
+
+        real(kind(0d0)), dimension(1:4,1:4) :: rx, ry, rz, st, out_matrix
+
+        rx = transpose(reshape([ &
+                1d0, 0d0,                 0d0,                0d0, &
+                0d0, cos(stl%rotate(1)), -sin(stl%rotate(1)), 0d0, &
+                0d0, sin(stl%rotate(1)),  cos(stl%rotate(1)), 0d0, &
+                0d0, 0d0,                 0d0,                1d0 ], shape(rx)))
+
+        ry = transpose(reshape([ &
+                 cos(stl%rotate(2)), 0d0, sin(stl%rotate(2)), 0d0, &
+                 0d0,                1d0, 0d0,                0d0, &
+                -sin(stl%rotate(2)), 0d0, cos(stl%rotate(2)), 0d0, &
+                 0d0,                0d0, 0d0,                1d0 ], shape(ry)))
+
+        rz = transpose(reshape([ &
+                cos(stl%rotate(3)), -sin(stl%rotate(3)), 0d0, 0d0, &
+                sin(stl%rotate(3)),  cos(stl%rotate(3)), 0d0, 0d0, &
+                0d0,                 0d0,                1d0, 0d0, &
+                0d0,                 0d0,                0d0, 1d0 ], shape(rz)))
+
+        st = transpose(reshape([ &
+                stl%scale(1), 0d0,          0d0,          stl%offset(1), &
+                0d0,          stl%scale(2), 0d0,          stl%offset(2), &
+                0d0,          0d0,          stl%scale(3), stl%offset(3), &
+                0d0,          0d0,          0d0,          1d0 ], shape(st)))
+
+        out_matrix = matmul(st, matmul(rz, matmul(ry, rx)))
+ 
+    end function s_stl_transform_matrix
+
+    subroutine s_stl_transform_triangle(triangle, matrix)
+
+        type(t_stl_triangle),                intent(inout) :: triangle
+        real(kind(0d0)), dimension(1:4,1:4), intent(in)    :: matrix
+
+        integer :: i
+
+        real(kind(0d0)), dimension(1:4) :: tmp
+
+        do i = 1, 3
+            tmp = matmul(matrix, [ triangle%v(i,1:3), 1d0 ])
+            triangle%v(i, 1:3) = tmp(1:3)
+        end do
+
+    end subroutine s_stl_transform_triangle
+
+    !> The STL patch is a 2/3D geometry that is imported from an STL file.
+    !! @param patch_id is the patch identifier
+    subroutine s_stl(patch_id) ! -------------------------------------------
+
+        integer, intent(in) :: patch_id
+
+        integer :: i, j, k !< Generic loop iterators
+
+        type(ic_stl_parameters)                         :: stl
+        type(t_stl_triangle), dimension(:), allocatable :: triangles
+
+        real(kind(0d0)), dimension(1:4,1:4) :: transform
+
+        stl = patch_icpp(patch_id)%stl
+
+        call s_stl_read(stl%filepath, triangles)
+
+        transform = s_stl_transform_matrix(stl)
+
+        do i = 1, size(triangles)
+            call s_stl_transform_triangle(triangles(i), transform)
+            print*, triangles(i)%v(1,:)
+        end do
+
+        !call s_stl_write("out.stl", triangles)
+
+        do i = 0, m; do j = 0, n; do k = 0, p
+
+            if (p .gt. 0) then
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), z_cc(k) /), triangles)) then
+                    call s_assign_patch_primitive_variables(patch_id, i, j, k)
+                end if
+            else
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), 0d0 /), triangles)) then
+                    call s_assign_patch_primitive_variables(patch_id, i, j, k)
+                end if
+            end if
+
+        end do; end do; end do
+
+        deallocate(triangles)
+
+    end subroutine s_stl ! -------------------------------------------------
 
 end module m_create_patches

@@ -330,7 +330,7 @@ program p_main
                     do k = 0, n
                         do j = 0, m
                             if(ieee_is_nan(q_cons_ts(1)%vf(i)%sf(j, k, l))) then
-                                print *, j, k, l, proc_rank, t_step, m, n, p
+                                print *, "Timestep output contains a NaN", j, k, l, proc_rank, t_step, m, n, p
                                 STOP "Error"
                             end if
                         end do

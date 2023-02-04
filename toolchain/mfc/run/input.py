@@ -18,7 +18,11 @@ class MFCInputFile:
         dict_str = ""
         for key,val in self.case_dict.items():
             if key in MASTER_KEYS:
-                dict_str += f"{key} = {val}\n"
+                if not isinstance(val, str) or len(val) == 1:
+                    dict_str += f"{key} = {val}\n"
+                else:
+                    dict_str += f"{key} = '{val}'\n"
+                
                 continue
                 
             if key not in case_dicts.PRE_PROCESS  and \
