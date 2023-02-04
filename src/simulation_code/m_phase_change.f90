@@ -846,12 +846,13 @@ MODULE m_phase_change
             REAL(KIND(0.0D0)), DIMENSION(num_fluids)                :: ekS, rhokS
             REAL(KIND(0.0D0)), DIMENSION(2)                         :: R2D, DeltamP
             REAL(KIND(0.0D0)), DIMENSION(2,2)                       :: Jac, InvJac, TJac
-            REAL(KIND(0.0D0))                                       :: A, B, C, D, R, Om
-            REAL(KIND(0.0D0))                                       :: gpp, hp, pO, pS, TS
+            REAL(KIND(0.0D0))                                       :: A, B, C, D, Om
+            REAL(KIND(0.0D0))                                       :: pS, TS
             REAL(KIND(0.0D0))                                       :: rhoe, Ewe, mCP, mQ, TvF
             REAL(KIND(0.0D0))                                       :: rho, mCVGP, mCVGP2, mCPD, mQD
-            REAL(KIND(0.0D0))                                       :: TvFT, sO, sN
+            REAL(KIND(0.0D0))                                       :: TvFT, rhosO, rhosN
             REAL(KIND(0.0D0))                                       :: dynP
+            
             !< Generic loop iterators
             INTEGER :: i, j, k, l, nf
             INTEGER :: lp, vp, ns
@@ -881,8 +882,8 @@ MODULE m_phase_change
             D = ( ( g_min( lp ) - 1.0D0 ) * fluid_pp( lp )%cv ) &
             / ( ( g_min( vp ) - 1.0D0 ) * fluid_pp( vp )%cv )
 
-            ! starting with pT-equilibrium as the first thermo-equilibrium solver or, at the very least
-            ! as the IC for the pTg-equilibrium
+            ! starting with pT-equilibrium as the IC for the pTg-equilibrium. Experience shows that
+            ! this is good practice
             CALL s_infinite_pt_relaxation_k( q_cons_vf )
             
             ! starting the pTg-equilibrium in case IT IS NEEDED (there's no condition as of now)
@@ -890,10 +891,8 @@ MODULE m_phase_change
                 DO k = 0, n
                     DO l = 0, p
 
-                        ! Numerical correction of the volume fractions
-                        IF (mpp_lim) THEN
-                            CALL s_mixture_volume_fraction_correction( q_cons_vf, j, k, l )
-                        END IF
+                        ! Numerical correction of the volume fractions is not needed anymore, once the
+                        ! pT-equilibrium solver is called first
 
                         ! calculating fluids' thermodynamic quantities after the homogeneous solver
                         rho = 0.0D0
@@ -906,26 +905,14 @@ MODULE m_phase_change
                         mQD = 0.0D0
                         DO i = 1, num_fluids
 
-                            ! checking constraint on ith fluid volume fraction. Look for stronger condition, if possible
-                            IF ( ( q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l ) .LE. 0.0D0 ) .OR. &
-                                ( q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l ) .GT. 1.0D0 )     ) THEN
-                                    
-                                PRINT *, 'Constraint on individual volume fractions not satisfied &
-                                i.e. alpha <= 0, or alpha > 1. m_phase_change, s_infinite_ptg_relaxation_k. &
-                                Aborting.'
-                            
-                                PRINT *, 'i, j, k, l', i, j, k, l
-
-                                PRINT *, 'alpha_i', q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l )
-                                
-                                PRINT *, 'alpha_rho_i', q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l )
-
-                                CALL s_mpi_abort()
-
-                            END IF
+                            ! constraint on ith fluid volume fraction is not needed either, as this is also
+                            ! verified at the pT-equilibrium.
 
                             ! properties calculated from the either the Homogeneous Solver (HS), or the 
-                            ! pT-equilibrium. I will still call it HS, however
+                            ! pT-equilibrium. I will still call it HS, however. Note that the internal energies are used
+                            ! as they have already been updated from the pT-equilibrium solver so they should, IN PRINCIPLE
+                            ! match with the expresions from the total energy (UE = TE - KE)
+
                             ! Temperature
                             TkHS( i ) = ( ( q_cons_vf( i + internalEnergies_idx%beg -1 )%sf( j, k ,l ) & 
                                     - q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * fluid_pp( i )%qv ) &
@@ -933,12 +920,6 @@ MODULE m_phase_change
                                     / ( 1.0D0 + fluid_pp( i )%gamma ) ) &
                                     / ( q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * fluid_pp( i )%cv &
                                     / q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l ) ) 
-                            
-                            ! IF ( TkHS( i ) .LT. 0 ) THEN
-
-                            !     PRINT *, 'i', i, 'T( i )', TkHS( i )
-
-                            ! END IF
 
                             ! pressure
                             pkHS( i ) = ( ( q_cons_vf( i + internalEnergies_idx%beg - 1 )%sf( j, k, l ) & 
@@ -948,9 +929,6 @@ MODULE m_phase_change
 
                             ! Mixture density
                             rho = rho + q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l )
-
-                            ! checking volume fraction alpha
-                            ! akT( i ) = q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l )
 
                             ! Total Volume Fraction
                             TvF = TvF + q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l )
@@ -977,18 +955,21 @@ MODULE m_phase_change
                         ! GIBBS-FREE ENERGY
                         gk( 1 : num_fluids ) = hk( 1 : num_fluids ) - TkHS( 1 : num_fluids ) * sk( 1 : num_fluids )
 
-                        sO = 0.0D0
+                        ! total entropy
+                        rhosO = 0.0D0
                         DO i = 1, num_fluids
 
-                            sO = sO + q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * sk( i )
+                            rhosO = rhosO + q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * sk( i )
 
                         END DO
 
-                        ! pressure guess for the pTg-equilibrium solver
-                        ! Improve this, as it is crucial for the beginning of the Newton Solver
-                        pS = MAX( MINVAL( pkHS ), MINVAL( p_inf ) ) + 0.0D4
+                        ! Initial  guess for the pTg-equilibrium solver. Averaged value that comes from the
+                        ! pTg-equilibium. They should all be the same, though, but this my not be the case for
+                        ! numerical reasons
+                        pS = SUM( pkHS( 1 : num_fluids ) ) / num_fluids
 
-                        ! auxiliary variables for the pTg-equilibrium solver
+                        ! first estimate for the auxiliary variables used in the pTg-equilibrium solver. Note
+                        ! that those must be updated through the iterations
                         DO i = 1, num_fluids
 
                             IF ( ( i .NE. lp ) .AND. ( i .NE. vp ) ) THEN
@@ -1012,7 +993,8 @@ MODULE m_phase_change
                         ! dynamic pressure so as to calculate the total internal energy as the total energy minus the 
                         ! kinetic energy. Note that in this process, the total internal energy is not expected to change,
                         ! therefore, at least for now, nor the kinetic energy (even though the 'masses' change). This is 
-                        ! because E_thermo = E_total - E_kin, in this module
+                        ! because UE = TE - KE. This process MIGHT NOT be necesary, as I have already corrected UE from the
+                        ! pT-equilibrium solver. Check it later on.
                         dynP = 0.0D0                  
                         DO i = mom_idx%beg, mom_idx%end
 
@@ -1024,108 +1006,31 @@ MODULE m_phase_change
                         ! total thermodynamic energy
                         rhoe = q_cons_vf( E_idx )%sf( j, k, l ) - dynP
 
-                        ! checking condition on the total thermodynamic energy such that the pT-equilibrium (attention: not pTg)
-                        ! can be satisfied
-                        IF ( ( rhoe - mQ - MINVAL( p_inf ) ) .LT. 0.0D0 ) THEN
-                            PRINT *, 'Constraint on total energy not satisfied &
-                            i.e. rhoe - mQ - MINVAL( p_inf ) <= 0. m_phase_change &
-                            s_infinite_pt_relaxation_k'
+                        ! condition on the total thermodynamic energy such that the pT-equilibrium (attention: not pTg)
+                        ! can be satisfied is not needed anymore, as I use the pT-equilibrium as the IC
 
-                            PRINT *, 'j, k, l', j, k,l
-
-                            PRINT *, 'rhoe - mQ - MINVAL( p_inf )', rhoe - mQ - MINVAL( p_inf )
-
-                        END IF
-
-                        ! calculating residual, i.e. the difference between the Gibbs Free energy of the gas and the liquid
-                        ! this will be the condition to which pTg will be activated or not.
+                        ! calculating residuals, which are (i) the difference between the Gibbs Free energy of the gas and the liquid
+                        ! and (ii) the energy before and after the phase-change process, which should be the same
+                        ! this is the first condition to be assessed to determine whether pTg-equilibrium should be activated or not.
+                        ! for this first call, it is expected that (i) is in general not zero, but (ii) is identically 0
                         ! Total Internal Energy, and Gibbs-Free energy
                         CALL s_compute_pTg_residue(A, B, C, D, g_min, j, k, l, lp, mCPD, mCVGP, mQD &
                         , p_inf, q_cons_vf, pS, rhoe, R2D, vp)
 
+                        ! calculating the (2D) Jacobian Matrix used in the solution of the pTg-quilibrium model
                         CALL s_compute_jacobian_matrix( B, C, D, rhoe, g_min, InvJac, j, Jac, k, l, &
                         lp, mCPD, mCVGP, mCVGP2, mQD, p_inf, pS, q_cons_vf, TJac, vp )
 
-                        ! calculating correction array for Netown's method
+                        ! calculating correction array for Newton's method
                         DeltamP = - 1.0D0 * MATMUL( InvJac, R2D )
-                    
-                        ! maybe creat a module to spit all these
+
+                        ! checking residue for the IC
                         IF ( ( ISNAN( R2D( 1 ) ) ) .OR. ( ISNAN( R2D( 2 ) ) ) ) THEN
-                            
-                            PRINT *, 'R2D', R2D
 
-                            PRINT *,  A &
-                            , B &
-                            , q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            , fluid_pp( lp )%cv &
-                            , ( g_min( lp ) - 1 ) / ( pS + p_inf( lp ) ) &
-                            , fluid_pp( vp )%cv &
-                            , ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) &
-                            , q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            , q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            , fluid_pp( vp )%cv &
-                            , ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) &
-                            , mCVGP
+                            CALL s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                            , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                            , TvF, TvFT, vp)
 
-                            PRINT *,'1/T', &
-                            ( q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            * ( fluid_pp( lp )%cv * ( g_min( lp ) - 1 ) / ( pS + p_inf( lp ) )   &
-                            - fluid_pp( vp )%cv * ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) ) &
-                            + ( q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            + q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) ) &
-                            * fluid_pp( vp )%cv * ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) )   & 
-                            + mCVGP ) 
-
-                            DO nf = 1, num_fluids
-
-                                IF ( ( i .NE. lp ) .AND. ( i .NE. vp ) ) THEN
-
-                                    PRINT *, q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) &
-                                    , fluid_pp( i )%cv * ( g_min( i ) - 1 ) &
-                                    , ( pS + p_inf( i ) )
-
-                                END If
-
-                                PRINT *, 'nf, j, k, l', nf, j, k, l
-                                                            
-                                PRINT *, 'alpha_rho_i', q_cons_vf( nf + cont_idx%beg - 1 )%sf( j, k, l )
-                                
-                                PRINT *, 'alpha_i', q_cons_vf( nf + adv_idx%beg - 1 )%sf( j, k, l )
-
-                                PRINT *, 'pkHS', pkHS( nf )
-
-                                PRINT *, 'TkHS', TkHS( nf )
-
-                                PRINT *, 'e_i', q_cons_vf( nf + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                            END DO
-
-                            PRINT *, 'pS', pS
-
-                            PRINT *, 'TS', ( rhoe + pS - mQ ) / mCP
-
-                            PRINT *, 'rhoe', rhoe
-
-                            PRINT *, 'De', rhoe - q_cons_vf( lp + internalEnergies_idx%beg -1 )%sf( j, k ,l ) & 
-                                                - q_cons_vf( vp + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                            PRINT *, 'sum(alpha)', TvF
-
-                            PRINT *, 'ns', ns
-                            
-                            PRINT *, 'J', Jac, 'J-1', InvJac
-
-                            PRINT *, 'sO', sO
-
-                            PRINT *, 'sN', sN
-
-                            PRINT *, 'DS', sO - sN
-
-                            PRINT *, 'gK', gk( 1 : num_fluids )
-
-                            PRINT *, 'DgK', gk( vp ) - gk( lp )
-
-                            ! PAUSE
                         END IF
 
                         ! pTg-equilibrium solution procedure
@@ -1156,52 +1061,9 @@ MODULE m_phase_change
                                     
                                     PRINT *, 'ns', ns
 
-                                    DO nf = 1, num_fluids
-
-                                        PRINT *, 'i, j, k, l', nf, j, k, l
-                                                                    
-                                        PRINT *, 'alpha_rho_i', q_cons_vf( nf + cont_idx%beg - 1 )%sf( j, k, l )
-
-                                        PRINT *, 'Y_i', q_cons_vf( nf + cont_idx%beg - 1 )%sf( j, k, l ) &
-                                                        / rho
-                                        
-                                        PRINT *, 'alpha_i', q_cons_vf( nf + adv_idx%beg - 1 )%sf( j, k, l )
-
-                                        PRINT *, 'pkHS', pkHS( nf )
-
-                                        PRINT *, 'TkHS', TkHS( nf )
-
-                                        PRINT *, 'e_i', q_cons_vf( nf + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                                    END DO
-
-                                    PRINT *, 'pS', pS
-
-                                    PRINT *, 'TS', ( rhoe + pS - mQ ) / mCP
-
-                                    PRINT *, 'rhoe', rhoe
-
-                                    PRINT *, 'sum(alpha)', TvF
-
-                                    PRINT *, 'l2(R2D)', DSQRT( R2D( 1 ) * R2D( 1 ) + R2D( 2 ) * R2D( 2 ) )
-
-                                    PRINT *, 'R2D(1)', R2D( 1 )
-
-                                    PRINT *, 'R2D(2)', R2D( 2 )
-                                    
-                                    PRINT *, 'J', Jac, 'J-1', InvJac
-
-                                    PRINT *, 'DeltamP', DeltamP
-
-                                    PRINT *, 'sO', sO
-
-                                    PRINT *, 'sN', sN
-
-                                    PRINT *, 'DS', sO - sN
-
-                                    ! PAUSE 
-
-                                    CALL s_mpi_abort()
+                                    CALL s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                                    , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                                    , TvF, TvFT, vp)
 
                                 END IF
 
@@ -1213,57 +1075,12 @@ MODULE m_phase_change
 
                                 PRINT *, 'Newton Solver for the pTg-relaxation solver failed &
                                 (m_phase_change, s_infinite_ptg_relaxation_k). Aborting'
-
-                                PRINT *, 'absolute value of residual is'
                                 
-                                PRINT *, 'l2(R2D)', DSQRT( R2D( 1 ) * R2D( 1 ) + R2D( 2 ) * R2D( 2 ) )
-
-                                PRINT *, 'R2D(1)', R2D( 1 )
-
-                                PRINT *, 'R2D(2)', R2D( 2 )
-
-                                DO nf = 1, num_fluids
-
-                                    PRINT *, 'i, j, k, l', nf, j, k, l
-                                                                
-                                    PRINT *, 'alpha_rho_i', q_cons_vf( nf + cont_idx%beg - 1 )%sf( j, k, l )
-                                    
-                                    PRINT *, 'alpha_i', q_cons_vf( nf + adv_idx%beg - 1 )%sf( j, k, l )
-
-                                    PRINT *, 'pkHS', pkHS( nf )
-
-                                    PRINT *, 'TkHS', TkHS( nf )
-
-                                    PRINT *, 'e_i', q_cons_vf( nf + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                                END DO
-
-                                PRINT *, 'pS', pS
-
-                                PRINT *, 'TS', ( rhoe + pS - mQ ) / mCP
-
-                                PRINT *, 'rhoe', rhoe
-
-                                PRINT *, 'De', rhoe - q_cons_vf( lp + internalEnergies_idx%beg -1 )%sf( j, k ,l ) & 
-                                                    - q_cons_vf( vp + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                                PRINT *, 'sum(alpha)', TvF
-
                                 PRINT *, 'ns', ns
-                                
-                                PRINT *, 'J', Jac, 'J-1', InvJac
 
-                                PRINT *, 'sO', sO
-
-                                PRINT *, 'sN', sN
-
-                                PRINT *, 'DS', sO - sN
-
-                                PRINT *, 'gK', gk( 1 : num_fluids )
-
-                                PRINT *, 'DgK', gk( vp ) - gk( lp )
-
-                                CALL s_mpi_abort()
+                                CALL s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                                , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                                , TvF, TvFT, vp)
 
                             END IF    
 
@@ -1276,9 +1093,9 @@ MODULE m_phase_change
                                 i.e. rhoe - mQ - MINVAL( p_inf ) <= 0. m_phase_change &
                                 s_infinite_ptg_relaxation_k'
 
-                                PRINT *, 'j, k, l', j, k, l
-
-                                PRINT *, 'rhoe - mQ - MINVAL( p_inf )', rhoe - mQ - MINVAL( p_inf )
+                                CALL s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                                , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                                , TvF, TvFT, vp)
 
                             END IF
 
@@ -1353,10 +1170,10 @@ MODULE m_phase_change
                             ! GIBBS-FREE ENERGY
                             gk( 1 : num_fluids ) = hk( 1 : num_fluids ) - TS * sk( 1 : num_fluids )
 
-                            sN = 0.0D0
+                            rhosN = 0.0D0
                             DO i = 1, num_fluids
 
-                                sN = sN + q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * sk( i )
+                                rhosN = rhosN + q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) * sk( i )
 
                             END DO
 
@@ -1364,16 +1181,6 @@ MODULE m_phase_change
                             ! Total Internal Energy, and Gibbs-Free energy
                             CALL s_compute_pTg_residue(A, B, C, D, g_min, j, k, l, lp, mCPD, mCVGP, mQD &
                                                             , p_inf, q_cons_vf, pS, rhoe, R2D, vp)
-                                
-                            ! PRINT *, 'jacobianT', TJac
-
-                            ! PRINT *, 'liquid', q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l )
-
-                            ! PRINT *, 'vapor', q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l )
-
-                            ! PRINT *, 'pS', pS
-
-                            ! PRINT *, DSQRT( R2D( 1 ) * R2D( 1 ) + R2D( 2 ) * R2D( 2 ) )
 
                         END DO
 
@@ -1432,68 +1239,12 @@ MODULE m_phase_change
                         ! sum of volume fractions test
                         IF( DABS( TvF - TvFT ) .GT. 1.0D-2 ) THEN
 
-                            PRINT *, 'Total Volume Fraction (initial)', TvF
+                            PRINT *, 'constraint on total volume fractions not satisfied'
 
-                            PRINT *, 'Total Volume Fraction (final)', TvFT
+                            CALL s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                            , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                            , TvF, TvFT, vp)
                             
-                            PRINT *, 'Total Volume Fraction Residual after pTg-equilibrium', TvF - TvFT
-                            
-                            PRINT *, 'j, k, l ', j, k, l
-
-                            PRINT *, 'ml', q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                                , 'mv', q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) 
-                            PRINT *, 'mT', q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
-                            +              q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) 
-                                
-                            PRINT *, 'l2(R2D)', DSQRT( R2D( 1 ) * R2D( 1 ) + R2D( 2 ) * R2D( 2 ) )
-
-                            PRINT *, 'R2D(1)', R2D( 1 )
-
-                            PRINT *, 'R2D(2)', R2D( 2 )
-
-                            DO nf = 1, num_fluids
-
-                                PRINT *, 'i, j, k, l', nf, j, k, l
-                                                            
-                                PRINT *, 'alpha_rho_i', q_cons_vf( nf + cont_idx%beg - 1 )%sf( j, k, l )
-                                
-                                PRINT *, 'alpha_i', q_cons_vf( nf + adv_idx%beg - 1 )%sf( j, k, l )
-
-                                PRINT *, 'pkHS', pkHS( nf )
-
-                                PRINT *, 'TkHS', TkHS( nf )
-
-                                PRINT *, 'e_i', q_cons_vf( nf + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                            END DO
-
-                            PRINT *, 'pS', pS
-
-                            PRINT *, 'TS', ( rhoe + pS - mQ ) / mCP
-
-                            PRINT *, 'rhoe', rhoe
-
-                            PRINT *, 'De', rhoe - q_cons_vf( lp + internalEnergies_idx%beg -1 )%sf( j, k ,l ) & 
-                                                - q_cons_vf( vp + internalEnergies_idx%beg -1 )%sf( j, k ,l )
-
-                            PRINT *, 'sum(alpha)', TvF
-
-                            PRINT *, 'ns', ns
-                            
-                            PRINT *, 'J', Jac, 'J-1', InvJac
-
-                            PRINT *, 'sO', sO
-
-                            PRINT *, 'sN', sN
-
-                            PRINT *, 'DS', sO - sN
-
-                            PRINT *, 'gK', gk( 1 : num_fluids )
-
-                            PRINT *, 'DgK', gk( vp ) - gk( lp )
-
-                            ! PAUSE
-
                         END IF
 
                     END DO
@@ -2272,6 +2023,103 @@ MODULE m_phase_change
             ! - mT * g_min( vp ) * fluid_pp( vp )%cv - mCPD )
             
         END SUBROUTINE s_compute_pTg_residue
+
+        ! SUBROUTINE CREATED TO TELL ME WHERE THE ERROR IN THE PT- AND PTG-EQUILIBRIUM SOLVERS IS
+        SUBROUTINE s_tattletale(A, B, C, D, DeltamP, gk, g_min, InvJac, j, Jac, k, l, lp, mCVGP, p_inf &
+                                , pkHS, pS, R2D, rho, rhoe, rhosN, rhosO, q_cons_vf, TkHS, TS  &
+                                , TvF, TvFT, vp) ! ----------------
+
+            TYPE(scalar_field), DIMENSION(sys_size), INTENT(IN)         :: q_cons_vf 
+            REAL( KIND( 0.0D0 ) ), DIMENSION(2,2), INTENT(IN)           :: Jac, InvJac
+            REAL( KIND( 0.0D0 ) ), DIMENSION(num_fluids), INTENT(IN)    :: pkHS, TkHS, gk, g_min, p_inf
+            REAL( KIND( 0.0D0 ) ), DIMENSION(2), INTENT(IN)             :: R2D, DeltamP
+            REAL( KIND( 0.0D0 ) ), INTENT(IN)                           :: A, B, C, D
+            REAL( KIND( 0.0D0 ) ), INTENT(IN)                           :: pS, TS, TvF, TvFT, mCVGP
+            REAL( KIND( 0.0D0 ) ), INTENT(IN)                           :: rho, rhoe, rhosO, rhosN
+            INTEGER, INTENT(IN)                                         :: j, k, l, lp, vp
+
+            !< Generic loop iterator
+            INTEGER                                                     :: i
+
+            PRINT *,  A &
+            , B &
+            , q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
+            , fluid_pp( lp )%cv &
+            , ( g_min( lp ) - 1 ) / ( pS + p_inf( lp ) ) &
+            , fluid_pp( vp )%cv &
+            , ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) &
+            , q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
+            , q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) &
+            , fluid_pp( vp )%cv &
+            , ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) &
+            , mCVGP
+
+            PRINT *,'1/T', &
+            ( q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
+            * ( fluid_pp( lp )%cv * ( g_min( lp ) - 1 ) / ( pS + p_inf( lp ) )   &
+            - fluid_pp( vp )%cv * ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) ) ) &
+            + ( q_cons_vf( lp + cont_idx%beg - 1 )%sf( j, k, l ) &
+            + q_cons_vf( vp + cont_idx%beg - 1 )%sf( j, k, l ) ) &
+            * fluid_pp( vp )%cv * ( g_min( vp ) - 1 ) / ( pS + p_inf( vp ) )   & 
+            + mCVGP ) 
+
+            PRINT *, 'j, k, l', j, k, l
+
+            DO i = 1, num_fluids
+
+                PRINT *, 'i', i
+                                            
+                PRINT *, 'alpha_rho_i', q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l )
+                
+                PRINT *, 'alpha_i', q_cons_vf( i + adv_idx%beg - 1 )%sf( j, k, l )
+
+                PRINT *, 'Y_i', q_cons_vf( i + cont_idx%beg - 1 )%sf( j, k, l ) &
+                / rho
+
+                PRINT *, 'pkHS', pkHS( i )
+
+                PRINT *, 'TkHS', TkHS( i )
+
+                PRINT *, 'e_i', q_cons_vf( i + internalEnergies_idx%beg -1 )%sf( j, k ,l )
+
+            END DO
+
+            PRINT *, 'pS', pS
+
+            PRINT *, 'TS', TS
+
+            PRINT *, 'R2D', R2D
+
+            PRINT *, 'l2(R2D)', DSQRT( R2D( 1 ) * R2D( 1 ) + R2D( 2 ) * R2D( 2 ) )
+
+            PRINT *, 'DeltamP', DeltamP
+
+            PRINT *, 'rhoe', rhoe
+
+            PRINT *, 'De', rhoe - q_cons_vf( lp + internalEnergies_idx%beg -1 )%sf( j, k ,l ) & 
+                                - q_cons_vf( vp + internalEnergies_idx%beg -1 )%sf( j, k ,l )
+
+            PRINT *, 'sum(alpha)_I', TvF
+            
+            PRINT *, 'sum(alpha)_F', TvFT
+            
+            PRINT *, 'J', Jac, 'J-1', InvJac
+
+            PRINT *, 'rhosO', rhosO
+
+            PRINT *, 'rhosN', rhosN
+
+            PRINT *, 'DS', rhosO - rhosN
+
+            PRINT *, 'gK', gk( 1 : num_fluids )
+
+            PRINT *, 'DgK', gk( vp ) - gk( lp )
+
+            ! PAUSE
+
+            ! CALL s_mpi_abort()
+
+        END SUBROUTINE s_tattletale
 
         ! SUBROUTINE s_track_error()
 
