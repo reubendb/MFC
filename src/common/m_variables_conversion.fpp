@@ -147,6 +147,7 @@ contains
         !! @param pi_inf liquid stiffness
     subroutine s_convert_mixture_to_mixture_variables(q_vf, i, j, k, &
                                                       rho, gamma, pi_inf, Re_K, G_K, G)
+    !$acc routine seq
 
         type(scalar_field), dimension(sys_size), intent(IN) :: q_vf
 
@@ -192,6 +193,7 @@ contains
         !! @param l Cell index
     subroutine s_convert_species_to_mixture_variables_bubbles(q_vf, j, k, l, &
                                                               rho, gamma, pi_inf, Re_K, G_K, G)
+    !$acc routine seq
 
         type(scalar_field), dimension(sys_size), intent(IN) :: q_vf
 
@@ -275,6 +277,7 @@ contains
         !! @param l Cell index
     subroutine s_convert_species_to_mixture_variables(q_vf, k, l, r, &
                                                         rho, gamma, pi_inf, Re_K, G_K, G)
+    !$acc routine seq
 
         type(scalar_field), dimension(sys_size), intent(IN) :: q_vf
 
@@ -477,7 +480,9 @@ contains
     subroutine s_initialize_variables_conversion_module() ! ----------------
 
         integer :: i, j
+#ifdef MFC_SIMULATION
 !$acc update device(momxb, momxe, bubxb, bubxe, advxb, advxe, contxb, contxe, strxb, strxe)
+#endif
 
 #ifdef MFC_PRE_PROCESS
         ixb = 0; iyb = 0; izb = 0;
@@ -496,7 +501,9 @@ contains
        end if
 #endif
 
+#ifdef MFC_SIMULATION
         !$acc update device(ixb, ixe, iyb, iye, izb, ize)
+#endif
 
         @:ALLOCATE(gammas (1:num_fluids))
         @:ALLOCATE(pi_infs(1:num_fluids))
@@ -507,9 +514,10 @@ contains
             pi_infs(i) = fluid_pp(i)%pi_inf
             Gs(i)      = fluid_pp(i)%G
         end do
-        !$acc update device(gammas, pi_infs, Gs)
 
 #ifdef MFC_SIMULATION
+        !$acc update device(gammas, pi_infs, Gs)
+
 
         if (any(Re_size > 0)) then
             @:ALLOCATE(Res(1:2, 1:maxval(Re_size)))
@@ -531,15 +539,19 @@ contains
                 bubrs(i) = bub_idx%rs(i)
             end do
 
+#ifdef MFC_SIMULATION
             !$acc update device(bubrs)
+#endif
         end if
 
+#ifdef MFC_SIMULATION
 !$acc update device(dt, sys_size, pref, rhoref, gamma_idx, pi_inf_idx, E_idx, alf_idx, stress_idx, mpp_lim, bubbles, hypoelasticity, alt_soundspeed, avg_state, num_fluids, model_eqns, num_dims, mixture_err, nb, weight, grid_geometry, cyl_coord, mapped_weno, mp_weno, weno_eps)
 !$acc update device(nb, R0ref, Ca, Web, Re_inv, weight, R0, V0, bubbles, polytropic, polydisperse, qbmm, R0_type, ptil, bubble_model, thermal, poly_sigma)
 
 !$acc update device(R_n, R_v, phi_vn, phi_nv, Pe_c, Tw, pv, M_n, M_v, k_n, k_v, pb0, mass_n0, mass_v0, Pe_T, Re_trans_T, Re_trans_c, Im_trans_T, Im_trans_c, omegaN , mul0, ss, gamma_v, mu_v, gamma_m, gamma_n, mu_n, gam)
 
 !$acc update device(monopole, num_mono)
+#endif
 
 #ifdef MFC_POST_PROCESS
         ! Allocating the density, the specific heat ratio function and the
@@ -648,13 +660,17 @@ contains
             allocate(nRtmp(0))
         endif
 
+#ifdef MFC_SIMULATION
         !$acc parallel loop collapse(3) gang vector default(present) private(alpha_K, alpha_rho_K, Re_K, nRtmp, rho_K, gamma_K, pi_inf_K, dyn_pres_K)
+#endif
         do l = izb, ize
             do k = iyb, iye
                 do j = ixb, ixe
                     dyn_pres_K = 0d0
-                    
+
+#ifdef MFC_SIMULATION
                     !$acc loop seq
+#endif
                     do i = 1, num_fluids
                         alpha_rho_K(i) = qK_cons_vf(i)%sf(j, k, l)
                         alpha_K(i) = qK_cons_vf(advxb + i - 1)%sf(j, k, l)
@@ -691,9 +707,9 @@ contains
 
 #ifdef MFC_SIMULATION
                     rho_K = max(rho_K, sgm_eps)
-#endif
 
                     !$acc loop seq
+#endif
                     do i = momxb, momxe
                         if (model_eqns /= 4) then
                             qK_prim_vf(i)%sf(j, k, l) = qK_cons_vf(i)%sf(j, k, l) &
@@ -712,7 +728,9 @@ contains
                     qK_prim_vf(E_idx)%sf(j, k, l) = pres
 
                     if (bubbles) then
+#ifdef MFC_SIMULATION
                         !$acc loop seq
+#endif
                         do i = 1, nb
                             nRtmp(i) = qK_cons_vf(bubrs(i))%sf(j, k, l)
                         end do
@@ -721,14 +739,18 @@ contains
 
                         call s_comp_n_from_cons(vftmp, nRtmp, nbub_sc)
                         
+#ifdef MFC_SIMULATION
                         !$acc loop seq
+#endif
                         do i = bubxb, bubxe
                             qK_prim_vf(i)%sf(j, k, l) = qK_cons_vf(i)%sf(j, k, l)/nbub_sc
                         end do
                     end if
 
                     if (hypoelasticity) then
+#ifdef MFC_SIMULATION
                         !$acc loop seq
+#endif
                         do i = strxb, strxe
                             qK_prim_vf(i)%sf(j, k, l) = qK_cons_vf(i)%sf(j, k, l) &
                                                         /rho_K
@@ -753,7 +775,9 @@ contains
                 end do
             end do
         end do
+#ifdef MFC_SIMULATION
         !$acc end parallel loop
+#endif
 
     end subroutine s_convert_conservative_to_primitive_variables ! ---------
 
@@ -941,7 +965,9 @@ contains
         is2b = is2%beg; is2e = is2%end
         is3b = is3%beg; is3e = is3%end
 
+#ifdef MFC_SIMULATION
         !$acc update device(is1b, is2b, is3b, is1e, is2e, is3e)
+#endif
 
         ! Computing the flux variables from the primitive variables, without
         ! accounting for the contribution of either viscosity or capillarity

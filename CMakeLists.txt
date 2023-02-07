@@ -265,7 +265,7 @@ if (MFC_PRE_PROCESS)
     MFC_SETUP_TARGET(
         TARGET  pre_process
         SOURCES "${pre_process_SRCs}"
-        MPI
+        MPI OpenACC
     )
 endif()
 

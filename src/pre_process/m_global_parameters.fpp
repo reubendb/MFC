@@ -2,6 +2,8 @@
 !! @file m_global_parameters.f90
 !! @brief Contains module m_global_parameters
 
+#:include 'macros.fpp'
+
 !> @brief This module contains all of the parameters characterizing the
 !!              computational domain, simulation algorithm, initial condition
 !!              and the stiffened equation of state.
@@ -55,6 +57,8 @@ module m_global_parameters
 
     real(kind(0d0)), allocatable, dimension(:) :: x_cb, y_cb, z_cb !<
     !! Locations of cell-boundaries (cb) in x-, y- and z-directions, respectively
+
+    !$acc declare create(x_cc, y_cc, z_cc, x_cb, y_cb, z_cb)
 
     real(kind(0d0)) :: dx, dy, dz !<
     !! Minimum cell-widths in the x-, y- and z-coordinate directions
@@ -138,6 +142,8 @@ module m_global_parameters
     !! the maximum allowable number of patches, num_patches_max, may be changed
     !! in the module m_derived_types.f90.
     ! ==========================================================================
+
+    !$acc declare create(patch_icpp)
 
     ! Fluids Physical Parameters ===============================================
     type(physical_parameters), dimension(num_fluids_max) :: fluid_pp !<
@@ -601,12 +607,12 @@ contains
 #endif
 
         ! Allocating grid variables for the x-direction
-        allocate (x_cc(0:m), x_cb(-1:m))
+        @:ALLOCATE(x_cc(0:m), x_cb(-1:m))
         ! Allocating grid variables for the y- and z-directions
         if (n > 0) then
-            allocate (y_cc(0:n), y_cb(-1:n))
+            @:ALLOCATE(y_cc(0:n), y_cb(-1:n))
             if (p > 0) then
-                allocate (z_cc(0:p), z_cb(-1:p))
+                @:ALLOCATE(z_cc(0:p), z_cb(-1:p))
             end if
         end if
 
@@ -801,12 +807,12 @@ contains
         integer :: i
 
         ! Deallocating grid variables for the x-direction
-        deallocate (x_cc, x_cb)
+        @:DEALLOCATE(x_cc, x_cb)
         ! Deallocating grid variables for the y- and z-directions
         if (n > 0) then
-            deallocate (y_cc, y_cb)
+            @:DEALLOCATE(y_cc, y_cb)
             if (p > 0) then
-                deallocate (z_cc, z_cb)
+                @:DEALLOCATE(z_cc, z_cb)
             end if
         end if
 

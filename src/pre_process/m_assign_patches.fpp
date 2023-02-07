@@ -79,6 +79,8 @@ contains
         !! @param l  the z-dir node index
     subroutine s_assign_patch_mixture_primitive_variables(patch_id, j, k, l)
 
+        !$acc routine seq
+
         integer, intent(IN) :: patch_id
         integer, intent(IN) :: j, k, l
 

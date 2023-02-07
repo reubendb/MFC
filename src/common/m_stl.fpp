@@ -137,6 +137,8 @@ contains
     end subroutine s_stl_write
 
     function cross(a, b) result(c)
+        !$acc routine seq
+
         real(kind(0d0)), dimension(3), intent(in) :: a, b
         real(kind(0d0)), dimension(3)             :: c
 
@@ -147,6 +149,7 @@ contains
 
     ! From https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/ray-triangle-intersection-geometric-solution.html
     function f_intersects(ray, triangle) result(intersects)
+        !$acc routine seq
 
         type(t_stl_ray),      intent(in) :: ray
         type(t_stl_triangle), intent(in) :: triangle
@@ -202,6 +205,7 @@ contains
     end function f_intersects
 
     function f_stl_is_inside(point, triangles) result(inorout)
+        !$acc routine seq
 
         real(kind(0d0)),      intent(in) :: point(3)
         type(t_stl_triangle), intent(IN) :: triangles(:)

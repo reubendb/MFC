@@ -1645,8 +1645,7 @@ contains
             print*, triangles(i)%v(1,:)
         end do
 
-        !call s_stl_write("out.stl", triangles)
-
+        !$acc parallel loop collapse(3) copyin(triangles(:))
         do i = 0, m; do j = 0, n; do k = 0, p
 
             if (p .gt. 0) then
