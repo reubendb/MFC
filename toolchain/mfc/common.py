@@ -110,11 +110,14 @@ def delete_directory(dirpath: str) -> None:
         shutil.rmtree(dirpath)
 
 
-def get_py_program_output(filepath: str):
+def get_py_program_output(filepath: str, arguments: typing.List[str] = None):
+    if arguments is None:
+        arguments = []
+    
     dirpath  = os.path.abspath (os.path.dirname(filepath))
     filename = os.path.basename(filepath)
 
-    proc = subprocess.Popen(["python3", filename], cwd=dirpath,
+    proc = subprocess.Popen(["python3", filename] + arguments, cwd=dirpath,
                             stdout=subprocess.PIPE)
 
     return (proc.communicate()[0], proc.returncode)
