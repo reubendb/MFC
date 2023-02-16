@@ -834,6 +834,7 @@ contains
             end if
         end if
 
+        !$acc parallel loop
         do i = 1, num_probes
             ! Zeroing out flow variables for all processors
             rho = 0d0

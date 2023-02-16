@@ -633,7 +633,7 @@ contains
         real(kind(0d0)), dimension(2) :: Re_K
         real(kind(0d0)) :: rho_K, gamma_K, pi_inf_K, dyn_pres_K
 
-        real(kind(0d0)), dimension(:), allocatable :: nRtmp
+        real(kind(0d0)), dimension(nb) :: nRtmp
         real(kind(0d0)) :: vftmp, nR3, nbub_sc
 
         real(kind(0d0)) :: G_K
@@ -642,13 +642,7 @@ contains
 
         integer :: i, j, k, l !< Generic loop iterators
         
-        if (bubbles) then
-            allocate(nRtmp(nb))
-        else
-            allocate(nRtmp(0))
-        endif
-
-        !$acc parallel loop collapse(3) gang vector default(present) private(alpha_K, alpha_rho_K, Re_K, nRtmp, rho_K, gamma_K, pi_inf_K, dyn_pres_K)
+        !$acc parallel loop collapse(3) gang vector default(present) private(alpha_K, alpha_rho_K, Re_K, rho_K, gamma_K, pi_inf_K, nRtmp, dyn_pres_K)
         do l = izb, ize
             do k = iyb, iye
                 do j = ixb, ixe

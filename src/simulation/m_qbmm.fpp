@@ -18,6 +18,8 @@ module m_qbmm
 
     use m_variables_conversion !< State variables type conversion procedures
 
+    use, intrinsic :: iso_fortran_env
+
     ! ==========================================================================
 
     implicit none

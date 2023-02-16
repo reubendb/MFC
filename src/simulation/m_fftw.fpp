@@ -16,7 +16,7 @@ module m_fftw
 
     use m_mpi_proxy            !< Message passing interface (MPI) module proxy
 
-#if defined(_OPENACC) && defined(__PGI)
+#if defined(_OPENACC) && defined(_OPENACC) && defined(__PGI)
     use cufft
 #endif
     ! ==========================================================================
@@ -27,7 +27,7 @@ module m_fftw
  s_apply_fourier_filter, &
  s_finalize_fftw_module
 
-#if !(defined(_OPENACC) && defined(__PGI))
+#if !defined(_OPENACC)
     include 'fftw3.f03'
 #endif
 
@@ -81,7 +81,8 @@ contains
 
         batch_size = x_size*sys_size
 
-#if defined(_OPENACC) && defined(__PGI)
+#if defined(_OPENACC)
+#if defined(__PGI)
         rank = 1; istride = 1; ostride = 1
 
         allocate(cufft_size(1:rank), iembed(1:rank), oembed(1:rank))
@@ -91,6 +92,7 @@ contains
         oembed(1) = 0
 
         !$acc update device(real_size, cmplx_size, x_size, sys_size, batch_size)
+#endif
 #else
         ! Allocate input and output DFT data sizes
         fftw_real_data = fftw_alloc_real(int(real_size, c_size_t))

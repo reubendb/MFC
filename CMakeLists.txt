@@ -71,7 +71,6 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/toolchain/cmake")
 # === Compiler Flags
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     add_compile_options(
-        $<$<COMPILE_LANGUAGE:Fortran>:-fdefault-real-8>
         $<$<COMPILE_LANGUAGE:Fortran>:-ffree-line-length-none>
         $<$<COMPILE_LANGUAGE:Fortran>:-fdefault-double-8>
     )
@@ -224,9 +223,10 @@ function(MFC_SETUP_TARGET)
 
         if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
             target_compile_options(${ARGS_TARGET} PRIVATE
-                "-foffload=amdgcn-amdhsa='-march=gfx90a'"
-                "-foffload-options=-lgfortran\ -lm"
-                "-fno-exceptions")
+                -foffload=amdgcn-amdhsa=-march=gfx90a
+                -foffload-options=-lgfortran
+                -foffload-options=-lm
+                -fno-exceptions)
         elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
             find_package(cuTENSOR)
             if (NOT cuTENSOR_FOUND)
@@ -277,10 +277,12 @@ if (MFC_SIMULATION)
         MPI OpenACC
     )
 
-    if (MFC_OpenACC AND (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI"))
-        find_package(CUDAToolkit REQUIRED)
+    if (MFC_OpenACC)
+        if (CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
+            find_package(CUDAToolkit REQUIRED)
 
-        target_link_libraries(simulation PRIVATE CUDA::cudart CUDA::cufft)
+            target_link_libraries(simulation PRIVATE CUDA::cudart CUDA::cufft)
+        endif()
     else()
         find_package(FFTW REQUIRED)
 
