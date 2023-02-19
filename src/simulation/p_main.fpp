@@ -41,7 +41,7 @@ program p_main
 
     use m_time_steppers        !< Time-stepping algorithms
 
-    use m_qbmm                 !< Quadrature MOM
+    !use m_qbmm                 !< Quadrature MOM
 
     use m_derived_variables     !< Procedures used to compute quantites derived
                                 !! from the conservative and primitive variables
@@ -147,7 +147,7 @@ program p_main
 
     if(bubbles) call s_initialize_bubbles_module()
 
-    if (qbmm) call s_initialize_qbmm_module()
+    !if (qbmm) call s_initialize_qbmm_module()
 
 #if defined(_OPENACC) && defined(MFC_MEMORY_DUMP)
     call acc_present_dump()

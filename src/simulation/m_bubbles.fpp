@@ -140,7 +140,7 @@ contains
 
                     !$acc loop seq
                     do q = 1, nb
-                        R3 = R3 + weight(q)*Rtmp(q)**3.d0
+                        !R3 = R3 + weight(q)*Rtmp(q)**3.d0
                     end do
 
                     nbub(j, k, l) = (3.d0/(4.d0*pi))*q_prim_vf(alf_idx)%sf(j, k, l)/R3
@@ -149,7 +149,7 @@ contains
 
                     !$acc loop seq
                     do q = 1, nb
-                        R2Vav = R2Vav + weight(q)*Rtmp(q)**2.d0*Vtmp(q)
+                        !R2Vav = R2Vav + weight(q)*Rtmp(q)**2.d0*Vtmp(q)
                     end do
 
                     bub_adv_src(j, k, l) = 4.d0*pi*nbub(j, k, l)*R2Vav
@@ -213,7 +213,7 @@ contains
                             pbdot = f_bpres_dot(vflux, myR, myV, pb, mv, q)
 
                             bub_p_src(j, k, l, q) = nbub(j, k, l)*pbdot
-                            bub_m_src(j, k, l, q) = nbub(j, k, l)*vflux*4.d0*pi*(myR**2.d0)
+                            !bub_m_src(j, k, l, q) = nbub(j, k, l)*vflux*4.d0*pi*(myR**2.d0)
                         else
                             pb = 0d0; mv = 0d0; vflux = 0d0; pbdot = 0d0
                         end if
@@ -290,7 +290,7 @@ contains
         real(kind(0d0)) :: f_cpbw
 
         if (polytropic) then
-            f_cpbw = (Ca + 2.d0/Web/fR0)*((fR0/fR)**(3.d0*gam)) - Ca - 4.d0*Re_inv*fV/fR - 2.d0/(fR*Web)
+            !f_cpbw = (Ca + 2.d0/Web/fR0)*((fR0/fR)**(3.d0*gam)) - Ca - 4.d0*Re_inv*fV/fR - 2.d0/(fR*Web)
         else
             f_cpbw = fpb - 1.d0 - 4.d0*Re_inv*fV/fR - 2.d0/(fR*Web)
         end if
@@ -310,8 +310,8 @@ contains
         real(kind(0d0)) :: f_H
 
         tmp1 = (fntait - 1.d0)/fntait
-        tmp2 = (fCpbw/(1.d0 + fBtait) + 1.d0)**tmp1
-        tmp3 = (fCpinf/(1.d0 + fBtait) + 1.d0)**tmp1
+        !tmp2 = (fCpbw/(1.d0 + fBtait) + 1.d0)**tmp1
+        !tmp3 = (fCpinf/(1.d0 + fBtait) + 1.d0)**tmp1
 
         f_H = (tmp2 - tmp3)*fntait*(1.d0 + fBtait)/(fntait - 1.d0)
 
@@ -330,7 +330,7 @@ contains
         real(kind(0d0)) :: f_cgas
 
         ! get sound speed for Gilmore equations "C" -> c_gas
-        tmp = (fCpinf/(1.d0 + fBtait) + 1.d0)**((fntait - 1.d0)/fntait)
+        !tmp = (fCpinf/(1.d0 + fBtait) + 1.d0)**((fntait - 1.d0)/fntait)
         tmp = fntait*(1.d0 + fBtait)*tmp
 
         f_cgas = DSQRT(tmp + (fntait - 1.d0)*fH)
@@ -384,16 +384,16 @@ contains
         real(kind(0d0)) :: f_Hdot
 
         if (polytropic) then
-            tmp1 = (fR0/fR)**(3.d0*gam)
+            !tmp1 = (fR0/fR)**(3.d0*gam)
             tmp1 = -3.d0*gam*(Ca + 2d0/Web/fR0)*tmp1*fV/fR
         else
             tmp1 = fpbdot
         end if
         tmp2 = (2.d0/Web + 4.d0*Re_inv*fV)*fV/(fR**2.d0)
 
-        f_Hdot = &
-            (fCpbw/(1.d0 + fBtait) + 1.d0)**(-1.d0/fntait)*(tmp1 + tmp2) &
-            - (fCpinf/(1.d0 + fBtait) + 1.d0)**(-1.d0/fntait)*fCpinf_dot
+        !f_Hdot = &
+            !(fCpbw/(1.d0 + fBtait) + 1.d0)**(-1.d0/fntait)*(tmp1 + tmp2) &
+            !- (fCpinf/(1.d0 + fBtait) + 1.d0)**(-1.d0/fntait)*fCpinf_dot
 
         ! Hdot = (Cpbw/(1+B) + 1)^(-1/n_tait)*(-3 gam)*(R0/R)^(3gam) V/R
         !f_Hdot = ((fCpbw/(1d0+fBtait)+1.d0)**(-1.d0/fntait))*(-3.d0)*gam * &
@@ -442,10 +442,10 @@ contains
         real(kind(0d0)) :: f_rddot
 
         tmp1 = fV/fcgas
-        tmp2 = 1.d0 + 4.d0*Re_inv/fcgas/fR*(fCpbw/(1.d0 + fBtait) + 1.d0) &
-               **(-1.d0/fntait)
-        tmp3 = 1.5d0*fV**2d0*(tmp1/3.d0 - 1.d0) + fH*(1.d0 + tmp1) &
-               + fR*fHdot*(1.d0 - tmp1)/fcgas
+        !tmp2 = 1.d0 + 4.d0*Re_inv/fcgas/fR*(fCpbw/(1.d0 + fBtait) + 1.d0) &
+        !       **(-1.d0/fntait)
+        !tmp3 = 1.5d0*fV**2d0*(tmp1/3.d0 - 1.d0) + fH*(1.d0 + tmp1) &
+        !       + fR*fHdot*(1.d0 - tmp1)/fcgas
 
         f_rddot = tmp3/(fR*(1.d0 - tmp1)*tmp2)
 
@@ -462,9 +462,9 @@ contains
         real(kind(0d0)) :: f_cpbw_KM
 
         if (polytropic) then
-            f_cpbw_KM = Ca*((fR0/fR)**(3.d0*gam)) - Ca + 1d0
-            if (Web /= dflt_real) f_cpbw_KM = f_cpbw_KM + &
-                                              (2.d0/(Web*fR0))*((fR0/fR)**(3.d0*gam))
+         !   f_cpbw_KM = Ca*((fR0/fR)**(3.d0*gam)) - Ca + 1d0
+         !   if (Web /= dflt_real) f_cpbw_KM = f_cpbw_KM + &
+         !                                     (2.d0/(Web*fR0))*((fR0/fR)**(3.d0*gam))
         else
             f_cpbw_KM = fpb
         end if
@@ -492,20 +492,20 @@ contains
         real(kind(0d0)) :: f_rddot_KM
 
         if (polytropic) then
-            cdot_star = -3d0*gam*Ca*((fR0/fR)**(3d0*gam))*fV/fR
-            if (Web /= dflt_real) cdot_star = cdot_star - &
-                                              3d0*gam*(2d0/(Web*fR0))*((fR0/fR)**(3d0*gam))*fV/fR
+        !    cdot_star = -3d0*gam*Ca*((fR0/fR)**(3d0*gam))*fV/fR
+        !    if (Web /= dflt_real) cdot_star = cdot_star - &
+        !                                      3d0*gam*(2d0/(Web*fR0))*((fR0/fR)**(3d0*gam))*fV/fR
         else
             cdot_star = fpbdot
         end if
 
-        if (Web /= dflt_real) cdot_star = cdot_star + (2d0/Web)*fV/(fR**2d0)
-        if (Re_inv /= dflt_real) cdot_star = cdot_star + 4d0*Re_inv*((fV/fR)**2d0)
+        !if (Web /= dflt_real) cdot_star = cdot_star + (2d0/Web)*fV/(fR**2d0)
+        !if (Re_inv /= dflt_real) cdot_star = cdot_star + 4d0*Re_inv*((fV/fR)**2d0)
 
         tmp1 = fV/fC
-        tmp2 = 1.5d0*(fV**2d0)*(tmp1/3d0 - 1d0) + &
-               (1d0 + tmp1)*(fCpbw - fCp)/fRho + &
-               cdot_star*fR/(fRho*fC)
+        !tmp2 = 1.5d0*(fV**2d0)*(tmp1/3d0 - 1d0) + &
+       !        (1d0 + tmp1)*(fCpbw - fCp)/fRho + &
+        !       cdot_star*fR/(fRho*fC)
 
         if (Re_inv == dflt_real) then
             f_rddot_KM = tmp2/(fR*(1d0 - tmp1))

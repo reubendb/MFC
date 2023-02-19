@@ -1056,7 +1056,7 @@ contains
 
         nR3 = 0d0
         do i = 1, nb
-            nR3 = nR3 + weight(i)*(nRtmp(i)**3d0)
+            !nR3 = nR3 + weight(i)*(nRtmp(i)**3d0)
         end do
 
         !if (nR3 < 0d0) then
@@ -1096,7 +1096,7 @@ contains
 
         R3 = 0d0
         do i = 1, nb
-            R3 = R3 + weight(i)*(Rtmp(i)**3d0)
+           ! R3 = R3 + weight(i)*(Rtmp(i)**3d0)
         end do
 
         if (R3 < 0d0) then

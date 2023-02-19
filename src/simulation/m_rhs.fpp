@@ -35,7 +35,7 @@ module m_rhs
 
     use m_bubbles              !< Bubble dynamic routines
 
-    use m_qbmm                 !< Moment inversion
+    !use m_qbmm                 !< Moment inversion
 
     use m_hypoelastic
 
@@ -790,7 +790,7 @@ contains
         if (t_step == t_step_stop) return
         ! ==================================================================
 
-        if (qbmm) call s_mom_inv(q_prim_qp%vf, mom_sp, mom_3d, ix, iy, iz)
+        !if (qbmm) call s_mom_inv(q_prim_qp%vf, mom_sp, mom_3d, ix, iy, iz)
 
         call nvtxStartRange("Viscous")
         if (any(Re_size > 0)) call s_get_viscous(qL_rsx_vf, qL_rsy_vf, qL_rsz_vf, &

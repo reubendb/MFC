@@ -462,8 +462,8 @@ contains
 
                             !$acc loop seq
                             do i = 1, num_dims
-                                vel_L_rms = vel_L_rms + vel_L(i)**2d0
-                                vel_R_rms = vel_R_rms + vel_R(i)**2d0
+                                !vel_L_rms = vel_L_rms + vel_L(i)**2d0
+                                !vel_R_rms = vel_R_rms + vel_R(i)**2d0
                             end do
 
                             !$acc loop seq
@@ -1006,8 +1006,8 @@ contains
                                 do i = 1, num_dims
                                     vel_L(i) = qL_prim_rs${XYZ}$_vf(j, k, l, contxe + i)
                                     vel_R(i) = qR_prim_rs${XYZ}$_vf(j + 1, k, l, contxe + i)
-                                    vel_L_rms = vel_L_rms + vel_L(i)**2d0
-                                    vel_R_rms = vel_R_rms + vel_R(i)**2d0
+                                   ! vel_L_rms = vel_L_rms + vel_L(i)**2d0
+                                   ! vel_R_rms = vel_R_rms + vel_R(i)**2d0
                                 end do
 
                                 pres_L = qL_prim_rs${XYZ}$_vf(j, k, l, E_idx)
@@ -1215,8 +1215,8 @@ contains
                                     p_Star = rho_L*(s_L - vel_L(dir_idx(1)))*(s_S - vel_L(dir_idx(1))) + pres_L
                                     !$acc loop seq
                                     do i = 1, num_fluids
-                                        p_K_Star = (pres_L + pi_infs(i)/(1d0 + gammas(i)))* &
-                                                   xi_L**(1d0/gammas(i) + 1d0) - pi_infs(i)/(1d0 + gammas(i))
+                                        !p_K_Star = (pres_L + pi_infs(i)/(1d0 + gammas(i)))* &
+                                        !           xi_L**(1d0/gammas(i) + 1d0) - pi_infs(i)/(1d0 + gammas(i))
 
                                         flux_rs${XYZ}$_vf(j, k, l, i + advxb - 1) = &
                                             qL_prim_rs${XYZ}$_vf(j, k, l, i + advxb - 1)*s_S
@@ -1252,8 +1252,8 @@ contains
                                     p_Star = rho_R*(s_R - vel_R(dir_idx(1)))*(s_S - vel_R(dir_idx(1))) + pres_R
                                     !$acc loop seq
                                     do i = 1, num_fluids
-                                        p_K_Star = (pres_R + pi_infs(i)/(1d0 + gammas(i)))* &
-                                                   xi_R**(1d0/gammas(i) + 1d0) - pi_infs(i)/(1d0 + gammas(i))
+                                      !  p_K_Star = (pres_R + pi_infs(i)/(1d0 + gammas(i)))* &
+                                      !             xi_R**(1d0/gammas(i) + 1d0) - pi_infs(i)/(1d0 + gammas(i))
 
                                         flux_rs${XYZ}$_vf(j, k, l, i + advxb - 1) = &
                                             qR_prim_rs${XYZ}$_vf(j + 1, k, l, i + advxb - 1)*s_S
@@ -1328,8 +1328,8 @@ contains
                                 vel_L_rms = 0d0; vel_R_rms = 0d0
                                 !$acc loop seq
                                 do i = 1, num_dims
-                                    vel_L_rms = vel_L_rms + vel_L(i)**2d0
-                                    vel_R_rms = vel_R_rms + vel_R(i)**2d0
+                                    !vel_L_rms = vel_L_rms + vel_L(i)**2d0
+                                    !vel_R_rms = vel_R_rms + vel_R(i)**2d0
                                 end do
 
                                 !$acc loop seq
@@ -1571,8 +1571,8 @@ contains
                                 do i = 1, num_dims
                                     vel_L(i) = qL_prim_rs${XYZ}$_vf(j, k, l, contxe + i)
                                     vel_R(i) = qR_prim_rs${XYZ}$_vf(j + 1, k, l, contxe + i)
-                                    vel_L_rms = vel_L_rms + vel_L(i)**2d0
-                                    vel_R_rms = vel_R_rms + vel_R(i)**2d0
+                                   ! vel_L_rms = vel_L_rms + vel_L(i)**2d0
+                                   ! vel_R_rms = vel_R_rms + vel_R(i)**2d0
                                 end do
 
                                 pres_L = qL_prim_rs${XYZ}$_vf(j, k, l, E_idx)
@@ -1652,8 +1652,8 @@ contains
 
                                     !$acc loop seq
                                     do i = 1, nb
-                                        nbub_L_denom = nbub_L_denom + (R0_L(i)**3d0)*weight(i)
-                                        nbub_R_denom = nbub_R_denom + (R0_R(i)**3d0)*weight(i)
+                                     !   nbub_L_denom = nbub_L_denom + (R0_L(i)**3d0)*weight(i)
+                                     !   nbub_R_denom = nbub_R_denom + (R0_R(i)**3d0)*weight(i)
                                     end do
 
                                     nbub_L = (3.d0/(4.d0*pi))*qL_prim_rs${XYZ}$_vf(j, k, l, E_idx + num_fluids)/nbub_L_denom
@@ -1695,14 +1695,14 @@ contains
                                         !$acc loop seq
                                         do i = 1, nb
 
-                                            PbwR3Lbar = PbwR3Lbar + pbw_L(i)*(R0_L(i)**3.d0)*weight(i)
-                                            PbwR3Rbar = PbwR3Rbar + pbw_R(i)*(R0_R(i)**3.d0)*weight(i)
+                                          !  PbwR3Lbar = PbwR3Lbar + pbw_L(i)*(R0_L(i)**3.d0)*weight(i)
+                                         !   PbwR3Rbar = PbwR3Rbar + pbw_R(i)*(R0_R(i)**3.d0)*weight(i)
 
-                                            R3Lbar = R3Lbar + (R0_L(i)**3.d0)*weight(i)
-                                            R3Rbar = R3Rbar + (R0_R(i)**3.d0)*weight(i)
+                                            !R3Lbar = R3Lbar + (R0_L(i)**3.d0)*weight(i)
+                                            !R3Rbar = R3Rbar + (R0_R(i)**3.d0)*weight(i)
 
-                                            R3V2Lbar = R3V2Lbar + (R0_L(i)**3.d0)*(V0_L(i)**2.d0)*weight(i)
-                                            R3V2Rbar = R3V2Rbar + (R0_R(i)**3.d0)*(V0_R(i)**2.d0)*weight(i)
+                                            !R3V2Lbar = R3V2Lbar + (R0_L(i)**3.d0)*(V0_L(i)**2.d0)*weight(i)
+                                            !R3V2Rbar = R3V2Rbar + (R0_R(i)**3.d0)*(V0_R(i)**2.d0)*weight(i)
 
                                         end do
                                     end if
@@ -1735,7 +1735,7 @@ contains
                                     vel_avg_rms = 0d0
                                     !$acc loop seq
                                     do i = 1, num_dims
-                                        vel_avg_rms = vel_avg_rms + (5d-1*(vel_L(i) + vel_R(i)))**2d0
+                                       ! vel_avg_rms = vel_avg_rms + (5d-1*(vel_L(i) + vel_R(i)))**2d0
                                     end do
 
                                 end if
@@ -1958,8 +1958,8 @@ contains
                                 do i = 1, num_dims
                                     vel_L(i) = qL_prim_rs${XYZ}$_vf(j, k, l, contxe + i)
                                     vel_R(i) = qR_prim_rs${XYZ}$_vf(j + 1, k, l, contxe + i)
-                                    vel_L_rms = vel_L_rms + vel_L(i)**2d0
-                                    vel_R_rms = vel_R_rms + vel_R(i)**2d0
+                                   ! vel_L_rms = vel_L_rms + vel_L(i)**2d0
+                                   ! vel_R_rms = vel_R_rms + vel_R(i)**2d0
                                 end do
 
                                 pres_L = qL_prim_rs${XYZ}$_vf(j, k, l, E_idx)

@@ -134,7 +134,8 @@ contains
         ! Restrict filter to processors that have cells adjacent to axis
         if (bc_y%beg >= 0) return
 
-#if defined(_OPENACC) && defined(__PGI)
+#if defined(_OPENACC)
+#if defined(__PGI)
 
 !$acc parallel loop collapse(3) gang vector default(present)
         do k = 1, sys_size
@@ -233,7 +234,9 @@ contains
             end do
 
         end do
-
+#else
+    print*, "Not implemented with ACC w/o NVHPC"
+#endif
 #else
         Nfq = 3
         do j = 0, m
@@ -272,10 +275,14 @@ contains
         !!      applying the Fourier filter in the azimuthal direction.
     subroutine s_finalize_fftw_module() ! ------------------------------------
 
-#if defined(_OPENACC) && defined(__PGI)
+#if defined(_OPENACC)
+#if defined(__PGI)
         @:DEALLOCATE(data_real_gpu, data_fltr_cmplx_gpu, data_cmplx_gpu)
         ierr = cufftDestroy(fwd_plan_gpu)
         ierr = cufftDestroy(bwd_plan_gpu)
+#else
+        print*, "Not implemented with ACC w/o NVHPC"
+#endif
 #else
         call fftw_free(fftw_real_data)
         call fftw_free(fftw_cmplx_data)

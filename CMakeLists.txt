@@ -121,11 +121,11 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     # === === Processor tuning
     CHECK_FORTRAN_COMPILER_FLAG("-march=native" SUPPORTS_MARCH_NATIVE)
     if (SUPPORTS_MARCH_NATIVE)
-        add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-march=native>)
+        #add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-march=native>)
     else()
     	CHECK_FORTRAN_COMPILER_FLAG("-mcpu=native" SUPPORTS_MCPU_NATIVE)
         if (SUPPORTS_MCPU_NATIVE)
-            add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-mcpu=native>)
+            #add_compile_options($<$<COMPILE_LANGUAGE:Fortran>:-mcpu=native>)
         endif()
     endif()
 
@@ -134,7 +134,7 @@ if (CMAKE_BUILD_TYPE STREQUAL "Release")
     CHECK_IPO_SUPPORTED(RESULT SUPPORTS_IPO OUTPUT IPO_ERROR)
     if (SUPPORTS_IPO)
         message(STATUS "Enabled IPO / LTO")
-        set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+        #set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
     else()
         message(STATUS "IPO / LTO is NOT available")
     endif()
@@ -226,6 +226,9 @@ function(MFC_SETUP_TARGET)
                 -foffload=amdgcn-amdhsa=-march=gfx90a
                 -foffload-options=-lgfortran
                 -foffload-options=-lm
+                -foffload-options=-O0
+                -foffload-options=-v
+                -lmvec_nonshared
                 -fno-exceptions)
         elseif(CMAKE_Fortran_COMPILER_ID STREQUAL "NVHPC" OR CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
             find_package(cuTENSOR)

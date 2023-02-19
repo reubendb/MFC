@@ -19,6 +19,7 @@ module m_data_output
 
     use m_global_parameters    !< Definitions of the global parameters
 
+    use m_mpi_common
     use m_mpi_proxy            !< Message passing interface (MPI) module proxy
 
     use m_variables_conversion !< State variables type conversion procedures
@@ -319,16 +320,16 @@ contains
                         if (any(Re_size > 0)) then
 
                             if (grid_geometry == 3) then
-                                vcfl_sf(j, k, l) = maxval(dt/Re) &
-                                                   /min(dx(j), dy(k), fltr_dtheta)**2d0
+                            !    vcfl_sf(j, k, l) = maxval(dt/Re) &
+                            !                       /min(dx(j), dy(k), fltr_dtheta)**2d0
 
                                 Rc_sf(j, k, l) = min(dx(j)*(abs(vel(1)) + c), &
                                                      dy(k)*(abs(vel(2)) + c), &
                                                      fltr_dtheta*(abs(vel(3)) + c)) &
                                                  /maxval(1d0/Re)
                             else
-                                vcfl_sf(j, k, l) = maxval(dt/Re) &
-                                                   /min(dx(j), dy(k), dz(l))**2d0
+                             !   vcfl_sf(j, k, l) = maxval(dt/Re) &
+                             !                      /min(dx(j), dy(k), dz(l))**2d0
 
                                 Rc_sf(j, k, l) = min(dx(j)*(abs(vel(1)) + c), &
                                                      dy(k)*(abs(vel(2)) + c), &
@@ -345,7 +346,7 @@ contains
 
                         if (any(Re_size > 0)) then
 
-                            vcfl_sf(j, k, l) = maxval(dt/Re)/min(dx(j), dy(k))**2d0
+                            !vcfl_sf(j, k, l) = maxval(dt/Re)/min(dx(j), dy(k))**2d0
 
                             Rc_sf(j, k, l) = min(dx(j)*(abs(vel(1)) + c), &
                                                  dy(k)*(abs(vel(2)) + c)) &
@@ -359,7 +360,7 @@ contains
 
                         if (any(Re_size > 0)) then
 
-                            vcfl_sf(j, k, l) = maxval(dt/Re)/dx(j)**2d0
+                            !vcfl_sf(j, k, l) = maxval(dt/Re)/dx(j)**2d0
 
                             Rc_sf(j, k, l) = dx(j)*(abs(vel(1)) + c)/maxval(1d0/Re)
 
@@ -882,10 +883,10 @@ contains
                         vel(s) = q_cons_vf(cont_idx%end + s)%sf(j - 2, k, l)/rho
                     end do
 
-                    call s_compute_pressure(q_cons_vf(1)%sf(j - 2, k, l), &
-                        q_cons_vf(alf_idx)%sf(j - 2, k, l), &
-                        0.5d0*(q_cons_vf(2)%sf(j - 2, k, l)**2.d0)/q_cons_vf(1)%sf(j - 2, k, l), &
-                        pi_inf, gamma, pres)
+                    !call s_compute_pressure(q_cons_vf(1)%sf(j - 2, k, l), &
+                    !    q_cons_vf(alf_idx)%sf(j - 2, k, l), &
+                    !       0.5d0*(q_cons_vf(2)%sf(j - 2, k, l)**2.d0)/q_cons_vf(1)%sf(j - 2, k, l), &
+                    !    pi_inf, gamma, pres)
 
                     if (model_eqns == 4) then
                         lit_gamma = 1d0/fluid_pp(1)%gamma + 1d0
@@ -895,24 +896,24 @@ contains
                         E_e = 0d0
                         do s = stress_idx%beg, stress_idx%end
                             if (G > 0) then
-                                E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k, l)/rho)**2d0) &
-                                      /(4d0*G)
+                     !           E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k, l)/rho)**2d0) &
+                     !                 /(4d0*G)
                                 ! Additional terms in 2D and 3D
                                 if ((s == stress_idx%beg + 1) .or. &
                                     (s == stress_idx%beg + 3) .or. &
                                     (s == stress_idx%beg + 4)) then
-                                    E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k, l)/rho)**2d0) &
-                                          /(4d0*G)
+                      !              E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k, l)/rho)**2d0) &
+                      !                    /(4d0*G)
                                 end if
                             end if
                         end do
                         tau_e(1) = q_cons_vf(s)%sf(j - 2, k, l)/rho
 
-                        pres = ( &
-                               q_cons_vf(E_idx)%sf(j - 2, k, l) - &
-                               0.5d0*(q_cons_vf(mom_idx%beg)%sf(j - 2, k, l)**2.d0)/rho - &
-                               pi_inf - E_e &
-                               )/gamma
+                        !pres = ( &
+                        !       q_cons_vf(E_idx)%sf(j - 2, k, l) - &
+                        !       0.5d0*(q_cons_vf(mom_idx%beg)%sf(j - 2, k, l)**2.d0)/rho - &
+                        !       pi_inf - E_e &
+                        !       )/gamma
                     end if
 
                     if (bubbles) then
@@ -928,7 +929,7 @@ contains
 
                         nR3 = 0d0
                         do s = 1, nb
-                            nR3 = nR3 + weight(s)*(nR(s)**3d0)
+                         !   nR3 = nR3 + weight(s)*(nR(s)**3d0)
                         end do
 
                         nbub = DSQRT((4.d0*pi/3.d0)*nR3/alf)
@@ -951,8 +952,8 @@ contains
                             M11 = M11/M00
                             M02 = M02/M00
 
-                            varR = M20 - M10**2d0
-                            varV = M02 - M01**2d0
+                          !  varR = M20 - M10**2d0
+                          !  varV = M02 - M01**2d0
                         end if
                         R(:) = nR(:)/nbub
                         Rdot(:) = nRdot(:)/nbub
@@ -993,10 +994,10 @@ contains
                             vel(s) = q_cons_vf(cont_idx%end + s)%sf(j - 2, k - 2, l)/rho
                         end do
 
-                        call s_compute_pressure(q_cons_vf(1)%sf(j - 2, k - 2, l), &
-                            q_cons_vf(alf_idx)%sf(j - 2, k - 2, l), &
-                            0.5d0*(q_cons_vf(2)%sf(j - 2, k - 2, l)**2.d0)/q_cons_vf(1)%sf(j - 2, k - 2, l), &
-                            pi_inf, gamma, pres)
+                       ! call s_compute_pressure(q_cons_vf(1)%sf(j - 2, k - 2, l), &
+                       !     q_cons_vf(alf_idx)%sf(j - 2, k - 2, l), &
+                       !     0.5d0*(q_cons_vf(2)%sf(j - 2, k - 2, l)**2.d0)/q_cons_vf(1)%sf(j - 2, k - 2, l), &
+                       !     pi_inf, gamma, pres)
 
                         if (model_eqns == 4) then
                             lit_gamma = 1d0/fluid_pp(1)%gamma + 1d0
@@ -1005,14 +1006,14 @@ contains
                             E_e = 0d0
                             do s = stress_idx%beg, stress_idx%end
                                 if (G > 0) then
-                                    E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k - 2, l)/rho)**2d0) &
-                                          /(4d0*G)
+                           !         E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k - 2, l)/rho)**2d0) &
+                            !              /(4d0*G)
                                     ! Additional terms in 2D and 3D
                                     if ((s == stress_idx%beg + 1) .or. &
                                         (s == stress_idx%beg + 3) .or. &
                                         (s == stress_idx%beg + 4)) then
-                                        E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k - 2, l)/rho)**2d0) &
-                                              /(4d0*G)
+                             !           E_e = E_e + ((q_cons_vf(stress_idx%beg)%sf(j - 2, k - 2, l)/rho)**2d0) &
+                             !                 /(4d0*G)
                                     end if
                                 end if
                             end do
@@ -1021,11 +1022,11 @@ contains
                                 tau_e(s) = q_cons_vf(s)%sf(j - 2, k - 2, l)/rho
                             end do
 
-                            pres = ( &
-                                   q_cons_vf(E_idx)%sf(j - 2, k - 2, l) - &
-                                   0.5d0*(q_cons_vf(mom_idx%beg)%sf(j - 2, k - 2, l)**2.d0)/rho - &
-                                   pi_inf - E_e &
-                                   )/gamma
+                           ! pres = ( &
+                           !        q_cons_vf(E_idx)%sf(j - 2, k - 2, l) - &
+                           !        0.5d0*(q_cons_vf(mom_idx%beg)%sf(j - 2, k - 2, l)**2.d0)/rho - &
+                           !        pi_inf - E_e &
+                           !        )/gamma
                         end if
 
                         if (bubbles) then
@@ -1038,7 +1039,7 @@ contains
 
                             nR3 = 0d0
                             do s = 1, nb
-                                nR3 = nR3 + weight(s)*(nR(s)**3d0)
+                            !    nR3 = nR3 + weight(s)*(nR(s)**3d0)
                             end do
 
                             nbub = DSQRT((4.d0*pi/3.d0)*nR3/alf)
@@ -1102,24 +1103,24 @@ contains
             if (num_procs > 1) then
                 #:for VAR in ['rho','pres','gamma','pi_inf','c','accel']
                     tmp = ${VAR}$
-                    call s_mpi_allreduce_sum(tmp, ${VAR}$)
+                    !call s_mpi_allreduce_sum(tmp, ${VAR}$)
                 #:endfor
 
                 do s = 1, num_dims
                     tmp = vel(s)
-                    call s_mpi_allreduce_sum(tmp, vel(s))
+                    !call s_mpi_allreduce_sum(tmp, vel(s))
                 end do
 
                 if (bubbles) then
                     #:for VAR in ['alf','alfgr','nbub','nR(1)','nRdot(1)','M00','R(1)','Rdot(1)','ptilde','ptot']
                         tmp = ${VAR}$
-                        call s_mpi_allreduce_sum(tmp, ${VAR}$)
+                     !   call s_mpi_allreduce_sum(tmp, ${VAR}$)
                     #:endfor
 
                     if (qbmm) then
                         #:for VAR in ['varR','varV','M10','M01','M20','M02']
                             tmp = ${VAR}$
-                            call s_mpi_allreduce_sum(tmp, ${VAR}$)
+                      !      call s_mpi_allreduce_sum(tmp, ${VAR}$)
                         #:endfor
                     end if
                 end if
@@ -1127,7 +1128,7 @@ contains
                 if (hypoelasticity) then
                     do s = 1, (num_dims*(num_dims + 1))/2
                         tmp = tau_e(s)
-                        call s_mpi_allreduce_sum(tmp, tau_e(s))
+                     !   call s_mpi_allreduce_sum(tmp, tau_e(s))
                     end do
                 end if
             end if
@@ -1279,20 +1280,20 @@ contains
                                 vel(s) = q_cons_vf(cont_idx%end + s)%sf(j, k, l)/rho
                             end do
 
-                            pres = ( &
-                                   (q_cons_vf(E_idx)%sf(j, k, l) - &
-                                    0.5d0*(q_cons_vf(mom_idx%beg)%sf(j, k, l)**2.d0)/rho)/ &
-                                   (1.d0 - q_cons_vf(alf_idx)%sf(j, k, l)) - &
-                                   pi_inf &
-                                   )/gamma
-                            int_pres = int_pres + (pres - 1.d0)**2.d0
+                            !pres = ( &
+                            !       (q_cons_vf(E_idx)%sf(j, k, l) - &
+                            !        0.5d0*(q_cons_vf(mom_idx%beg)%sf(j, k, l)**2.d0)/rho)/ &
+                            !       (1.d0 - q_cons_vf(alf_idx)%sf(j, k, l)) - &
+                            !       pi_inf &
+                            !       )/gamma
+                            !int_pres = int_pres + (pres - 1.d0)**2.d0
                         end if
                     end do
                     int_pres = dsqrt(int_pres/(1.d0*npts))
 
                     if (num_procs > 1) then
                         tmp = int_pres
-                        call s_mpi_allreduce_sum(tmp, int_pres)
+                      !  call s_mpi_allreduce_sum(tmp, int_pres)
                     end if
 
                     if (proc_rank == 0) then
@@ -1321,17 +1322,17 @@ contains
                             trigger = .false.
                             if (i == 1) then
                                 !inner portion
-                                if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) < (rad - 0.5d0*thickness)) &
-                                    trigger = .true.
+                                !if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) < (rad - 0.5d0*thickness)) &
+                                !    trigger = .true.
                             elseif (i == 2) then
                                 !net region
-                                if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) > (rad - 0.5d0*thickness) .and. &
-                                    dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) < (rad + 0.5d0*thickness)) &
-                                    trigger = .true.
+                                !if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) > (rad - 0.5d0*thickness) .and. &
+                                !    dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) < (rad + 0.5d0*thickness)) &
+                                !    trigger = .true.
                             elseif (i == 3) then
                                 !everything else
-                                if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) > (rad + 0.5d0*thickness)) &
-                                    trigger = .true.
+                                !if (dsqrt(x_cb(j)**2.d0 + y_cb(k)**2.d0) > (rad + 0.5d0*thickness)) &
+                                !    trigger = .true.
                             end if
 
                             pres = 0d0
@@ -1351,12 +1352,12 @@ contains
                                     vel(s) = q_cons_vf(cont_idx%end + s)%sf(j, k, l)/rho
                                 end do
 
-                                pres = ( &
-                                       (q_cons_vf(E_idx)%sf(j, k, l) - &
-                                        0.5d0*(q_cons_vf(mom_idx%beg)%sf(j, k, l)**2.d0)/rho)/ &
-                                       (1.d0 - q_cons_vf(alf_idx)%sf(j, k, l)) - &
-                                       pi_inf &
-                                       )/gamma
+                               ! pres = ( &
+                               !        (q_cons_vf(E_idx)%sf(j, k, l) - &
+                               !         0.5d0*(q_cons_vf(mom_idx%beg)%sf(j, k, l)**2.d0)/rho)/ &
+                                !       (1.d0 - q_cons_vf(alf_idx)%sf(j, k, l)) - &
+                                !       pi_inf &
+                                !       )/gamma
                                 int_pres = int_pres + abs(pres - 1.d0)
                                 max_pres = max(max_pres, abs(pres - 1.d0))
                             end if
@@ -1372,10 +1373,10 @@ contains
 
                     if (num_procs > 1) then
                         tmp = int_pres
-                        call s_mpi_allreduce_sum(tmp, int_pres)
+                        !call s_mpi_allreduce_sum(tmp, int_pres)
 
                         tmp = max_pres
-                        call s_mpi_allreduce_max(tmp, max_pres)
+                        !call s_mpi_allreduce_max(tmp, max_pres)
                     end if
 
                     if (proc_rank == 0) then
