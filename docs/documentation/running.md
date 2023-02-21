@@ -84,7 +84,7 @@ where `x_cb` and `x_[cb,stretch]` are the coordinates of a cell boundary at the 
 | `alter_patch(i)` *  | Logical | Alter the $i$-th patch.                                      |
 | `x[y,z]_centroid` * | Real    | Centroid of the applied geometry in the $[x,y,z]$-direction. |
 | `length_x[y,z]` *   | Real    | Length, if applicable, in the $[x,y,z]$-direction.           |
-| `radius` *          | Real	   | Radius, if applicable, of the applied geometry.              |
+| `radius` *          | Real    | Radius, if applicable, of the applied geometry.              |
 | `smoothen` *        | Logical | Smoothen the applied patch.                                  |
 | `smooth_patch_id` * | Integer | A patch with which the applied patch is smoothened.          |
 | `smooth_coeff` *    | Real    | Smoothen coefficient.                                        |
@@ -92,6 +92,10 @@ where `x_cb` and `x_[cb,stretch]` are the coordinates of a cell boundary at the 
 | `alpha_rho(i)` *    | Real    | Partial density of fluid $i$.                                |
 | `pres` *            | Real    | Pressure.                                                    |
 | `vel(i)` *          | Real    | Velocity in direction $i$.                                   |
+| `stl%file`          | String  | Path to the STL file.                                        |
+| `stl%scale(i)`      | Real    | STL model's (applied) scaling factor for component $i$.      |
+| `stl%offset(i)`     | Real    | STL model's $i$-th component of (applied) translation.       |
+| `stl%rotate(i)`     | Real    | STL model's (applied) angle of rotation along axis $i$. Rotation order is unspecified. |
 
 *: These parameters should be prepended with `patch_icpp(j)%` where $j$ is the patch index. 
 
@@ -400,13 +404,14 @@ Implementation of the parameterse into the model follow [Ando (2010)](references
 |  -10 | Characteristic | Constant pressure subsonic outflow |
 |  -11 | Characteristic | Supersonic inflow |
 |  -12 | Characteristic | Supersonic outflow |
-	
+
 The boundary condition supported by the MFC are listed in table [Boundary Conditions](#boundary-conditions). Their number (`#`)
 corresponds to the input value in `input.py` labeled `bc_[x,y,z]%[beg,end]` (see table [Simulation Algorithm Parameters](#5-simulation-algorithm)).
 The entries labeled "Characteristic." are characteristic boundary conditions based on [Thompson (1987)](references.md#Thompson87) and [Thompson (1990)](references.md#Thompson90).
 
 ### Patch types
 
+<<<<<<< HEAD
 | #    | Name           | Dim.  | Smooth | Description |
 | ---: | :----:         | :---: |  :---: | :--- |
 | 1    | Line segment 	| 1     | N      | Requires `x_centroid` and `x_length`. |
@@ -428,6 +433,7 @@ The entries labeled "Characteristic." are characteristic boundary conditions bas
 | 17   | Spiral          | 2    |  N     | Requires `[x,y]_centroid` |
 | 18   | 2D Varcircle    | 2    |  Y     | Requires `[x,y]_centroid`, `radius`, and `thickness` |
 | 19   | 3D Varcircle    | 3    |  Y     | Requires `[x,y,z]_centroid`, `length_z`, `radius`, and `thickness` |
+| 20   | STL             | 3    | N      | Imports an STL model. Requires `stl%file`. | |
 
 The patch types supported by the MFC are listed in table [Patch Types](#patch-types). This includes
 types exclusive to one-, two-, and three-dimensional problems. The patch type number (`#`)
@@ -452,17 +458,25 @@ The flux limiters supported by the MFC are listed in table [Flux Limiters](#flux
 ### Monopole supports
 
 | #    | Description |
+<<<<<<< HEAD
 | --- | ----       |
 |    1 | 1D normal to x-axis      |
 |    2 | 2D semi-infinite source plane         |
 |    3 | 3D semi-infinite source plane along some lines       |
 |    4 | 3D semi-infinite source plane    |
 |    5 | Transducer      |
+=======
+| ---: | :----       |
+|    1 | 1D normal to x-axis |
+|    2 | 2D semi-infinite source plane |
+|    3 | 3D semi-infinite source plane along some lines |
+|    4 | 3D semi-infinite source plane |
+|    5 | Transducer |
+>>>>>>> 51fa27e (STL Patch)
 |    6 | Cyl_coord along axial-dir|
 
 The monopole support types available in MFC are listed in table [Monopole supports](#monopole-supports). This includes
-types exclusive to one-, two-, and three-dimensional problems with special souce geometry like transducers as well as coordinate systems such as cylindrical coordinates. The monopole support number (`#`) corresponds to the input value in `input.py` labeled  `Mono(i)%support` where
-$i$ is the monopole source index.
+types exclusive to one-, two-, and three-dimensional problems with special souce geometry like transducers as well as coordinate systems such as cylindrical coordinates. The monopole support number (`#`) corresponds to the input value in `input.py` labeled  `Mono(i)%support` where $i$ is the monopole source index.
 
 ### Conservative Variables Ordering
 

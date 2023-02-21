@@ -55,6 +55,8 @@ contains
 
             do i = 1, num_patches
 
+                print*, 'Generating Initial Condition for Patch', i
+
                 ! Spherical patch
                 if (patch_icpp(i)%geometry == 8) then
                     call s_sphere(i)
@@ -87,6 +89,9 @@ contains
                 elseif (patch_icpp(i)%geometry == 19) then
                     call s_3dvarcircle(i)
 
+                elseif (patch_icpp(i)%geometry == 20) then
+                    call s_stl(i)
+ 
                 end if
 
             end do
@@ -97,6 +102,8 @@ contains
         elseif (n > 0) then
 
             do i = 1, num_patches
+
+                print*, 'Generating Initial Condition for Patch', i
 
                 ! Circular patch
                 if (patch_icpp(i)%geometry == 2) then
@@ -130,6 +137,9 @@ contains
                 elseif (patch_icpp(i)%geometry == 18) then
                     call s_varcircle(i)
 
+                elseif (patch_icpp(i)%geometry == 20) then
+                    call s_stl(i)
+ 
                 end if
 
             end do
