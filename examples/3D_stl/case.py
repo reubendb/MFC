@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import json
 
 print(json.dumps({
@@ -75,6 +74,9 @@ print(json.dumps({
     'patch_icpp(2)%stl%scale(1)'   : 1.0/20.E+00,
     'patch_icpp(2)%stl%scale(2)'   : 1.0/20.E+00,
     'patch_icpp(2)%stl%scale(3)'   : 1.0/20.E+00,
+    'patch_icpp(2)%smooth_patch_id': 1,
+    'patch_icpp(2)%smooth_coeff'   : 1.0,
+    'patch_icpp(2)%smoothen'       : 'T',
     'patch_icpp(2)%vel(1)'         : 0.E+00,
     'patch_icpp(2)%vel(2)'         : 0.E+00,
     'patch_icpp(2)%vel(3)'         : 0.E+00,

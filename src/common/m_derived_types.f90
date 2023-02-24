@@ -186,4 +186,8 @@ module m_derived_types
         real(kind(0d0)) :: foc_length
     end type mono_parameters
 
+    type vector
+        real(kind(0d0)), dimension(3) :: v
+    end type vector
+
 end module m_derived_types

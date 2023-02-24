@@ -1629,13 +1629,31 @@ contains
 
         integer, intent(in) :: patch_id
 
-        integer :: i, j, k !< Generic loop iterators
+        integer :: i, j, k, l !< Generic loop iterators
+        integer :: rpp = 1 !< Number of rays per grid cell
 
         type(ic_stl_parameters)                         :: stl
         type(t_stl_triangle), dimension(:), allocatable :: triangles
 
         real(kind(0d0)), dimension(1:3,1:2) :: extents
         real(kind(0d0)), dimension(1:4,1:4) :: transform
+
+        type(vector), dimension(:), allocatable :: cc_offsets
+
+        real(kind(0d0)), dimension(1:3) :: ray_origin
+
+        if (patch_icpp(patch_id)%smoothen) then
+            rpp = 3d0**real(num_dims, kind(0d0))
+        end if
+
+        allocate(cc_offsets(1:rpp))
+        
+        cc_offsets(1) = vector((/ 0d0, 0d0, 0d0 /))
+
+        do i = 1, rpp
+            cc_offsets(i)%v = (/ 0d0, 0d0, 0d0 /)
+            !cc_offsets(i) = vector((/ dx, dy, dz /) * (/  /))
+        end do
 
         stl = patch_icpp(patch_id)%stl
 
@@ -1654,26 +1672,40 @@ contains
             end do
         end do
 
-        print*, "shape extents: "
-        print*, "X: ", extents(1, :)
-        print*, "Y: ", extents(2, :)
-        print*, "Z: ", extents(3, :)
+        print*, "Bounding volume: "
+        print*, "X (-/+): ", extents(1, :)
+        print*, "Y (-/+): ", extents(2, :)
+        print*, "Z (-/+): ", extents(3, :)
 
-        do i = 0, m; do j = 0, n; do k = 0, p
+        do i = 0, m
+            do j = 0, n
+                do k = 0, p
 
-            if (p .gt. 0) then
-                if (f_stl_is_inside((/ x_cc(i), y_cc(j), z_cc(k) /), triangles)) then
+                    eta = 0d0
+
+                    do l = 1, rpp
+                        ray_origin = (/ x_cc(i), y_cc(j), 0d0 /)
+
+                        if (p .gt. 0) then
+                            ray_origin(3) = z_cc(k)
+                        end if
+
+                        ray_origin = ray_origin + cc_offsets(l)%v
+
+                        if (f_stl_is_inside(ray_origin, triangles)) then
+                            eta = eta + 1d0
+                        end if
+                    end do
+
+                    eta = eta / real(rpp, kind(0d0))
+
                     call s_assign_patch_primitive_variables(patch_id, i, j, k)
-                end if
-            else
-                if (f_stl_is_inside((/ x_cc(i), y_cc(j), 0d0 /), triangles)) then
-                    call s_assign_patch_primitive_variables(patch_id, i, j, k)
-                end if
-            end if
 
-        end do; end do; end do
+                end do
+            end do
+        end do
 
-        deallocate(triangles)
+        deallocate(triangles, cc_offsets)
 
     end subroutine s_stl ! -------------------------------------------------
 
