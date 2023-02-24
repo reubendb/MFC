@@ -61,6 +61,12 @@ for p_id in range(1, 10+1):
 
         for alter_id in range(1, p_id):
             PRE_PROCESS.append(f'patch_icpp({p_id})%alter_patch({alter_id})')
+    
+    PRE_PROCESS.append(f"patch_icpp({p_id})%stl%file")
+
+    for attribute in ["offset", "scale", "rotate"]:
+        for j in range(1, 4):
+            PRE_PROCESS.append(f"patch_icpp({p_id})%stl%{attribute}({j})")
 
 
 SIMULATION = COMMON + [

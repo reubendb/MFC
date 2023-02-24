@@ -54,6 +54,22 @@ module m_derived_types
         integer, dimension(:, :, :), allocatable :: fullmom !< Moment indices for qbmm
     end type bub_bounds_info
 
+    !> Defines parameters for an STL patch
+    type ic_stl_parameters
+        character(LEN=pathlen_max) :: file !<
+        !! Path the STL file relative to case_dir.
+
+        real(kind(0d0)), dimension(3) :: offset !<
+        !! Offset of the STL object.
+
+        real(kind(0d0)), dimension(3) :: scale !<
+        !! Scale factor for the STL object.
+
+        real(kind(0d0)), dimension(3) :: rotate !<
+        !! Angle to rotate the STL object along each cartesian coordinate axis,
+        !! in radians.
+    end type ic_stl_parameters
+
     !> Derived type adding initial condition (ic) patch parameters as attributes
     !! NOTE: The requirements for the specification of the above parameters
     !! are strongly dependent on both the choice of the multicomponent flow
@@ -73,6 +89,8 @@ module m_derived_types
         !! Vector indicating the various radii for the elliptical and ellipsoidal
         !! patch geometries. It is specified through its x-, y-, and z-components
         !! respectively.
+
+        type(ic_stl_parameters) :: stl !< STL parameters
 
         real(kind(0d0)) :: epsilon, beta !<
         !! The isentropic vortex parameters administrating, respectively, both
@@ -167,5 +185,9 @@ module m_derived_types
         real(kind(0d0)) :: aperture
         real(kind(0d0)) :: foc_length
     end type mono_parameters
+
+    type vector
+        real(kind(0d0)), dimension(3) :: v
+    end type vector
 
 end module m_derived_types

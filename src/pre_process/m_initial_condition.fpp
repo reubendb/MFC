@@ -27,7 +27,7 @@ module m_initial_condition
     use m_patches
 
     use m_assign_variables
-    ! ==========================================================================
+    
     ! ==========================================================================
 
     implicit none
@@ -128,113 +128,109 @@ contains
                                                                q_prim_vf)
         end if
 
-        !  3D Patch Geometries =============================================
-        if (p > 0) then
+        do i = 1, num_patches
 
-            do i = 1, num_patches
+            print*, 'Generating Initial Condition for Patch', i
+
+            !  3D Patch Geometries =============================================
+            if (p > 0) then
 
                 ! Spherical patch
                 if (patch_icpp(i)%geometry == 8) then
                     call s_sphere(i, patch_id_fp, q_prim_vf)
 
-                    ! Cuboidal patch
+                ! Cuboidal patch
                 elseif (patch_icpp(i)%geometry == 9) then
                     call s_cuboid(i, patch_id_fp, q_prim_vf)
 
-                    ! Cylindrical patch
+                ! Cylindrical patch
                 elseif (patch_icpp(i)%geometry == 10) then
                     call s_cylinder(i, patch_id_fp, q_prim_vf)
 
-                    ! Swept plane patch
+                ! Swept plane patch
                 elseif (patch_icpp(i)%geometry == 11) then
                     call s_sweep_plane(i, patch_id_fp, q_prim_vf)
 
-                    ! Ellipsoidal patch
+                ! Ellipsoidal patch
                 elseif (patch_icpp(i)%geometry == 12) then
                     call s_ellipsoid(i, patch_id_fp, q_prim_vf)
 
-                    ! Analytical function patch for testing purposes
+                ! Analytical function patch for testing purposes
                 elseif (patch_icpp(i)%geometry == 13) then
                     call s_3D_analytical(i, patch_id_fp, q_prim_vf)
 
-                    ! Spherical harmonic patch
+                ! Spherical harmonic patch
                 elseif (patch_icpp(i)%geometry == 14) then
                     call s_spherical_harmonic(i, patch_id_fp, q_prim_vf)
 
-                    ! 3D Modified circular patch
+                ! 3D Modified circular patch
                 elseif (patch_icpp(i)%geometry == 19) then
                     call s_3dvarcircle(i, patch_id_fp, q_prim_vf)
 
+                elseif (patch_icpp(i)%geometry == 20) then
+                    call s_stl(i)
+
                 end if
 
-            end do
-
-            ! ==================================================================
-
             ! 2D Patch Geometries ==============================================
-        elseif (n > 0) then
-
-            do i = 1, num_patches
-
+            elseif (n > 0) then
                 ! Circular patch
                 if (patch_icpp(i)%geometry == 2) then
                     call s_circle(i, patch_id_fp, q_prim_vf)
 
-                    ! Rectangular patch
+                ! Rectangular patch
                 elseif (patch_icpp(i)%geometry == 3) then
                     call s_rectangle(i, patch_id_fp, q_prim_vf)
 
-                    ! Swept line patch
+                ! Swept line patch
                 elseif (patch_icpp(i)%geometry == 4) then
                     call s_sweep_line(i, patch_id_fp, q_prim_vf)
 
-                    ! Elliptical patch
+                ! Elliptical patch
                 elseif (patch_icpp(i)%geometry == 5) then
                     call s_ellipse(i, patch_id_fp, q_prim_vf)
 
-                    ! Isentropic vortex patch
+                ! Isentropic vortex patch
                 elseif (patch_icpp(i)%geometry == 6) then
                     call s_isentropic_vortex(i, patch_id_fp, q_prim_vf)
 
-                    ! Analytical function patch for testing purposes
+                ! Analytical function patch for testing purposes
                 elseif (patch_icpp(i)%geometry == 7) then
                     call s_2D_analytical(i, patch_id_fp, q_prim_vf)
 
-                    ! Spiral patch
+                ! Spiral patch
                 elseif (patch_icpp(i)%geometry == 17) then
                     call s_spiral(i, patch_id_fp, q_prim_vf)
 
-                    ! Modified circular patch
+                ! Modified circular patch
                 elseif (patch_icpp(i)%geometry == 18) then
                     call s_varcircle(i, patch_id_fp, q_prim_vf)
+                
+                elseif (patch_icpp(i)%geometry == 20) then
+                    call s_stl(i)
 
                 end if
-
-            end do
-
-            ! ==================================================================
-
-            ! 1D Patch Geometries ==============================================
-        else
-
-            do i = 1, num_patches
+            
+            else
 
                 ! Line segment patch
                 if (patch_icpp(i)%geometry == 1) then
                     call s_line_segment(i, patch_id_fp, q_prim_vf)
 
-                    ! 1d analytical
+                ! 1d analytical
                 elseif (patch_icpp(i)%geometry == 15) then
                     call s_1d_analytical(i, patch_id_fp, q_prim_vf)
 
-                    ! 1d bubble screen with sinusoidal pressure pulse
+                ! 1d bubble screen with sinusoidal pressure pulse
                 elseif (patch_icpp(i)%geometry == 16) then
                     call s_1d_bubble_pulse(i, patch_id_fp, q_prim_vf)
+                
                 end if
+            
+            endif
 
-            end do
+        end do
 
-        end if
         ! ==================================================================
 
         if (perturb_flow) call s_perturb_surrounding_flow()

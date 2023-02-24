@@ -4,14 +4,18 @@
 module m_patches
 
     ! Dependencies =============================================================
-    
-    use m_derived_types        !< Definitions of the derived types
+    use m_stl                   ! Subroutine(s) related to STL files
+
+    use m_derived_types         ! Definitions of the derived types
 
     use m_global_parameters    !< Definitions of the global parameters
 
     use m_helper
 
     use m_assign_variables
+    
+    use, intrinsic :: ieee_arithmetic
+    
     ! ==========================================================================
 
     implicit none
@@ -34,7 +38,8 @@ module m_patches
         s_sphere, &
         s_cuboid, &
         s_cylinder, &
-        s_sweep_plane
+        s_sweep_plane, &
+        s_stl
 
 
     real(kind(0d0)) :: x_centroid, y_centroid, z_centroid
@@ -1590,5 +1595,141 @@ contains
         b = 2.d0*a/(2.d0*pi)
         f_r = a + b*myth + offset
     end function f_r
+
+    function s_stl_transform_matrix(stl) result(out_matrix)
+
+        type(ic_stl_parameters) :: stl
+
+        real(kind(0d0)), dimension(1:4,1:4) :: rx, ry, rz, st, out_matrix
+
+        rx = transpose(reshape([ &
+                1d0, 0d0,                 0d0,                0d0, &
+                0d0, cos(stl%rotate(1)), -sin(stl%rotate(1)), 0d0, &
+                0d0, sin(stl%rotate(1)),  cos(stl%rotate(1)), 0d0, &
+                0d0, 0d0,                 0d0,                1d0 ], shape(rx)))
+
+        ry = transpose(reshape([ &
+                 cos(stl%rotate(2)), 0d0, sin(stl%rotate(2)), 0d0, &
+                 0d0,                1d0, 0d0,                0d0, &
+                -sin(stl%rotate(2)), 0d0, cos(stl%rotate(2)), 0d0, &
+                 0d0,                0d0, 0d0,                1d0 ], shape(ry)))
+
+        rz = transpose(reshape([ &
+                cos(stl%rotate(3)), -sin(stl%rotate(3)), 0d0, 0d0, &
+                sin(stl%rotate(3)),  cos(stl%rotate(3)), 0d0, 0d0, &
+                0d0,                 0d0,                1d0, 0d0, &
+                0d0,                 0d0,                0d0, 1d0 ], shape(rz)))
+
+        st = transpose(reshape([ &
+                stl%scale(1), 0d0,          0d0,          stl%offset(1), &
+                0d0,          stl%scale(2), 0d0,          stl%offset(2), &
+                0d0,          0d0,          stl%scale(3), stl%offset(3), &
+                0d0,          0d0,          0d0,          1d0 ], shape(st)))
+
+        out_matrix = matmul(st, matmul(rz, matmul(ry, rx)))
+
+    end function s_stl_transform_matrix
+
+    subroutine s_stl_transform_triangle(triangle, matrix)
+
+        type(t_stl_triangle),                intent(inout) :: triangle
+        real(kind(0d0)), dimension(1:4,1:4), intent(in)    :: matrix
+
+        integer :: i
+
+        real(kind(0d0)), dimension(1:4) :: tmp
+
+        do i = 1, 3
+            tmp = matmul(matrix, [ triangle%v(i,1:3), 1d0 ])
+            triangle%v(i, 1:3) = tmp(1:3)
+        end do
+
+    end subroutine s_stl_transform_triangle
+
+    !> The STL patch is a 2/3D geometry that is imported from an STL file.
+    !! @param patch_id is the patch identifier
+    subroutine s_stl(patch_id) ! -------------------------------------------
+
+        integer, intent(in) :: patch_id
+
+        integer :: i, j, k, l !< Generic loop iterators
+        integer :: rpp = 1 !< Number of rays per grid cell
+
+        type(ic_stl_parameters)                         :: stl
+        type(t_stl_triangle), dimension(:), allocatable :: triangles
+
+        real(kind(0d0)), dimension(1:3,1:2) :: extents
+        real(kind(0d0)), dimension(1:4,1:4) :: transform
+
+        type(vector), dimension(:), allocatable :: cc_offsets
+
+        real(kind(0d0)), dimension(1:3) :: ray_origin
+
+        if (patch_icpp(patch_id)%smoothen) then
+            rpp = 3d0**real(num_dims, kind(0d0))
+        end if
+
+        allocate(cc_offsets(1:rpp))
+        
+        cc_offsets(1) = vector((/ 0d0, 0d0, 0d0 /))
+
+        do i = 1, rpp
+            cc_offsets(i)%v = (/ 0d0, 0d0, 0d0 /)
+            !cc_offsets(i) = vector((/ dx, dy, dz /) * (/  /))
+        end do
+
+        stl = patch_icpp(patch_id)%stl
+
+        call s_stl_read(stl%file, triangles)
+
+        transform = s_stl_transform_matrix(stl)
+
+        extents(:, 1) = ieee_value(0d0, ieee_positive_inf)
+        extents(:, 2) = ieee_value(0d0, ieee_negative_inf)
+        do i = 1, size(triangles)
+            call s_stl_transform_triangle(triangles(i), transform)
+
+            do j = 1, 3
+                extents(j, 1) = min(extents(j, 1), minval(triangles(i)%v(:, j)))
+                extents(j, 2) = max(extents(j, 2), maxval(triangles(i)%v(:, j)))
+            end do
+        end do
+
+        print*, "Bounding volume: "
+        print*, "X (-/+): ", extents(1, :)
+        print*, "Y (-/+): ", extents(2, :)
+        print*, "Z (-/+): ", extents(3, :)
+
+        do i = 0, m
+            do j = 0, n
+                do k = 0, p
+
+                    eta = 0d0
+
+                    do l = 1, rpp
+                        ray_origin = (/ x_cc(i), y_cc(j), 0d0 /)
+
+                        if (p .gt. 0) then
+                            ray_origin(3) = z_cc(k)
+                        end if
+
+                        ray_origin = ray_origin + cc_offsets(l)%v
+
+                        if (f_stl_is_inside(ray_origin, triangles)) then
+                            eta = eta + 1d0
+                        end if
+                    end do
+
+                    eta = eta / real(rpp, kind(0d0))
+
+                    !call s_assign_patch_primitive_variables(patch_id, i, j, k)
+
+                end do
+            end do
+        end do
+
+        deallocate(triangles, cc_offsets)
+
+    end subroutine s_stl ! -------------------------------------------------
 
 end module m_patches
