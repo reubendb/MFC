@@ -75,6 +75,8 @@ contains
                     print *, '2d var circle'
                 elseif (patch_icpp(i)%geometry == 19) then
                     print *, '3d var circle'
+                elseif (patch_icpp(i)%geometry == 20) then
+                    call s_check_stl_geometry(i)
                 else
                     print '(A,I0,A)', 'Unsupported choice of the '// &
                         'geometry of active patch ', i, &
@@ -825,5 +827,24 @@ contains
         end if
 
     end subroutine s_check_inactive_patch_primitive_variables ! ------------
+
+    subroutine s_check_stl_geometry(patch_id) ! ------------------------------
+
+        integer, intent(IN) :: patch_id
+
+        logical :: file_exists
+
+        inquire(file=patch_icpp(patch_id)%stl%file, exist=file_exists)
+
+        if (.not. file_exists) then
+
+            print '(A,I0,A)', 'STL file '//trim(patch_icpp(patch_id)%stl%file)//&
+                ' requested by patch ', patch_id,' does not exist. Exiting ...'
+
+            call s_mpi_abort()
+
+        end if
+
+    end subroutine s_check_stl_geometry ! -----------------------------------
 
 end module m_check_patches

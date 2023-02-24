@@ -83,12 +83,13 @@ contains
                 & 'pres', 'gamma', 'pi_inf',  ]
                 call MPI_BCAST(patch_icpp(i)%${VAR}$, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
             #:endfor
-            call MPI_BCAST(patch_icpp(i)%normal(1), 3, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(patch_icpp(i)%radii(1), 3, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(patch_icpp(i)%vel(1), 3, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(patch_icpp(i)%tau_e(1), 6, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(patch_icpp(i)%alpha_rho(1), num_fluids_max, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(patch_icpp(i)%alpha(1), num_fluids_max - 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+
+            call MPI_BCAST(patch_icpp(i)%stl%file, len(patch_icpp(i)%stl%file), MPI_CHARACTER, 0, MPI_COMM_WORLD, ierr)
+            
+            #:for VAR in [ 'stl%offset', 'stl%scale', 'stl%rotate', 'normal', &
+               & 'radii', 'vel', 'tau_e', 'alpha_rho', 'alpha' ]
+               call MPI_BCAST(patch_icpp(i)%${VAR}$, size(patch_icpp(i)%${VAR}$), MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+            #:endfor
         end do
 
         ! Fluids physical parameters

@@ -143,6 +143,10 @@ where `x_cb` and `x_[cb,stretch]` are the coordinates of a cell boundary at the 
 | `alpha_rho(i)` *    | Real    | Partial density of fluid $i$.                                |
 | `pres` *            | Real    | Pressure.                                                    |
 | `vel(i)` *          | Real    | Velocity in direction $i$.                                   |
+| `stl%file`          | String  | Path to the STL file.                                        |
+| `stl%scale(i)`      | Real    | STL model's (applied) scaling factor for component $i$.      |
+| `stl%offset(i)`     | Real    | STL model's $i$-th component of (applied) translation.       |
+| `stl%rotate(i)`     | Real    | STL model's (applied) angle of rotation along axis $i$. Rotation order is unspecified. |
 
 *: These parameters should be prepended with `patch_icpp(j)%` where $j$ is the patch index. 
 
@@ -479,6 +483,7 @@ The entries labeled "Characteristic." are characteristic boundary conditions bas
 | 17   | Spiral          | 2    |  N     | Requires `[x,y]_centroid` |
 | 18   | 2D Varcircle    | 2    |  Y     | Requires `[x,y]_centroid`, `radius`, and `thickness` |
 | 19   | 3D Varcircle    | 3    |  Y     | Requires `[x,y,z]_centroid`, `length_z`, `radius`, and `thickness` |
+| 20   | STL             | 3    | N      | Imports an STL model. Requires `stl%file`. | |
 
 The patch types supported by the MFC are listed in table [Patch Types](#patch-types). This includes
 types exclusive to one-, two-, and three-dimensional problems. The patch type number (`#`)
