@@ -110,17 +110,20 @@ def delete_directory(dirpath: str) -> None:
         shutil.rmtree(dirpath)
 
 
-def get_py_program_output(filepath: str, arguments: typing.List[str] = None):
+def get_program_output(arguments: typing.List[str] = None, cwd=None):
     if arguments is None:
         arguments = []
-    
+
+    proc = subprocess.Popen(arguments, cwd=cwd, stdout=subprocess.PIPE)
+
+    return (proc.communicate()[0].decode(), proc.returncode)
+
+
+def get_py_program_output(filepath: str, arguments: typing.List[str] = None):    
     dirpath  = os.path.abspath (os.path.dirname(filepath))
     filename = os.path.basename(filepath)
 
-    proc = subprocess.Popen(["python3", filename] + arguments, cwd=dirpath,
-                            stdout=subprocess.PIPE)
-
-    return (proc.communicate()[0], proc.returncode)
+    return get_program_output(["python3", filename], cwd=dirpath)
 
 
 def isspace(s: str) -> bool:

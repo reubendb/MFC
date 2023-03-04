@@ -1,4 +1,4 @@
-import os
+import os, shutil
 
 from ..printer import cons
 from ..        import common
@@ -6,13 +6,11 @@ from ..state   import ARG
 from .case     import TestCase
 from .cases    import generate_cases
 from ..        import sched
-from ..common  import MFCException
-from ..build   import build_targets
+from ..common  import MFCException, does_command_exist, system, get_program_output
+from ..build   import build_targets, get_install_dirpath
 from .         import pack as packer
 
 import rich, rich.table
-import h5py
-import numpy as np
 
 
 CASES = generate_cases()
@@ -227,15 +225,29 @@ def handle_case_post_process(test: TestCase):
         if cmd.returncode != 0:
             cons.print(cmd.stdout)
             raise MFCException(f"""Test {test}: Failed to execute MFC. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
-
-        silo_filepath = os.path.join(test.get_dirpath(), 'silo_hdf5', 'p0', '50.silo')
-        f = h5py.File(silo_filepath, 'r')
-        silo = f['.silo']
-        for key in silo.keys():
-            dataset = silo[key]
-            for data in dataset:
-                check_data(data)
         
+        for t_step in [ 0, 50 ]:
+            silo_filepath = os.path.join(test.get_dirpath(), 'silo_hdf5', 'p0', f'{t_step}.silo')
+       
+            h5dump = f"{get_install_dirpath()}/bin/h5dump"
+        
+            if ARG("no_hdf5"):
+                if not does_command_exist("h5dump"):
+                    raise MFCException("--no-hdf5 was specified and h5dump couldn't be found.")
+                
+                h5dump = shutil.which("h5dump")
+
+            output, err = get_program_output([h5dump, silo_filepath])
+
+            if err != 0:
+                raise MFCException(f"""Test {test}: Failed to run h5dump. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
+
+            if "nan" in output:
+                raise MFCException(f"""Test {test}: Post Process has detected a NaN. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
+
+            if "inf" in output:
+                raise MFCException(f"""Test {test}: Post Process has detected an Infinity. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
+
         cons.print(f"  [bold magenta]{test.get_uuid()}[/bold magenta]    {test.trace}")
 
     except Exception as exc:
@@ -246,14 +258,4 @@ def handle_case_post_process(test: TestCase):
 
         cons.print(f"[bold red]Failed test {test}.[/bold red]")
         cons.print(f"{exc}")
-
-def check_data(data):
-    if isinstance(data, np.ndarray):
-        for subdata in data:
-            check_data(subdata)
-    else:
-        if np.isnan(data):
-            raise MFCException(f"""Test {test}: Post Process has detected a NaN. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
-        if np.isinf(data):
-            raise MFCException(f"""Test {test}: Post Process has detected an Infinity. You can find the run's output in {out_filepath}, and the case dictionary in {os.path.join(test.get_dirpath(), "case.py")}.""")
 
