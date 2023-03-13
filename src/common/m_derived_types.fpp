@@ -1,5 +1,5 @@
 !>
-!! @file m_derived_types.f90
+!! @file m_derived_types.fpp
 !! @brief Contains module m_derived_types
 
 !> @brief This file contains the definitions of all of the custom-defined

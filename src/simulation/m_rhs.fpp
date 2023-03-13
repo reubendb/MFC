@@ -183,7 +183,7 @@ module m_rhs
 
     character(50) :: file_path !< Local file path for saving debug files
 
-!$acc declare create(q_cons_qp,q_prim_qp,qL_cons_n,qR_cons_n,qL_prim_n,qR_prim_n,  &
+!$acc declare create(qL_cons_n,qR_cons_n,qL_prim_n,qR_prim_n,  &
 !$acc   dq_prim_dx_qp,dq_prim_dy_qp,dq_prim_dz_qp,gm_vel_qp,dqL_prim_dx_n,dqL_prim_dy_n, &
 !$acc   dqL_prim_dz_n,dqR_prim_dx_n,dqR_prim_dy_n,dqR_prim_dz_n,gm_alpha_qp,       &
 !$acc   gm_alphaL_n,gm_alphaR_n,flux_n,flux_src_n,flux_gsrc_n,       &
@@ -229,8 +229,7 @@ contains
         
         ixt = ix; iyt = iy; izt = iz
 
-        @:ALLOCATE(q_cons_qp%vf(1:sys_size))
-        @:ALLOCATE(q_prim_qp%vf(1:sys_size))
+        @:ALLOCATE(q_cons_qp%vf(1:sys_size), q_prim_qp%vf(1:sys_size))
 
         do l = 1, sys_size
             @:ALLOCATE(q_cons_qp%vf(l)%sf(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
@@ -240,34 +239,21 @@ contains
             @:ALLOCATE(q_prim_qp%vf(l)%sf(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
         end do
 
-!        if (hypoelasticity) then
-!            do l = stress_idx%beg, stress_idx%end
-!                allocate(q_prim_qp%vf(l)%sf(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
-!!$acc enter data create(q_prim_qp%vf(l)%sf(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
-!            end do
-!        end if
-
         do l = adv_idx%end + 1, sys_size
             @:ALLOCATE(q_prim_qp%vf(l)%sf(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
         end do
 
+        @:ACC_SETUP_VFs(q_cons_qp, q_prim_qp)
+
         do l = 1, cont_idx%end
-            q_prim_qp%vf(l)%sf => &
-                q_cons_qp%vf(l)%sf
-!$acc enter data attach(q_prim_qp%vf(l)%sf)
+            q_prim_qp%vf(l)%sf => q_cons_qp%vf(l)%sf
+            !$acc enter data attach(q_prim_qp%vf(l)%sf)
         end do
 
         do l = adv_idx%beg, adv_idx%end
-            q_prim_qp%vf(l)%sf => &
-                q_cons_qp%vf(l)%sf
-!$acc enter data attach(q_prim_qp%vf(l)%sf)
+            q_prim_qp%vf(l)%sf => q_cons_qp%vf(l)%sf
+            !$acc enter data attach(q_prim_qp%vf(l)%sf)
         end do
-
-!        do l = stress_idx%beg, stress_idx%end
-!            q_prim_qp%vf(l)%sf => &
-!                q_cons_qp%vf(l)%sf
-!!$acc enter data attach(q_prim_qp%vf(l)%sf)
-!        end do
 
         ! ==================================================================
 
@@ -614,18 +600,18 @@ contains
         ! END: Allocation/Association of flux_n, flux_src_n, and flux_gsrc_n ===
 
         if (alt_soundspeed) then
-       @:ALLOCATE(blkmod1(0:m, 0:n, 0:p), blkmod2(0:m, 0:n, 0:p), alpha1(0:m, 0:n, 0:p), alpha2(0:m, 0:n, 0:p), Kterm(0:m, 0:n, 0:p))
+            @:ALLOCATE(blkmod1(0:m, 0:n, 0:p), blkmod2(0:m, 0:n, 0:p))
+            @:ALLOCATE(alpha1 (0:m, 0:n, 0:p), alpha2 (0:m, 0:n, 0:p))
+            @:ALLOCATE(Kterm  (0:m, 0:n, 0:p))
         end if
-
-
 
         @:ALLOCATE(gamma_min(1:num_fluids), pres_inf(1:num_fluids))
 
         do i = 1, num_fluids
             gamma_min(i) = 1d0/fluid_pp(i)%gamma + 1d0
-            pres_inf(i) = fluid_pp(i)%pi_inf/(1d0 + fluid_pp(i)%gamma)
+            pres_inf(i)  = fluid_pp(i)%pi_inf/(1d0 + fluid_pp(i)%gamma)
         end do
-!$acc update device(gamma_min, pres_inf)
+        !$acc update device(gamma_min, pres_inf)
 
         if (any(Re_size > 0)) then
             @:ALLOCATE(Res(1:2, 1:maxval(Re_size)))
@@ -637,7 +623,7 @@ contains
                     Res(i, j) = fluid_pp(Re_idx(i, j))%Re(i)
                 end do
             end do
-!$acc update device(Res, Re_idx, Re_size)
+            !$acc update device(Res, Re_idx, Re_size)
         end if
 
 
@@ -652,17 +638,14 @@ contains
         ! Associating the procedural pointer to the appropriate subroutine
         ! that will be utilized in the conversion to the mixture variables
         if (model_eqns == 1) then        ! Gamma/pi_inf model
-            s_convert_to_mixture_variables => &
-                s_convert_mixture_to_mixture_variables
+            s_convert_to_mixture_variables => s_convert_mixture_to_mixture_variables
         else if (bubbles) then          ! Volume fraction for bubbles
-            s_convert_to_mixture_variables => &
-                s_convert_species_to_mixture_variables_bubbles
+            s_convert_to_mixture_variables => s_convert_species_to_mixture_variables_bubbles
         else                            ! Volume fraction model
-            s_convert_to_mixture_variables => &
-                s_convert_species_to_mixture_variables
+            s_convert_to_mixture_variables => s_convert_species_to_mixture_variables
         end if
 
-!$acc parallel loop collapse(4) gang vector default(present)
+        !$acc parallel loop collapse(4) gang vector default(present)
         do i = 1, sys_size
             do l = startz, p - startz
                 do k = starty, n - starty
@@ -684,6 +667,8 @@ contains
         if (bubbles) then
             @:ALLOCATE(nbub(0:m, 0:n, 0:p))
         end if
+
+        print*, "done s_initialize_rhs_module"
 
     end subroutine s_initialize_rhs_module ! -------------------------------
 
