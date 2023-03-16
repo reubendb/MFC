@@ -42,10 +42,10 @@ if [ "$1" == "load" ]; then
     if [ -v $u_computer ]; then
         log   "Select a system:"
         log   "$G""ORNL$W:    Ascent     (a), Crusher (c), Summit (s), Wombat (w)"
-        log   "$C""ACCESS$W:  Bridges2   (b), Expanse (e)"
+        log   "$C""ACCESS$W:  Bridges2   (b), Expanse (e), Delta  (d)"
         log   "$Y""GaTech$W:  Phoenix    (p)"
         log   "$R""CALTECH$W: Richardson (r)"
-        log_n "($G""a$W/$G""c$W/$G""s$W/$G""w$W/$C""b$W/$C""e$CR/$Y""p$CR/$R""r$CR): "
+        log_n "($G""a$W/$G""c$W/$G""s$W/$G""w$W/$C""b$W/$C""e$CR/$C""d$CR/$Y""p$CR/$R""r$CR): "
         read u_computer
         log
     fi
@@ -130,6 +130,14 @@ if [ "$1" == "load" ]; then
         fi
 
         MODULES=("${MODULES[@]}" "python/3.8.5")
+    elif [ "$u_computer" == "d" ]; then # Delta
+        if [ "$u_cg" == "c" ]; then
+            MODULES=()
+        elif [ "$u_cg" == "g" ]; then
+            MODULES=("nvhpc/22.5")
+        fi
+
+        MODULES=("${MODULES[@]}" "cmake" "openmpi")
     elif [ "$u_computer" == "p" ]; then # Phoenix
         if [ "$u_cg" == "c" ]; then
             MODULES=("gcc/10.3.0-o57x6h" "mvapich2/2.3.6-ouywal")
