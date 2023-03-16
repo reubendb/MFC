@@ -1,5 +1,8 @@
 #:def s_compute_speed_of_sound()
+
     subroutine s_compute_speed_of_sound(pres, rho, gamma, pi_inf, H, adv, vel_sum, c)
+
+        !$acc routine seq
 
         real(kind(0d0)), intent(IN) :: pres
         real(kind(0d0)), intent(IN) :: rho, gamma, pi_inf
@@ -20,7 +23,8 @@
             c = (1d0/(rho*(adv(1)/blkmod1 + adv(2)/blkmod2))) 
         elseif (model_eqns == 3) then 
             c = 0d0 
-!$acc loop seq 
+
+            !$acc loop seq 
             do q = 1, num_fluids 
                 c = c + adv(q)*(1d0/gammas(q) + 1d0)* & 
                     (pres + pi_infs(q)/(gammas(q) + 1d0)) 
@@ -48,6 +52,8 @@
         else
             c = sqrt(c)
         end if
+
     end subroutine s_compute_speed_of_sound
+
 #:enddef
 

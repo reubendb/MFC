@@ -1383,12 +1383,12 @@ contains
 
 
         ! Allocating/initializing ICFL, VCFL, CCFL and Rc stability criteria
-        @:ALLOCATE(icfl_sf(0:m, 0:n, 0:p))
+        allocate(icfl_sf(0:m, 0:n, 0:p))
         icfl_max = 0d0
         
         if (any(Re_size > 0)) then
-            @:ALLOCATE(vcfl_sf(0:m, 0:n, 0:p))
-            @:ALLOCATE(Rc_sf  (0:m, 0:n, 0:p))
+            allocate(vcfl_sf(0:m, 0:n, 0:p))
+            allocate(Rc_sf  (0:m, 0:n, 0:p))
             
             vcfl_max = 0d0
             Rc_min   = 1d3
@@ -1422,9 +1422,9 @@ contains
         integer :: i !< Generic loop iterator
 
         ! Deallocating the ICFL, VCFL, CCFL, and Rc stability criteria
-        @:DEALLOCATE(icfl_sf)
+        deallocate(icfl_sf)
         if (any(Re_size > 0)) then
-            @:DEALLOCATE(vcfl_sf, Rc_sf)
+            deallocate(vcfl_sf, Rc_sf)
         end if
 
         ! Disassociating the pointer to the procedure that was utilized to

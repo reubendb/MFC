@@ -85,10 +85,10 @@ contains
         end if
 
         ! Allocating the cell-average conservative variables
-        @:ALLOCATE(q_cons_ts(1:num_ts))
+        allocate(q_cons_ts(1:num_ts))
 
         do i = 1, num_ts
-            @:ALLOCATE(q_cons_ts(i)%vf(1:sys_size))
+            allocate(q_cons_ts(i)%vf(1:sys_size))
         end do
 
         do i = 1, num_ts
@@ -101,10 +101,10 @@ contains
 
         ! Allocating the cell-average primitive ts variables
         if (probe_wrt) then
-            @:ALLOCATE(q_prim_ts(0:3))
+            allocate(q_prim_ts(0:3))
 
             do i = 0, 3
-                @:ALLOCATE(q_prim_ts(i)%vf(1:sys_size))
+                allocate(q_prim_ts(i)%vf(1:sys_size))
             end do
 
             do i = 0, 3
@@ -117,7 +117,7 @@ contains
         end if
 
         ! Allocating the cell-average primitive variables
-        @:ALLOCATE(q_prim_vf(1:sys_size))
+        allocate(q_prim_vf(1:sys_size))
         
         do i = 1, adv_idx%end
             @:ALLOCATE(q_prim_vf(i)%sf(ix_t%beg:ix_t%end, &
@@ -151,10 +151,10 @@ contains
         end if
 
         ! Allocating the cell-average RHS variables
-        @:ALLOCATE(rhs_vf(1:sys_size))
+        allocate(rhs_vf(1:sys_size))
 
         do i = 1, sys_size
-            @:ALLOCATE(rhs_vf(i)%sf(0:m, 0:n, 0:p))
+            allocate(rhs_vf(i)%sf(0:m, 0:n, 0:p))
         end do
 
         ! Opening and writing the header of the run-time information file
@@ -478,57 +478,57 @@ contains
         do i = 1, num_ts
 
             do j = 1, sys_size
-                @:DEALLOCATE(q_cons_ts(i)%vf(j)%sf)
+                deallocate(q_cons_ts(i)%vf(j)%sf)
             end do
 
-            @:DEALLOCATE(q_cons_ts(i)%vf)
+            deallocate(q_cons_ts(i)%vf)
 
         end do
 
-        @:DEALLOCATE(q_cons_ts)
+        deallocate(q_cons_ts)
 
         ! Deallocating the cell-average primitive ts variables
         if (probe_wrt) then
             do i = 0, 3
                 do j = 1, sys_size
-                    @:DEALLOCATE(q_prim_ts(i)%vf(j)%sf)
+                    deallocate(q_prim_ts(i)%vf(j)%sf)
                 end do
-                @:DEALLOCATE(q_prim_ts(i)%vf)
+                deallocate(q_prim_ts(i)%vf)
             end do
-            @:DEALLOCATE(q_prim_ts)
+            deallocate(q_prim_ts)
         end if
 
         ! Deallocating the cell-average primitive variables
         do i = 1, adv_idx%end
-            @:DEALLOCATE(q_prim_vf(i)%sf)
+            deallocate(q_prim_vf(i)%sf)
         end do
 
         if (hypoelasticity) then
             do i = stress_idx%beg, stress_idx%end
-                @:DEALLOCATE(q_prim_vf(i)%sf)
+                deallocate(q_prim_vf(i)%sf)
             end do
         end if
 
         if (bubbles) then
             do i = bub_idx%beg, bub_idx%end
-                @:DEALLOCATE(q_prim_vf(i)%sf)
+                deallocate(q_prim_vf(i)%sf)
             end do
         end if
 
         if (model_eqns == 3) then
             do i = internalEnergies_idx%beg, internalEnergies_idx%end
-                @:DEALLOCATE(q_prim_vf(i)%sf)
+                deallocate(q_prim_vf(i)%sf)
             end do
         end if
 
-        @:DEALLOCATE(q_prim_vf)
+        deallocate(q_prim_vf)
 
         ! Deallocating the cell-average RHS variables
         do i = 1, sys_size
-            @:DEALLOCATE(rhs_vf(i)%sf)
+            deallocate(rhs_vf(i)%sf)
         end do
 
-        @:DEALLOCATE(rhs_vf)
+        deallocate(rhs_vf)
 
         ! Writing the footer of and closing the run-time information file
         if (proc_rank == 0 .and. run_time_info) then

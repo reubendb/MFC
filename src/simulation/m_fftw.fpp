@@ -107,9 +107,9 @@ contains
 #endif
 
 #if defined(_OPENACC) && defined(__PGI)
-        @:ALLOCATE(data_real_gpu(1:real_size*x_size*sys_size))
-        @:ALLOCATE(data_cmplx_gpu(1:cmplx_size*x_size*sys_size))
-        @:ALLOCATE(data_fltr_cmplx_gpu(1:cmplx_size*x_size*sys_size))
+        allocate(data_real_gpu(1:real_size*x_size*sys_size))
+        allocate(data_cmplx_gpu(1:cmplx_size*x_size*sys_size))
+        allocate(data_fltr_cmplx_gpu(1:cmplx_size*x_size*sys_size))
 
         ierr = cufftPlanMany(fwd_plan_gpu, rank, cufft_size, iembed, istride, real_size, oembed, ostride, cmplx_size, CUFFT_D2Z, batch_size)
         ierr = cufftPlanMany(bwd_plan_gpu, rank, cufft_size, iembed, istride, cmplx_size, oembed, ostride, real_size, CUFFT_Z2D, batch_size)
@@ -271,7 +271,7 @@ contains
     subroutine s_finalize_fftw_module() ! ------------------------------------
 
 #if defined(_OPENACC) && defined(__PGI)
-        @:DEALLOCATE(data_real_gpu, data_fltr_cmplx_gpu, data_cmplx_gpu)
+        deallocate(data_real_gpu, data_fltr_cmplx_gpu, data_cmplx_gpu)
         ierr = cufftDestroy(fwd_plan_gpu)
         ierr = cufftDestroy(bwd_plan_gpu)
 #else

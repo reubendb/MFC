@@ -530,9 +530,9 @@ contains
 
         !$acc update device(ixb, ixe, iyb, iye, izb, ize)
 
-        @:ALLOCATE(gammas (1:num_fluids))
-        @:ALLOCATE(pi_infs(1:num_fluids))
-        @:ALLOCATE(Gs     (1:num_fluids))
+        allocate(gammas (1:num_fluids))
+        allocate(pi_infs(1:num_fluids))
+        allocate(Gs     (1:num_fluids))
 
         do i = 1, num_fluids
             gammas(i)  = fluid_pp(i)%gamma
@@ -544,7 +544,7 @@ contains
 #ifdef MFC_SIMULATION
 
         if (any(Re_size > 0)) then
-            @:ALLOCATE(Res(1:2, 1:maxval(Re_size)))
+            allocate(Res(1:2, 1:maxval(Re_size)))
             
             do i = 1, 2
                 do j = 1, Re_size(i)
@@ -557,7 +557,7 @@ contains
 #endif
 
         if (bubbles) then
-            @:ALLOCATE(bubrs(1:nb))
+            allocate(bubrs(1:nb))
 
             do i = 1, nb
                 bubrs(i) = bub_idx%rs(i)
@@ -682,7 +682,8 @@ contains
             allocate(nRtmp(0))
         endif
 
-        !$acc parallel loop collapse(3) gang vector default(present) private(alpha_K, alpha_rho_K, Re_K, nRtmp, rho_K, gamma_K, pi_inf_K, dyn_pres_K)
+        !FIXME: nRtmp
+        !$acc parallel loop collapse(3) gang vector default(present) private(alpha_K, alpha_rho_K, Re_K, rho_K, gamma_K, pi_inf_K, dyn_pres_K)
         do l = izb, ize
             do k = iyb, iye
                 do j = ixb, ixe
@@ -1069,10 +1070,10 @@ contains
         deallocate(rho_sf, gamma_sf, pi_inf_sf)
 #endif
 
-        @:DEALLOCATE(gammas, pi_infs, Gs)
+        deallocate(gammas, pi_infs, Gs)
         
         if (bubbles) then
-            @:DEALLOCATE(bubrs)
+            deallocate(bubrs)
         end if
 
         ! Nullifying the procedure pointer to the subroutine transfering/

@@ -62,20 +62,20 @@ contains
 
         if (n > 0) then
             if (p > 0) then
-                @:ALLOCATE(q_cons_buff_send(0:-1 + buff_size*sys_size* &
+                allocate(q_cons_buff_send(0:-1 + buff_size*sys_size* &
                                          & (m + 2*buff_size + 1)* &
                                          & (n + 2*buff_size + 1)* &
                                          & (p + 2*buff_size + 1)/ &
                                          & (min(m, n, p) + 2*buff_size + 1)))
             else
-                @:ALLOCATE(q_cons_buff_send(0:-1 + buff_size*sys_size* &
+                allocate(q_cons_buff_send(0:-1 + buff_size*sys_size* &
                                          & (max(m, n) + 2*buff_size + 1)))
             end if
         else
-            @:ALLOCATE(q_cons_buff_send(0:-1 + buff_size*sys_size))
+            allocate(q_cons_buff_send(0:-1 + buff_size*sys_size))
         end if
 
-        @:ALLOCATE(q_cons_buff_recv(0:ubound(q_cons_buff_send, 1)))
+        allocate(q_cons_buff_recv(0:ubound(q_cons_buff_send, 1)))
 
 #endif
 
@@ -1558,7 +1558,7 @@ contains
 #ifdef MFC_MPI
 
         ! Deallocating q_cons_buff_send and q_cons_buff_recv
-        @:DEALLOCATE(q_cons_buff_send, q_cons_buff_recv)
+        deallocate(q_cons_buff_send, q_cons_buff_recv)
 
 #endif
 

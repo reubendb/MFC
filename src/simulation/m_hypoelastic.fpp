@@ -40,14 +40,14 @@ contains
 
         integer :: i
 
-        @:ALLOCATE(Gs(1:num_fluids))
-        @:ALLOCATE(rho_K_field(0:m,0:n,0:p), G_K_field(0:m,0:n,0:p))
-        @:ALLOCATE(du_dx(0:m,0:n,0:p))
+        allocate(Gs(1:num_fluids))
+        allocate(rho_K_field(0:m,0:n,0:p), G_K_field(0:m,0:n,0:p))
+        allocate(du_dx(0:m,0:n,0:p))
         if (n > 0) then
-            @:ALLOCATE(du_dy(0:m,0:n,0:p), dv_dx(0:m,0:n,0:p), dv_dy(0:m,0:n,0:p))
+            allocate(du_dy(0:m,0:n,0:p), dv_dx(0:m,0:n,0:p), dv_dy(0:m,0:n,0:p))
             if (p > 0) then
-                @:ALLOCATE(du_dz(0:m,0:n,0:p), dv_dz(0:m,0:n,0:p))
-                @:ALLOCATE(dw_dx(0:m,0:n,0:p), dw_dy(0:m,0:n,0:p), dw_dz(0:m,0:n,0:p))
+                allocate(du_dz(0:m,0:n,0:p), dv_dz(0:m,0:n,0:p))
+                allocate(dw_dx(0:m,0:n,0:p), dw_dy(0:m,0:n,0:p), dw_dz(0:m,0:n,0:p))
             end if
         end if
 

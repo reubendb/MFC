@@ -47,11 +47,11 @@ contains
 
         integer :: i, j, k, l, q
 
-        @:ALLOCATE(rs(1:nb))
-        @:ALLOCATE(vs(1:nb))
+        allocate(rs(1:nb))
+        allocate(vs(1:nb))
         if (.not. polytropic) then
-            @:ALLOCATE(ps(1:nb))
-            @:ALLOCATE(ms(1:nb))
+            allocate(ps(1:nb))
+            allocate(ms(1:nb))
         end if
 
         do l = 1, nb

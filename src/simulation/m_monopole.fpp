@@ -39,7 +39,7 @@ contains
     subroutine s_initialize_monopole_module()
         integer :: i, j !< generic loop variables
 
-        @:ALLOCATE(mag(1:num_mono), support(1:num_mono), length(1:num_mono), npulse(1:num_mono), pulse(1:num_mono), dir(1:num_mono), delay(1:num_mono), loc_mono(1:3, 1:num_mono), foc_length(1:num_mono), aperture(1:num_mono))
+        allocate(mag(1:num_mono), support(1:num_mono), length(1:num_mono), npulse(1:num_mono), pulse(1:num_mono), dir(1:num_mono), delay(1:num_mono), loc_mono(1:3, 1:num_mono), foc_length(1:num_mono), aperture(1:num_mono))
 
         do i = 1, num_mono
             mag(i) = mono(i)%mag

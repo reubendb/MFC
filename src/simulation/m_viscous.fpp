@@ -35,7 +35,7 @@ module m_viscous
     subroutine s_initialize_viscous_module()
         integer :: i, j !< generic loop iterators
 
-        @:ALLOCATE(Res(1:2, 1:maxval(Re_size)))
+        allocate(Res(1:2, 1:maxval(Re_size)))
 
         do i = 1, 2
             do j = 1, Re_size(i)
@@ -1467,7 +1467,7 @@ module m_viscous
     end subroutine s_compute_fd_gradient ! --------------------------------------
 
     subroutine s_finalize_viscous_module()
-        @:DEALLOCATE(Res)
+        deallocate(Res)
     end subroutine s_finalize_viscous_module
 
 end module m_viscous

@@ -542,9 +542,9 @@ contains
                     ! print*, 'alf idx', alf_idx
                     ! print*, 'bub -idx beg end', bub_idx%beg, bub_idx%end
 
-                    @:ALLOCATE(weight(nb), R0(nb), V0(nb))
-                    @:ALLOCATE(bub_idx%rs(nb), bub_idx%vs(nb))
-                    @:ALLOCATE(bub_idx%ps(nb), bub_idx%ms(nb))
+                    allocate(weight(nb), R0(nb), V0(nb))
+                    allocate(bub_idx%rs(nb), bub_idx%vs(nb))
+                    allocate(bub_idx%ps(nb), bub_idx%ms(nb))
 
                     if (num_fluids == 1) then
                         gam = 1.d0/fluid_pp(num_fluids + 1)%gamma + 1.d0
@@ -553,7 +553,7 @@ contains
                     end if
 
                     if (qbmm) then
-                        @:ALLOCATE(bub_idx%moms(nb, nmom))
+                        allocate(bub_idx%moms(nb, nmom))
                         do i = 1, nb
                             do j = 1, nmom
                                 bub_idx%moms(i, j) = bub_idx%beg + (j - 1) + (i - 1)*nmom
@@ -644,9 +644,9 @@ contains
                     end if
                     sys_size = bub_idx%end
 
-                    @:ALLOCATE(bub_idx%rs(nb), bub_idx%vs(nb))
-                    @:ALLOCATE(bub_idx%ps(nb), bub_idx%ms(nb))
-                    @:ALLOCATE(weight(nb), R0(nb), V0(nb))
+                    allocate(bub_idx%rs(nb), bub_idx%vs(nb))
+                    allocate(bub_idx%ps(nb), bub_idx%ms(nb))
+                    allocate(weight(nb), R0(nb), V0(nb))
 
                     do i = 1, nb
                         if (polytropic) then
@@ -699,7 +699,7 @@ contains
             ! fluids whose interface will support effects of surface tension
             if (any(Re_size > 0)) then
 
-                @:ALLOCATE(Re_idx(1:2, 1:maxval(Re_size)))
+                allocate(Re_idx(1:2, 1:maxval(Re_size)))
 
                 k = 0
                 do i = 1, num_fluids
@@ -753,7 +753,7 @@ contains
 
             ix%end = m - ix%beg; iy%end = n - iy%beg; iz%end = p - iz%beg
 
-            @:ALLOCATE(ptil(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
+            allocate(ptil(ix%beg:ix%end, iy%beg:iy%end, iz%beg:iz%end))
         end if
 
         if (probe_wrt) then
@@ -798,21 +798,21 @@ contains
 !$acc update device(momxb, momxe, advxb, advxe, contxb, contxe, bubxb, bubxe, intxb, intxe, sys_size, buff_size, E_idx, alf_idx, strxb, strxe)
 
         ! Allocating grid variables for the x-, y- and z-directions
-        @:ALLOCATE(x_cb(-1 - buff_size:m + buff_size))
-        @:ALLOCATE(x_cc(-buff_size:m + buff_size))
-        @:ALLOCATE(dx(-buff_size:m + buff_size))
+        allocate(x_cb(-1 - buff_size:m + buff_size))
+        allocate(x_cc(-buff_size:m + buff_size))
+        allocate(dx(-buff_size:m + buff_size))
 
         if (n == 0) return;
         
-        @:ALLOCATE(y_cb(-1 - buff_size:n + buff_size))
-        @:ALLOCATE(y_cc(-buff_size:n + buff_size))
-        @:ALLOCATE(dy(-buff_size:n + buff_size))
+        allocate(y_cb(-1 - buff_size:n + buff_size))
+        allocate(y_cc(-buff_size:n + buff_size))
+        allocate(dy(-buff_size:n + buff_size))
 
         if (p == 0) return;
         
-        @:ALLOCATE(z_cb(-1 - buff_size:p + buff_size))
-        @:ALLOCATE(z_cc(-buff_size:p + buff_size))
-        @:ALLOCATE(dz(-buff_size:p + buff_size))
+        allocate(z_cb(-1 - buff_size:p + buff_size))
+        allocate(z_cc(-buff_size:p + buff_size))
+        allocate(dz(-buff_size:p + buff_size))
 
     end subroutine s_initialize_global_parameters_module ! -----------------
 
@@ -840,9 +840,9 @@ contains
         rhol0 = rhoref
         pl0 = pref
 
-        @:ALLOCATE(pb0(nb), mass_n0(nb), mass_v0(nb), Pe_T(nb))
-        @:ALLOCATE(k_n(nb), k_v(nb), omegaN(nb))
-        @:ALLOCATE(Re_trans_T(nb), Re_trans_c(nb), Im_trans_T(nb), Im_trans_c(nb))
+        allocate(pb0(nb), mass_n0(nb), mass_v0(nb), Pe_T(nb))
+        allocate(k_n(nb), k_v(nb), omegaN(nb))
+        allocate(Re_trans_T(nb), Re_trans_c(nb), Im_trans_T(nb), Im_trans_c(nb))
 
         pb0(:) = dflt_real
         mass_n0(:) = dflt_real
@@ -996,17 +996,17 @@ contains
         ! fluids and any pairs of fluids whose interfaces supported effects
         ! of surface tension
         if (any(Re_size > 0)) then
-            @:DEALLOCATE(Re_idx)
+            deallocate(Re_idx)
         end if
 
         ! Deallocating grid variables for the x-, y- and z-directions
-        @:DEALLOCATE(x_cb, x_cc, dx)
+        deallocate(x_cb, x_cc, dx)
         
         if (n == 0) return;
-        @:DEALLOCATE(y_cb, y_cc, dy)
+        deallocate(y_cb, y_cc, dy)
 
         if (p == 0) return;
-        @:DEALLOCATE(z_cb, z_cc, dz)
+        deallocate(z_cb, z_cc, dz)
 
         deallocate (proc_coords)
         if (parallel_io) then
