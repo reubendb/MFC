@@ -78,10 +78,10 @@ contains
 
             do j = 1, loops_x
                 do i = -1, m
-                    x_cb(i) = x_cb(i)/a_x* &
-                              (a_x + log(cosh(a_x*(x_cb(i) - x_a))) &
-                               + log(cosh(a_x*(x_cb(i) - x_b))) &
-                               - 2d0*log(cosh(a_x*(x_b - x_a)/2d0)))
+                    x_cb(i) = x_cb(i) / a_x * &
+                              (a_x +     log(cosh(a_x*(x_cb(i) - x_a))) &
+                                   +     log(cosh(a_x*(x_cb(i) - x_b))) &
+                                   - 2d0*log(cosh(a_x*(x_b     - x_a) / 2d0)))
                 end do
             end do
             x_cb = x_cb*length
@@ -133,10 +133,10 @@ contains
 
             do j = 1, loops_y
                 do i = -1, n
-                    y_cb(i) = y_cb(i)/a_y* &
-                              (a_y + log(cosh(a_y*(y_cb(i) - y_a))) &
-                               + log(cosh(a_y*(y_cb(i) - y_b))) &
-                               - 2d0*log(cosh(a_y*(y_b - y_a)/2d0)))
+                    y_cb(i) = y_cb(i) / a_y* &
+                              (a_y +     log(cosh(a_y*(y_cb(i) - y_a))) &
+                                   +     log(cosh(a_y*(y_cb(i) - y_b))) &
+                                   - 2d0*log(cosh(a_y*(y_b     - y_a) / 2d0)))
                 end do
             end do
 
@@ -171,10 +171,10 @@ contains
 
             do j = 1, loops_z
                 do i = -1, p
-                    z_cb(i) = z_cb(i)/a_z* &
-                              (a_z + log(cosh(a_z*(z_cb(i) - z_a))) &
-                               + log(cosh(a_z*(z_cb(i) - z_b))) &
-                               - 2d0*log(cosh(a_z*(z_b - z_a)/2d0)))
+                    z_cb(i) = z_cb(i) / a_z* &
+                              (a_z +     log(cosh(a_z*(z_cb(i) - z_a))) &
+                                   +     log(cosh(a_z*(z_cb(i) - z_b))) &
+                                   - 2d0*log(cosh(a_z*(z_b     - z_a) / 2d0)))
                 end do
             end do
 
@@ -233,9 +233,9 @@ contains
             do j = 1, loops_x
                 do i = -1, m_glb
                     x_cb_glb(i) = x_cb_glb(i)/a_x* &
-                                  (a_x + log(cosh(a_x*(x_cb_glb(i) - x_a))) &
-                                   + log(cosh(a_x*(x_cb_glb(i) - x_b))) &
-                                   - 2d0*log(cosh(a_x*(x_b - x_a)/2d0)))
+                                  (a_x +     log(cosh(a_x*(x_cb_glb(i) - x_a))) &
+                                       +     log(cosh(a_x*(x_cb_glb(i) - x_b))) &
+                                       - 2d0*log(cosh(a_x*(x_b         - x_a) / 2d0)))
                 end do
             end do
 
@@ -268,9 +268,9 @@ contains
                 do j = 1, loops_y
                     do i = -1, n_glb
                         y_cb_glb(i) = y_cb_glb(i)/a_y* &
-                                      (a_y + log(cosh(a_y*(y_cb_glb(i) - y_a))) &
-                                       + log(cosh(a_y*(y_cb_glb(i) - y_b))) &
-                                       - 2d0*log(cosh(a_y*(y_b - y_a)/2d0)))
+                                      (a_y +     log(cosh(a_y*(y_cb_glb(i) - y_a))) &
+                                           +     log(cosh(a_y*(y_cb_glb(i) - y_b))) &
+                                           - 2d0*log(cosh(a_y*(y_b         - y_a) / 2d0)))
                     end do
                 end do
 
@@ -294,9 +294,9 @@ contains
                     do j = 1, loops_z
                         do i = -1, p_glb
                             z_cb_glb(i) = z_cb_glb(i)/a_z* &
-                                          (a_z + log(cosh(a_z*(z_cb_glb(i) - z_a))) &
-                                           + log(cosh(a_z*(z_cb_glb(i) - z_b))) &
-                                           - 2d0*log(cosh(a_z*(z_b - z_a)/2d0)))
+                                          (a_z +     log(cosh(a_z*(z_cb_glb(i) - z_a))) &
+                                               +     log(cosh(a_z*(z_cb_glb(i) - z_b))) &
+                                               - 2d0*log(cosh(a_z*(z_b         - z_a) / 2d0)))
                         end do
                     end do
 

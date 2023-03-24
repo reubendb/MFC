@@ -56,7 +56,7 @@ contains
             parallel_io, coarsen_silo, fourier_decomp, &
             rhoref, pref, bubbles, R0ref, nb, &
             polytropic, thermal, Ca, Web, Re_inv, &
-            polydisperse, poly_sigma
+            polydisperse, poly_sigma, relax_model
 
         ! Inquiring the status of the post_process.inp file
         file_loc = 'post_process.inp'

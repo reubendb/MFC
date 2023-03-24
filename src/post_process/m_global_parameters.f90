@@ -82,6 +82,7 @@ module m_global_parameters
     !> @{
     integer :: model_eqns      !< Multicomponent flow model
     integer :: num_fluids      !< Number of different fluids present in the flow
+    integer :: relax_model     !< Phase change relaxation model
     logical :: adv_alphan      !< Advection of the last volume fraction
     logical :: mpp_lim         !< Maximum volume fraction limiter
     integer :: sys_size        !< Number of unknowns in the system of equations
@@ -270,6 +271,7 @@ contains
         weno_order = dflt_int
         mixture_err = .false.
         alt_soundspeed = .false.
+        relax_model = dflt_int
         hypoelasticity = .false.
 
         bc_x%beg = dflt_int
@@ -281,9 +283,11 @@ contains
 
         ! Fluids physical parameters
         do i = 1, num_fluids_max
-            fluid_pp(i)%gamma = dflt_real
+            fluid_pp(i)%gamma  = dflt_real
             fluid_pp(i)%pi_inf = dflt_real
-            fluid_pp(i)%G = dflt_real
+            fluid_pp(i)%G      = dflt_real
+            fluid_pp(i)%qv     = dflt_real
+            fluid_pp(i)%G      = dflt_real
         end do
 
         ! Formatted database file(s) structure parameters

@@ -135,6 +135,10 @@ module m_derived_types
         real(kind(0d0)) :: mu_v    !< Bubble constants (see Preston (2007), Ando (2010))
         real(kind(0d0)) :: k_v     !< Bubble constants (see Preston (2007), Ando (2010))
         real(kind(0d0)) :: G
+        real(kind(0d0)) :: qv   !< Liquid stiffness for temperature
+        real(kind(0d0)) :: G    !< Shear Modulus
+        real(kind(0d0)), dimension(2)              :: Re !< Reynolds number
+        real(kind(0d0)), dimension(num_fluids_max) :: We !< Weber number
     end type physical_parameters
 
     !> Derived type annexing the flow probe location

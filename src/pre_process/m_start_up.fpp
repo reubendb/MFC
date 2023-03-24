@@ -94,7 +94,7 @@ contains
             t_step_old, t_step_start, m, n, p, x_domain, y_domain, z_domain, &
             stretch_x, stretch_y, stretch_z, a_x, a_y, &
             a_z, x_a, y_a, z_a, x_b, y_b, z_b, &
-            model_eqns, num_fluids, &
+            model_eqns, relax_model, num_fluids, &
             adv_alphan, mpp_lim, &
             weno_order, bc_x, bc_y, bc_z, num_patches, &
             hypoelasticity, patch_icpp, fluid_pp, &

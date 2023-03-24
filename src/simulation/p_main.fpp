@@ -146,6 +146,7 @@ program p_main
     if(bubbles) call s_initialize_bubbles_module()
 
     if (qbmm) call s_initialize_qbmm_module()
+    call s_initialize_phasechange_module()
 
 #if defined(_OPENACC) && defined(MFC_MEMORY_DUMP)
     call acc_present_dump()

@@ -42,6 +42,11 @@ contains
         elseif (bubbles .and. polydisperse .and. (mod(nb, 2) == 0)) then
             call s_mpi_abort('nb must be odd '// &
                 'Exiting ...')
+        elseif (model_eqns == 3 .and. relax_model < 0 .and. relax_model > 6) THEN
+            print '(A)', 'Unsupported combination of values of ' // &
+                         'bubbles and rhoref. '                  // &
+                         'Exiting ...'
+            CALL s_mpi_abort()
         elseif (model_eqns == 4 .and. (rhoref == dflt_real)) then
             call s_mpi_abort('Unsupported combination of values of '// &
                 'bubbles and rhoref. '// &

@@ -86,6 +86,7 @@ module m_global_parameters
 
     ! Simulation Algorithm Parameters ==========================================
     integer :: model_eqns     !< Multicomponent flow model
+    integer :: relax_model    !< Relax model
     #:if MFC_CASE_OPTIMIZATION
         integer, parameter :: num_dims = ${num_dims}$       !< Number of spatial dimensions
     #:else
@@ -107,6 +108,8 @@ module m_global_parameters
     #:endif
 
     real(kind(0d0)) :: weno_eps       !< Binding for the WENO nonlinear weights
+    real(kind(0d0)) :: palpha_eps !< trigger parameter for the  p  relaxation procedure, phase change model
+    real(kind(0d0)) :: ptgalpha_eps   !< trigger parameter for the pTg relaxation procedure, phase change model
     logical :: mapped_weno    !< WENO with mapping of nonlinear weights
     logical :: mp_weno        !< Monotonicity preserving (MP) WENO
     logical :: weno_Re_flux   !< WENO reconstruct velocity gradients for viscous stress tensor
@@ -117,6 +120,7 @@ module m_global_parameters
     logical :: null_weights   !< Null undesired WENO weights
     logical :: mixture_err    !< Mixture properties correction
     logical :: hypoelasticity !< hypoelasticity modeling
+    integer :: relax_model    !< Infinite relaxation model
     logical :: cu_tensor
 
     integer :: cpu_start, cpu_end, cpu_rate
@@ -340,12 +344,15 @@ contains
 
         ! Simulation algorithm parameters
         model_eqns = dflt_int
+        relax_model = dflt_int
         num_fluids = dflt_int
         adv_alphan = .false.
         mpp_lim = .false.
         time_stepper = dflt_int
         weno_vars = dflt_int
         weno_eps = dflt_real
+        palpha_eps = 1.0d-06
+        ptgalpha_eps = 1.0d-06
         mapped_weno = .false.
         mp_weno = .false.
         weno_Re_flux = .false.
@@ -370,6 +377,9 @@ contains
         do i = 1, num_fluids_max
             fluid_pp(i)%gamma = dflt_real
             fluid_pp(i)%pi_inf = dflt_real
+            fluid_pp(i)%cv = dflt_real
+            fluid_pp(i)%qv = dflt_real
+            fluid_pp(i)%qvp = dflt_real
             fluid_pp(i)%Re(:) = dflt_real
             fluid_pp(i)%mul0 = dflt_real
             fluid_pp(i)%ss = dflt_real
@@ -379,6 +389,7 @@ contains
             fluid_pp(i)%mu_v = dflt_real
             fluid_pp(i)%k_v = dflt_real
             fluid_pp(i)%G = 0d0
+            fluid_pp(i)%qv = dflt_real
         end do
 
         ! Tait EOS

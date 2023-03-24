@@ -7,9 +7,11 @@ COMMON = [
     "Web", "poly_sigma", "case_dir", "thermal", "polytropic",
     "m", "mpp_lim", "R0ref", "adv_alphan", "num_fluids", "model_eqns",
     "nb", "weno_order", "rhoref", "bubbles", "Re_inv", "n", "precision",
-    "Ca", "polydisperse"
+    "Ca", "polydisperse", "relax_model"
 ]
 
+for f_id in range(1, 10+1):
+    COMMON.append(f'fluid_pp({f_id}%qv')
 
 PRE_PROCESS = COMMON + [
     'old_grid', 'old_ic', 't_step_old', 't_step_start', 'perturb_flow', 'perturb_flow_fluid',
@@ -31,7 +33,7 @@ for f_id in range(1, 10+1):
     PRE_PROCESS.append(f'fluid_rho({f_id})')
 
     for attribute in ["gamma", "pi_inf", "mul0", "ss", "pv", "gamma_v", "M_v",
-                      "mu_v", "k_v", "G"]:
+                      "mu_v", "k_v", "G", "qv"]:
         PRE_PROCESS.append(f"fluid_pp({f_id})%{attribute}")
 
 for p_id in range(1, 10+1):
@@ -89,7 +91,7 @@ for probe_id in range(1,3+1):
 
 for f_id in range(1,10+1):
     for attribute in ["gamma", "pi_inf", "mul0", "ss", "pv", "gamma_v", "M_v",
-                      "mu_v", "k_v", "G"]:
+                      "mu_v", "k_v", "G", "qvp", "cv"]:
         SIMULATION.append(f"fluid_pp({f_id})%{attribute}")
 
     for re_id in [1, 2]:
@@ -97,7 +99,8 @@ for f_id in range(1,10+1):
 
     for mono_id in range(1,4+1):
         for attribute in ["mag", "length", "dir", "npulse", "pulse", "support",
-                          "delay", "foc_length", "aperture"]:
+                          "delay", "foc_length", "aperture", "aperture",
+                          "foc_length"]:
             SIMULATION.append(f"Mono({mono_id})%{attribute}")
 
         for cmp_id in range(1,3+1):
@@ -132,7 +135,8 @@ for fl_id in range(1,10+1):
     for append in ["schlieren_alpha", "alpha_rho_wrt", "alpha_wrt", "kappa_wrt"]:
         POST_PROCESS.append(f'{append}({fl_id})')
 
-    for attribute in ["gamma", "pi_inf", "ss", "pv", "gamma_v", "M_v", "mu_v", "k_v", "G", "mul0"]:
+    for attribute in ["gamma", "pi_inf", "ss", "pv", "gamma_v", "M_v", "mu_v",
+                      "k_v", "G", "mul0"]:
         POST_PROCESS.append(f"fluid_pp({fl_id})%{attribute}")
 
 

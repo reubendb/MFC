@@ -178,9 +178,9 @@ contains
         call MPI_BCAST(alpha_wrt(1), num_fluids_max, MPI_LOGICAL, 0, MPI_COMM_WORLD, ierr)
 
         do i = 1, num_fluids_max
-            call MPI_BCAST(fluid_pp(i)%gamma, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(fluid_pp(i)%pi_inf, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
-            call MPI_BCAST(fluid_pp(i)%G, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+        #:for VAR in ['gamma', 'pi_inf', 'G', 'qv']
+            call MPI_BCAST(fluid_pp(i)%${VAR}$, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
+        #:endfor
         end do
 
         #:for VAR in [ 'pref', 'rhoref', 'R0ref', 'poly_sigma', 'Web', 'Ca', &

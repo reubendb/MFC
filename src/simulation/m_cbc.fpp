@@ -894,6 +894,14 @@ contains
                             dpi_inf_dt = dpi_inf_dt + dadv_dt(i)*pi_infs(i)
                         end do
                     end if
+
+                    if (model_eqns == 3) then
+                        !$acc loop seq
+                        do i = 1, num_fluids
+                            dpi_inf_dt = dpi_inf_dt + dalpha_rho_dt(i)*fluid_pp(i)%qv
+                        end do
+                    end if
+
                     ! ============================================================
 
                     ! flux_rs_vf and flux_src_rs_vf at j = -1/2 ==================

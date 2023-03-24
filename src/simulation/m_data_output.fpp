@@ -410,6 +410,8 @@ contains
 
             if (icfl_max_glb /= icfl_max_glb) then
                 call s_mpi_abort('ICFL is NaN. Exiting ...')
+            elseif (icfl_max_glb < 0d0) then
+                call s_mpi_abort('ICFL is negative. Exiting ...')
             elseif (icfl_max_glb > 1d0) then
                 call s_mpi_abort('ICFL is greater than 1.0. Exiting ...')
                 print *, 'icfl', icfl_max_glb
@@ -533,8 +535,8 @@ contains
         !1D
         if (n == 0 .and. p == 0) then
 
-            if (model_eqns == 2) then
-                do i = 1, sys_size
+            if (model_eqns == 2 .or. model_eqns == 3) then
+                do i = 1, sys_size+1
                     write (file_path, '(A,I0,A,I2.2,A,I6.6,A)') trim(t_step_dir)//'/prim.', i, '.', proc_rank, '.', t_step, '.dat'
 
                     open (2, FILE=trim(file_path))
@@ -546,6 +548,9 @@ contains
                             write (2, FMT) x_cb(j), q_cons_vf(i)%sf(j, 0, 0)
                         else
                             write (2, FMT) x_cb(j), q_prim_vf(i)%sf(j, 0, 0)
+                        end if
+                        if (i == sys_size+1) then
+                            write (2, FMT) x_cb(j), rho
                         end if
                     end do
                     close (2)
@@ -1172,11 +1177,15 @@ contains
                             tau_e(2), &
                             tau_e(3)
                     else
-                        write (i + 30, '(6X,F12.6,F24.8,F24.8,F24.8)') &
+                        write (i+30,'(6X,F12.6,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8,F24.8)') &
                             nondim_time, &
                             rho, &
                             vel(1), &
-                            pres
+                            pres, & 
+                            alpha_rho(1)/rho, &
+                            alpha_rho(2)/rho, & 
+                            alpha_rho(3)/rho, & 
+                            alpha(2)
                     end if
                 else
                     write (i + 30, '(6X,F12.6,F24.8,F24.8,F24.8,F24.8,'// &

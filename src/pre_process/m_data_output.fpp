@@ -165,8 +165,8 @@ contains
 
         !1D
         if (n == 0 .and. p == 0) then
-            if (model_eqns == 2) then
-                do i = 1, sys_size
+            if (model_eqns == 2 .or. model_eqns == 3) then
+                do i = 1, sys_size+1
                     write (file_loc, '(A,I0,A,I2.2,A,I6.6,A)') trim(t_step_dir)//'/prim.', i, '.', proc_rank, '.', t_step, '.dat'
 
                     open (2, FILE=trim(file_loc))
@@ -199,6 +199,10 @@ contains
                             call s_comp_n_from_cons(q_cons_vf(alf_idx)%sf(j, 0, 0), nRtmp, nbub, weight)
 
                             write (2, FMT) x_cb(j), q_cons_vf(i)%sf(j, 0, 0)/nbub
+                        end if
+
+                        if (i == sys_size+1) then
+                            write(2, FMT) x_cb(j), rho
                         end if
                     end do
                     close (2)

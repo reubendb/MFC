@@ -48,7 +48,7 @@ contains
             & 'loops_x', 'loops_y', 'loops_z', 'model_eqns', 'num_fluids',     &
             & 'weno_order', 'precision', 'perturb_flow_fluid', & 
             & 'perturb_sph_fluid', 'num_patches', 'thermal', 'nb', 'dist_type',&
-            & 'R0_type' ]
+            & 'R0_type', 'relax_model' ]
             call MPI_BCAST(${VAR}$, 1, MPI_INTEGER, 0, MPI_COMM_WORLD, ierr)
         #:endfor
 
@@ -94,7 +94,7 @@ contains
         ! Fluids physical parameters
         do i = 1, num_fluids_max
             #:for VAR in [ 'gamma','pi_inf','mul0','ss','pv','gamma_v','M_v',  & 
-                & 'mu_v','k_v', 'G' ]
+                & 'mu_v','k_v', 'G', 'qv' ]
                 call MPI_BCAST(fluid_pp(i)%${VAR}$, 1, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD, ierr)
             #:endfor
         end do
