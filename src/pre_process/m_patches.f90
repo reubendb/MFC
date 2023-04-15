@@ -1657,7 +1657,8 @@ contains
         integer :: i, j, k !< Generic loop iterators
 
         type(stl_parameters) :: params
-        type(t_stl_mesh)     :: mesh
+        type(t_stl)    :: mesh
+        type(t_octree) :: octree
 
         real(kind(0d0)), dimension(1:4,1:4) :: transform
 
@@ -1666,29 +1667,35 @@ contains
         if (proc_rank == 0) then
             print '(A,A,A,I0,A)', &
                 ' ', trim(patch_icpp(patch_id)%stl%filepath), " has ", &
-                ubound(mesh%triangles), " triangles."
+                ubound(mesh%trs), " triangles:"
 
-            print*, "STL:    Min:", mesh%bounding_box%min(1:3)
-            print*, "        Cen:", (mesh%bounding_box%min(1:3) + mesh%bounding_box%max(1:3))/2d0
-            print*, "        Max:", mesh%bounding_box%max(1:3)
+            print*, "STL:    Min:", mesh%bbox%min(1:3)
+            print*, "        Cen:", (mesh%bbox%min(1:3) + mesh%bbox%max(1:3))/2d0
+            print*, "        Max:", mesh%bbox%max(1:3)
     
-            !call s_stl_write("test.stl", mesh%triangles)
+            !call s_stl_write("test.stl", mesh%trs)
     
-            print*, ""
             print*, "Domain: Min:", x_cc(0), y_cc(0), z_cc(0)
             print*, "        Cen:", (x_cc(0) + x_cc(m)) / 2d0, (y_cc(0) + y_cc(n)) / 2d0, (z_cc(0) + z_cc(p)) / 2d0
             print*, "        Max:", x_cc(m), y_cc(n), z_cc(p)    
         end if
 
+        print*, "Creating octree..."
+
+        octree = f_octree_create(mesh)
+
+        print*, "Octree created."
+        print*, "Generating grid..."
+
         do i = 0, m; do j = 0, n; do k = 0, p
 
             if (p .gt. 0) then
-                if (f_stl_is_inside((/ x_cc(i), y_cc(j), z_cc(k) /), mesh, (/ dx, dy, dz /))) then
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), z_cc(k) /), octree, (/ dx, dy, dz /))) then
                     call s_assign_patch_primitive_variables(patch_id, i, j, k, &
                         eta, q_prim_vf, patch_id_fp)
                 end if
             else
-                if (f_stl_is_inside((/ x_cc(i), y_cc(j), 0d0 /), mesh, (/ dx, dy, dz /))) then
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), 0d0 /), octree, (/ dx, dy, dz /))) then
                     call s_assign_patch_primitive_variables(patch_id, i, j, k, &
                         eta, q_prim_vf, patch_id_fp)
                 end if
@@ -1696,7 +1703,9 @@ contains
 
         end do; end do; end do
 
-        deallocate(mesh%triangles)
+        print*, "Frees..."
+        call s_octree_free(octree)
+        call s_stl_free(mesh)
 
     end subroutine s_stl ! -------------------------------------------------
 

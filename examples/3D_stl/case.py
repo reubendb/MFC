@@ -146,13 +146,13 @@ print(json.dumps({
     'y_domain%end'                 : +1.0,
     'z_domain%beg'                 : -1.0,
     'z_domain%end'                 : +1.0,
-    'm'                            : 200,
-    'n'                            : 200,
+    'm'                            : 100,
+    'n'                            : 100,
     'p'                            : 50,
     'cyl_coord'                    : 'F',
     'dt'                           : dt,
     't_step_start'                 : 0,
-    't_step_stop'                  : 50000,
+    't_step_stop'                  : 1,
     't_step_save'                  : 1,
     # ==========================================================
 
@@ -183,7 +183,7 @@ print(json.dumps({
     'format'                       : 1,
     'precision'                    : 2,
     'prim_vars_wrt'                :'T',
-    'parallel_io'                  :'T',
+    'parallel_io'                  :'F',
     
     'patch_icpp(1)%geometry'       : 9,
     'patch_icpp(1)%x_centroid'     : 0,
@@ -203,11 +203,17 @@ print(json.dumps({
     # ==========================================================
 
     # Patch 3: Droplet (WATER - 1) =============================
-    'patch_icpp(2)%geometry'       : 8,
-    'patch_icpp(2)%x_centroid'     : 0.0E+00,
-    'patch_icpp(2)%y_centroid'     : 0.0E+00,
-    'patch_icpp(2)%z_centroid'     : 0.0E+00,
-    'patch_icpp(2)%radius'         : D0/2,
+    'patch_icpp(2)%geometry'       : 20,
+    'patch_icpp(2)%stl%filepath'   : 'cube.stl',
+    'patch_icpp(2)%stl%scale(1)'   : 1 / 200.0,
+    'patch_icpp(2)%stl%scale(2)'   : 1 / 200.0,
+    'patch_icpp(2)%stl%scale(3)'   : 1 / 200.0,
+    'patch_icpp(2)%stl%offset(3)'  : -0.25E+00,
+#    'patch_icpp(2)%stl%filepath'   : 'mfc.stl',
+#    'patch_icpp(2)%stl%scale(1)'   : 1 / 200.0,
+#    'patch_icpp(2)%stl%scale(2)'   : 1 / 200.0,
+#    'patch_icpp(2)%stl%scale(3)'   : 1 / 20.0,
+#    'patch_icpp(2)%stl%offset(3)'  : -0.25E+00,
     'patch_icpp(2)%alter_patch(1)' : 'T',
     'patch_icpp(2)%vel(1)'         : 0.0E+00,
     'patch_icpp(2)%vel(2)'         : 0.0E+00,

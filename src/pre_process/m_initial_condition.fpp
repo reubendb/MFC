@@ -109,7 +109,7 @@ contains
 
             do i = 1, num_patches
 
-                print*, 'Generating Initial Condition for Patch', i
+                print*, 'Processing patch', i
 
                 ! Spherical patch
                 if (patch_icpp(i)%geometry == 8) then
@@ -157,7 +157,7 @@ contains
 
             do i = 1, num_patches
 
-                print*, 'Generating Initial Condition for Patch', i
+                print*, 'Processing patch', i
 
                 ! Circular patch
                 if (patch_icpp(i)%geometry == 2) then
