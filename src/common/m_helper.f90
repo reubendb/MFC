@@ -13,11 +13,6 @@ module m_helper
 
     implicit none
 
-    private; public :: s_compute_finite_difference_coefficients, &
-        s_comp_n_from_prim, &
-        s_comp_n_from_cons, &
-        s_int_to_str
-
 contains
 
     !>  The purpose of this subroutine is to compute the finite-
@@ -122,5 +117,14 @@ contains
         write(res,'(I0)') i
         res = trim(res)
     end subroutine
+
+    function cross(a, b) result(c)
+        real(kind(0d0)), dimension(3), intent(in) :: a, b
+        real(kind(0d0)), dimension(3)             :: c
+
+        c(1) = a(2) * b(3) - a(3) * b(2)
+        c(2) = a(3) * b(1) - a(1) * b(3)
+        c(3) = a(1) * b(2) - a(2) * b(1)
+    end function cross
 
 end module m_helper

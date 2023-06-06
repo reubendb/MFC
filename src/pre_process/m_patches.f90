@@ -4,8 +4,9 @@
 module m_patches
 
     ! Dependencies =============================================================
-    
-    use m_derived_types        !< Definitions of the derived types
+    use m_stl                   ! Subroutine(s) related to STL files
+
+    use m_derived_types         ! Definitions of the derived types
 
     use m_global_parameters    !< Definitions of the global parameters
 
@@ -35,7 +36,8 @@ module m_patches
         s_sphere, &
         s_cuboid, &
         s_cylinder, &
-        s_sweep_plane
+        s_sweep_plane, &
+        s_stl
 
 
     real(kind(0d0)) :: x_centroid, y_centroid, z_centroid
@@ -1643,6 +1645,60 @@ contains
         end do
 
     end subroutine s_sweep_plane ! -----------------------------------------
+
+    !> The STL patch is a 2/3D geometry that is imported from an STL file.
+    !! @param patch_id is the patch identifier
+    subroutine s_stl(patch_id, patch_id_fp, q_prim_vf) ! -------------------------------------------
+
+        integer, intent(IN)                              :: patch_id
+        integer, intent(INOUT), dimension(0:m, 0:n, 0:p) :: patch_id_fp
+        type(scalar_field),     dimension(1:sys_size)    :: q_prim_vf
+
+        integer :: i, j, k !< Generic loop iterators
+
+        type(stl_parameters) :: params
+        type(t_stl_mesh)     :: mesh
+
+        real(kind(0d0)), dimension(1:4,1:4) :: transform
+
+        mesh = f_stl_read(patch_icpp(patch_id)%stl)
+
+        if (proc_rank == 0) then
+            print '(A,A,A,I0,A)', &
+                ' ', trim(patch_icpp(patch_id)%stl%filepath), " has ", &
+                ubound(mesh%triangles), " triangles."
+
+            print*, "STL:    Min:", mesh%bounding_box%min(1:3)
+            print*, "        Cen:", (mesh%bounding_box%min(1:3) + mesh%bounding_box%max(1:3))/2d0
+            print*, "        Max:", mesh%bounding_box%max(1:3)
+    
+            !call s_stl_write("test.stl", mesh%triangles)
+    
+            print*, ""
+            print*, "Domain: Min:", x_cc(0), y_cc(0), z_cc(0)
+            print*, "        Cen:", (x_cc(0) + x_cc(m)) / 2d0, (y_cc(0) + y_cc(n)) / 2d0, (z_cc(0) + z_cc(p)) / 2d0
+            print*, "        Max:", x_cc(m), y_cc(n), z_cc(p)    
+        end if
+
+        do i = 0, m; do j = 0, n; do k = 0, p
+
+            if (p .gt. 0) then
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), z_cc(k) /), mesh, (/ dx, dy, dz /))) then
+                    call s_assign_patch_primitive_variables(patch_id, i, j, k, &
+                        eta, q_prim_vf, patch_id_fp)
+                end if
+            else
+                if (f_stl_is_inside((/ x_cc(i), y_cc(j), 0d0 /), mesh, (/ dx, dy, dz /))) then
+                    call s_assign_patch_primitive_variables(patch_id, i, j, k, &
+                        eta, q_prim_vf, patch_id_fp)
+                end if
+            end if
+
+        end do; end do; end do
+
+        deallocate(mesh%triangles)
+
+    end subroutine s_stl ! -------------------------------------------------
 
     subroutine s_convert_cylindrical_to_cartesian_coord(cyl_y, cyl_z)
         !$acc routine seq

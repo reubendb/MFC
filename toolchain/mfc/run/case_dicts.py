@@ -42,6 +42,12 @@ for p_id in range(1, 10+1):
                       "pi_inf", "r0", "v0", "p0", "m0"]:
         PRE_PROCESS.append(f"patch_icpp({p_id})%{attribute}")
 
+    PRE_PROCESS.append(f"patch_icpp({p_id})%stl%filepath")
+
+    for attribute in ["offset", "scale", "rotate"]:
+        for j in range(1, 4):
+            PRE_PROCESS.append(f"patch_icpp({p_id})%stl%{attribute}({j})")
+
     for cmp_id, cmp in enumerate(["x", "y", "z"]):
         cmp_id += 1
         PRE_PROCESS.append(f'patch_icpp({p_id})%{cmp}_centroid')

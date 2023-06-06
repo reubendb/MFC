@@ -22,7 +22,6 @@ class MFCInputFile:
                     dict_str += f"{key} = {val}\n"
                 else:
                     dict_str += f"{key} = '{val}'\n"
-
                 continue
 
             if key not in case_dicts.PRE_PROCESS  and \

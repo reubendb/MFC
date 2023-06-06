@@ -109,6 +109,8 @@ contains
 
             do i = 1, num_patches
 
+                print*, 'Generating Initial Condition for Patch', i
+
                 ! Spherical patch
                 if (patch_icpp(i)%geometry == 8) then
                     call s_sphere(i, patch_id_fp, q_prim_vf)
@@ -141,6 +143,9 @@ contains
                 elseif (patch_icpp(i)%geometry == 19) then
                     call s_3dvarcircle(i, patch_id_fp, q_prim_vf)
 
+                elseif (patch_icpp(i)%geometry == 21) then
+                    call s_stl(i, patch_id_fp, q_prim_vf)
+ 
                 end if
 
             end do
@@ -151,6 +156,8 @@ contains
         elseif (n > 0) then
 
             do i = 1, num_patches
+
+                print*, 'Generating Initial Condition for Patch', i
 
                 ! Circular patch
                 if (patch_icpp(i)%geometry == 2) then
@@ -188,6 +195,10 @@ contains
                 elseif (patch_icpp(i)%geometry == 20) then
                     call s_2D_TaylorGreen_vortex(i, patch_id_fp, q_prim_vf)    
 
+                    ! STL Patch
+                elseif (patch_icpp(i)%geometry == 21) then
+                    call s_stl(i, patch_id_fp, q_prim_vf)
+ 
                 end if
 
             end do
