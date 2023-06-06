@@ -203,7 +203,7 @@ print(json.dumps({
     # ==========================================================
 
     # Patch 3: Droplet (WATER - 1) =============================
-    'patch_icpp(2)%geometry'       : 20,
+    'patch_icpp(2)%geometry'       : 21,
     'patch_icpp(2)%stl%filepath'   : 'cube.stl',
     'patch_icpp(2)%stl%scale(1)'   : 1 / 200.0,
     'patch_icpp(2)%stl%scale(2)'   : 1 / 200.0,

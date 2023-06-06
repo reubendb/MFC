@@ -499,7 +499,7 @@ The entries labeled "Characteristic." are characteristic boundary conditions bas
 | 17   | Spiral             | 2     | N      | Requires `[x,y]_centroid` |
 | 18   | 2D Varcircle       | 2     | Y      | Requires `[x,y]_centroid`, `radius`, and `thickness` |
 | 19   | 3D Varcircle       | 3     | Y      | Requires `[x,y,z]_centroid`, `length_z`, `radius`, and `thickness` |
-| 20   | STL                | 3     | N      | Imports an STL model. Requires `stl%filepath`. | |
+| 21   | STL                | 3     | N      | Imports an STL model. Requires `stl%filepath`. | |
 
 The patch types supported by the MFC are listed in table [Patch Types](#patch-types). This includes
 types exclusive to one-, two-, and three-dimensional problems. The patch type number (`#`)
