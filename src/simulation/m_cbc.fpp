@@ -40,7 +40,7 @@ module m_cbc
     !! The cell-average primitive variables. They are obtained by reshaping (RS)
     !! q_prim_vf in the coordinate direction normal to the domain boundary along
     !! which the CBC is applied.
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), q_prim_rsx_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), q_prim_rsy_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), q_prim_rsz_vf)
@@ -51,7 +51,7 @@ module m_cbc
     real(kind(0d0)), allocatable, dimension(:, :, :, :) :: q_prim_rsz_vf
 #endif
 
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(type(scalar_field), dimension(:), F_rs_vf, F_src_rs_vf)
     !$acc declare link(F_rs_vf, F_src_rs_vf)
 #else
@@ -60,7 +60,7 @@ module m_cbc
     !! Cell-average fluxes (src - source). These are directly determined from the
     !! cell-average primitive variables, q_prims_rs_vf, and not a Riemann solver.
 
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), F_rsx_vf, F_src_rsx_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), F_rsy_vf, F_src_rsy_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), F_rsz_vf, F_src_rsz_vf)
@@ -72,7 +72,7 @@ module m_cbc
 #endif
 
 
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), flux_rsx_vf, flux_src_rsx_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), flux_rsy_vf, flux_src_rsy_vf)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :, :), flux_rsz_vf, flux_src_rsz_vf)
@@ -85,12 +85,12 @@ module m_cbc
 
     real(kind(0d0)) :: c           !< Cell averaged speed of sound
     real(kind(0d0)), dimension(2) :: Re          !< Cell averaged Reynolds numbers
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     !$acc declare create(c, Re)
 #endif
 
     real(kind(0d0)) :: dpres_ds !< Spatial derivatives in s-dir of pressure
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:), ds)
 !$acc declare link(ds)
 !$acc declare create(dpres_ds)
@@ -100,7 +100,7 @@ module m_cbc
 
 
     ! CBC Coefficients =========================================================
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :), fd_coef_x)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :), fd_coef_y)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :), fd_coef_z)
@@ -115,7 +115,7 @@ module m_cbc
 
     ! Bug with NVHPC when using nullified pointers in a declare create
     !    real(kind(0d0)), pointer, dimension(:, :) :: fd_coef => null()
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :), pi_coef_x)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :), pi_coef_y)
     @:CRAY_DECLARE_GLOBAL(real(kind(0d0)), dimension(:, :, :), pi_coef_z)
@@ -132,14 +132,14 @@ module m_cbc
     ! ==========================================================================
 
     type(int_bounds_info) :: is1, is2, is3 !< Indical bounds in the s1-, s2- and s3-directions
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     !$acc declare create(is1, is2, is3)
 #endif
 
     integer :: dj
     integer :: bcxb, bcxe, bcyb, bcye, bczb, bcze
     integer :: cbc_dir, cbc_loc
-#ifdef CRAY_ACC_WAR
+#ifdef _CRAYFTN
     !$acc declare create(dj, bcxb, bcxe, bcyb, bcye, bczb, bcze, cbc_dir, cbc_loc)
 #else
 !$acc declare create(q_prim_rsx_vf, q_prim_rsy_vf, q_prim_rsz_vf,  F_rsx_vf, F_src_rsx_vf,flux_rsx_vf, flux_src_rsx_vf, &
@@ -414,7 +414,7 @@ contains
         end if
         ! ==================================================================
 
-        !$acc enter data copyin(fd_coef_x, fd_coef_y, fd_coef_z, pi_coef_x, pi_coef_y, pi_coef_z)
+        !$acc update device(fd_coef_x, fd_coef_y, fd_coef_z, pi_coef_x, pi_coef_y, pi_coef_z)
 
         ! Associating the procedural pointer to the appropriate subroutine
         ! that will be utilized in the conversion to the mixture variables
@@ -422,20 +422,20 @@ contains
         bcxb = bc_x%beg
         bcxe = bc_x%end
 
-        !$acc enter data copyin(bcxb, bcxe)
+        !$acc update device(bcxb, bcxe)
 
         if (n > 0) then
             bcyb = bc_y%beg
             bcye = bc_y%end
 
-            !$acc enter data copyin(bcyb, bcye)
+            !$acc update device(bcyb, bcye)
         end if
 
         if (p > 0) then
             bczb = bc_z%beg
             bcze = bc_z%end
 
-            !$acc enter data copyin(bczb, bcze)
+            !$acc update device(bczb, bcze)
         end if
 
     end subroutine s_initialize_cbc_module ! -------------------------------
@@ -607,7 +607,7 @@ contains
 
         end if
 
-        !$acc enter data copyin(ds)
+        !$acc update device(ds)
 
         ! ==================================================================
 
@@ -724,6 +724,7 @@ contains
                         end do
                     end do
                 end do
+
                 ! ==================================================================
 
                 ! PI4 of flux_rs_vf and flux_src_rs_vf at j = 1/2, 3/2 =============
@@ -775,6 +776,7 @@ contains
                     end do
                 end do
             end if
+
             ! ==================================================================
 
 
@@ -1066,8 +1068,8 @@ contains
         end if
 
         dj = max(0, cbc_loc)
-        !$acc enter data copyin(is1, is2, is3)
-        !$acc update device( dir_idx, dir_flg,dj)
+        !$acc update device(is1, is2, is3, dj)
+        !$acc update device( dir_idx, dir_flg)
 
         ! Reshaping Inputted Data in x-direction ===========================
         if (cbc_dir == 1) then
@@ -1327,7 +1329,7 @@ contains
 
         ! Determining the indicial shift based on CBC location
         dj = max(0, cbc_loc)
-        !$acc enter data copyin(dj)
+        !$acc update device(dj)
 
         ! Reshaping Outputted Data in x-direction ==========================
         if (cbc_dir == 1) then
