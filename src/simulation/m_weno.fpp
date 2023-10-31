@@ -705,14 +705,14 @@ contains
                                 vL_rs_vf_${XYZ}$(j, k, l, i) = sum(omega*poly)
 
                                 if(j == 1) then
-                                        print *, "WENO OUTPUT"
-                                        print *, vL_rs_vf_x(j, k, l, i)
-                                        print *, vR_rs_vf_x(j, k, l, i)
+                                        !print *, "WENO OUTPUT"
+                                        !print *, vL_rs_vf_x(j, k, l, i)
+                                        !print *, vR_rs_vf_x(j, k, l, i)
                                         ! without these prints, dvd is getting optimized out
                                         ! yuck!
-                                        print *, dvd(1)
-                                        print *, dvd(0)
-                                        print *, dvd(-1)
+                                        !print *, dvd(1)
+                                        !print *, dvd(0)
+                                        !print *, dvd(-1)
                                  end if
                                 poly(0) = v_rs_ws_${XYZ}$(j, k, l, i) &
                                           + poly_coef_cbR_${XYZ}$(j, 0, 0)*dvd(1) &
@@ -739,9 +739,9 @@ contains
 
                                 vR_rs_vf_${XYZ}$(j, k, l, i) = sum(omega*poly)
                                 if(j == 1) then
-                                        print *, "WENO OUTPUT"
-                                        print *, vL_rs_vf_x(j, k, l, i)
-                                        print *, vR_rs_vf_x(j, k, l, i)
+                                        !print *, "WENO OUTPUT"
+                                        !print *, vL_rs_vf_x(j, k, l, i)
+                                        !print *, vR_rs_vf_x(j, k, l, i)
                                  end if
                              end do
                         end do
