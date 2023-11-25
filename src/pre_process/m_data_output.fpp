@@ -282,18 +282,24 @@ contains
 
         ! Generic loop iterator
         integer :: i
+        
+        integer :: &
+          MyRank
+          
+        call MPI_COMM_RANK ( MPI_COMM_WORLD, MyRank, ierr )
 
         ! Initialize MPI data I/O
         call s_initialize_mpi_data(q_cons_vf)
 
         ! Open the file to write all flow variables
-        write (file_loc, '(I0,A)') t_step_start, '.dat'
+        write (file_loc, '(I0,A,i7.7,A)') t_step_start, '_', MyRank, '.dat'
         file_loc = trim(restart_dir)//trim(mpiiofs)//trim(file_loc)
         inquire (FILE=trim(file_loc), EXIST=file_exist)
-        if (file_exist .and. proc_rank == 0) then
-            call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
-        end if
-        call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
+        !--if (file_exist .and. proc_rank == 0) then
+        !--    call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
+        !--end if
+        if (file_exist) call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
+        call MPI_FILE_OPEN(MPI_COMM_SELF, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
                            mpi_info_int, ifile, ierr)
 
         ! Size of local arrays
@@ -314,10 +320,10 @@ contains
                 var_MOK = int(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file
-                disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
 
-                call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                       'native', mpi_info_int, ierr)
+                !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                !                       'native', mpi_info_int, ierr)
                 call MPI_FILE_WRITE_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                         MPI_DOUBLE_PRECISION, status, ierr)
             end do
@@ -327,10 +333,10 @@ contains
                 var_MOK = int(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file
-                disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
 
-                call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                       'native', mpi_info_int, ierr)
+                !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                !                       'native', mpi_info_int, ierr)
                 call MPI_FILE_WRITE_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                         MPI_DOUBLE_PRECISION, status, ierr)
             end do

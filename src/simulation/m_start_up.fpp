@@ -327,24 +327,39 @@ contains
         character(LEN=path_len + 2*name_len) :: file_loc
         logical :: file_exist
 
-        integer :: i
+        integer :: i, rb_rank
+        
+        real(kind(0d0)) :: &
+          RB_T_X_Start, RB_T_X, &
+          RB_T_Y_Start, RB_T_Y, &
+          RB_T_Z_Start, RB_T_Z, &
+          RB_T_Step_Start, RB_T_Step
+
+        call MPI_COMM_RANK ( MPI_COMM_WORLD, rb_rank, ierr )
+        if ( rb_rank == 0 ) &
+	        print*, 'Starting parallel read.'
 
         allocate (x_cb_glb(-1:m_glb))
         allocate (y_cb_glb(-1:n_glb))
         allocate (z_cb_glb(-1:p_glb))
 
+        call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+        RB_T_X_Start = MPI_WTIME ( )
+
         ! Read in cell boundary locations in x-direction
         file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//'x_cb.dat'
         inquire (FILE=trim(file_loc), EXIST=file_exist)
-
+        
         if (file_exist) then
             data_size = m_glb + 2
             call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)
-            call MPI_FILE_READ(ifile, x_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
+            call MPI_FILE_READ_ALL(ifile, x_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
             call MPI_FILE_CLOSE(ifile, ierr)
         else
             call s_mpi_abort('File '//trim(file_loc)//' is missing. Exiting...')
         end if
+        call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+        RB_T_X = MPI_WTIME ( ) - RB_T_X_Start
 
         ! Assigning local cell boundary locations
         x_cb(-1:m) = x_cb_glb((start_idx(1) - 1):(start_idx(1) + m))
@@ -354,6 +369,10 @@ contains
         x_cc(0:m) = x_cb(-1:m - 1) + dx(0:m)/2d0
 
         if (n > 0) then
+            
+            call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+            RB_T_Y_Start = MPI_WTIME ( )
+
             ! Read in cell boundary locations in y-direction
             file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//'y_cb.dat'
             inquire (FILE=trim(file_loc), EXIST=file_exist)
@@ -361,11 +380,14 @@ contains
             if (file_exist) then
                 data_size = n_glb + 2
                 call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)
-                call MPI_FILE_READ(ifile, y_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
+                call MPI_FILE_READ_ALL(ifile, y_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
                 call MPI_FILE_CLOSE(ifile, ierr)
             else
                 call s_mpi_abort('File '//trim(file_loc)//' is missing. Exiting...')
             end if
+            
+            call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+            RB_T_Y = MPI_WTIME ( ) - RB_T_Y_Start
 
             ! Assigning local cell boundary locations
             y_cb(-1:n) = y_cb_glb((start_idx(2) - 1):(start_idx(2) + n))
@@ -375,6 +397,10 @@ contains
             y_cc(0:n) = y_cb(-1:n - 1) + dy(0:n)/2d0
 
             if (p > 0) then
+            
+                call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+                RB_T_Z_Start = MPI_WTIME ( )
+
                 ! Read in cell boundary locations in z-direction
                 file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//'z_cb.dat'
                 inquire (FILE=trim(file_loc), EXIST=file_exist)
@@ -382,11 +408,14 @@ contains
                 if (file_exist) then
                     data_size = p_glb + 2
                     call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)
-                    call MPI_FILE_READ(ifile, z_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
+                    call MPI_FILE_READ_ALL(ifile, z_cb_glb, data_size, MPI_DOUBLE_PRECISION, status, ierr)
                     call MPI_FILE_CLOSE(ifile, ierr)
                 else
                     call s_mpi_abort( 'File '//trim(file_loc)//'is missing. Exiting...')
                 end if
+                
+                call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+                RB_T_Z = MPI_WTIME ( ) - RB_T_Z_Start
 
                 ! Assigning local cell boundary locations
                 z_cb(-1:p) = z_cb_glb((start_idx(3) - 1):(start_idx(3) + p))
@@ -398,13 +427,17 @@ contains
             end if
         end if
 
+        call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+        RB_T_Step_Start = MPI_WTIME ( )
+
         ! Open the file to read conservative variables
-        write (file_loc, '(I0,A)') t_step_start, '.dat'
+        write (file_loc, '(I0,A1,I7.7,A)') t_step_start, '_', rb_rank, '.dat'
         file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//trim(file_loc)
-        inquire (FILE=trim(file_loc), EXIST=file_exist)
+        !inquire (FILE=trim(file_loc), EXIST=file_exist)
+        file_exits = .true.
 
         if (file_exist) then
-            call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)
+            call MPI_FILE_OPEN(MPI_COMM_SELF, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)
 
             ! Initialize MPI data I/O
             call s_initialize_mpi_data(q_cons_vf)
@@ -427,11 +460,12 @@ contains
                 do i = 1, sys_size!adv_idx%end
                     var_MOK = int(i, MPI_OFFSET_KIND)
                     ! Initial displacement to skip at beginning of file
-                    disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                    !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                    !print*, 'rank: ', rb_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
 
-                    call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                           'native', mpi_info_int, ierr)
-                    call MPI_FILE_READ(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
+                    !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                    !                       'native', mpi_info_int, ierr)
+                    call MPI_FILE_READ_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                        MPI_DOUBLE_PRECISION, status, ierr)
                 end do
             else
@@ -439,11 +473,12 @@ contains
                     var_MOK = int(i, MPI_OFFSET_KIND)
 
                     ! Initial displacement to skip at beginning of file
-                    disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                    !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                    !print*, 'rank: ', rb_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
 
-                    call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                           'native', mpi_info_int, ierr)
-                    call MPI_FILE_READ(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
+                    !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                    !                       'native', mpi_info_int, ierr)
+                    call MPI_FILE_READ_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                        MPI_DOUBLE_PRECISION, status, ierr)
                 end do
             end if
@@ -454,6 +489,17 @@ contains
         else
             call s_mpi_abort('File '//trim(file_loc)//' is missing. Exiting...')
         end if
+        
+        call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
+        RB_T_Step = MPI_WTIME ( ) - RB_T_Step_Start
+        
+        if ( rb_rank == 0 ) then
+	        print*, 'Done parallel read.'
+	        print*, 'RB_T_X    : ', RB_T_X
+	        print*, 'RB_T_Y    : ', RB_T_Y
+	        print*, 'RB_T_Z    :  ', RB_T_Z
+	        print*, 'RB_T_Step : ', RB_T_Step
+	      end if
 
         deallocate (x_cb_glb, y_cb_glb, z_cb_glb)
 
