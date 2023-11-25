@@ -282,17 +282,25 @@ contains
 
         ! Generic loop iterator
         integer :: i
-
+        
+        real(kind(0d0)) :: &
+          T_Write_Start, T_Write
+        
         ! Initialize MPI data I/O
         call s_initialize_mpi_data(q_cons_vf)
 
         ! Open the file to write all flow variables
         write (file_loc, '(I0,A)') t_step_start, '.dat'
         file_loc = trim(restart_dir)//trim(mpiiofs)//trim(file_loc)
-        inquire (FILE=trim(file_loc), EXIST=file_exist)
-        if (file_exist .and. proc_rank == 0) then
+
+        if (proc_rank == 0) then
+          inquire (FILE=trim(file_loc), EXIST=file_exist)
+          if (file_exist) &
             call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
-        end if
+        end if 
+        
+        T_Write_Start = MPI_WTIME ( )
+        
         call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
                            mpi_info_int, ifile, ierr)
 
@@ -337,6 +345,12 @@ contains
         end if
 
         call MPI_FILE_CLOSE(ifile, ierr)
+        
+        call MPI_FILE_CLOSE(ifile, ierr)
+        T_Write = MPI_WTIME ( ) - T_Write_Start
+        
+        if ( proc_rank == 0 ) &
+          print*, 'Parallel write time: ', T_Write
 
 #endif
 
