@@ -327,7 +327,7 @@ contains
         character(LEN=path_len + 2*name_len) :: file_loc
         logical :: file_exist
 
-        integer :: i, rb_rank
+        integer :: i
 
         character(len=10) :: t_step_start_string
         
@@ -337,8 +337,7 @@ contains
           RB_T_Z_Start, RB_T_Z, &
           RB_T_Step_Start, RB_T_Step
 
-        call MPI_COMM_RANK ( MPI_COMM_WORLD, rb_rank, ierr )
-        if ( rb_rank == 0 ) &
+        if ( proc_rank == 0 ) &
 	        print*, 'Starting parallel read.'
 
         allocate (x_cb_glb(-1:m_glb))
@@ -435,7 +434,7 @@ contains
 
         call s_int_to_str(t_step_start, t_step_start_string)
         ! Open the file to read conservative variables
-        write (file_loc, '(I0,A1,I7.7,A)') t_step_start, '_', rb_rank, '.dat'
+        write (file_loc, '(I0,A1,I7.7,A)') t_step_start, '_', proc_rank, '.dat'
         file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_start_string)//trim(mpiiofs)//trim(file_loc)
         !inquire (FILE=trim(file_loc), EXIST=file_exist)
         file_exist = .true.
@@ -465,7 +464,7 @@ contains
                     var_MOK = int(i, MPI_OFFSET_KIND)
                     ! Initial displacement to skip at beginning of file
                     !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
-                    !print*, 'rank: ', rb_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
+                    !print*, 'rank: ', proc_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
 
                     !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
                     !                       'native', mpi_info_int, ierr)
@@ -478,7 +477,7 @@ contains
 
                     ! Initial displacement to skip at beginning of file
                     !disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
-                    !print*, 'rank: ', rb_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
+                    !print*, 'rank: ', proc_rank, ' disp: ', disp, 'view: ', MPI_IO_DATA%view(i)
 
                     !call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
                     !                       'native', mpi_info_int, ierr)
@@ -497,7 +496,7 @@ contains
         call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
         RB_T_Step = MPI_WTIME ( ) - RB_T_Step_Start
         
-        if ( rb_rank == 0 ) then
+        if ( proc_rank == 0 ) then
 	        print*, 'Done parallel read.'
 	        print*, 'RB_T_X    : ', RB_T_X
 	        print*, 'RB_T_Y    : ', RB_T_Y

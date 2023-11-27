@@ -706,18 +706,17 @@ contains
 
         character(len=10) :: t_step_string
 
-        integer :: i, MyRank !< Generic loop iterator
-
-        call MPI_COMM_RANK ( MPI_COMM_WORLD, MyRank, ierr )
+        integer :: i !< Generic loop iterator
 
         call s_int_to_str(t_step,t_step_string)
 
         if (proc_rank == 0) then
             file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_string)
-            call my_inquire(file_loc, dir_check)
-            if (dir_check .neqv. .true.) then
-                call s_create_directory(trim(file_loc))
-            end if
+            !call my_inquire(file_loc, dir_check)
+            !if (dir_check .neqv. .true.) then
+            !    call s_create_directory(trim(file_loc))
+            !end if
+            call s_create_directory(trim(file_loc))
         end if
         call s_mpi_barrier()
         call DelayFileAccess (proc_rank)
@@ -726,13 +725,13 @@ contains
         call s_initialize_mpi_data(q_cons_vf)
 
         ! Open the file to write all flow variables
-        write (file_loc, '(I0,A,i7.7,A)') t_step, '_', MyRank, '.dat'
+        write (file_loc, '(I0,A,i7.7,A)') t_step, '_', proc_rank, '.dat'
         file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_string)//trim(mpiiofs)//trim(file_loc)
-        inquire (FILE=trim(file_loc), EXIST=file_exist)
+        !inquire (FILE=trim(file_loc), EXIST=file_exist)
         ! if (file_exist .and. proc_rank == 0) then
         !     call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
         ! end if
-        if (file_exist) call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
+        !if (file_exist) call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
         call MPI_FILE_OPEN(MPI_COMM_SELF, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
                            mpi_info_int, ifile, ierr)
 
