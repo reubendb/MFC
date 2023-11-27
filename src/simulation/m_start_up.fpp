@@ -328,6 +328,8 @@ contains
         logical :: file_exist
 
         integer :: i, rb_rank
+
+        character(len=10) :: t_step_start_string
         
         real(kind(0d0)) :: &
           RB_T_X_Start, RB_T_X, &
@@ -430,11 +432,13 @@ contains
         call MPI_BARRIER ( MPI_COMM_WORLD, ierr )
         RB_T_Step_Start = MPI_WTIME ( )
 
+
+        call s_int_to_str(t_step_start, t_step_start_string)
         ! Open the file to read conservative variables
         write (file_loc, '(I0,A1,I7.7,A)') t_step_start, '_', rb_rank, '.dat'
-        file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//trim(file_loc)
+        file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_start_string)//trim(mpiiofs)//trim(file_loc)
         !inquire (FILE=trim(file_loc), EXIST=file_exist)
-        file_exits = .true.
+        file_exist = .true.
 
         if (file_exist) then
             call MPI_FILE_OPEN(MPI_COMM_SELF, file_loc, MPI_MODE_RDONLY, mpi_info_int, ifile, ierr)

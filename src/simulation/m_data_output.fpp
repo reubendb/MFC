@@ -26,6 +26,8 @@ module m_data_output
     use m_compile_specific
 
     use m_helper
+
+    use m_delay_file_access
     ! ==========================================================================
 
     implicit none
@@ -700,21 +702,38 @@ contains
         integer(KIND=MPI_OFFSET_KIND) :: MOK
 
         character(LEN=path_len + 2*name_len) :: file_loc
-        logical :: file_exist
+        logical :: file_exist, dir_check
 
-        integer :: i !< Generic loop iterator
+        character(len=10) :: t_step_string
+
+        integer :: i, MyRank !< Generic loop iterator
+
+        call MPI_COMM_RANK ( MPI_COMM_WORLD, MyRank, ierr )
+
+        call s_int_to_str(t_step,t_step_string)
+
+        if (proc_rank == 0) then
+            file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_string)
+            call my_inquire(file_loc, dir_check)
+            if (dir_check .neqv. .true.) then
+                call s_create_directory(trim(file_loc))
+            end if
+        end if
+        call s_mpi_barrier()
+        call DelayFileAccess (proc_rank)
 
         ! Initialize MPI data I/O
         call s_initialize_mpi_data(q_cons_vf)
 
         ! Open the file to write all flow variables
-        write (file_loc, '(I0,A)') t_step, '.dat'
-        file_loc = trim(case_dir)//'/restart_data'//trim(mpiiofs)//trim(file_loc)
+        write (file_loc, '(I0,A,i7.7,A)') t_step, '_', MyRank, '.dat'
+        file_loc = trim(case_dir)//'/restart_data/lustre_'//trim(t_step_string)//trim(mpiiofs)//trim(file_loc)
         inquire (FILE=trim(file_loc), EXIST=file_exist)
-        if (file_exist .and. proc_rank == 0) then
-            call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
-        end if
-        call MPI_FILE_OPEN(MPI_COMM_WORLD, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
+        ! if (file_exist .and. proc_rank == 0) then
+        !     call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
+        ! end if
+        if (file_exist) call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
+        call MPI_FILE_OPEN(MPI_COMM_SELF, file_loc, ior(MPI_MODE_WRONLY, MPI_MODE_CREATE), &
                            mpi_info_int, ifile, ierr)
 
         ! Size of local arrays
@@ -735,10 +754,10 @@ contains
                 var_MOK = int(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file
-                disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                ! disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
 
-                call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                       'native', mpi_info_int, ierr)
+                ! call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                !                        'native', mpi_info_int, ierr)
                 call MPI_FILE_WRITE_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                         MPI_DOUBLE_PRECISION, status, ierr)
             end do
@@ -747,10 +766,10 @@ contains
                 var_MOK = int(i, MPI_OFFSET_KIND)
 
                 ! Initial displacement to skip at beginning of file
-                disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
+                ! disp = m_MOK*max(MOK, n_MOK)*max(MOK, p_MOK)*WP_MOK*(var_MOK - 1)
 
-                call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
-                                       'native', mpi_info_int, ierr)
+                ! call MPI_FILE_SET_VIEW(ifile, disp, MPI_DOUBLE_PRECISION, MPI_IO_DATA%view(i), &
+                !                        'native', mpi_info_int, ierr)
                 call MPI_FILE_WRITE_ALL(ifile, MPI_IO_DATA%var(i)%sf, data_size, &
                                         MPI_DOUBLE_PRECISION, status, ierr)
             end do

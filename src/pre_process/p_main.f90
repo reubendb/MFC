@@ -53,7 +53,7 @@ program p_main
         call s_assign_default_values_to_user_inputs()
         call s_read_input_file()
         call s_check_input_file()
-    
+        
         print '(" Pre-processing a "I0"x"I0"x"I0" case on "I0" rank(s)")', m, n, p, num_procs
     end if
 

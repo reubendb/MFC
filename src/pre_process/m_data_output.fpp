@@ -29,6 +29,8 @@ module m_data_output
     use m_variables_conversion
 
     use m_helper
+
+    use m_delay_file_access
     ! ==========================================================================
 
     implicit none
@@ -278,7 +280,7 @@ contains
         integer(KIND=MPI_OFFSET_KIND) :: MOK
 
         character(LEN=path_len + 2*name_len) :: file_loc
-        logical :: file_exist
+        logical :: file_exist, dir_check
 
         ! Generic loop iterator
         integer :: i
@@ -288,12 +290,22 @@ contains
           
         call MPI_COMM_RANK ( MPI_COMM_WORLD, MyRank, ierr )
 
+        if (proc_rank == 0) then
+            file_loc = trim(case_dir)//'/restart_data/lustre_0'
+            call my_inquire(file_loc, dir_check)
+            if (dir_check .neqv. .true.) then
+                call s_create_directory(trim(file_loc))
+            end if
+        end if
+        call s_mpi_barrier()
+        call DelayFileAccess (proc_rank)
+
         ! Initialize MPI data I/O
         call s_initialize_mpi_data(q_cons_vf)
 
         ! Open the file to write all flow variables
         write (file_loc, '(I0,A,i7.7,A)') t_step_start, '_', MyRank, '.dat'
-        file_loc = trim(restart_dir)//trim(mpiiofs)//trim(file_loc)
+        file_loc = trim(restart_dir)//'/lustre_0'//trim(mpiiofs)//trim(file_loc)
         inquire (FILE=trim(file_loc), EXIST=file_exist)
         !--if (file_exist .and. proc_rank == 0) then
         !--    call MPI_FILE_DELETE(file_loc, mpi_info_int, ierr)
@@ -341,7 +353,6 @@ contains
                                         MPI_DOUBLE_PRECISION, status, ierr)
             end do
         end if
-
         call MPI_FILE_CLOSE(ifile, ierr)
 
 #endif

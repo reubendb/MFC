@@ -110,12 +110,12 @@ contains
         elseif (n == 0 .and. p > 0) then
             call s_mpi_abort('Unsupported choice of the combination of '// &
                 'values for n and p. Exiting ...')
-        elseif ((m + 1)*(n + 1)*(p + 1) &
-                < &
-                2**(min(1, m) + min(1, n) + min(1, p))*num_procs) then
-            call s_mpi_abort('Unsupported choice of the combination of '// &
-                'values for num_procs, m, n and p. '// &
-                'Exiting ...')
+        ! elseif ((m + 1)*(n + 1)*(p + 1) &
+        !         < &
+        !         2**(min(1, m) + min(1, n) + min(1, p))*num_procs) then
+        !     call s_mpi_abort('Unsupported choice of the combination of '// &
+        !         'values for num_procs, m, n and p. '// &
+        !         'Exiting ...')
 
         ! Constraints on domain boundaries locations in the x-direction
         elseif ((old_grid .and. x_domain%beg /= dflt_real) &
@@ -386,13 +386,13 @@ contains
         elseif (p > 0 .and. p + 1 < weno_order) then
             call s_mpi_abort('Unsupported choice of the combination of '// &
                 'values for p and weno_order. Exiting ...')
-        elseif ((m + 1)*(n + 1)*(p + 1) &
-                < &
-                weno_order**(min(1, m) + min(1, n) + min(1, p))*num_procs) &
-            then
-            call s_mpi_abort('Unsupported choice of the combination of '// &
-                'values for num_procs, m, n, p and '// &
-                'weno_order. Exiting ...')
+        ! elseif ((m + 1)*(n + 1)*(p + 1) &
+        !         < &
+        !         weno_order**(min(1, m) + min(1, n) + min(1, p))*num_procs) &
+        !     then
+        !     call s_mpi_abort('Unsupported choice of the combination of '// &
+        !         'values for num_procs, m, n, p and '// &
+        !         'weno_order. Exiting ...')
 
             ! Constraints on the boundary conditions in the x-direction
         elseif (bc_x%beg < -12 .or. bc_x%beg > -1) then
